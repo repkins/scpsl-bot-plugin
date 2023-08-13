@@ -17,7 +17,7 @@ namespace TestPlugin.SLBot.FirstPersonControl
 
             if (BotManager.Instance.BotPlayers.TryGetValue(hub, out var botPlayer))
             {
-                __result = botPlayer.DesiredMoveLocalDirection;
+                __result = botPlayer.FpcBotPlayer.DesiredMoveDirection;
                 return false;
             }
 

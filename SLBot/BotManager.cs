@@ -13,11 +13,11 @@ namespace TestPlugin.SLBot
     {
         public static BotManager Instance { get; private set; } = new BotManager();
 
-        public Dictionary<ReferenceHub, BotPlayer> BotPlayers { get; private set; } = new Dictionary<ReferenceHub, BotPlayer>();
+        public Dictionary<ReferenceHub, BotHub> BotPlayers { get; private set; } = new Dictionary<ReferenceHub, BotHub>();
 
         public void Init()
         {
-
+            Timing.RunCoroutine(this.RunPlayerUpdates());
         }
 
         public void AddBotPlayer()
@@ -35,7 +35,7 @@ namespace TestPlugin.SLBot
             NetworkServer.AddPlayerForConnection(connectionToClient, gameObject);
             var referenceHub = gameObject.GetComponent<ReferenceHub>();
 
-            this.BotPlayers.Add(referenceHub, new BotPlayer(connectionToClient, connectionToServer, referenceHub));
+            this.BotPlayers.Add(referenceHub, new BotHub(connectionToClient, connectionToServer, referenceHub));
 
             Log.Info($"connectionToClient.identity = {connectionToClient.identity}");
 
@@ -85,6 +85,36 @@ namespace TestPlugin.SLBot
             }
 
             Timing.RunCoroutine(botPlayer.TurnAsync(degrees, targetDegrees));
+        }
+
+        public void DebugBotApproach(int playerId)
+        {
+            if (!ReferenceHub.TryGetHub(playerId, out var hub))
+            {
+                Log.Warning($"There is no player with such id.");
+                return;
+            }
+
+            if (!BotPlayers.TryGetValue(hub, out var botPlayer))
+            {
+                Log.Warning($"Player with such id is not a bot.");
+                return;
+            }
+
+            Timing.RunCoroutine(botPlayer.ApproachAsync());
+        }
+
+        public IEnumerator<float> RunPlayerUpdates()
+        {
+            while (true)
+            {
+                foreach (var player in BotPlayers.Values)
+                {
+                    player.Update();
+                }
+
+                yield return Timing.WaitForOneFrame;
+            }
         }
 
         private BotManager()

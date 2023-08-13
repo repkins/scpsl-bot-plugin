@@ -10,9 +10,11 @@ using UnityEngine;
 
 namespace TestPlugin.SLBot
 {
-    internal class BotPlayer
+    internal class BotHub
     {
-        public BotPlayer(LocalConnectionToClient connectionToClient, LocalConnectionToServer connectionToServer, ReferenceHub hub)
+        public FpcBotPlayer FpcBotPlayer { get; private set; } = new FpcBotPlayer();
+
+        public BotHub(LocalConnectionToClient connectionToClient, LocalConnectionToServer connectionToServer, ReferenceHub hub)
         {
             this._connectionToClient = connectionToClient;
             this._connectionToServer = connectionToServer;
@@ -23,7 +25,7 @@ namespace TestPlugin.SLBot
         {
             if (this._playerHub.roleManager.CurrentRole is IFpcRole fpcRole)
             {
-                return _fpcRoleController.MoveFpcAsync(fpcRole, direction, timeAmount);
+                return FpcBotPlayer.MoveFpcAsync(fpcRole, direction, timeAmount);
             }
 
             throw new InvalidOperationException("Unsupported current role on bot move.");
@@ -33,26 +35,32 @@ namespace TestPlugin.SLBot
         {
             if (this._playerHub.roleManager.CurrentRole is IFpcRole fpcRole)
             {
-                return _fpcRoleController.TurnFpcAsync(fpcRole, degrees, targetDegrees);
+                return FpcBotPlayer.TurnFpcAsync(fpcRole, degrees, targetDegrees);
             }
 
             throw new InvalidOperationException("Unsupported current role on bot turn.");
         }
 
-        public IEnumerator<float> StartFollowingAsync(ReferenceHub playerHubToFollow)
+        public IEnumerator<float> ApproachAsync()
         {
             if (this._playerHub.roleManager.CurrentRole is IFpcRole fpcRole)
             {
-                return _fpcRoleController.StartFollowingFpcAsync(fpcRole, playerHubToFollow);
+                return FpcBotPlayer.ApproachFpcAsync(fpcRole);
             }
 
             throw new InvalidOperationException("Unsupported current role on bot turn.");
+        }
+
+        public void Update()
+        {
+            if (this._playerHub.roleManager.CurrentRole is IFpcRole fpcRole)
+            {
+                FpcBotPlayer.UpdateMovement(fpcRole);
+            }
         }
 
         private LocalConnectionToClient _connectionToClient;
         private LocalConnectionToServer _connectionToServer;
         private ReferenceHub _playerHub;
-
-        private FpcBotController _fpcRoleController = new FpcBotController();
     }
 }

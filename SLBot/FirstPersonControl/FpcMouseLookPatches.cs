@@ -18,8 +18,8 @@ namespace TestPlugin.SLBot.FirstPersonControl
 
             if (BotManager.Instance.BotPlayers.TryGetValue(hub, out var botPlayer))
             {
-                float vRot = botPlayer.DesiredLook.x;
-                float hRot = botPlayer.DesiredLook.y;
+                float vRot = botPlayer.FpcBotPlayer.DesiredLook.x;
+                float hRot = botPlayer.FpcBotPlayer.DesiredLook.y;
 
                 __instance.CurrentVertical += vRot;
                 __instance.CurrentHorizontal += hRot;
