@@ -9,6 +9,6 @@ namespace TestPlugin.SLBot.FirstPersonControl
 {
     internal interface IFpcBotAction
     {
-        void Update(IFpcRole fpcRole);
+        void UpdatePlayer(IFpcRole fpcRole);
     }
 }

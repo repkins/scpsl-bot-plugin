@@ -85,11 +85,11 @@ namespace TestPlugin.SLBot.FirstPersonControl
             yield break;
         }
 
-        public void UpdateMovement(IFpcRole fpcRole)
+        public void Update(IFpcRole fpcRole)
         {
             if (_currentAction != null)
             {
-                _currentAction.Update(fpcRole);
+                _currentAction.UpdatePlayer(fpcRole);
             }
         }
 

@@ -55,7 +55,7 @@ namespace TestPlugin.SLBot
         {
             if (this._playerHub.roleManager.CurrentRole is IFpcRole fpcRole)
             {
-                FpcBotPlayer.UpdateMovement(fpcRole);
+                FpcBotPlayer.Update(fpcRole);
             }
         }
 

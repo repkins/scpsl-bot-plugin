@@ -17,7 +17,7 @@ namespace TestPlugin.SLBot.FirstPersonControl
             _botPlayer = botPlayer;
         }
 
-        public void Update(IFpcRole fpcRole)
+        public void UpdatePlayer(IFpcRole fpcRole)
         {
             if (TargetToFollow)
             {
