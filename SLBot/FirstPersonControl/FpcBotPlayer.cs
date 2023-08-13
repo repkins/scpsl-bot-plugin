@@ -4,8 +4,10 @@ using PluginAPI.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Media;
 using System.Text;
 using System.Threading.Tasks;
+using TestPlugin.SLBot.FirstPersonControl.Actions;
 using UnityEngine;
 
 namespace TestPlugin.SLBot.FirstPersonControl
@@ -18,6 +20,7 @@ namespace TestPlugin.SLBot.FirstPersonControl
         public FpcBotPlayer()
         {
             _followAction = new FpcBotFollowAction(this);
+            _findPlayerAction = new FpcBotFindPlayerAction(this);
         }
 
         public IEnumerator<float> MoveFpcAsync(IFpcRole fpcRole, Vector3 localDirection, int timeAmount)
@@ -57,23 +60,13 @@ namespace TestPlugin.SLBot.FirstPersonControl
             yield break;
         }
 
-        public IEnumerator<float> ApproachFpcAsync(IFpcRole fpcRole)
+        public IEnumerator<float> FindAndApproachFpcAsync(IFpcRole fpcRole)
         {
-            ReferenceHub playerHubToApproach = null;
+            _currentAction = _findPlayerAction;
 
-            do
-            {
-                yield return Timing.WaitForOneFrame;
+            yield return Timing.WaitUntilDone(_findPlayerAction.WaitForFoundPlayer());
 
-                if (Physics.Raycast(fpcRole.FpcModule.transform.position, fpcRole.FpcModule.transform.forward, out var hit))
-                {
-                    if (hit.collider.GetComponentInParent<ReferenceHub>() is ReferenceHub hitHub)
-                    {
-                        playerHubToApproach = hitHub;
-                    }
-                }
-            }
-            while (playerHubToApproach == null);
+            ReferenceHub playerHubToApproach = _findPlayerAction.FoundPlayer;
 
             _followAction.TargetToFollow = playerHubToApproach;
             _currentAction = _followAction;
@@ -96,5 +89,6 @@ namespace TestPlugin.SLBot.FirstPersonControl
         private IFpcBotAction _currentAction;
 
         private FpcBotFollowAction _followAction;
+        private FpcBotFindPlayerAction _findPlayerAction;
     }
 }

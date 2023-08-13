@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TestPlugin.SLBot.FirstPersonControl
+namespace TestPlugin.SLBot.FirstPersonControl.Actions
 {
     internal interface IFpcBotAction
     {

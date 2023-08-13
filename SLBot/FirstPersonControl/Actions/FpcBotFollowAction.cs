@@ -6,18 +6,17 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace TestPlugin.SLBot.FirstPersonControl
+namespace TestPlugin.SLBot.FirstPersonControl.Actions
 {
-    internal class FpcBotFollowAction : IFpcBotAction
+    internal class FpcBotFollowAction : FpcBotAction
     {
-        public ReferenceHub TargetToFollow { get; set; }
-        
-        public FpcBotFollowAction(FpcBotPlayer botPlayer)
+        public FpcBotFollowAction(FpcBotPlayer botPlayer) : base(botPlayer)
         {
-            _botPlayer = botPlayer;
         }
 
-        public void UpdatePlayer(IFpcRole fpcRole)
+        public ReferenceHub TargetToFollow { get; set; }
+
+        public override void UpdatePlayer(IFpcRole fpcRole)
         {
             if (TargetToFollow)
             {
@@ -34,7 +33,5 @@ namespace TestPlugin.SLBot.FirstPersonControl
                 _botPlayer.DesiredLook = Vector3.zero;
             }
         }
-
-        private FpcBotPlayer _botPlayer;
     }
 }

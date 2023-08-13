@@ -45,7 +45,7 @@ namespace TestPlugin.SLBot
         {
             if (this._playerHub.roleManager.CurrentRole is IFpcRole fpcRole)
             {
-                return FpcBotPlayer.ApproachFpcAsync(fpcRole);
+                return FpcBotPlayer.FindAndApproachFpcAsync(fpcRole);
             }
 
             throw new InvalidOperationException("Unsupported current role on bot turn.");
