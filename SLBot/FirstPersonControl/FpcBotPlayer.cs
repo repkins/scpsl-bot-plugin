@@ -23,6 +23,14 @@ namespace TestPlugin.SLBot.FirstPersonControl
             _findPlayerAction = new FpcBotFindPlayerAction(this);
         }
 
+        public void Update(IFpcRole fpcRole)
+        {
+            if (_currentAction != null)
+            {
+                _currentAction.UpdatePlayer(fpcRole);
+            }
+        }
+
         public IEnumerator<float> MoveFpcAsync(IFpcRole fpcRole, Vector3 localDirection, int timeAmount)
         {
             var transform = fpcRole.FpcModule.transform;
@@ -76,14 +84,6 @@ namespace TestPlugin.SLBot.FirstPersonControl
             _currentAction = null;
 
             yield break;
-        }
-
-        public void Update(IFpcRole fpcRole)
-        {
-            if (_currentAction != null)
-            {
-                _currentAction.UpdatePlayer(fpcRole);
-            }
         }
 
         private IFpcBotAction _currentAction;
