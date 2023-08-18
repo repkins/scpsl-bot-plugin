@@ -9,15 +9,16 @@ using UnityEngine;
 
 namespace TestPlugin.SLBot.FirstPersonControl.Actions
 {
-    internal class FpcBotFindPlayerAction : FpcBotAction
+    internal class FpcBotFindPlayerAction : IFpcBotAction
     {
         public ReferenceHub FoundPlayer { get; set; }
 
-        public FpcBotFindPlayerAction(FpcBotPlayer botPlayer) : base(botPlayer)
+        public void OnEnter()
         {
+            FoundPlayer = null;
         }
 
-        public override void UpdatePlayer(IFpcRole fpcRole)
+        public void UpdatePlayer(IFpcRole fpcRole)
         {
             if (Physics.Raycast(fpcRole.FpcModule.transform.position, fpcRole.FpcModule.transform.forward, out var hit))
             {
@@ -26,11 +27,6 @@ namespace TestPlugin.SLBot.FirstPersonControl.Actions
                     FoundPlayer = hitHub;
                 }
             }
-        }
-
-        public IEnumerator<float> WaitForFoundPlayer()
-        {
-            yield return Timing.WaitUntilTrue(() => FoundPlayer != null);
         }
     }
 }

@@ -7,10 +7,12 @@ using System.Threading.Tasks;
 
 namespace TestPlugin.SLBot.FirstPersonControl.Actions
 {
-    internal interface IFpcBotAction
+    internal class FpcBotIdleAction : IFpcBotAction
     {
-        void OnEnter();
+        public void OnEnter()
+        { }
 
-        void UpdatePlayer(IFpcRole fpcRole);
+        public void UpdatePlayer(IFpcRole fpcRole)
+        { }
     }
 }

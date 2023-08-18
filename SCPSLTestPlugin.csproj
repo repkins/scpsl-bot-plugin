@@ -63,10 +63,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\BotApproachCommand.cs" />
-    <Compile Include="Commands\BotTurnDirection.cs" />
     <Compile Include="Commands\BotTurnCommand.cs" />
     <Compile Include="Commands\BotMoveCommand.cs" />
-    <Compile Include="Commands\BotMoveDirection.cs" />
     <Compile Include="SLBot\BotHub.cs" />
     <Compile Include="SLBot\BotManager.cs" />
     <Compile Include="Config.cs" />
@@ -80,12 +78,13 @@
     <Compile Include="Commands\BotAddCommand.cs" />
     <Compile Include="Commands\TestCommand.cs" />
     <Compile Include="SLBot\FirstPersonControl\Actions\FpcBotFindPlayerAction.cs" />
+    <Compile Include="SLBot\FirstPersonControl\Actions\FpcBotActionTransition.cs" />
+    <Compile Include="SLBot\FirstPersonControl\Actions\FpcBotIdleAction.cs" />
     <Compile Include="SLBot\FirstPersonControl\Actions\IFpcBotAction.cs" />
     <Compile Include="SLBot\FirstPersonControl\FpcBotPlayer.cs" />
     <Compile Include="SLBot\FirstPersonControl\Actions\FpcBotFollowAction.cs" />
     <Compile Include="SLBot\FirstPersonControl\FpcMotorPatches.cs" />
     <Compile Include="SLBot\FirstPersonControl\FpcMouseLookPatches.cs" />
-    <Compile Include="SLBot\FirstPersonControl\Actions\FpcBotAction.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -19,17 +19,30 @@ namespace TestPlugin.SLBot.FirstPersonControl
 
         public FpcBotPlayer()
         {
-            _followAction = new FpcBotFollowAction(this);
-            _findPlayerAction = new FpcBotFindPlayerAction(this);
+            SetupActions();
         }
 
         public void Update(IFpcRole fpcRole)
         {
-            if (_currentAction != null)
+            var currentActionTransitions = _transitions[_currentAction.GetType()];
+            foreach (var transition in currentActionTransitions)
             {
-                _currentAction.UpdatePlayer(fpcRole);
+                if (transition.Evaluate())
+                {
+                    Log.Info($"Transitioning to {transition.To}.");
+
+                    _currentAction = transition.To;
+                    _currentAction.OnEnter();
+                    transition.OnTransition.Invoke();
+                    break;
+                }
             }
+
+            Log.Info($"Calling update on {_currentAction}.");
+            _currentAction.UpdatePlayer(fpcRole);
         }
+
+        #region Debug functions
 
         public IEnumerator<float> MoveFpcAsync(IFpcRole fpcRole, Vector3 localDirection, int timeAmount)
         {
@@ -47,8 +60,6 @@ namespace TestPlugin.SLBot.FirstPersonControl
         public IEnumerator<float> TurnFpcAsync(IFpcRole _, Vector3 degreesStep, Vector3 targetDegrees)
         {
             var currentMagnitude = 0f;
-
-            Log.Info($"degreesStep = {degreesStep}, targetDegrees = {targetDegrees}");
 
             var degreesStepMagnitude = degreesStep.magnitude;
             var targetDegreesMagnitude = targetDegrees.magnitude;
@@ -70,25 +81,40 @@ namespace TestPlugin.SLBot.FirstPersonControl
 
         public IEnumerator<float> FindAndApproachFpcAsync(IFpcRole fpcRole)
         {
-            _currentAction = _findPlayerAction;
-
-            yield return Timing.WaitUntilDone(_findPlayerAction.WaitForFoundPlayer());
-
-            ReferenceHub playerHubToApproach = _findPlayerAction.FoundPlayer;
-
-            _followAction.TargetToFollow = playerHubToApproach;
-            _currentAction = _followAction;
-
-            yield return Timing.WaitForSeconds(5f);
-
-            _currentAction = null;
-
             yield break;
+        }
+
+        #endregion
+
+        private void SetupActions()
+        {
+            var idleAction = new FpcBotIdleAction();
+            var findPlayerAction = new FpcBotFindPlayerAction();
+            var followAction = new FpcBotFollowAction(this);
+
+            // Setup actions transitions.
+            _transitions.Add(idleAction.GetType(), new List<FpcBotActionTransition>()
+            {
+                new FpcBotActionTransition(idleAction, findPlayerAction,
+                    () => true)
+            });
+
+            _transitions.Add(findPlayerAction.GetType(), new List<FpcBotActionTransition>()
+            {
+                new FpcBotActionTransition(findPlayerAction, followAction,
+                    () => findPlayerAction.FoundPlayer,
+                    () => followAction.TargetToFollow = findPlayerAction.FoundPlayer)
+            });
+
+            _transitions.Add(followAction.GetType(), new List<FpcBotActionTransition>());
+
+            // Assign default action.
+            _currentAction = idleAction;
         }
 
         private IFpcBotAction _currentAction;
 
-        private FpcBotFollowAction _followAction;
-        private FpcBotFindPlayerAction _findPlayerAction;
+        private List<FpcBotActionTransition> _anyTransitions = new List<FpcBotActionTransition>();
+        private Dictionary<Type, List<FpcBotActionTransition>> _transitions = new Dictionary<Type, List<FpcBotActionTransition>>();
     }
 }
