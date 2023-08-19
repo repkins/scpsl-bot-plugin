@@ -1,4 +1,7 @@
-﻿using PlayerRoles.FirstPersonControl;
+﻿using Interactables;
+using Interactables.Interobjects.DoorUtils;
+using PlayerRoles.FirstPersonControl;
+using PluginAPI.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,9 +34,11 @@ namespace TestPlugin.SLBot.FirstPersonControl.Actions
 
             var directionToTarget = (TargetToFollow.transform.position - fpcRole.FpcModule.transform.position).normalized;
 
-            if (Physics.Raycast(fpcRole.FpcModule.transform.position, directionToTarget, out var hit))
+            RaycastHit hit;
+            if (Physics.Raycast(fpcRole.FpcModule.transform.position, directionToTarget, out hit))
             {
-                if (hit.transform == TargetToFollow.transform)
+                if (hit.collider.GetComponentInParent<ReferenceHub>() is ReferenceHub hitHub 
+                    && hitHub == TargetToFollow)
                 {
                     TargetLastKnownLocation = hit.transform.position;
                 }
@@ -51,9 +56,29 @@ namespace TestPlugin.SLBot.FirstPersonControl.Actions
                 _botPlayer.DesiredMoveDirection = Vector3.zero;
                 _botPlayer.DesiredLook = Vector3.zero;
             }
+
+            if (_botPlayer.DesiredMoveDirection != Vector3.zero 
+                && Vector3.Distance(fpcRole.FpcModule.transform.position, PrevPosition) < Vector3.kEpsilon)
+            {
+                if (Physics.Raycast(fpcRole.FpcModule.transform.position, _botPlayer.DesiredMoveDirection, out hit))
+                {
+                    if (hit.collider.GetComponent<InteractableCollider>() is InteractableCollider interactableCollider
+                        && hit.collider.GetComponentInParent<DoorVariant>() is DoorVariant door
+                        && !door.TargetState)
+                    {
+                        var hub = fpcRole.FpcModule.GetComponentInParent<ReferenceHub>();
+                        var colliderId = interactableCollider.ColliderId;
+
+                        door.ServerInteract(hub, colliderId);
+                    }
+                }
+            }
+
+            PrevPosition = fpcRole.FpcModule.transform.position;
         }
 
         private FpcBotPlayer _botPlayer;
         private Vector3 TargetLastKnownLocation { get; set; }
+        private Vector3 PrevPosition { get; set; }
     }
 }

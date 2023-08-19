@@ -1,12 +1,9 @@
 ﻿using MEC;
+using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Media;
-using System.Text;
-using System.Threading.Tasks;
 using TestPlugin.SLBot.FirstPersonControl.Actions;
 using UnityEngine;
 
@@ -16,6 +13,8 @@ namespace TestPlugin.SLBot.FirstPersonControl
     {
         public Vector3 DesiredMoveDirection { get; set; } = Vector3.zero;
         public Vector3 DesiredLook { get; set; } = Vector3.zero;
+
+        public event RoleChanged OnChangedRole;
 
         public FpcBotPlayer()
         {
@@ -38,8 +37,16 @@ namespace TestPlugin.SLBot.FirstPersonControl
                 }
             }
 
-            Log.Info($"Calling update on {_currentAction}.");
             _currentAction.UpdatePlayer(fpcRole);
+        }
+
+        public void OnRoleChanged(PlayerRoleBase prevRole, PlayerRoleBase newRole)
+        {
+            var changedRole = OnChangedRole;
+            if (changedRole != null)
+            {
+                changedRole.Invoke(prevRole, newRole);
+            }
         }
 
         #region Debug functions
@@ -88,7 +95,7 @@ namespace TestPlugin.SLBot.FirstPersonControl
 
         private void SetupActions()
         {
-            var idleAction = new FpcBotIdleAction();
+            var idleAction = new FpcBotIdleAction(this);
             var findPlayerAction = new FpcBotFindPlayerAction();
             var followAction = new FpcBotFollowAction(this);
 
@@ -96,7 +103,7 @@ namespace TestPlugin.SLBot.FirstPersonControl
             _transitions.Add(idleAction.GetType(), new List<FpcBotActionTransition>()
             {
                 new FpcBotActionTransition(idleAction, findPlayerAction,
-                    () => true)
+                    () => idleAction.IsRoleChanged)
             });
 
             _transitions.Add(findPlayerAction.GetType(), new List<FpcBotActionTransition>()
@@ -110,11 +117,13 @@ namespace TestPlugin.SLBot.FirstPersonControl
 
             // Assign default action.
             _currentAction = idleAction;
-        }
+        }        
 
         private IFpcBotAction _currentAction;
 
         private List<FpcBotActionTransition> _anyTransitions = new List<FpcBotActionTransition>();
         private Dictionary<Type, List<FpcBotActionTransition>> _transitions = new Dictionary<Type, List<FpcBotActionTransition>>();
+
+        public delegate void RoleChanged(PlayerRoleBase prevRole, PlayerRoleBase newRole);
     }
 }

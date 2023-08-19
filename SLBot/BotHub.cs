@@ -59,6 +59,14 @@ namespace TestPlugin.SLBot
             }
         }
 
+        public void OnRoleChanged(PlayerRoleBase prevRole, PlayerRoleBase newRole)
+        {
+            if (this._playerHub.roleManager.CurrentRole is IFpcRole fpcRole)
+            {
+                FpcBotPlayer.OnRoleChanged(prevRole, newRole);
+            }
+        }
+
         private LocalConnectionToClient _connectionToClient;
         private LocalConnectionToServer _connectionToServer;
         private ReferenceHub _playerHub;

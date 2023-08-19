@@ -1,8 +1,11 @@
 ﻿using MEC;
 using Mirror;
+using PlayerRoles.FirstPersonControl;
+using PlayerRoles;
 using PluginAPI.Core;
 using System.Collections.Generic;
 using System.Linq;
+using TestPlugin.SLBot.FirstPersonControl;
 using UnityEngine;
 using LocalConnectionToClient = TestPlugin.LocalNetworking.LocalConnectionToClient;
 using LocalConnectionToServer = TestPlugin.LocalNetworking.LocalConnectionToServer;
@@ -18,6 +21,8 @@ namespace TestPlugin.SLBot
         public void Init()
         {
             Timing.RunCoroutine(this.RunPlayerUpdates());
+
+            PlayerRoleManager.OnRoleChanged += OnRoleChanged;
         }
 
         public void AddBotPlayer()
@@ -51,6 +56,27 @@ namespace TestPlugin.SLBot
             player.GetComponent<CharacterClassManager>().UserId = $"BotUserId{this.lastConnNum}";
 
             yield break;
+        }
+
+        public IEnumerator<float> RunPlayerUpdates()
+        {
+            while (true)
+            {
+                foreach (var player in BotPlayers.Values)
+                {
+                    player.Update();
+                }
+
+                yield return Timing.WaitForOneFrame;
+            }
+        }
+
+        public void OnRoleChanged(ReferenceHub userHub, PlayerRoleBase prevRole, PlayerRoleBase newRole)
+        {
+            if (BotPlayers.TryGetValue(userHub, out var botPlayer))
+            {
+                botPlayer.OnRoleChanged(prevRole, newRole);
+            }
         }
 
         public void DebugBotMove(int playerId, Vector3 direction, int timeAmount)
@@ -102,19 +128,6 @@ namespace TestPlugin.SLBot
             }
 
             Timing.RunCoroutine(botPlayer.ApproachAsync());
-        }
-
-        public IEnumerator<float> RunPlayerUpdates()
-        {
-            while (true)
-            {
-                foreach (var player in BotPlayers.Values)
-                {
-                    player.Update();
-                }
-
-                yield return Timing.WaitForOneFrame;
-            }
         }
 
         private BotManager()

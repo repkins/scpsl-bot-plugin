@@ -1,5 +1,6 @@
 ﻿using MEC;
 using PlayerRoles.FirstPersonControl;
+using PluginAPI.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,8 +23,10 @@ namespace TestPlugin.SLBot.FirstPersonControl.Actions
         {
             if (Physics.Raycast(fpcRole.FpcModule.transform.position, fpcRole.FpcModule.transform.forward, out var hit))
             {
-                if (hit.collider.GetComponentInParent<ReferenceHub>() is ReferenceHub hitHub)
+                var selfHub = fpcRole.FpcModule.GetComponentInParent<ReferenceHub>();
+                if (hit.collider.GetComponentInParent<ReferenceHub>() is ReferenceHub hitHub && hitHub != selfHub)
                 {
+                    Log.Info($"{selfHub} found player to follow: {hitHub}.");
                     FoundPlayer = hitHub;
                 }
             }
