@@ -11,13 +11,17 @@ namespace TestPlugin.SLBot.FirstPersonControl
 {
     internal class FpcBotPlayer
     {
+        public BotHub BotHub { get; }
+
         public Vector3 DesiredMoveDirection { get; set; } = Vector3.zero;
         public Vector3 DesiredLook { get; set; } = Vector3.zero;
 
         public event RoleChanged OnChangedRole;
 
-        public FpcBotPlayer()
+        public FpcBotPlayer(BotHub botHub)
         {
+            BotHub = botHub;
+
             SetupActions();
         }
 

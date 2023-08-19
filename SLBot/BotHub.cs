@@ -12,13 +12,17 @@ namespace TestPlugin.SLBot
 {
     internal class BotHub
     {
-        public FpcBotPlayer FpcBotPlayer { get; private set; } = new FpcBotPlayer();
+        public FpcBotPlayer FpcBotPlayer { get; }
+        public LocalConnectionToClient ConnectionToClient;
+        public LocalConnectionToServer ConnectionToServer;
 
         public BotHub(LocalConnectionToClient connectionToClient, LocalConnectionToServer connectionToServer, ReferenceHub hub)
         {
-            this._connectionToClient = connectionToClient;
-            this._connectionToServer = connectionToServer;
             this._playerHub = hub;
+
+            this.ConnectionToClient = connectionToClient;
+            this.ConnectionToServer = connectionToServer;
+            FpcBotPlayer = new FpcBotPlayer(this);
         }
 
         public IEnumerator<float> MoveAsync(Vector3 direction, int timeAmount)
@@ -67,8 +71,6 @@ namespace TestPlugin.SLBot
             }
         }
 
-        private LocalConnectionToClient _connectionToClient;
-        private LocalConnectionToServer _connectionToServer;
         private ReferenceHub _playerHub;
     }
 }
