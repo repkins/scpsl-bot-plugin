@@ -1,8 +1,6 @@
 ﻿using InventorySystem.Items.Firearms;
-using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -63,9 +61,12 @@ namespace TestPlugin.SLBot.FirstPersonControl.Actions
                 equippedFirearm = hub.inventory.CurInstance as Firearm;
             }
 
-            equippedFirearm.HitregModule.ClientCalculateHit(out var shotMessage);
-            equippedFirearm.HitregModule.ServerProcessShot(shotMessage);
-            equippedFirearm.OnWeaponShot();
+            if (equippedFirearm.ActionModule.ServerAuthorizeShot())
+            {
+                equippedFirearm.HitregModule.ClientCalculateHit(out var shotMessage);
+                equippedFirearm.HitregModule.ServerProcessShot(shotMessage);
+                equippedFirearm.OnWeaponShot();
+            }
         }
 
         private FpcBotPlayer _botPlayer;
