@@ -4,6 +4,7 @@ using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TestPlugin.SLBot.FirstPersonControl.Actions;
 using UnityEngine;
 
@@ -12,6 +13,7 @@ namespace TestPlugin.SLBot.FirstPersonControl
     internal class FpcBotPlayer
     {
         public BotHub BotHub { get; }
+        public FpcBotPerception Perception { get; }
 
         public Vector3 DesiredMoveDirection { get; set; } = Vector3.zero;
         public Vector3 DesiredLook { get; set; } = Vector3.zero;
@@ -21,27 +23,51 @@ namespace TestPlugin.SLBot.FirstPersonControl
         public FpcBotPlayer(BotHub botHub)
         {
             BotHub = botHub;
+            Perception = new FpcBotPerception(this);
 
             SetupActions();
         }
 
         public void Update(IFpcRole fpcRole)
         {
+            Perception.Tick(fpcRole);
+
+            _currentAction.UpdatePlayer(fpcRole);
+
+            foreach (var transition in _anyTransitions)
+            { 
+                if (transition.To == _currentAction)
+                {
+                    continue;
+                }
+
+                if (transition.Evaluate())
+                {
+                    Log.Info($"Transitioning to {transition.To.GetType().Name} for ");
+                    Log.Info($"{fpcRole}");
+
+                    _currentAction = transition.To;
+                    transition.OnTransition.Invoke();
+                    _currentAction.OnEnter();
+
+                    return;
+                }
+            }
+
             var currentActionTransitions = _transitions[_currentAction.GetType()];
             foreach (var transition in currentActionTransitions)
             {
                 if (transition.Evaluate())
                 {
-                    Log.Info($"Transitioning to {transition.To}.");
+                    Log.Info($"Transitioning from {transition.From.GetType().Name} to {transition.To.GetType().Name} for ");
+                    Log.Info($"{fpcRole}");
 
                     _currentAction = transition.To;
-                    _currentAction.OnEnter();
                     transition.OnTransition.Invoke();
+                    _currentAction.OnEnter();
                     break;
                 }
             }
-
-            _currentAction.UpdatePlayer(fpcRole);
         }
 
         public void OnRoleChanged(PlayerRoleBase prevRole, PlayerRoleBase newRole)
@@ -100,14 +126,19 @@ namespace TestPlugin.SLBot.FirstPersonControl
         private void SetupActions()
         {
             var idleAction = new FpcBotIdleAction(this);
-            var findPlayerAction = new FpcBotFindPlayerAction();
+            var findPlayerAction = new FpcBotFindPlayerAction(this);
             var followAction = new FpcBotFollowAction(this);
+            var shootAction = new FpcBotShootAction(this);
 
             // Setup actions transitions.
+
+            _anyTransitions.Add(new FpcBotActionTransition(shootAction, 
+                () => Perception.EnemiesWithinSight.Any() && Perception.HasFirearmInInventory));
+
             _transitions.Add(idleAction.GetType(), new List<FpcBotActionTransition>()
             {
                 new FpcBotActionTransition(idleAction, findPlayerAction,
-                    () => idleAction.IsRoleChanged)
+                    () => Perception.IsRoleReady)
             });
 
             _transitions.Add(findPlayerAction.GetType(), new List<FpcBotActionTransition>()
@@ -117,7 +148,16 @@ namespace TestPlugin.SLBot.FirstPersonControl
                     () => followAction.TargetToFollow = findPlayerAction.FoundPlayer)
             });
 
-            _transitions.Add(followAction.GetType(), new List<FpcBotActionTransition>());
+            _transitions.Add(followAction.GetType(), new List<FpcBotActionTransition>()
+            {
+                new FpcBotActionTransition(followAction, idleAction,
+                    () => followAction.IsTargetLost)
+            });
+
+            _transitions.Add(shootAction.GetType(), new List<FpcBotActionTransition>() {
+                new FpcBotActionTransition(shootAction, idleAction, 
+                    () => !Perception.EnemiesWithinSight.Any())
+            });
 
             // Assign default action.
             _currentAction = idleAction;

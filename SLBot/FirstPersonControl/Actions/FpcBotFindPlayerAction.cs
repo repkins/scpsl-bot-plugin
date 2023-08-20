@@ -14,6 +14,11 @@ namespace TestPlugin.SLBot.FirstPersonControl.Actions
     {
         public ReferenceHub FoundPlayer { get; set; }
 
+        public FpcBotFindPlayerAction(FpcBotPlayer fpcBotPlayer)
+        {
+            _fpcBotPlayer = fpcBotPlayer;
+        }
+
         public void OnEnter()
         {
             FoundPlayer = null;
@@ -21,15 +26,17 @@ namespace TestPlugin.SLBot.FirstPersonControl.Actions
 
         public void UpdatePlayer(IFpcRole fpcRole)
         {
-            if (Physics.Raycast(fpcRole.FpcModule.transform.position, fpcRole.FpcModule.transform.forward, out var hit))
+            if (_fpcBotPlayer.Perception.FriendiesWithinSight.FirstOrDefault() is ReferenceHub otherPlayer)
             {
                 var selfHub = fpcRole.FpcModule.GetComponentInParent<ReferenceHub>();
-                if (hit.collider.GetComponentInParent<ReferenceHub>() is ReferenceHub hitHub && hitHub != selfHub)
+                if (otherPlayer != selfHub)
                 {
-                    Log.Info($"{selfHub} found player to follow: {hitHub}.");
-                    FoundPlayer = hitHub;
+                    Log.Info($"{selfHub} found player to follow: {otherPlayer}.");
+                    FoundPlayer = otherPlayer;
                 }
             }
         }
+
+        private FpcBotPlayer _fpcBotPlayer;
     }
 }

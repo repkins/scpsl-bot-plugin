@@ -11,17 +11,16 @@ namespace TestPlugin.SLBot.FirstPersonControl.Actions
         public Action OnTransition { get; }
 
         public FpcBotActionTransition(IFpcBotAction from, IFpcBotAction to, Func<bool> predicate, Action onTransition = null)
+            : this(to, predicate, onTransition)
         {
             From = from;
+        }
+
+        public FpcBotActionTransition(IFpcBotAction to, Func<bool> predicate, Action onTransition = null)
+        {
             To = to;
             Predicate = predicate;
             OnTransition = onTransition ?? (() => { });
-        }
-
-        public FpcBotActionTransition(IFpcBotAction to, Func<bool> predicate)
-        {
-            To = to;
-            Predicate = predicate;
         }
 
         public bool Evaluate()

@@ -15,6 +15,11 @@ namespace TestPlugin.SLBot.FirstPersonControl.Actions
     {
         public ReferenceHub TargetToFollow { get; set; }
 
+        public Vector3 TargetLastKnownLocation { get; set; }
+        public float TargetLastTimeSeen { get; set; }
+
+        public bool IsTargetLost { get; set; }
+
         public FpcBotFollowAction(FpcBotPlayer botPlayer)
         {
             _botPlayer = botPlayer;
@@ -22,26 +27,25 @@ namespace TestPlugin.SLBot.FirstPersonControl.Actions
 
         public void OnEnter()
         {
-            TargetToFollow = null;
+            IsTargetLost = false;
+            TargetLastKnownLocation = TargetToFollow.transform.position;
+            TargetLastTimeSeen = Time.time;
         }
 
         public void UpdatePlayer(IFpcRole fpcRole)
         {
             if (!TargetToFollow)
             {
+                IsTargetLost = true;
                 return;
             }
 
             var directionToTarget = (TargetToFollow.transform.position - fpcRole.FpcModule.transform.position).normalized;
 
-            RaycastHit hit;
-            if (Physics.Raycast(fpcRole.FpcModule.transform.position, directionToTarget, out hit))
+            if (_botPlayer.Perception.FriendiesWithinSight.Any(p => p == TargetToFollow))
             {
-                if (hit.collider.GetComponentInParent<ReferenceHub>() is ReferenceHub hitHub 
-                    && hitHub == TargetToFollow)
-                {
-                    TargetLastKnownLocation = hit.transform.position;
-                }
+                TargetLastKnownLocation = TargetToFollow.transform.position;
+                TargetLastTimeSeen = Time.time;
             }
 
             if (Vector3.Distance(TargetToFollow.transform.position, fpcRole.FpcModule.transform.position) >= 1f)
@@ -58,9 +62,9 @@ namespace TestPlugin.SLBot.FirstPersonControl.Actions
             }
 
             if (_botPlayer.DesiredMoveDirection != Vector3.zero 
-                && Vector3.Distance(fpcRole.FpcModule.transform.position, PrevPosition) < Vector3.kEpsilon)
+                && Vector3.Distance(fpcRole.FpcModule.transform.position, _prevPosition) < Vector3.kEpsilon)
             {
-                if (Physics.Raycast(fpcRole.FpcModule.transform.position, _botPlayer.DesiredMoveDirection, out hit))
+                if (Physics.Raycast(fpcRole.FpcModule.transform.position, _botPlayer.DesiredMoveDirection, out var hit))
                 {
                     if (hit.collider.GetComponent<InteractableCollider>() is InteractableCollider interactableCollider
                         && hit.collider.GetComponentInParent<DoorVariant>() is DoorVariant door
@@ -73,12 +77,15 @@ namespace TestPlugin.SLBot.FirstPersonControl.Actions
                     }
                 }
             }
+            _prevPosition = fpcRole.FpcModule.transform.position;
 
-            PrevPosition = fpcRole.FpcModule.transform.position;
+            if ((Time.time - TargetLastTimeSeen) > 5f)
+            {
+                IsTargetLost = true;
+            }
         }
 
         private FpcBotPlayer _botPlayer;
-        private Vector3 TargetLastKnownLocation { get; set; }
-        private Vector3 PrevPosition { get; set; }
+        private Vector3 _prevPosition;
     }
 }

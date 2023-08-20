@@ -13,12 +13,14 @@ namespace TestPlugin.SLBot
     internal class BotHub
     {
         public FpcBotPlayer FpcBotPlayer { get; }
+        public ReferenceHub PlayerHub { get; } 
+
         public LocalConnectionToClient ConnectionToClient;
         public LocalConnectionToServer ConnectionToServer;
 
         public BotHub(LocalConnectionToClient connectionToClient, LocalConnectionToServer connectionToServer, ReferenceHub hub)
         {
-            this._playerHub = hub;
+            this.PlayerHub = hub;
 
             this.ConnectionToClient = connectionToClient;
             this.ConnectionToServer = connectionToServer;
@@ -27,7 +29,7 @@ namespace TestPlugin.SLBot
 
         public IEnumerator<float> MoveAsync(Vector3 direction, int timeAmount)
         {
-            if (this._playerHub.roleManager.CurrentRole is IFpcRole fpcRole)
+            if (this.PlayerHub.roleManager.CurrentRole is IFpcRole fpcRole)
             {
                 return FpcBotPlayer.MoveFpcAsync(fpcRole, direction, timeAmount);
             }
@@ -37,7 +39,7 @@ namespace TestPlugin.SLBot
 
         public IEnumerator<float> TurnAsync(Vector3 degrees, Vector3 targetDegrees)
         {
-            if (this._playerHub.roleManager.CurrentRole is IFpcRole fpcRole)
+            if (this.PlayerHub.roleManager.CurrentRole is IFpcRole fpcRole)
             {
                 return FpcBotPlayer.TurnFpcAsync(fpcRole, degrees, targetDegrees);
             }
@@ -47,7 +49,7 @@ namespace TestPlugin.SLBot
 
         public IEnumerator<float> ApproachAsync()
         {
-            if (this._playerHub.roleManager.CurrentRole is IFpcRole fpcRole)
+            if (this.PlayerHub.roleManager.CurrentRole is IFpcRole fpcRole)
             {
                 return FpcBotPlayer.FindAndApproachFpcAsync(fpcRole);
             }
@@ -57,7 +59,7 @@ namespace TestPlugin.SLBot
 
         public void Update()
         {
-            if (this._playerHub.roleManager.CurrentRole is IFpcRole fpcRole)
+            if (this.PlayerHub.roleManager.CurrentRole is IFpcRole fpcRole)
             {
                 FpcBotPlayer.Update(fpcRole);
             }
@@ -65,12 +67,7 @@ namespace TestPlugin.SLBot
 
         public void OnRoleChanged(PlayerRoleBase prevRole, PlayerRoleBase newRole)
         {
-            if (this._playerHub.roleManager.CurrentRole is IFpcRole fpcRole)
-            {
-                FpcBotPlayer.OnRoleChanged(prevRole, newRole);
-            }
+            FpcBotPlayer.OnRoleChanged(prevRole, newRole);
         }
-
-        private ReferenceHub _playerHub;
     }
 }

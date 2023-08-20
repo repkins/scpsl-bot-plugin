@@ -80,8 +80,9 @@
     <Compile Include="SLBot\FirstPersonControl\Actions\FpcBotFindPlayerAction.cs" />
     <Compile Include="SLBot\FirstPersonControl\Actions\FpcBotActionTransition.cs" />
     <Compile Include="SLBot\FirstPersonControl\Actions\FpcBotIdleAction.cs" />
-    <Compile Include="SLBot\FirstPersonControl\Actions\FpcShootAction.cs" />
+    <Compile Include="SLBot\FirstPersonControl\Actions\FpcBotShootAction.cs" />
     <Compile Include="SLBot\FirstPersonControl\Actions\IFpcBotAction.cs" />
+    <Compile Include="SLBot\FirstPersonControl\FpcBotPerception.cs" />
     <Compile Include="SLBot\FirstPersonControl\FpcBotPlayer.cs" />
     <Compile Include="SLBot\FirstPersonControl\Actions\FpcBotFollowAction.cs" />
     <Compile Include="SLBot\FirstPersonControl\FpcMotorPatches.cs" />
