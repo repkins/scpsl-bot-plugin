@@ -1,8 +1,8 @@
 ﻿using CommandSystem;
 using Mirror;
 using PluginAPI.Core;
+using SCPSLBot.AI;
 using System;
-using TestPlugin.SLBot;
 
 namespace TestPlugin.Commands
 {

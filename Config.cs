@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace TestPlugin
+namespace SCPSLBot
 {
     public class Config
     {

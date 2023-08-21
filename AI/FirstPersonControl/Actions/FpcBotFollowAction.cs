@@ -1,7 +1,6 @@
 ﻿using Interactables;
 using Interactables.Interobjects.DoorUtils;
 using PlayerRoles.FirstPersonControl;
-using PluginAPI.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace TestPlugin.SLBot.FirstPersonControl.Actions
+namespace SCPSLBot.AI.FirstPersonControl.Actions
 {
     internal class FpcBotFollowAction : IFpcBotAction
     {
@@ -34,7 +33,7 @@ namespace TestPlugin.SLBot.FirstPersonControl.Actions
 
         public void UpdatePlayer(IFpcRole fpcRole)
         {
-            if (!TargetToFollow)
+            if (!TargetToFollow || !(TargetToFollow.roleManager.CurrentRole is IFpcRole))
             {
                 IsTargetLost = true;
                 return;
@@ -61,7 +60,7 @@ namespace TestPlugin.SLBot.FirstPersonControl.Actions
                 _botPlayer.DesiredLook = Vector3.zero;
             }
 
-            if (_botPlayer.DesiredMoveDirection != Vector3.zero 
+            if (_botPlayer.DesiredMoveDirection != Vector3.zero
                 && Vector3.Distance(fpcRole.FpcModule.transform.position, _prevPosition) < Vector3.kEpsilon)
             {
                 if (Physics.Raycast(fpcRole.FpcModule.transform.position, _botPlayer.DesiredMoveDirection, out var hit))
@@ -79,7 +78,7 @@ namespace TestPlugin.SLBot.FirstPersonControl.Actions
             }
             _prevPosition = fpcRole.FpcModule.transform.position;
 
-            if ((Time.time - TargetLastTimeSeen) > 5f)
+            if (Time.time - TargetLastTimeSeen > 5f)
             {
                 IsTargetLost = true;
             }

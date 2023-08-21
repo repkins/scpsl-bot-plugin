@@ -1,11 +1,11 @@
 ﻿using HarmonyLib;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
+using SCPSLBot.AI;
 using System;
 using System.Reflection;
-using TestPlugin.SLBot;
 
-namespace TestPlugin
+namespace SCPSLBot
 {
     public class NWAPIPlugin
     {

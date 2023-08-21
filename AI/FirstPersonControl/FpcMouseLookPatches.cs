@@ -1,11 +1,9 @@
-﻿using CursorManagement;
-using Discord;
-using HarmonyLib;
+﻿using HarmonyLib;
 using PlayerRoles.FirstPersonControl;
 using System.Reflection;
 using UnityEngine;
 
-namespace TestPlugin.SLBot.FirstPersonControl
+namespace SCPSLBot.AI.FirstPersonControl
 {
     [HarmonyPatch(typeof(FpcMouseLook))]
     internal static class FpcMouseLookPatches

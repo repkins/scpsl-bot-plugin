@@ -7,8 +7,8 @@
     <ProjectGuid>{7F9D71A9-C036-48A4-A3E9-AC792EF8891B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TestPlugin</RootNamespace>
-    <AssemblyName>TestPlugin</AssemblyName>
+    <RootNamespace>SCPSLBot</RootNamespace>
+    <AssemblyName>SCPSLBot</AssemblyName>
     <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -65,8 +65,8 @@
     <Compile Include="Commands\BotApproachCommand.cs" />
     <Compile Include="Commands\BotTurnCommand.cs" />
     <Compile Include="Commands\BotMoveCommand.cs" />
-    <Compile Include="SLBot\BotHub.cs" />
-    <Compile Include="SLBot\BotManager.cs" />
+    <Compile Include="AI\BotHub.cs" />
+    <Compile Include="AI\BotManager.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="DebugPatches.cs" />
     <Compile Include="LocalNetworking\LocalConnectionToServer.cs" />
@@ -77,16 +77,16 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Commands\BotAddCommand.cs" />
     <Compile Include="Commands\TestCommand.cs" />
-    <Compile Include="SLBot\FirstPersonControl\Actions\FpcBotFindPlayerAction.cs" />
-    <Compile Include="SLBot\FirstPersonControl\Actions\FpcBotActionTransition.cs" />
-    <Compile Include="SLBot\FirstPersonControl\Actions\FpcBotIdleAction.cs" />
-    <Compile Include="SLBot\FirstPersonControl\Actions\FpcBotShootAction.cs" />
-    <Compile Include="SLBot\FirstPersonControl\Actions\IFpcBotAction.cs" />
-    <Compile Include="SLBot\FirstPersonControl\FpcBotPerception.cs" />
-    <Compile Include="SLBot\FirstPersonControl\FpcBotPlayer.cs" />
-    <Compile Include="SLBot\FirstPersonControl\Actions\FpcBotFollowAction.cs" />
-    <Compile Include="SLBot\FirstPersonControl\FpcMotorPatches.cs" />
-    <Compile Include="SLBot\FirstPersonControl\FpcMouseLookPatches.cs" />
+    <Compile Include="AI\FirstPersonControl\Actions\FpcBotFindPlayerAction.cs" />
+    <Compile Include="AI\FirstPersonControl\Actions\FpcBotActionTransition.cs" />
+    <Compile Include="AI\FirstPersonControl\Actions\FpcBotIdleAction.cs" />
+    <Compile Include="AI\FirstPersonControl\Actions\FpcBotShootAction.cs" />
+    <Compile Include="AI\FirstPersonControl\Actions\IFpcBotAction.cs" />
+    <Compile Include="AI\FirstPersonControl\FpcBotPerception.cs" />
+    <Compile Include="AI\FirstPersonControl\FpcBotPlayer.cs" />
+    <Compile Include="AI\FirstPersonControl\Actions\FpcBotFollowAction.cs" />
+    <Compile Include="AI\FirstPersonControl\FpcMotorPatches.cs" />
+    <Compile Include="AI\FirstPersonControl\FpcMouseLookPatches.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

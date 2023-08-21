@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TestPlugin.SLBot.FirstPersonControl.Actions
+namespace SCPSLBot.AI.FirstPersonControl.Actions
 {
     internal class FpcBotActionTransition
     {

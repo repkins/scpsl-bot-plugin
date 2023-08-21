@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using LiteNetLib.Utils;
 using System;
 
-namespace TestPlugin
+namespace SCPSLBot
 {
     [HarmonyPatch()]
     public static class DebugPatches

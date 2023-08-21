@@ -2,14 +2,11 @@
 using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
-namespace TestPlugin.SLBot.FirstPersonControl
+namespace SCPSLBot.AI.FirstPersonControl
 {
     internal class FpcBotPerception
     {

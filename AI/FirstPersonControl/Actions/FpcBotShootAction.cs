@@ -1,10 +1,11 @@
 ﻿using InventorySystem.Items.Firearms;
+using InventorySystem.Items.Firearms.BasicMessages;
 using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
 using System.Linq;
 using UnityEngine;
 
-namespace TestPlugin.SLBot.FirstPersonControl.Actions
+namespace SCPSLBot.AI.FirstPersonControl.Actions
 {
     internal class FpcBotShootAction : IFpcBotAction
     {
@@ -66,6 +67,12 @@ namespace TestPlugin.SLBot.FirstPersonControl.Actions
                 equippedFirearm.HitregModule.ClientCalculateHit(out var shotMessage);
                 equippedFirearm.HitregModule.ServerProcessShot(shotMessage);
                 equippedFirearm.OnWeaponShot();
+            }
+
+            if (equippedFirearm.Status.Ammo <= 0)
+            {
+                var requestMessage = new RequestMessage(equippedFirearm.ItemSerial, RequestType.Reload);
+                _botPlayer.BotHub.ConnectionToServer.Send(requestMessage);
             }
         }
 

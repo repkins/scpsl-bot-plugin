@@ -1,16 +1,14 @@
 ﻿using MEC;
 using Mirror;
-using PlayerRoles.FirstPersonControl;
 using PlayerRoles;
 using PluginAPI.Core;
 using System.Collections.Generic;
 using System.Linq;
-using TestPlugin.SLBot.FirstPersonControl;
 using UnityEngine;
 using LocalConnectionToClient = TestPlugin.LocalNetworking.LocalConnectionToClient;
 using LocalConnectionToServer = TestPlugin.LocalNetworking.LocalConnectionToServer;
 
-namespace TestPlugin.SLBot
+namespace SCPSLBot.AI
 {
     internal class BotManager
     {
@@ -20,17 +18,17 @@ namespace TestPlugin.SLBot
 
         public void Init()
         {
-            Timing.RunCoroutine(this.RunPlayerUpdates());
+            Timing.RunCoroutine(RunPlayerUpdates());
 
             PlayerRoleManager.OnRoleChanged += OnRoleChanged;
         }
 
         public void AddBotPlayer()
         {
-            var gameObject = UnityEngine.Object.Instantiate(NetworkManager.singleton.playerPrefab);
+            var gameObject = Object.Instantiate(NetworkManager.singleton.playerPrefab);
             gameObject.name = string.Format("{0} [bot]", NetworkManager.singleton.playerPrefab.name);
 
-            var connectionToClient = new LocalConnectionToClient(--this.lastConnNum);
+            var connectionToClient = new LocalConnectionToClient(--lastConnNum);
             var connectionToServer = new LocalConnectionToServer() { connectionToClient = connectionToClient };
             connectionToClient.connectionToServer = connectionToServer;
 
@@ -40,7 +38,7 @@ namespace TestPlugin.SLBot
             NetworkServer.AddPlayerForConnection(connectionToClient, gameObject);
             var referenceHub = gameObject.GetComponent<ReferenceHub>();
 
-            this.BotPlayers.Add(referenceHub, new BotHub(connectionToClient, connectionToServer, referenceHub));
+            BotPlayers.Add(referenceHub, new BotHub(connectionToClient, connectionToServer, referenceHub));
 
             Log.Info($"connectionToClient.identity = {connectionToClient.identity}");
 
@@ -53,7 +51,7 @@ namespace TestPlugin.SLBot
 
             yield return Timing.WaitUntilTrue(() => hub.serverRoles != null);
 
-            player.GetComponent<CharacterClassManager>().UserId = $"BotUserId{this.lastConnNum}";
+            player.GetComponent<CharacterClassManager>().UserId = $"BotUserId{lastConnNum}";
 
             yield break;
         }

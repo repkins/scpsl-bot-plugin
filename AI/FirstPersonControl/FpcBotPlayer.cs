@@ -2,13 +2,13 @@
 using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
+using SCPSLBot.AI.FirstPersonControl.Actions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TestPlugin.SLBot.FirstPersonControl.Actions;
 using UnityEngine;
 
-namespace TestPlugin.SLBot.FirstPersonControl
+namespace SCPSLBot.AI.FirstPersonControl
 {
     internal class FpcBotPlayer
     {
@@ -35,7 +35,7 @@ namespace TestPlugin.SLBot.FirstPersonControl
             _currentAction.UpdatePlayer(fpcRole);
 
             foreach (var transition in _anyTransitions)
-            { 
+            {
                 if (transition.To == _currentAction)
                 {
                     continue;
@@ -132,7 +132,7 @@ namespace TestPlugin.SLBot.FirstPersonControl
 
             // Setup actions transitions.
 
-            _anyTransitions.Add(new FpcBotActionTransition(shootAction, 
+            _anyTransitions.Add(new FpcBotActionTransition(shootAction,
                 () => Perception.EnemiesWithinSight.Any() && Perception.HasFirearmInInventory));
 
             _transitions.Add(idleAction.GetType(), new List<FpcBotActionTransition>()
@@ -155,13 +155,13 @@ namespace TestPlugin.SLBot.FirstPersonControl
             });
 
             _transitions.Add(shootAction.GetType(), new List<FpcBotActionTransition>() {
-                new FpcBotActionTransition(shootAction, idleAction, 
+                new FpcBotActionTransition(shootAction, idleAction,
                     () => !Perception.EnemiesWithinSight.Any())
             });
 
             // Assign default action.
             _currentAction = idleAction;
-        }        
+        }
 
         private IFpcBotAction _currentAction;
 

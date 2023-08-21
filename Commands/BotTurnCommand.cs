@@ -1,6 +1,6 @@
 ﻿using CommandSystem;
+using SCPSLBot.AI;
 using System;
-using TestPlugin.SLBot;
 using UnityEngine;
 
 namespace TestPlugin.Commands

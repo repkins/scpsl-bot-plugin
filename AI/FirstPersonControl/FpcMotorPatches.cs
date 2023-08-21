@@ -3,7 +3,7 @@ using PlayerRoles.FirstPersonControl;
 using System.Reflection;
 using UnityEngine;
 
-namespace TestPlugin.SLBot.FirstPersonControl
+namespace SCPSLBot.AI.FirstPersonControl
 {
     [HarmonyPatch(typeof(FpcMotor))]
     internal static class FpcMotorPatches

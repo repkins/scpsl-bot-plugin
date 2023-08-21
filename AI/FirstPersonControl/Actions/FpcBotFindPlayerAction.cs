@@ -1,14 +1,12 @@
-﻿using MEC;
-using PlayerRoles.FirstPersonControl;
+﻿using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using UnityEngine;
 
-namespace TestPlugin.SLBot.FirstPersonControl.Actions
+namespace SCPSLBot.AI.FirstPersonControl.Actions
 {
     internal class FpcBotFindPlayerAction : IFpcBotAction
     {
