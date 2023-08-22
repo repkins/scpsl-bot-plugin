@@ -62,6 +62,9 @@
     <Reference Include="UnityEngine.PhysicsModule" HintPath="$(UNITY_REFERENCES)\UnityEngine.PhysicsModule.dll" Private="false" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AI\FirstPersonControl\Actions\FpcFireAction.cs" />
+    <Compile Include="AI\FirstPersonControl\Actions\FpcEquipAction.cs" />
+    <Compile Include="AI\FirstPersonControl\Actions\FpcReloadFirearmAction.cs" />
     <Compile Include="AI\FirstPersonControl\Actions\FpcInteractAction.cs" />
     <Compile Include="AI\FirstPersonControl\Actions\FpcLookAction.cs" />
     <Compile Include="AI\FirstPersonControl\Actions\FpcMoveAction.cs" />
@@ -85,7 +88,7 @@
     <Compile Include="AI\FirstPersonControl\Actions\FpcFindPlayerAction.cs" />
     <Compile Include="AI\FirstPersonControl\Actions\FpcActionTransition.cs" />
     <Compile Include="AI\FirstPersonControl\Actions\FpcIdleAction.cs" />
-    <Compile Include="AI\FirstPersonControl\Actions\FpcShootAction.cs" />
+    <Compile Include="AI\FirstPersonControl\Actions\FpcAttackAction.cs" />
     <Compile Include="AI\FirstPersonControl\Actions\IFpcAction.cs" />
     <Compile Include="AI\FirstPersonControl\FpcBotPerception.cs" />
     <Compile Include="AI\FirstPersonControl\FpcBotPlayer.cs" />
