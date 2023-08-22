@@ -32,7 +32,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Actions
                 }
             }
 
-            if (_followAction.TargetToFollow && !_followAction.IsTargetLost)
+            if (_followAction.TargetToFollow)
             {
                 _followAction.UpdatePlayer();
             }

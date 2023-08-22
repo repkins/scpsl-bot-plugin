@@ -30,12 +30,13 @@ namespace SCPSLBot.AI.FirstPersonControl
         {
             Perception.Tick(FpcRole);
 
-            _currentAction.UpdatePlayer();
+            _rootAction.UpdatePlayer();
         }
 
         public void OnRoleChanged()
         {
             Log.Info($"Bot got FPC role assigned.");
+            _rootAction.Reset();
         }
 
         #region Debug functions
@@ -85,9 +86,9 @@ namespace SCPSLBot.AI.FirstPersonControl
         private void SetupActionTree()
         {
             // Assign root action (node).
-            _currentAction = new FpcPlayAction(this);
+            _rootAction = new FpcPlayAction(this);
         }
 
-        private IFpcAction _currentAction;
+        private IFpcAction _rootAction;
     }
 }

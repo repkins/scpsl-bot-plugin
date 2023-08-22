@@ -39,6 +39,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Actions
 
         public void UpdatePlayer()
         {
+            if (IsTargetLost && TargetToFollow)
+            {
+                IsTargetLost = false;
+            }
+
             if (!TargetToFollow)
             {
                 IsTargetLost = true;
@@ -53,6 +58,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Actions
             {
                 TargetLastKnownLocation = TargetToFollow.transform.position;
                 TargetLastTimeSeen = Time.time;
+            }
+
+            if (Time.time - TargetLastTimeSeen > 5f)
+            {
+                IsTargetLost = true;
+                return;
             }
 
             if (Vector3.Distance(TargetToFollow.transform.position, fpcRole.FpcModule.transform.position) >= 1f)
@@ -74,12 +85,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Actions
             {
                 _interactAction.UpdatePlayer();
             }
-            _prevPosition = fpcRole.FpcModule.transform.position;
 
-            if (Time.time - TargetLastTimeSeen > 5f)
-            {
-                IsTargetLost = true;
-            }
+            _prevPosition = fpcRole.FpcModule.transform.position;
         }
 
         private FpcBotPlayer _botPlayer;
