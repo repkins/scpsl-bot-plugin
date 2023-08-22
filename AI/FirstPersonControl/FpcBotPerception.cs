@@ -14,8 +14,6 @@ namespace SCPSLBot.AI.FirstPersonControl
         public IEnumerable<ReferenceHub> EnemiesWithinSight { get; }
         public IEnumerable<ReferenceHub> FriendiesWithinSight { get; }
 
-        public bool IsRoleReady { get; private set; }
-
         public bool HasFirearmInInventory { get; private set; }
 
         public FpcBotPerception(FpcBotPlayer fpcBotPlayer)
@@ -24,8 +22,6 @@ namespace SCPSLBot.AI.FirstPersonControl
             EnemiesWithinSight = PlayersWithinSight.Where(o => o.GetFaction() != fpcBotPlayer.BotHub.PlayerHub.GetFaction())
                                                     .Where(o => o.GetFaction() != Faction.Unclassified);
             FriendiesWithinSight = PlayersWithinSight.Where(o => o.GetFaction() == fpcBotPlayer.BotHub.PlayerHub.GetFaction());
-
-            fpcBotPlayer.OnChangedRole += OnRoleChanged;
         }
 
         public void Tick(IFpcRole fpcRole)
@@ -79,18 +75,6 @@ namespace SCPSLBot.AI.FirstPersonControl
             }
 
             return true;
-        }
-
-        private void OnRoleChanged(PlayerRoleBase prevRole, PlayerRoleBase newRole)
-        {
-            if (newRole is IFpcRole)
-            {
-                IsRoleReady = true;
-            }
-            else
-            {
-                IsRoleReady = false;
-            }
         }
 
         private const int OverlappingCollidersBufferSize = 1000;

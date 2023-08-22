@@ -8,25 +8,25 @@ using System.Threading.Tasks;
 
 namespace SCPSLBot.AI.FirstPersonControl.Actions
 {
-    internal class FpcBotFindPlayerAction : IFpcBotAction
+    internal class FpcFindPlayerAction : IFpcAction
     {
         public ReferenceHub FoundPlayer { get; set; }
 
-        public FpcBotFindPlayerAction(FpcBotPlayer fpcBotPlayer)
+        public FpcFindPlayerAction(FpcBotPlayer fpcBotPlayer)
         {
             _fpcBotPlayer = fpcBotPlayer;
         }
 
-        public void OnEnter()
+        public void Reset()
         {
             FoundPlayer = null;
         }
 
-        public void UpdatePlayer(IFpcRole fpcRole)
+        public void UpdatePlayer()
         {
             if (_fpcBotPlayer.Perception.FriendiesWithinSight.FirstOrDefault() is ReferenceHub otherPlayer)
             {
-                var selfHub = fpcRole.FpcModule.GetComponentInParent<ReferenceHub>();
+                var selfHub = _fpcBotPlayer.FpcRole.FpcModule.GetComponentInParent<ReferenceHub>();
                 if (otherPlayer != selfHub)
                 {
                     Log.Info($"{selfHub} found player to follow: {otherPlayer}.");

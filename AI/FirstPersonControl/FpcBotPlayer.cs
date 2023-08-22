@@ -3,87 +3,46 @@ using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Actions;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl
 {
-    internal class FpcBotPlayer
+    internal class FpcBotPlayer : IBotPlayer
     {
+        public FpcStandardRoleBase FpcRole { get; set; }
+
         public BotHub BotHub { get; }
         public FpcBotPerception Perception { get; }
 
         public Vector3 DesiredMoveDirection { get; set; } = Vector3.zero;
         public Vector3 DesiredLook { get; set; } = Vector3.zero;
 
-        public event RoleChanged OnChangedRole;
-
         public FpcBotPlayer(BotHub botHub)
         {
             BotHub = botHub;
             Perception = new FpcBotPerception(this);
 
-            SetupActions();
+            SetupActionTree();
         }
 
-        public void Update(IFpcRole fpcRole)
+        public void Update()
         {
-            Perception.Tick(fpcRole);
+            Perception.Tick(FpcRole);
 
-            _currentAction.UpdatePlayer(fpcRole);
-
-            foreach (var transition in _anyTransitions)
-            {
-                if (transition.To == _currentAction)
-                {
-                    continue;
-                }
-
-                if (transition.Evaluate())
-                {
-                    Log.Info($"Transitioning to {transition.To.GetType().Name} for ");
-                    Log.Info($"{fpcRole}");
-
-                    _currentAction = transition.To;
-                    transition.OnTransition.Invoke();
-                    _currentAction.OnEnter();
-
-                    return;
-                }
-            }
-
-            var currentActionTransitions = _transitions[_currentAction.GetType()];
-            foreach (var transition in currentActionTransitions)
-            {
-                if (transition.Evaluate())
-                {
-                    Log.Info($"Transitioning from {transition.From.GetType().Name} to {transition.To.GetType().Name} for ");
-                    Log.Info($"{fpcRole}");
-
-                    _currentAction = transition.To;
-                    transition.OnTransition.Invoke();
-                    _currentAction.OnEnter();
-                    break;
-                }
-            }
+            _currentAction.UpdatePlayer();
         }
 
-        public void OnRoleChanged(PlayerRoleBase prevRole, PlayerRoleBase newRole)
+        public void OnRoleChanged()
         {
-            var changedRole = OnChangedRole;
-            if (changedRole != null)
-            {
-                changedRole.Invoke(prevRole, newRole);
-            }
+            Log.Info($"Bot got FPC role assigned.");
         }
 
         #region Debug functions
 
-        public IEnumerator<float> MoveFpcAsync(IFpcRole fpcRole, Vector3 localDirection, int timeAmount)
+        public IEnumerator<float> MoveFpcAsync(Vector3 localDirection, int timeAmount)
         {
-            var transform = fpcRole.FpcModule.transform;
+            var transform = FpcRole.FpcModule.transform;
 
             DesiredMoveDirection = transform.TransformDirection(localDirection);
 
@@ -94,7 +53,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             yield break;
         }
 
-        public IEnumerator<float> TurnFpcAsync(IFpcRole _, Vector3 degreesStep, Vector3 targetDegrees)
+        public IEnumerator<float> TurnFpcAsync(Vector3 degreesStep, Vector3 targetDegrees)
         {
             var currentMagnitude = 0f;
 
@@ -116,58 +75,19 @@ namespace SCPSLBot.AI.FirstPersonControl
             yield break;
         }
 
-        public IEnumerator<float> FindAndApproachFpcAsync(IFpcRole fpcRole)
+        public IEnumerator<float> FindAndApproachFpcAsync()
         {
             yield break;
         }
 
         #endregion
 
-        private void SetupActions()
+        private void SetupActionTree()
         {
-            var idleAction = new FpcBotIdleAction(this);
-            var findPlayerAction = new FpcBotFindPlayerAction(this);
-            var followAction = new FpcBotFollowAction(this);
-            var shootAction = new FpcBotShootAction(this);
-
-            // Setup actions transitions.
-
-            _anyTransitions.Add(new FpcBotActionTransition(shootAction,
-                () => Perception.EnemiesWithinSight.Any() && Perception.HasFirearmInInventory));
-
-            _transitions.Add(idleAction.GetType(), new List<FpcBotActionTransition>()
-            {
-                new FpcBotActionTransition(idleAction, findPlayerAction,
-                    () => Perception.IsRoleReady)
-            });
-
-            _transitions.Add(findPlayerAction.GetType(), new List<FpcBotActionTransition>()
-            {
-                new FpcBotActionTransition(findPlayerAction, followAction,
-                    () => findPlayerAction.FoundPlayer,
-                    () => followAction.TargetToFollow = findPlayerAction.FoundPlayer)
-            });
-
-            _transitions.Add(followAction.GetType(), new List<FpcBotActionTransition>()
-            {
-                new FpcBotActionTransition(followAction, idleAction,
-                    () => followAction.IsTargetLost)
-            });
-
-            _transitions.Add(shootAction.GetType(), new List<FpcBotActionTransition>() {
-                new FpcBotActionTransition(shootAction, idleAction,
-                    () => !Perception.EnemiesWithinSight.Any())
-            });
-
-            // Assign default action.
-            _currentAction = idleAction;
+            // Assign root action (node).
+            _currentAction = new FpcPlayAction(this);
         }
 
-        private IFpcBotAction _currentAction;
-
-        private List<FpcBotActionTransition> _anyTransitions = new List<FpcBotActionTransition>();
-        private Dictionary<Type, List<FpcBotActionTransition>> _transitions = new Dictionary<Type, List<FpcBotActionTransition>>();
-
-        public delegate void RoleChanged(PlayerRoleBase prevRole, PlayerRoleBase newRole);
+        private IFpcAction _currentAction;
     }
 }

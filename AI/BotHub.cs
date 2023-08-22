@@ -1,5 +1,6 @@
 ﻿using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
+using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ namespace SCPSLBot.AI
 {
     internal class BotHub
     {
-        public FpcBotPlayer FpcBotPlayer { get; }
+        public IBotPlayer CurrentBotPlayer { get; private set; }
         public ReferenceHub PlayerHub { get; }
 
         public LocalConnectionToClient ConnectionToClient;
@@ -22,14 +23,15 @@ namespace SCPSLBot.AI
 
             ConnectionToClient = connectionToClient;
             ConnectionToServer = connectionToServer;
-            FpcBotPlayer = new FpcBotPlayer(this);
+
+            _fpcPlayer = new FpcBotPlayer(this);
         }
 
         public IEnumerator<float> MoveAsync(Vector3 direction, int timeAmount)
         {
-            if (PlayerHub.roleManager.CurrentRole is IFpcRole fpcRole)
+            if (CurrentBotPlayer is FpcBotPlayer fpcPlayer)
             {
-                return FpcBotPlayer.MoveFpcAsync(fpcRole, direction, timeAmount);
+                return fpcPlayer.MoveFpcAsync(direction, timeAmount);
             }
 
             throw new InvalidOperationException("Unsupported current role on bot move.");
@@ -37,9 +39,9 @@ namespace SCPSLBot.AI
 
         public IEnumerator<float> TurnAsync(Vector3 degrees, Vector3 targetDegrees)
         {
-            if (PlayerHub.roleManager.CurrentRole is IFpcRole fpcRole)
+            if (CurrentBotPlayer is FpcBotPlayer fpcPlayer)
             {
-                return FpcBotPlayer.TurnFpcAsync(fpcRole, degrees, targetDegrees);
+                return fpcPlayer.TurnFpcAsync(degrees, targetDegrees);
             }
 
             throw new InvalidOperationException("Unsupported current role on bot turn.");
@@ -47,9 +49,9 @@ namespace SCPSLBot.AI
 
         public IEnumerator<float> ApproachAsync()
         {
-            if (PlayerHub.roleManager.CurrentRole is IFpcRole fpcRole)
+            if (CurrentBotPlayer is FpcBotPlayer fpcPlayer)
             {
-                return FpcBotPlayer.FindAndApproachFpcAsync(fpcRole);
+                return fpcPlayer.FindAndApproachFpcAsync();
             }
 
             throw new InvalidOperationException("Unsupported current role on bot turn.");
@@ -57,15 +59,33 @@ namespace SCPSLBot.AI
 
         public void Update()
         {
-            if (PlayerHub.roleManager.CurrentRole is IFpcRole fpcRole)
+            if (CurrentBotPlayer != null)
             {
-                FpcBotPlayer.Update(fpcRole);
+                CurrentBotPlayer.Update();
             }
         }
 
         public void OnRoleChanged(PlayerRoleBase prevRole, PlayerRoleBase newRole)
         {
-            FpcBotPlayer.OnRoleChanged(prevRole, newRole);
+            if (newRole is FpcStandardRoleBase fpcRole)
+            {
+                _fpcPlayer.FpcRole = fpcRole;
+                CurrentBotPlayer = _fpcPlayer;
+            }
+            else
+            {
+                CurrentBotPlayer = null;
+            }
+
+            if (CurrentBotPlayer != null)
+            {
+                CurrentBotPlayer.OnRoleChanged();
+            }
+
+            Log.Info($"Bot got new role assigned. Role Id: {newRole.RoleTypeId}");
+            Log.Debug($"Type of role: {newRole.GetType()}");
         }
+
+        private FpcBotPlayer _fpcPlayer;
     }
 }

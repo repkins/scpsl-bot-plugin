@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Actions
 {
-    internal class FpcBotFollowAction : IFpcBotAction
+    internal class FpcFollowAction : IFpcAction
     {
         public ReferenceHub TargetToFollow { get; set; }
 
@@ -19,25 +19,33 @@ namespace SCPSLBot.AI.FirstPersonControl.Actions
 
         public bool IsTargetLost { get; set; }
 
-        public FpcBotFollowAction(FpcBotPlayer botPlayer)
+        public FpcFollowAction(FpcBotPlayer botPlayer)
         {
             _botPlayer = botPlayer;
+            _moveAction = new FpcMoveAction(botPlayer);
+            _lookAction = new FpcLookAction(botPlayer);
+            _interactAction = new FpcInteractAction(botPlayer);
         }
 
-        public void OnEnter()
+        public void Reset()
         {
+            _moveAction.Reset();
+            _lookAction.Reset();
+            _interactAction.Reset();
+
+            TargetToFollow = null;
             IsTargetLost = false;
-            TargetLastKnownLocation = TargetToFollow.transform.position;
-            TargetLastTimeSeen = Time.time;
         }
 
-        public void UpdatePlayer(IFpcRole fpcRole)
+        public void UpdatePlayer()
         {
-            if (!TargetToFollow || !(TargetToFollow.roleManager.CurrentRole is IFpcRole))
+            if (!TargetToFollow)
             {
                 IsTargetLost = true;
                 return;
             }
+
+            var fpcRole = _botPlayer.FpcRole;
 
             var directionToTarget = (TargetToFollow.transform.position - fpcRole.FpcModule.transform.position).normalized;
 
@@ -49,10 +57,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Actions
 
             if (Vector3.Distance(TargetToFollow.transform.position, fpcRole.FpcModule.transform.position) >= 1f)
             {
-                _botPlayer.DesiredMoveDirection = (TargetLastKnownLocation - fpcRole.FpcModule.transform.position).normalized;
+                _moveAction.TargetPosition = TargetLastKnownLocation;
+                _moveAction.UpdatePlayer();
 
-                var angleDiff = Vector3.SignedAngle(_botPlayer.DesiredMoveDirection, fpcRole.FpcModule.transform.forward, Vector3.down);
-                _botPlayer.DesiredLook = new Vector3(0, angleDiff);
+                _lookAction.TargetLookDirection = _botPlayer.DesiredMoveDirection;
+                _lookAction.UpdatePlayer();
             }
             else
             {
@@ -63,18 +72,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Actions
             if (_botPlayer.DesiredMoveDirection != Vector3.zero
                 && Vector3.Distance(fpcRole.FpcModule.transform.position, _prevPosition) < Vector3.kEpsilon)
             {
-                if (Physics.Raycast(fpcRole.FpcModule.transform.position, _botPlayer.DesiredMoveDirection, out var hit))
-                {
-                    if (hit.collider.GetComponent<InteractableCollider>() is InteractableCollider interactableCollider
-                        && hit.collider.GetComponentInParent<DoorVariant>() is DoorVariant door
-                        && !door.TargetState)
-                    {
-                        var hub = fpcRole.FpcModule.GetComponentInParent<ReferenceHub>();
-                        var colliderId = interactableCollider.ColliderId;
-
-                        door.ServerInteract(hub, colliderId);
-                    }
-                }
+                _interactAction.UpdatePlayer();
             }
             _prevPosition = fpcRole.FpcModule.transform.position;
 
@@ -85,6 +83,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Actions
         }
 
         private FpcBotPlayer _botPlayer;
+        private FpcMoveAction _moveAction;
+        private FpcLookAction _lookAction;
+        private FpcInteractAction _interactAction;
         private Vector3 _prevPosition;
     }
 }

@@ -2,10 +2,9 @@
 
 namespace SCPSLBot.AI.FirstPersonControl.Actions
 {
-    internal interface IFpcBotAction
+    internal interface IFpcAction
     {
-        void OnEnter();
-
-        void UpdatePlayer(IFpcRole fpcRole);
+        void Reset();
+        void UpdatePlayer();
     }
 }

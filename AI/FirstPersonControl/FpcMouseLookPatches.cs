@@ -14,10 +14,11 @@ namespace SCPSLBot.AI.FirstPersonControl
         {
             var hub = HubField.GetValue(__instance) as ReferenceHub;
 
-            if (BotManager.Instance.BotPlayers.TryGetValue(hub, out var botPlayer))
+            if (BotManager.Instance.BotPlayers.TryGetValue(hub, out var botHub)
+                && botHub.CurrentBotPlayer is FpcBotPlayer fpcPlayer)
             {
-                float vRot = botPlayer.FpcBotPlayer.DesiredLook.x;
-                float hRot = botPlayer.FpcBotPlayer.DesiredLook.y;
+                float vRot = fpcPlayer.DesiredLook.x;
+                float hRot = fpcPlayer.DesiredLook.y;
 
                 __instance.CurrentVertical += vRot;
                 __instance.CurrentHorizontal += hRot;

@@ -15,9 +15,10 @@ namespace SCPSLBot.AI.FirstPersonControl
             var fpcModule = MainModuleField.GetValue(__instance) as FirstPersonMovementModule;
             var hub = HubGetter.Invoke(fpcModule, null) as ReferenceHub;
 
-            if (BotManager.Instance.BotPlayers.TryGetValue(hub, out var botPlayer))
+            if (BotManager.Instance.BotPlayers.TryGetValue(hub, out var botHub)
+                && botHub.CurrentBotPlayer is FpcBotPlayer fpcPlayer)
             {
-                __result = botPlayer.FpcBotPlayer.DesiredMoveDirection;
+                __result = fpcPlayer.DesiredMoveDirection;
                 return false;
             }
 

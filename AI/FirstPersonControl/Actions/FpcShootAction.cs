@@ -1,27 +1,26 @@
 ﻿using InventorySystem.Items.Firearms;
 using InventorySystem.Items.Firearms.BasicMessages;
-using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
 using System.Linq;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Actions
 {
-    internal class FpcBotShootAction : IFpcBotAction
+    internal class FpcShootAction : IFpcAction
     {
-        public FpcBotShootAction(FpcBotPlayer fpcBotPlayer)
+        public FpcShootAction(FpcBotPlayer fpcBotPlayer)
         {
             _botPlayer = fpcBotPlayer;
         }
 
-        public void OnEnter()
+        public void Reset()
         { }
 
-        public void UpdatePlayer(IFpcRole fpcRole)
+        public void UpdatePlayer()
         {
             // Update target.
 
-            var fpcTransform = fpcRole.FpcModule.transform;
+            var fpcTransform = _botPlayer.FpcRole.FpcModule.transform;
             var hub = fpcTransform.GetComponentInParent<ReferenceHub>();
 
             if (!_botPlayer.Perception.EnemiesWithinSight.Any())
