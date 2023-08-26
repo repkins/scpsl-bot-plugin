@@ -26,34 +26,36 @@ namespace SCPSLBot.AI
             { 
                 (RoomName.LczClassDSpawn, RoomShape.Endroom), new List<Node>()
                 {
-                    new Node() { LocalPosition = new Vector3(-22.50f, 0.96f, 0.00f), RoomNameShape = (RoomName.LczClassDSpawn, RoomShape.Endroom) },
-                    new Node() { LocalPosition = new Vector3(-17.71f, 0.96f, 0.00f), RoomNameShape = (RoomName.LczClassDSpawn, RoomShape.Endroom) },
-                    new Node() { LocalPosition = new Vector3(-13.82f, 0.96f, 0.00f), RoomNameShape = (RoomName.LczClassDSpawn, RoomShape.Endroom) },
-                    new Node() { LocalPosition = new Vector3(-10.02f, 0.96f, 0.00f), RoomNameShape = (RoomName.LczClassDSpawn, RoomShape.Endroom) },
-                    new Node() { LocalPosition = new Vector3(-6.27f, 0.96f, 0.00f), RoomNameShape = (RoomName.LczClassDSpawn, RoomShape.Endroom) },
-                    new Node() { LocalPosition = new Vector3(-2.35f, 0.96f, 0.00f), RoomNameShape = (RoomName.LczClassDSpawn, RoomShape.Endroom) },
-                    new Node() { LocalPosition = new Vector3(1.45f, 0.96f, 0.00f), RoomNameShape = (RoomName.LczClassDSpawn, RoomShape.Endroom) },
-                    new Node() { LocalPosition = new Vector3(5.20f, 0.96f, -0.00f), RoomNameShape = (RoomName.LczClassDSpawn, RoomShape.Endroom) },
-                    new Node() { LocalPosition = new Vector3(5.45f, 0.96f, -4.07f), RoomNameShape = (RoomName.LczClassDSpawn, RoomShape.Endroom) },
-                    new Node() { LocalPosition = new Vector3(5.06f, 0.96f, 4.01f), RoomNameShape = (RoomName.LczClassDSpawn, RoomShape.Endroom) },
-                    new Node() { LocalPosition = new Vector3(1.62f, 0.96f, -4.37f), RoomNameShape = (RoomName.LczClassDSpawn, RoomShape.Endroom) },
-                    new Node() { LocalPosition = new Vector3(1.27f, 0.96f, 4.20f), RoomNameShape = (RoomName.LczClassDSpawn, RoomShape.Endroom) },
-                    new Node() { LocalPosition = new Vector3(-2.12f, 0.96f, -4.18f), RoomNameShape = (RoomName.LczClassDSpawn, RoomShape.Endroom) },
-                    new Node() { LocalPosition = new Vector3(-2.62f, 0.96f, 4.35f), RoomNameShape = (RoomName.LczClassDSpawn, RoomShape.Endroom) },
-                    new Node() { LocalPosition = new Vector3(-5.87f, 0.96f, -4.43f), RoomNameShape = (RoomName.LczClassDSpawn, RoomShape.Endroom) },
-                    new Node() { LocalPosition = new Vector3(-6.42f, 0.96f, 4.37f), RoomNameShape = (RoomName.LczClassDSpawn, RoomShape.Endroom) },
-                    new Node() { LocalPosition = new Vector3(-9.73f, 0.96f, -4.29f), RoomNameShape = (RoomName.LczClassDSpawn, RoomShape.Endroom) },
-                    new Node() { LocalPosition = new Vector3(-10.21f, 0.96f, 4.38f), RoomNameShape = (RoomName.LczClassDSpawn, RoomShape.Endroom) },
-                    new Node() { LocalPosition = new Vector3(-13.46f, 0.96f, -4.30f), RoomNameShape = (RoomName.LczClassDSpawn, RoomShape.Endroom) },
-                    new Node() { LocalPosition = new Vector3(-14.06f, 0.96f, 4.29f), RoomNameShape = (RoomName.LczClassDSpawn, RoomShape.Endroom) },
-                    new Node() { LocalPosition = new Vector3(-17.39f, 0.96f, -4.58f), RoomNameShape = (RoomName.LczClassDSpawn, RoomShape.Endroom) },
-                    new Node() { LocalPosition = new Vector3(-17.88f, 0.96f, 4.45f), RoomNameShape = (RoomName.LczClassDSpawn, RoomShape.Endroom) },
+                    new Node(new Vector3(-22.50f, 0.96f, 0.00f), new int[] { 1 }),
+                    new Node(new Vector3(-17.71f, 0.96f, 0.00f), new int[] { 0, 2 }),
+                    new Node(new Vector3(-13.82f, 0.96f, 0.00f), new int[] { 1, 3 }),
+                    new Node(new Vector3(-10.02f, 0.96f, 0.00f), new int[] {  }),
+                    new Node(new Vector3(-6.27f, 0.96f, 0.00f), new int[] {  }),
+                    new Node(new Vector3(-2.35f, 0.96f, 0.00f), new int[] {  }),
+                    new Node(new Vector3(1.45f, 0.96f, 0.00f), new int[] {  }),
+                    new Node(new Vector3(5.20f, 0.96f, -0.00f), new int[] {  }),
+                    new Node(new Vector3(5.45f, 0.96f, -4.07f), new int[] {  }),
+                    new Node(new Vector3(5.06f, 0.96f, 4.01f), new int[] {  }),
+                    new Node(new Vector3(1.62f, 0.96f, -4.37f), new int[] {  }),
+                    new Node(new Vector3(1.27f, 0.96f, 4.20f), new int[] {  }),
+                    new Node(new Vector3(-2.12f, 0.96f, -4.18f), new int[] {  }),
+                    new Node(new Vector3(-2.62f, 0.96f, 4.35f), new int[] {  }),
+                    new Node(new Vector3(-5.87f, 0.96f, -4.43f), new int[] {  }),
+                    new Node(new Vector3(-6.42f, 0.96f, 4.37f), new int[] {  }),
+                    new Node(new Vector3(-9.73f, 0.96f, -4.29f), new int[] {  }),
+                    new Node(new Vector3(-10.21f, 0.96f, 4.38f), new int[] {  }),
+                    new Node(new Vector3(-13.46f, 0.96f, -4.30f), new int[] {  }),
+                    new Node(new Vector3(-14.06f, 0.96f, 4.29f), new int[] {  }),
+                    new Node(new Vector3(-17.39f, 0.96f, -4.58f), new int[] {  }),
+                    new Node(new Vector3(-17.88f, 0.96f, 4.45f), new int[] {  }),
                 }
             }
         };
 
         public void Init()
         {
+            InitNodeGraph();
+
             EventManager.RegisterEvents(this);
 
             Timing.RunCoroutine(RunEditingVisuals());
@@ -93,7 +95,7 @@ namespace SCPSLBot.AI
                     }
                     else
                     {
-                        var message = $"Node in {nearestNode.RoomNameShape} at local {nearestNode.LocalPosition}";
+                        var message = $"Node #{nearestNode.Id} in {nearestNode.RoomNameShape} at local {nearestNode.LocalPosition}";
                         player.SendBroadcast(message, 60, shouldClearPrevious: true);
                     }
                 }
@@ -136,19 +138,35 @@ namespace SCPSLBot.AI
                 NodesByRoom.Add((room.Name, room.Shape), roomNodes);
             }
 
-            var newNode = new Node() {
-                LocalPosition = room.transform.InverseTransformPoint(position),
+            var newNode = new Node(room.transform.InverseTransformPoint(position), new int[] { } )
+            {
+                Id = roomNodes.Count,
                 RoomNameShape = (room.Name, room.Shape),
             };
 
             roomNodes.Add(newNode);
 
-            Log.Info($"Node at local position {newNode.LocalPosition} added under room {(room.Name, room.Shape)}.");
+            Log.Info($"Node #{newNode.Id} at local position {newNode.LocalPosition} added under room {(room.Name, room.Shape)}.");
 
             return newNode;
         }
 
+        private void InitNodeGraph()
+        {
+            foreach (var roomNodes in NodesByRoom)
+            {
+                foreach (var (node, i) in roomNodes.Value.Select((n, i) => (n, i)))
+                {
+                    node.Id = i;
+                    node.RoomNameShape = roomNodes.Key;
+                    node.ConnectedNodes.AddRange(node.ConnectedNodeIndices.Select(connectedIndex => roomNodes.Value[connectedIndex]));
+                }
+            }
+        }
+
+        #region Private constructor
         private NavigationManager()
         { }
+        #endregion
     }
 }
