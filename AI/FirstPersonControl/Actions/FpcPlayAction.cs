@@ -46,7 +46,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Actions
                     var hub = fpcTransform.GetComponentInParent<ReferenceHub>();
 
                     var closestTarget = _botPlayer.Perception.EnemiesWithinSight
-                        .Select(o => new { hub, distSqr = Vector3.SqrMagnitude(o.transform.position - fpcTransform.position) })
+                        .Select(o => new { hub = o, distSqr = Vector3.SqrMagnitude(o.transform.position - fpcTransform.position) })
                         .Aggregate((a, c) => c.distSqr < a.distSqr ? c : a)
                         .hub;
 

@@ -16,16 +16,17 @@ namespace SCPSLBot
         [PluginConfig]
         public Config Config;
 
-        [PluginEntryPoint("TestPlugin", "1.0.0", "NWAPI plugin for testing purposes.", "repkins(19)")]
+        [PluginEntryPoint("SCPSLBot", "1.0.0", "AI players addon.", "repkins(19)")]
         public void OnLoad()
         {
             Instance = this;
             Log.Info("Loaded plugin.");
 
-            HarmonyInstance = new Harmony($"TestPlugin.100.{DateTime.Now.Ticks}");
+            HarmonyInstance = new Harmony($"SCPSLBot.100.{DateTime.Now.Ticks}");
             HarmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
             Log.Info("Patching successful.");
 
+            NavigationManager.Instance.Init();
             BotManager.Instance.Init();
         }
 

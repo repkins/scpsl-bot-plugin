@@ -34,6 +34,7 @@
   <ItemGroup>
     <Reference Include="0Harmony, Version=2.2.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\Lib.Harmony.2.2.2\lib\net48\0Harmony.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="PluginAPI, Version=13.1.0.0, Culture=neutral, processorArchitecture=AMD64">
       <HintPath>packages\Northwood.PluginAPI.13.1.0\lib\net48\PluginAPI.dll</HintPath>
@@ -71,11 +72,15 @@
     <Compile Include="AI\FirstPersonControl\Actions\FpcMoveAction.cs" />
     <Compile Include="AI\FirstPersonControl\Actions\FpcPlayAction.cs" />
     <Compile Include="AI\FirstPersonControl\IBotPlayer.cs" />
+    <Compile Include="AI\Navigation\Node.cs" />
     <Compile Include="Commands\BotApproachCommand.cs" />
     <Compile Include="Commands\BotTurnCommand.cs" />
     <Compile Include="Commands\BotMoveCommand.cs" />
     <Compile Include="AI\BotHub.cs" />
     <Compile Include="AI\BotManager.cs" />
+    <Compile Include="Commands\NavEditCommand.cs" />
+    <Compile Include="Commands\NavNodeInfoCommand.cs" />
+    <Compile Include="Commands\NavNodeAddCommand.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="DebugPatches.cs" />
     <Compile Include="LocalNetworking\LocalConnectionToServer.cs" />
