@@ -1,10 +1,4 @@
-﻿using PlayerRoles.FirstPersonControl;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Actions
 {
@@ -12,17 +6,28 @@ namespace SCPSLBot.AI.FirstPersonControl.Actions
     {
         public Vector3 TargetPosition;
 
+        public bool IsAtTargetPosition;
+
         public FpcMoveAction(FpcBotPlayer botPlayer)
         {
             _botPlayer = botPlayer;
         }
 
         public void Reset()
-        { }
+        {
+            IsAtTargetPosition = false;
+        }
 
         public void UpdatePlayer()
         {
-            _botPlayer.DesiredMoveDirection = (TargetPosition - _botPlayer.FpcRole.FpcModule.transform.position).normalized;
+            if (Vector3.Distance(TargetPosition, _botPlayer.FpcRole.FpcModule.transform.position) < 1f)
+            {
+                _botPlayer.DesiredMoveDirection = Vector3.zero;
+                IsAtTargetPosition = true;
+                return;
+            }
+
+            _botPlayer.DesiredMoveDirection = Vector3.Normalize(TargetPosition - _botPlayer.FpcRole.FpcModule.transform.position);
         }
 
         private FpcBotPlayer _botPlayer;

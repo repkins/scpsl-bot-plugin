@@ -10,7 +10,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Actions
 {
     internal class FpcLookAction : IFpcAction
     {
-        public Vector3 TargetLookDirection;
+        public Vector3 TargetLookDirection { private get; set; }
 
         public FpcLookAction(FpcBotPlayer botPlayer)
         {

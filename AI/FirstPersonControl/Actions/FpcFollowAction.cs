@@ -66,21 +66,16 @@ namespace SCPSLBot.AI.FirstPersonControl.Actions
                 return;
             }
 
-            if (Vector3.Distance(TargetToFollow.transform.position, fpcRole.FpcModule.transform.position) >= 1f)
-            {
-                _moveAction.TargetPosition = TargetLastKnownLocation;
-                _moveAction.UpdatePlayer();
+            _moveAction.TargetPosition = TargetLastKnownLocation;
+            _moveAction.UpdatePlayer();
 
+            if (!_moveAction.IsAtTargetPosition)
+            {
                 _lookAction.TargetLookDirection = _botPlayer.DesiredMoveDirection;
                 _lookAction.UpdatePlayer();
             }
-            else
-            {
-                _botPlayer.DesiredMoveDirection = Vector3.zero;
-                _botPlayer.DesiredLook = Vector3.zero;
-            }
 
-            if (_botPlayer.DesiredMoveDirection != Vector3.zero
+            if (!_moveAction.IsAtTargetPosition
                 && Vector3.Distance(fpcRole.FpcModule.transform.position, _prevPosition) < Vector3.kEpsilon)
             {
                 _interactAction.UpdatePlayer();
@@ -90,9 +85,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Actions
         }
 
         private FpcBotPlayer _botPlayer;
+
         private FpcMoveAction _moveAction;
         private FpcLookAction _lookAction;
         private FpcInteractAction _interactAction;
+
         private Vector3 _prevPosition;
     }
 }
