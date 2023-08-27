@@ -63,6 +63,8 @@
     <Reference Include="UnityEngine.PhysicsModule" HintPath="$(UNITY_REFERENCES)\UnityEngine.PhysicsModule.dll" Private="false" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\Navigation\NavNodeDisconnectCommand.cs" />
+    <Compile Include="Commands\Navigation\NavNodeConnectCommand.cs" />
     <Compile Include="Navigation\Graph\NavigationGraph.cs" />
     <Compile Include="AI\FirstPersonControl\Actions\FpcFireAction.cs" />
     <Compile Include="AI\FirstPersonControl\Actions\FpcEquipAction.cs" />
