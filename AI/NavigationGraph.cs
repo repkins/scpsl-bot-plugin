@@ -63,7 +63,8 @@ namespace SCPSLBot.AI
 
             EventManager.RegisterEvents(this);
 
-            Timing.RunCoroutine(RunEditingVisuals());
+            Timing.RunCoroutine(RunNodeInfoVisuals());
+            Timing.RunCoroutine(RunNodeVisuals());
         }
 
         [PluginEvent(PluginAPI.Enums.ServerEventType.MapGenerated)]
@@ -72,24 +73,24 @@ namespace SCPSLBot.AI
             // Connect door waypoints
         }
 
-        public IEnumerator<float> RunEditingVisuals()
+        public IEnumerator<float> RunNodeInfoVisuals()
         {
             while (true)
             {
-                UpdateEditingVisuals();
+                UpdateNodeInfoVisuals();
 
                 yield return Timing.WaitForOneFrame;
             }
         }
 
-        public void UpdateEditingVisuals()
+        public void UpdateNodeInfoVisuals()
         {
             if (PlayerEditing != null)
             {
                 var player = PlayerEditing;
 
                 var nearestNode = FindNearestNode(player.Position);
-                
+
                 if (nearestNode != LastEditingNode)
                 {
                     LastEditingNode = nearestNode;
@@ -105,7 +106,23 @@ namespace SCPSLBot.AI
                         player.SendBroadcast(message, 60, shouldClearPrevious: true);
                     }
                 }
+            }
+        }
 
+        public IEnumerator<float> RunNodeVisuals()
+        {
+            while (true)
+            {
+                UpdateNodeVisuals();
+
+                yield return Timing.WaitForOneFrame;
+            }
+        }
+
+        public void UpdateNodeVisuals()
+        {
+            if (PlayerEditing != null)
+            {
                 var primPrefab = NetworkClient.prefabs.Values.Select(p => p.GetComponent<PrimitiveObjectToy>()).First(p => p);
 
                 foreach (var node in NodesByRoom.Values.SelectMany(l => l))
@@ -178,6 +195,12 @@ namespace SCPSLBot.AI
                     NetworkServer.Destroy(connectionVisual.gameObject);
                 }
                 NodeConnectionVisuals.Clear();
+
+                foreach (var connectionOriginVisual in NodeConnectionOriginVisuals.Values)
+                {
+                    NetworkServer.Destroy(connectionOriginVisual.gameObject);
+                }
+                NodeConnectionOriginVisuals.Clear();
             }
         }
 
