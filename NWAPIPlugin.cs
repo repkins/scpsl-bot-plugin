@@ -2,6 +2,7 @@
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using SCPSLBot.AI;
+using SCPSLBot.Navigation.Graph;
 using System;
 using System.Reflection;
 
@@ -27,6 +28,8 @@ namespace SCPSLBot
             Log.Info("Patching successful.");
 
             NavigationGraph.Instance.Init();
+            NavigationGraphEditor.Instance.Init();
+
             BotManager.Instance.Init();
         }
 

@@ -1,23 +1,24 @@
 ﻿using CommandSystem;
 using PlayerRoles;
+using PluginAPI.Core;
 using RemoteAdmin;
-using SCPSLBot.AI;
+using SCPSLBot.Navigation.Graph;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SCPSLBot.Commands
+namespace SCPSLBot.Commands.Navigation
 {
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
-    internal class NavNodeAddCommand : ICommand
+    internal class NavEditCommand : ICommand
     {
-        public string Command { get; } = "nav_node_add";
+        public string Command { get; } = "nav_edit";
 
         public string[] Aliases { get; } = new string[] { };
 
-        public string Description { get; } = "Adds navigation graph node to current position.";
+        public string Description { get; } = "Toggles editing of nav graph.";
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
@@ -27,15 +28,12 @@ namespace SCPSLBot.Commands
                 return false;
             }
 
-            if (!playerCommandSender.ReferenceHub.IsAlive())
-            {
-                response = "Command disabled when you are not alive!";
-                return false;
-            }
+            var navGraphEditor = NavigationGraphEditor.Instance;
 
-            var node = NavigationGraph.Instance.AddNode(playerCommandSender.ReferenceHub.transform.position);
+            navGraphEditor.IsEditing = !navGraphEditor.IsEditing;
+            navGraphEditor.PlayerEditing = navGraphEditor.IsEditing ? Player.Get(playerCommandSender) : null;
 
-            response = $"Node at local position {node.LocalPosition} added.";
+            response = $"Nav graph editing is now {(navGraphEditor.IsEditing ? "enabled" : "disabled")}.";
             return true;
         }
     }

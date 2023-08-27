@@ -2,7 +2,7 @@
 using MapGeneration;
 using PlayerRoles;
 using RemoteAdmin;
-using SCPSLBot.AI;
+using SCPSLBot.Navigation.Graph;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace SCPSLBot.Commands
+namespace SCPSLBot.Commands.Navigation
 {
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
     internal class NavNodeInfoCommand : ICommand

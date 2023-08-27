@@ -63,7 +63,7 @@
     <Reference Include="UnityEngine.PhysicsModule" HintPath="$(UNITY_REFERENCES)\UnityEngine.PhysicsModule.dll" Private="false" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AI\NavigationGraph.cs" />
+    <Compile Include="Navigation\Graph\NavigationGraph.cs" />
     <Compile Include="AI\FirstPersonControl\Actions\FpcFireAction.cs" />
     <Compile Include="AI\FirstPersonControl\Actions\FpcEquipAction.cs" />
     <Compile Include="AI\FirstPersonControl\Actions\FpcReloadFirearmAction.cs" />
@@ -72,15 +72,16 @@
     <Compile Include="AI\FirstPersonControl\Actions\FpcMoveAction.cs" />
     <Compile Include="AI\FirstPersonControl\Actions\FpcPlayAction.cs" />
     <Compile Include="AI\FirstPersonControl\IBotPlayer.cs" />
-    <Compile Include="AI\Navigation\Node.cs" />
+    <Compile Include="Navigation\Graph\NavigationGraphEditor.cs" />
+    <Compile Include="Navigation\Graph\Node.cs" />
     <Compile Include="Commands\BotApproachCommand.cs" />
     <Compile Include="Commands\BotTurnCommand.cs" />
     <Compile Include="Commands\BotMoveCommand.cs" />
     <Compile Include="AI\BotHub.cs" />
     <Compile Include="AI\BotManager.cs" />
-    <Compile Include="Commands\NavEditCommand.cs" />
-    <Compile Include="Commands\NavNodeInfoCommand.cs" />
-    <Compile Include="Commands\NavNodeAddCommand.cs" />
+    <Compile Include="Commands\Navigation\NavEditCommand.cs" />
+    <Compile Include="Commands\Navigation\NavNodeInfoCommand.cs" />
+    <Compile Include="Commands\Navigation\NavNodeAddCommand.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="DebugPatches.cs" />
     <Compile Include="LocalNetworking\LocalConnectionToServer.cs" />
