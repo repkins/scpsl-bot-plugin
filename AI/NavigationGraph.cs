@@ -1,5 +1,7 @@
-﻿using MapGeneration;
+﻿using AdminToys;
+using MapGeneration;
 using MEC;
+using Mirror;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Events;
@@ -13,13 +15,15 @@ using UnityEngine;
 
 namespace SCPSLBot.AI
 {
-    internal class NavigationManager
+    internal class NavigationGraph
     {
-        public static NavigationManager Instance { get; } = new NavigationManager();
+        public static NavigationGraph Instance { get; } = new NavigationGraph();
 
         public bool IsEditing { get; set; }
         public Player PlayerEditing { get; set; }
         public Node LastEditingNode { get; set; }
+        public Dictionary<Node, PrimitiveObjectToy> NodeVisuals { get; } = new Dictionary<Node, PrimitiveObjectToy>();
+        public Dictionary<(Node, Node), PrimitiveObjectToy> NodeConnectionVisuals { get; } = new Dictionary<(Node, Node), PrimitiveObjectToy>();
 
         public static Dictionary<(RoomName, RoomShape), List<Node>> NodesByRoom { get; } = new Dictionary<(RoomName, RoomShape), List<Node>>()
         {
@@ -95,16 +99,77 @@ namespace SCPSLBot.AI
                     }
                     else
                     {
-                        var message = $"Node #{nearestNode.Id} in {nearestNode.RoomNameShape} at local {nearestNode.LocalPosition}";
+                        var connectedIdsStr = string.Join(", ", nearestNode.ConnectedNodes.Select(c => $"#{c.Id}"));
+                        var message = $"Node #{nearestNode.Id} in {nearestNode.RoomNameShape} connected to {connectedIdsStr}";
                         player.SendBroadcast(message, 60, shouldClearPrevious: true);
                     }
                 }
+
+                var primPrefab = NetworkClient.prefabs.Values.Select(p => p.GetComponent<PrimitiveObjectToy>()).First(p => p);
+
+                foreach (var node in NodesByRoom.Values.SelectMany(l => l))
+                {
+                    var (roomName, roomShape) = node.RoomNameShape;
+                    RoomIdUtils.TryFindRoom(roomName, FacilityZone.None, roomShape, out var room);
+
+                    if (!NodeVisuals.TryGetValue(node, out var visual))
+                    {
+                        visual = UnityEngine.Object.Instantiate(primPrefab);
+                        NetworkServer.Spawn(visual.gameObject);
+
+                        visual.transform.position = room.transform.TransformPoint(node.LocalPosition);
+                        visual.transform.localScale = Vector3.one * 0.25f;
+                        visual.NetworkMaterialColor = Color.yellow;
+
+                        NodeVisuals.Add(node, visual);
+                    }
+
+
+                    foreach (var connectedNode in node.ConnectedNodes)
+                    {
+                        if (NodeConnectionVisuals.TryGetValue((connectedNode, node), out var inConnectionVisual))
+                        {
+                            inConnectionVisual.NetworkMaterialColor = Color.yellow;
+                            continue;
+                        }
+
+                        if (!NodeConnectionVisuals.TryGetValue((node, connectedNode), out var outConnectionVisual))
+                        {
+                            outConnectionVisual = UnityEngine.Object.Instantiate(primPrefab);
+                            NetworkServer.Spawn(outConnectionVisual.gameObject);
+
+                            outConnectionVisual.NetworkPrimitiveType = PrimitiveType.Cylinder;
+                            outConnectionVisual.transform.position = room.transform.TransformPoint(Vector3.Lerp(node.LocalPosition, connectedNode.LocalPosition, 0.5f));
+                            outConnectionVisual.transform.LookAt(room.transform.TransformPoint(connectedNode.LocalPosition));
+                            outConnectionVisual.transform.Rotate(outConnectionVisual.transform.forward, 90f);
+                            outConnectionVisual.transform.localScale = -Vector3.forward * 0.1f + -Vector3.right * 0.1f;
+                            outConnectionVisual.transform.localScale += -Vector3.up * Vector3.Distance(node.LocalPosition, connectedNode.LocalPosition) * 0.5f;
+                            outConnectionVisual.NetworkMaterialColor = Color.white;
+
+                            NodeConnectionVisuals.Add((node, connectedNode), outConnectionVisual);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                foreach (var nodeVisual in NodeVisuals.Values)
+                {
+                    NetworkServer.Destroy(nodeVisual.gameObject);
+                }
+                NodeVisuals.Clear();
+
+                foreach (var connectionVisual in NodeConnectionVisuals.Values)
+                {
+                    NetworkServer.Destroy(connectionVisual.gameObject);
+                }
+                NodeConnectionVisuals.Clear();
             }
         }
 
         public Node FindNearestNode(Vector3 position, float radius = 1f)
         {
-            var room = RoomIdUtils.RoomAtPosition(position);
+            var room = RoomIdUtils.RoomAtPositionRaycasts(position);
             
             if (!NodesByRoom.TryGetValue((room.Name, room.Shape), out var roomNodes))
             {
@@ -130,7 +195,7 @@ namespace SCPSLBot.AI
 
         public Node AddNode(Vector3 position)
         {
-            var room = RoomIdUtils.RoomAtPosition(position);
+            var room = RoomIdUtils.RoomAtPositionRaycasts(position);
 
             if (!NodesByRoom.TryGetValue((room.Name, room.Shape), out var roomNodes))
             {
@@ -165,7 +230,7 @@ namespace SCPSLBot.AI
         }
 
         #region Private constructor
-        private NavigationManager()
+        private NavigationGraph()
         { }
         #endregion
     }

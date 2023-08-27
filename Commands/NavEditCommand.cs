@@ -28,10 +28,10 @@ namespace SCPSLBot.Commands
                 return false;
             }
 
-            NavigationManager.Instance.IsEditing = !NavigationManager.Instance.IsEditing;
-            NavigationManager.Instance.PlayerEditing = NavigationManager.Instance.IsEditing ? Player.Get(playerCommandSender) : null;
+            NavigationGraph.Instance.IsEditing = !NavigationGraph.Instance.IsEditing;
+            NavigationGraph.Instance.PlayerEditing = NavigationGraph.Instance.IsEditing ? Player.Get(playerCommandSender) : null;
 
-            response = $"Nav graph editing is now {(NavigationManager.Instance.IsEditing ? "enabled" : "disabled")}.";
+            response = $"Nav graph editing is now {(NavigationGraph.Instance.IsEditing ? "enabled" : "disabled")}.";
             return true;
         }
     }

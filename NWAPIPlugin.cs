@@ -26,7 +26,7 @@ namespace SCPSLBot
             HarmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
             Log.Info("Patching successful.");
 
-            NavigationManager.Instance.Init();
+            NavigationGraph.Instance.Init();
             BotManager.Instance.Init();
         }
 

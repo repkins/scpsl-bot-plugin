@@ -36,7 +36,7 @@ namespace SCPSLBot.Commands
             }
 
             var position = playerCommandSender.ReferenceHub.transform.position;
-            var node = NavigationManager.Instance.FindNearestNode(position);
+            var node = NavigationGraph.Instance.FindNearestNode(position);
             if (node == null)
             {
                 response = $"No nearby node found at position {position}.";
