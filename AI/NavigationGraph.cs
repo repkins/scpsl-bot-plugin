@@ -24,6 +24,7 @@ namespace SCPSLBot.AI
         public Node LastEditingNode { get; set; }
         public Dictionary<Node, PrimitiveObjectToy> NodeVisuals { get; } = new Dictionary<Node, PrimitiveObjectToy>();
         public Dictionary<(Node, Node), PrimitiveObjectToy> NodeConnectionVisuals { get; } = new Dictionary<(Node, Node), PrimitiveObjectToy>();
+        public Dictionary<(Node, Node), PrimitiveObjectToy> NodeConnectionOriginVisuals { get; } = new Dictionary<(Node, Node), PrimitiveObjectToy>();
 
         public static Dictionary<(RoomName, RoomShape), List<Node>> NodesByRoom { get; } = new Dictionary<(RoomName, RoomShape), List<Node>>()
         {
@@ -124,20 +125,24 @@ namespace SCPSLBot.AI
                         NodeVisuals.Add(node, visual);
                     }
 
-
                     foreach (var connectedNode in node.ConnectedNodes)
                     {
                         if (NodeConnectionVisuals.TryGetValue((connectedNode, node), out var inConnectionVisual))
                         {
                             inConnectionVisual.NetworkMaterialColor = Color.yellow;
+
+                            if (NodeConnectionOriginVisuals.TryGetValue((connectedNode, node), out var connectionOriginVisual))
+                            {
+                                NodeConnectionOriginVisuals.Remove((connectedNode, node));
+                                NetworkServer.Destroy(connectionOriginVisual.gameObject);
+                            }
+
                             continue;
                         }
 
                         if (!NodeConnectionVisuals.TryGetValue((node, connectedNode), out var outConnectionVisual))
                         {
                             outConnectionVisual = UnityEngine.Object.Instantiate(primPrefab);
-                            NetworkServer.Spawn(outConnectionVisual.gameObject);
-
                             outConnectionVisual.NetworkPrimitiveType = PrimitiveType.Cylinder;
                             outConnectionVisual.transform.position = room.transform.TransformPoint(Vector3.Lerp(node.LocalPosition, connectedNode.LocalPosition, 0.5f));
                             outConnectionVisual.transform.LookAt(room.transform.TransformPoint(connectedNode.LocalPosition));
@@ -145,8 +150,17 @@ namespace SCPSLBot.AI
                             outConnectionVisual.transform.localScale = -Vector3.forward * 0.1f + -Vector3.right * 0.1f;
                             outConnectionVisual.transform.localScale += -Vector3.up * Vector3.Distance(node.LocalPosition, connectedNode.LocalPosition) * 0.5f;
                             outConnectionVisual.NetworkMaterialColor = Color.white;
+                            NetworkServer.Spawn(outConnectionVisual.gameObject);
+
+                            var connectionOriginVisual = UnityEngine.Object.Instantiate(primPrefab);
+                            connectionOriginVisual.transform.position = outConnectionVisual.transform.position;
+                            connectionOriginVisual.transform.position += outConnectionVisual.transform.up * (outConnectionVisual.transform.localScale.y + 0.125f);
+                            connectionOriginVisual.transform.localScale = Vector3.one * 0.2f;
+                            connectionOriginVisual.NetworkMaterialColor = Color.white;
+                            NetworkServer.Spawn(connectionOriginVisual.gameObject);
 
                             NodeConnectionVisuals.Add((node, connectedNode), outConnectionVisual);
+                            NodeConnectionOriginVisuals.Add((node, connectedNode), connectionOriginVisual);
                         }
                     }
                 }
