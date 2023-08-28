@@ -22,13 +22,19 @@ namespace SCPSLBot.Navigation.Graph
 
         public bool IsEditing { get; set; }
         public Player PlayerEditing { get; set; }
-        public Node LastEditingNode { get; set; }
         public Dictionary<Node, PrimitiveObjectToy> NodeVisuals { get; } = new Dictionary<Node, PrimitiveObjectToy>();
         public Dictionary<(Node From, Node To), PrimitiveObjectToy> NodeConnectionVisuals { get; } = new Dictionary<(Node, Node), PrimitiveObjectToy>();
         public Dictionary<(Node, Node), PrimitiveObjectToy> NodeConnectionOriginVisuals { get; } = new Dictionary<(Node, Node), PrimitiveObjectToy>();
 
+        public Node FacingNode { get; private set; }
+
+        public Node LastEditingNode { get; set; }
+        public Node LastFacingNode { get; private set; }
+        public string[] NodeVisualsMessages { get; } = new string[2];
+
         public void Init()
         {
+            Timing.RunCoroutine(RunFacingNodeUpdates());
             Timing.RunCoroutine(RunNodeInfoVisuals());
             Timing.RunCoroutine(RunNodeVisuals());
         }
@@ -43,6 +49,29 @@ namespace SCPSLBot.Navigation.Graph
                 .FirstOrDefault(n => Vector3.Dot(Vector3.Normalize(n.LocalPosition - localPosition), localDirection) > 0.999848f);
 
             return targetNode;
+        }
+
+        public IEnumerator<float> RunFacingNodeUpdates()
+        {
+            while (true)
+            {
+                UpdateFacingNode();
+
+                yield return Timing.WaitForOneFrame;
+            }
+        }
+
+        public void UpdateFacingNode()
+        {
+            if (PlayerEditing != null)
+            {
+                var room = RoomIdUtils.RoomAtPositionRaycasts(PlayerEditing.Position);
+
+                var localPosition = room.transform.InverseTransformPoint(PlayerEditing.Camera.position);
+                var localForward = room.transform.InverseTransformDirection(PlayerEditing.Camera.forward);
+
+                FacingNode = FindClosestNodeFacingAt((room.Name, room.Shape), localPosition, localForward);
+            }
         }
 
         public IEnumerator<float> RunNodeInfoVisuals()
@@ -67,16 +96,39 @@ namespace SCPSLBot.Navigation.Graph
                 {
                     LastEditingNode = nearestNode;
 
-                    if (nearestNode == null)
+                    if (nearestNode != null)
                     {
-                        player.ClearBroadcasts();
+                        var connectedIdsStr = string.Join(", ", nearestNode.ConnectedNodes.Select(c => $"#{c.Id}"));
+                        NodeVisualsMessages[0] = $"Node #{nearestNode.Id} in {nearestNode.RoomNameShape} connected to {connectedIdsStr}";
                     }
                     else
                     {
-                        var connectedIdsStr = string.Join(", ", nearestNode.ConnectedNodes.Select(c => $"#{c.Id}"));
-                        var message = $"Node #{nearestNode.Id} in {nearestNode.RoomNameShape} connected to {connectedIdsStr}";
-                        player.SendBroadcast(message, 60, shouldClearPrevious: true);
+                        NodeVisualsMessages[0] = null;
                     }
+                }
+
+                if (FacingNode != LastFacingNode)
+                {
+                    LastFacingNode = FacingNode;
+
+                    if (FacingNode != null)
+                    {
+                        NodeVisualsMessages[1] = $"Facing node #{FacingNode.Id} in {FacingNode.RoomNameShape}";
+                    }
+                    else
+                    {
+                        NodeVisualsMessages[1] = null;
+                    }
+                }
+
+                var messageLinesToSend = NodeVisualsMessages.Where(m => m != null);
+                if (messageLinesToSend.Any())
+                {
+                    player.SendBroadcast(string.Join("\n", messageLinesToSend), 60, shouldClearPrevious: true);
+                }
+                else
+                {
+                    player.ClearBroadcasts();
                 }
             }
         }
@@ -130,10 +182,11 @@ namespace SCPSLBot.Navigation.Graph
 
                         visual.transform.position = room.transform.TransformPoint(node.LocalPosition);
                         visual.transform.localScale = -Vector3.one * 0.25f;
-                        visual.NetworkMaterialColor = Color.yellow;
 
                         NodeVisuals.Add(node, visual);
                     }
+
+                    visual.NetworkMaterialColor = (node == FacingNode) ? Color.green : Color.yellow;
 
                     foreach (var connectedNode in node.ConnectedNodes)
                     {
