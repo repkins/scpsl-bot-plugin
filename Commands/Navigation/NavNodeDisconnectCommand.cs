@@ -64,9 +64,12 @@ namespace SCPSLBot.Commands.Navigation
             }
             else
             {
-                var localPosition = room.transform.InverseTransformPoint(playerPosition);
-                var localForward = room.transform.InverseTransformDirection(playerCommandSender.ReferenceHub.transform.forward);
+                var playerCameraTransform = playerCommandSender.ReferenceHub.PlayerCameraReference;
+                var cameraPosition = playerCameraTransform.position;
+                var cameraForward = playerCameraTransform.forward;
 
+                var localPosition = room.transform.InverseTransformPoint(cameraPosition);
+                var localForward = room.transform.InverseTransformDirection(cameraForward);
                 targetNode = NavigationGraphEditor.Instance.FindClosestNodeFacingAt(node.RoomNameShape, localPosition, localForward);
 
                 if (targetNode == null)
