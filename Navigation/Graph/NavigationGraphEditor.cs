@@ -105,11 +105,16 @@ namespace SCPSLBot.Navigation.Graph
                         NodeConnectionVisuals.Remove((from, to));
                     }
 
-                    if (!from.ConnectedNodes.Contains(to))
+                    if (!from.ConnectedNodes.Contains(to) && NodeConnectionOriginVisuals.TryGetValue((from, to), out var originVisual))
                     {
-                        var connectionVisual = NodeConnectionOriginVisuals[(from, to)];
-                        NetworkServer.Destroy(connectionVisual.gameObject);
+                        NetworkServer.Destroy(originVisual.gameObject);
                         NodeConnectionOriginVisuals.Remove((from, to));
+                    }
+
+                    if (!to.ConnectedNodes.Contains(from) && NodeConnectionOriginVisuals.TryGetValue((to, from), out originVisual))
+                    {
+                        NetworkServer.Destroy(originVisual.gameObject);
+                        NodeConnectionOriginVisuals.Remove((to, from));
                     }
                 }
 

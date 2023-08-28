@@ -18,10 +18,10 @@ namespace SCPSLBot.Navigation.Graph
     {
         public static NavigationGraph Instance { get; } = new NavigationGraph();
 
-        public Dictionary<(RoomName, RoomShape), Node[]> NodesByRoom { get; } = new Dictionary<(RoomName, RoomShape), Node[]>()
+        public Dictionary<(RoomName, RoomShape), List<Node>> NodesByRoom { get; } = new Dictionary<(RoomName, RoomShape), List<Node>>()
         {
             {
-                (RoomName.LczClassDSpawn, RoomShape.Endroom), new Node[]
+                (RoomName.LczClassDSpawn, RoomShape.Endroom), new List<Node>
                 {
                     new Node(new Vector3(-22.50f, 0.96f, 0.00f), new int[] { 1 }),
                     new Node(new Vector3(-17.71f, 0.96f, 0.00f), new int[] { 0, 2 }),
@@ -48,8 +48,6 @@ namespace SCPSLBot.Navigation.Graph
                 }
             }
         };
-
-        public List<Node> Nodes { get; } = new List<Node>();
 
         public void Init()
         {
@@ -94,13 +92,18 @@ namespace SCPSLBot.Navigation.Graph
         {
             var room = RoomIdUtils.RoomAtPositionRaycasts(position);
 
+            if (!NodesByRoom.TryGetValue((room.Name, room.Shape), out var roomNodes))
+            {
+                NodesByRoom.Add((room.Name, room.Shape), new List<Node>());
+            }
+
             var newNode = new Node(room.transform.InverseTransformPoint(position), new int[] { })
             {
-                Id = Nodes.Count,
+                Id = roomNodes.Count,
                 RoomNameShape = (room.Name, room.Shape),
             };
 
-            Nodes.Add(newNode);
+            roomNodes.Add(newNode);
 
             Log.Info($"Node #{newNode.Id} at local position {newNode.LocalPosition} added under room {(room.Name, room.Shape)}.");
 
@@ -109,18 +112,13 @@ namespace SCPSLBot.Navigation.Graph
 
         private void InitNodeGraph()
         {
-            foreach (var (node, i) in NodesByRoom.Values.SelectMany(nr => nr).Select((n, i) => (n, i)))
-            {
-                node.Id = i;
-                Nodes.Add(node);
-            }
-
             foreach (var roomNodes in NodesByRoom)
             {
-                foreach (var node in roomNodes.Value.Select(n => n))
+                foreach (var (node, i) in roomNodes.Value.Select((n, i) => (n, i)))
                 {
+                    node.Id = i;
                     node.RoomNameShape = roomNodes.Key;
-                    node.ConnectedNodes.AddRange(node.ConnectedNodeIndices.Select(i => Nodes[i]));
+                    node.ConnectedNodes.AddRange(node.ConnectedNodeIndices.Select(connectedIndex => roomNodes.Value[connectedIndex]));
                 }
             }
         }
