@@ -14,7 +14,7 @@ namespace SCPSLBot
 
         public static Harmony HarmonyInstance;
 
-        [PluginConfig]
+        [PluginConfig("SCPSLBot")]
         public Config Config;
 
         [PluginEntryPoint("SCPSLBot", "1.0.0", "AI players addon.", "repkins(19)")]
@@ -28,6 +28,7 @@ namespace SCPSLBot
             Log.Info("Patching successful.");
 
             NavigationGraph.Instance.Init();
+            NavigationGraphManager.Instance.Init();
             NavigationGraphEditor.Instance.Init();
 
             BotManager.Instance.Init();

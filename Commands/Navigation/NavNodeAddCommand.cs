@@ -33,7 +33,7 @@ namespace SCPSLBot.Commands.Navigation
                 return false;
             }
 
-            var node = NavigationGraph.Instance.AddNode(playerCommandSender.ReferenceHub.transform.position);
+            var node = NavigationGraphEditor.Instance.AddNode(playerCommandSender.ReferenceHub.transform.position);
 
             response = $"Node at local position {node.LocalPosition} added.";
             return true;

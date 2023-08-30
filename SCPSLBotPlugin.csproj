@@ -65,6 +65,9 @@
   <ItemGroup>
     <Compile Include="Commands\Navigation\NavNodeDisconnectCommand.cs" />
     <Compile Include="Commands\Navigation\NavNodeConnectCommand.cs" />
+    <Compile Include="Navigation\Graph\NavigationGraphManager.cs" />
+    <Compile Include="Navigation\Graph\NavigationGraphVisuals.cs" />
+    <Compile Include="Navigation\NodeGraphSerializer.cs" />
     <Compile Include="Navigation\Graph\NavigationGraph.cs" />
     <Compile Include="AI\FirstPersonControl\Actions\FpcFireAction.cs" />
     <Compile Include="AI\FirstPersonControl\Actions\FpcEquipAction.cs" />

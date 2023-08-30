@@ -7,7 +7,9 @@ using PluginAPI.Core.Attributes;
 using PluginAPI.Events;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -50,17 +52,7 @@ namespace SCPSLBot.Navigation.Graph
         };
 
         public void Init()
-        {
-            InitNodeGraph();
-
-            EventManager.RegisterEvents(this);
-        }
-
-        [PluginEvent(PluginAPI.Enums.ServerEventType.MapGenerated)]
-        public void OnMapGenerated()
-        {
-            // Connect door waypoints
-        }
+        { }
 
         public Node FindNearestNode(Vector3 position, float radius = 1f)
         {
@@ -88,29 +80,26 @@ namespace SCPSLBot.Navigation.Graph
                 .node;
         }
 
-        public Node AddNode(Vector3 position)
+        public Node AddNode(Vector3 localPosition, (RoomName, RoomShape) roomNameShape, int[] connectedNodesIndices = null)
         {
-            var room = RoomIdUtils.RoomAtPositionRaycasts(position);
-
-            if (!NodesByRoom.TryGetValue((room.Name, room.Shape), out var roomNodes))
+            if (!NodesByRoom.TryGetValue(roomNameShape, out var roomNodes))
             {
-                NodesByRoom.Add((room.Name, room.Shape), new List<Node>());
+                roomNodes = new List<Node>();
+                NodesByRoom.Add(roomNameShape, roomNodes);
             }
 
-            var newNode = new Node(room.transform.InverseTransformPoint(position), new int[] { })
+            var newNode = new Node(localPosition, connectedNodesIndices)
             {
                 Id = roomNodes.Count,
-                RoomNameShape = (room.Name, room.Shape),
+                RoomNameShape = roomNameShape,
             };
 
             roomNodes.Add(newNode);
 
-            Log.Info($"Node #{newNode.Id} at local position {newNode.LocalPosition} added under room {(room.Name, room.Shape)}.");
-
             return newNode;
         }
 
-        private void InitNodeGraph()
+        public void InitNodeGraph()
         {
             foreach (var roomNodes in NodesByRoom)
             {

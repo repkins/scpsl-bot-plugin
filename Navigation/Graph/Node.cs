@@ -12,6 +12,7 @@ namespace SCPSLBot.Navigation.Graph
     {
         public int Id { get; set; }
         public Vector3 LocalPosition { get; set; }
+        public float Radius { get; set; }
 
         public (RoomName, RoomShape) RoomNameShape { get; set; }
 
