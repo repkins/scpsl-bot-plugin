@@ -1,6 +1,7 @@
 ﻿using MapGeneration;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Events;
+using SCPSLBot.Navigation.Graph;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,11 +11,11 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace SCPSLBot.Navigation.Graph
+namespace SCPSLBot.Navigation
 {
-    internal class NavigationGraphManager
+    internal class NavigationSystem
     {
-        public static NavigationGraphManager Instance { get; } = new NavigationGraphManager();
+        public static NavigationSystem Instance { get; } = new NavigationSystem();
 
         private NavigationGraph NavigationGraph { get; } = NavigationGraph.Instance;
 
@@ -130,7 +131,7 @@ namespace SCPSLBot.Navigation.Graph
         }
 
         #region Private constructor
-        private NavigationGraphManager()
+        private NavigationSystem()
         { }
         #endregion
     }
