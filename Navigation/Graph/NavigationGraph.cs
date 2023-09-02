@@ -71,6 +71,17 @@ namespace SCPSLBot.Navigation.Graph
             return newNode;
         }
 
+        public void RemoveNode(Node node, (RoomName, RoomShape) roomNameShape)
+        {
+            if (!NodesByRoom.TryGetValue(roomNameShape, out var roomNodes))
+            {
+                Log.Warning($"No nodes at room {roomNameShape} to remove node from.");
+                return;
+            }
+
+            roomNodes.Remove(node);
+        }
+
         public void ReadNodes(BinaryReader binaryReader)
         {
             var version = binaryReader.ReadByte();

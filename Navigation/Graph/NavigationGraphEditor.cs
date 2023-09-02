@@ -62,6 +62,23 @@ namespace SCPSLBot.Navigation.Graph
             return newNode;
         }
 
+        public void RemoveNode(Vector3 position)
+        {
+            var node = NavigationGraph.FindNearestNode(position);
+            if (node == null)
+            {
+                Log.Warning($"No node found nearby to remove.");
+
+                return;
+            }
+
+            var room = RoomIdUtils.RoomAtPositionRaycasts(position);
+
+            NavigationGraph.RemoveNode(node, (room.Name, room.Shape));
+
+            Log.Info($"Node at local position {node.LocalPosition} removed under room {(room.Name, room.Shape)}.");
+        }
+
         public void UpdateEditing()
         {
             if (PlayerEditing != LastPlayerEditing)

@@ -63,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\Navigation\NavLoadCommand.cs" />
+    <Compile Include="Commands\Navigation\NavNodeRemoveCommand.cs" />
     <Compile Include="Commands\Navigation\NavSaveCommand.cs" />
     <Compile Include="Commands\Navigation\NavNodeDisconnectCommand.cs" />
     <Compile Include="Commands\Navigation\NavNodeConnectCommand.cs" />
