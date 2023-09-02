@@ -32,7 +32,6 @@ namespace SCPSLBot.Navigation.Graph
 
             if (!NodesByRoom.TryGetValue((room.Name, room.Shape), out var roomNodes))
             {
-                Log.Warning($"Can't find nodes at room {(room.Name, room.Shape)}.");
                 return null;
             }
 
