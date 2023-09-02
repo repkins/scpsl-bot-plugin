@@ -83,21 +83,32 @@ namespace SCPSLBot.Navigation.Graph
             {
                 var primPrefab = NetworkClient.prefabs.Values.Select(p => p.GetComponent<PrimitiveObjectToy>()).First(p => p);
 
+                foreach (var nodeVisual in NodeVisuals.ToArray())
+                {
+                    if (!NavigationGraph.NodesByRoom.Values.Any(l => l.Contains(nodeVisual.Key)))
+                    {
+                        NetworkServer.Destroy(nodeVisual.Value.gameObject);
+                        NodeVisuals.Remove(nodeVisual.Key);
+                    }
+                }
+
                 foreach (var ((from, to), visual) in NodeConnectionVisuals.Select(p => (p.Key, p.Value)).ToArray())
                 {
-                    if (!from.ConnectedNodes.Contains(to) && !to.ConnectedNodes.Contains(from))
+                    var isAnyNodeRemoved = !NodeVisuals.ContainsKey(from) || !NodeVisuals.ContainsKey(to);
+
+                    if (isAnyNodeRemoved || (!from.ConnectedNodes.Contains(to) && !to.ConnectedNodes.Contains(from)))
                     {
                         NetworkServer.Destroy(visual.gameObject);
                         NodeConnectionVisuals.Remove((from, to));
                     }
 
-                    if (!from.ConnectedNodes.Contains(to) && NodeConnectionOriginVisuals.TryGetValue((from, to), out var originVisual))
+                    if ((isAnyNodeRemoved || !from.ConnectedNodes.Contains(to)) && NodeConnectionOriginVisuals.TryGetValue((from, to), out var originVisual))
                     {
                         NetworkServer.Destroy(originVisual.gameObject);
                         NodeConnectionOriginVisuals.Remove((from, to));
                     }
 
-                    if (!to.ConnectedNodes.Contains(from) && NodeConnectionOriginVisuals.TryGetValue((to, from), out originVisual))
+                    if ((isAnyNodeRemoved || !to.ConnectedNodes.Contains(from)) && NodeConnectionOriginVisuals.TryGetValue((to, from), out originVisual))
                     {
                         NetworkServer.Destroy(originVisual.gameObject);
                         NodeConnectionOriginVisuals.Remove((to, from));
