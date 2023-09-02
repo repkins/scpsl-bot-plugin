@@ -15,7 +15,7 @@ namespace SCPSLBot
 
         public static Harmony HarmonyInstance;
 
-        [PluginConfig("SCPSLBot")]
+        [PluginConfig()]
         public Config Config;
 
         [PluginEntryPoint("SCPSLBot", "1.0.0", "AI players addon.", "repkins(19)")]
@@ -27,6 +27,8 @@ namespace SCPSLBot
             HarmonyInstance = new Harmony($"SCPSLBot.100.{DateTime.Now.Ticks}");
             HarmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
             Log.Info("Patching successful.");
+
+            NavigationSystem.Instance.BaseDir = PluginHandler.Get(this).PluginDirectoryPath;
 
             NavigationGraph.Instance.Init();
             NavigationSystem.Instance.Init();

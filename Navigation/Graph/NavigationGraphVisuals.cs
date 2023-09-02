@@ -14,8 +14,7 @@ namespace SCPSLBot.Navigation.Graph
 {
     internal class NavigationGraphVisuals
     {
-        public bool IsEnabled { get; set; }
-        public Player PlayerToShowVisualsTo { get; set; }
+        public Player EnabledVisualsForPlayer { get; set; }
 
         public Node NearestNode { get; set; }
         public Node FacingNode { get; set; }
@@ -33,7 +32,7 @@ namespace SCPSLBot.Navigation.Graph
 
         public void UpdateNodeInfoVisuals()
         {
-            if (PlayerToShowVisualsTo != null)
+            if (EnabledVisualsForPlayer != null)
             {
                 var nearestNode = NearestNode;
 
@@ -69,18 +68,18 @@ namespace SCPSLBot.Navigation.Graph
                 var messageLinesToSend = NodeVisualsMessages.Where(m => m != null);
                 if (messageLinesToSend.Any())
                 {
-                    PlayerToShowVisualsTo.SendBroadcast(string.Join("\n", messageLinesToSend), 60, shouldClearPrevious: true);
+                    EnabledVisualsForPlayer.SendBroadcast(string.Join("\n", messageLinesToSend), 60, shouldClearPrevious: true);
                 }
                 else
                 {
-                    PlayerToShowVisualsTo.ClearBroadcasts();
+                    EnabledVisualsForPlayer.ClearBroadcasts();
                 }
             }
         }
 
         public void UpdateNodeVisuals()
         {
-            if (IsEnabled)
+            if (EnabledVisualsForPlayer != null)
             {
                 var primPrefab = NetworkClient.prefabs.Values.Select(p => p.GetComponent<PrimitiveObjectToy>()).First(p => p);
 

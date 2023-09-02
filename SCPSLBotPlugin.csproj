@@ -36,9 +36,8 @@
       <HintPath>packages\Lib.Harmony.2.2.2\lib\net48\0Harmony.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="PluginAPI, Version=13.1.0.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>packages\Northwood.PluginAPI.13.1.0\lib\net48\PluginAPI.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="PluginAPI, Version=13.1.1.0, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>packages\Northwood.PluginAPI.13.1.1\lib\net48\PluginAPI.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -63,6 +62,8 @@
     <Reference Include="UnityEngine.PhysicsModule" HintPath="$(UNITY_REFERENCES)\UnityEngine.PhysicsModule.dll" Private="false" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\Navigation\NavLoadCommand.cs" />
+    <Compile Include="Commands\Navigation\NavSaveCommand.cs" />
     <Compile Include="Commands\Navigation\NavNodeDisconnectCommand.cs" />
     <Compile Include="Commands\Navigation\NavNodeConnectCommand.cs" />
     <Compile Include="Navigation\NavigationSystem.cs" />

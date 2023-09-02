@@ -17,6 +17,8 @@ namespace SCPSLBot.Navigation
     {
         public static NavigationSystem Instance { get; } = new NavigationSystem();
 
+        public string BaseDir { get; set; }
+
         private NavigationGraph NavigationGraph { get; } = NavigationGraph.Instance;
 
         public void Init()
@@ -51,8 +53,10 @@ namespace SCPSLBot.Navigation
                 (new Node(new Vector3(-17.88f, 0.96f, 4.45f)), new int[] {  }),
             };
 
-            foreach (var (node, connsIdxs) in nodesConnections)
+            foreach (var ((node, connsIdxs), nodeIdx) in nodesConnections.Select((nodeConns, idx) => (nodeConns, idx)))
             {
+                node.Id = nodeIdx;
+                node.RoomNameShape = (RoomName.LczClassDSpawn, RoomShape.Endroom);
                 node.ConnectedNodes.AddRange(connsIdxs.Select(connIdx => nodesConnections[connIdx].node));
             }
 
@@ -68,7 +72,7 @@ namespace SCPSLBot.Navigation
         public void LoadNodes()
         {
             var fileName = "navgraph.slngf";
-            var path = Path.Combine(Assembly.GetExecutingAssembly().Location, "SCPSLBot", fileName);
+            var path = Path.Combine(BaseDir, fileName);
             using (var fileStream = File.OpenRead(path))
             using (var binaryReader = new BinaryReader(fileStream))
             {
@@ -79,7 +83,7 @@ namespace SCPSLBot.Navigation
         public void SaveNodes()
         {
             var fileName = "navgraph.slngf";
-            var path = Path.Combine(Assembly.GetExecutingAssembly().Location, "SCPSLBot", fileName);
+            var path = Path.Combine(BaseDir, fileName);
             using (var fileStream = File.OpenWrite(path))
             using (var binaryWriter = new BinaryWriter(fileStream))
             {

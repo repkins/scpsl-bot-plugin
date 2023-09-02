@@ -154,22 +154,10 @@ namespace SCPSLBot.Navigation.Graph
 
                     binaryWriter.Write(node.ConnectedNodes.Count);
 
-                    foreach (var i in node.ConnectedNodes.Select((_, i) => i))
+                    foreach (var connIdx in node.ConnectedNodes.Select(connNode => connNode.Id))
                     {
-                        binaryWriter.Write(i);
+                        binaryWriter.Write(connIdx);
                     }
-                }
-            }
-        }
-
-        public void InitNodeGraph()
-        {
-            foreach (var roomNodes in NodesByRoom)
-            {
-                foreach (var (node, i) in roomNodes.Value.Select((n, i) => (n, i)))
-                {
-                    node.Id = i;
-                    node.RoomNameShape = roomNodes.Key;
                 }
             }
         }

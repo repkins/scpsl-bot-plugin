@@ -33,6 +33,7 @@ namespace SCPSLBot.Navigation.Graph
         public void Init()
         {
             Timing.RunCoroutine(RunEachFrame(UpdateEditing));
+            Timing.RunCoroutine(RunEachFrame(UpdateNearestNode));
             Timing.RunCoroutine(RunEachFrame(UpdateFacingNode));
             Timing.RunCoroutine(RunEachFrame(Visuals.UpdateNodeInfoVisuals));
             Timing.RunCoroutine(RunEachFrame(Visuals.UpdateNodeVisuals));
@@ -67,7 +68,15 @@ namespace SCPSLBot.Navigation.Graph
             {
                 LastPlayerEditing = PlayerEditing;
 
-                Visuals.PlayerToShowVisualsTo = PlayerEditing;
+                Visuals.EnabledVisualsForPlayer = PlayerEditing;
+            }
+        }
+
+        public void UpdateNearestNode()
+        {
+            if (PlayerEditing != null)
+            {
+                Visuals.NearestNode = NavigationGraph.FindNearestNode(PlayerEditing.Camera.position);
             }
         }
 
