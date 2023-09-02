@@ -67,6 +67,7 @@
     <Compile Include="Commands\Navigation\NavSaveCommand.cs" />
     <Compile Include="Commands\Navigation\NavNodeDisconnectCommand.cs" />
     <Compile Include="Commands\Navigation\NavNodeConnectCommand.cs" />
+    <Compile Include="Navigation\Graph\Node.cs" />
     <Compile Include="Navigation\NavigationSystem.cs" />
     <Compile Include="Navigation\Graph\NavigationGraphVisuals.cs" />
     <Compile Include="Navigation\NodeGraphSerializer.cs" />
@@ -80,7 +81,7 @@
     <Compile Include="AI\FirstPersonControl\Actions\FpcPlayAction.cs" />
     <Compile Include="AI\FirstPersonControl\IBotPlayer.cs" />
     <Compile Include="Navigation\Graph\NavigationGraphEditor.cs" />
-    <Compile Include="Navigation\Graph\Node.cs" />
+    <Compile Include="Navigation\Graph\NodeTemplate.cs" />
     <Compile Include="Commands\BotApproachCommand.cs" />
     <Compile Include="Commands\BotTurnCommand.cs" />
     <Compile Include="Commands\BotMoveCommand.cs" />

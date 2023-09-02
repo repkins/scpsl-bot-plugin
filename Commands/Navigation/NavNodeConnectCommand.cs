@@ -43,7 +43,7 @@ namespace SCPSLBot.Commands.Navigation
                 return false;
             }
 
-            Node targetNode = null;
+            NodeTemplate targetNode = null;
 
             var (roomName, roomShape) = node.RoomNameShape;
             var room = RoomIdentifier.AllRoomIdentifiers.First(r => r.Name == roomName && r.Shape == roomShape);
@@ -56,7 +56,7 @@ namespace SCPSLBot.Commands.Navigation
                     return false;
                 }
 
-                if (!NavigationGraph.Instance.NodesTemplatesByRoom[node.RoomNameShape].TryGet(nodeId, out targetNode))
+                if (!NavigationGraph.Instance.NodeTemplatesByRoom[node.RoomNameShape].TryGet(nodeId, out targetNode))
                 {
                     response = $"No target node exists at index {nodeId}.";
                     return false;

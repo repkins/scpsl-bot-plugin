@@ -39,9 +39,9 @@ namespace SCPSLBot.Navigation.Graph
             Timing.RunCoroutine(RunEachFrame(Visuals.UpdateNodeVisuals));
         }
 
-        public Node FindClosestNodeFacingAt((RoomName, RoomShape) roomNameShape, Vector3 localPosition, Vector3 localDirection)
+        public NodeTemplate FindClosestNodeFacingAt((RoomName, RoomShape) roomNameShape, Vector3 localPosition, Vector3 localDirection)
         {
-            var targetNode = NavigationGraph.Instance.NodesTemplatesByRoom[roomNameShape]
+            var targetNode = NavigationGraph.Instance.NodeTemplatesByRoom[roomNameShape]
                 .Select(n => (n, d: Vector3.SqrMagnitude(n.LocalPosition - localPosition)))
                 .Where(t => t.d < 50f && t.d > 1f)
                 .OrderBy(t => t.d)
@@ -51,7 +51,7 @@ namespace SCPSLBot.Navigation.Graph
             return targetNode;
         }
 
-        public Node AddNode(Vector3 position)
+        public NodeTemplate AddNode(Vector3 position)
         {
             var room = RoomIdUtils.RoomAtPositionRaycasts(position);
 

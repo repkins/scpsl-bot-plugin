@@ -70,7 +70,22 @@ namespace SCPSLBot.Navigation
             // 
             // Connect door waypoints
 
-            //Facility.Rooms[0].
+            foreach (var room in Facility.Rooms)
+            {
+                if (!NavigationGraph.NodeTemplatesByRoom.TryGetValue((room.Identifier.Name, room.Identifier.Shape), out var nodesTmpls))
+                {
+                    continue;
+                }
+
+                var nodes = nodesTmpls.Select(t => new Node(t, room)).ToList();
+
+                foreach (var node in nodes)
+                {
+                    node.ConnectedNodes.AddRange(nodesTmpls[node.Id].ConnectedNodes.Select(t => nodes[t.Id]));
+                }
+
+                NavigationGraph.NodesByRoom.Add(room, nodes);
+            }
         }
 
         public void LoadNodes()
