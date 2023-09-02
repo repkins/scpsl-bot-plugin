@@ -86,7 +86,6 @@ namespace SCPSLBot.Commands.Navigation
             }
 
             node.ConnectedNodes.Remove(targetNode);
-            node.ConnectedNodeIndices.Remove(targetNode.Id);
 
             response = $"Node #{node.Id} disconnected with node {targetNode.Id}.";
 

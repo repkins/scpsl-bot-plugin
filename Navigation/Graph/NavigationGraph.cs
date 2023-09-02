@@ -1,4 +1,5 @@
 ﻿using AdminToys;
+using InventorySystem.Items.Coin;
 using MapGeneration;
 using MEC;
 using Mirror;
@@ -20,36 +21,7 @@ namespace SCPSLBot.Navigation.Graph
     {
         public static NavigationGraph Instance { get; } = new NavigationGraph();
 
-        public Dictionary<(RoomName, RoomShape), List<Node>> NodesByRoom { get; } = new Dictionary<(RoomName, RoomShape), List<Node>>()
-        {
-            {
-                (RoomName.LczClassDSpawn, RoomShape.Endroom), new List<Node>
-                {
-                    new Node(new Vector3(-22.50f, 0.96f, 0.00f), new int[] { 1 }),
-                    new Node(new Vector3(-17.71f, 0.96f, 0.00f), new int[] { 0, 2 }),
-                    new Node(new Vector3(-13.82f, 0.96f, 0.00f), new int[] { 1, 3 }),
-                    new Node(new Vector3(-10.02f, 0.96f, 0.00f), new int[] {  }),
-                    new Node(new Vector3(-6.27f, 0.96f, 0.00f), new int[] {  }),
-                    new Node(new Vector3(-2.35f, 0.96f, 0.00f), new int[] {  }),
-                    new Node(new Vector3(1.45f, 0.96f, 0.00f), new int[] {  }),
-                    new Node(new Vector3(5.20f, 0.96f, -0.00f), new int[] {  }),
-                    new Node(new Vector3(5.45f, 0.96f, -4.07f), new int[] {  }),
-                    new Node(new Vector3(5.06f, 0.96f, 4.01f), new int[] {  }),
-                    new Node(new Vector3(1.62f, 0.96f, -4.37f), new int[] {  }),
-                    new Node(new Vector3(1.27f, 0.96f, 4.20f), new int[] {  }),
-                    new Node(new Vector3(-2.12f, 0.96f, -4.18f), new int[] {  }),
-                    new Node(new Vector3(-2.62f, 0.96f, 4.35f), new int[] {  }),
-                    new Node(new Vector3(-5.87f, 0.96f, -4.43f), new int[] {  }),
-                    new Node(new Vector3(-6.42f, 0.96f, 4.37f), new int[] {  }),
-                    new Node(new Vector3(-9.73f, 0.96f, -4.29f), new int[] {  }),
-                    new Node(new Vector3(-10.21f, 0.96f, 4.38f), new int[] {  }),
-                    new Node(new Vector3(-13.46f, 0.96f, -4.30f), new int[] {  }),
-                    new Node(new Vector3(-14.06f, 0.96f, 4.29f), new int[] {  }),
-                    new Node(new Vector3(-17.39f, 0.96f, -4.58f), new int[] {  }),
-                    new Node(new Vector3(-17.88f, 0.96f, 4.45f), new int[] {  }),
-                }
-            }
-        };
+        public Dictionary<(RoomName, RoomShape), List<Node>> NodesByRoom { get; } = new Dictionary<(RoomName, RoomShape), List<Node>>();
 
         public void Init()
         { }
@@ -80,7 +52,7 @@ namespace SCPSLBot.Navigation.Graph
                 .node;
         }
 
-        public Node AddNode(Vector3 localPosition, (RoomName, RoomShape) roomNameShape, int[] connectedNodesIndices = null)
+        public Node AddNode(Vector3 localPosition, (RoomName, RoomShape) roomNameShape)
         {
             if (!NodesByRoom.TryGetValue(roomNameShape, out var roomNodes))
             {
@@ -88,7 +60,7 @@ namespace SCPSLBot.Navigation.Graph
                 NodesByRoom.Add(roomNameShape, roomNodes);
             }
 
-            var newNode = new Node(localPosition, connectedNodesIndices)
+            var newNode = new Node(localPosition)
             {
                 Id = roomNodes.Count,
                 RoomNameShape = roomNameShape,
@@ -99,6 +71,97 @@ namespace SCPSLBot.Navigation.Graph
             return newNode;
         }
 
+        public void ReadNodes(BinaryReader binaryReader)
+        {
+            var version = binaryReader.ReadByte();
+
+            var roomCount = binaryReader.ReadInt32();
+
+            for (var i = 0; i < roomCount; i++)
+            {
+                Enum.TryParse<RoomName>(binaryReader.ReadString(), out var roomName);
+                Enum.TryParse<RoomShape>(binaryReader.ReadString(), out var roomShape);
+
+                if (!NodesByRoom.TryGetValue((roomName, roomShape), out var nodes))
+                {
+                    nodes = new List<Node>();
+                    NodesByRoom.Add((roomName, roomShape), nodes);
+                }
+                else
+                {
+                    nodes.Clear();
+                }
+
+                var nodesCount = binaryReader.ReadInt32();
+                var nodesConnections = new int[nodesCount][];
+
+                for (var j = 0; j < nodesCount; j++)
+                {
+                    var localPos = new Vector3()
+                    {
+                        x = binaryReader.ReadSingle(),
+                        y = binaryReader.ReadSingle(),
+                        z = binaryReader.ReadSingle()
+                    };
+
+                    var radius = binaryReader.ReadSingle();
+
+                    var connectedNodesCount = binaryReader.ReadInt32();
+
+                    var connectedNodes = new int[connectedNodesCount];
+                    for (var k = 0; k < connectedNodesCount; k++)
+                    {
+                        connectedNodes[k] = binaryReader.ReadInt32();
+                    }
+
+                    AddNode(localPos, (roomName, roomShape));
+                    
+                    nodesConnections[j] = connectedNodes;
+                }
+
+                foreach (var (node, conns) in nodesConnections.Select((conns, nodeIndex) => (nodes[nodeIndex], conns)))
+                {
+                    node.ConnectedNodes.AddRange(conns.Select(connectedIndex => nodes[connectedIndex]));
+                }
+            }
+        }
+
+        public void WriteNodes(BinaryWriter binaryWriter)
+        {
+            byte version = 1;
+            binaryWriter.Write(version);
+
+            var roomsWithNodes = NodesByRoom;
+
+            binaryWriter.Write(roomsWithNodes.Count);
+
+            foreach (var roomNodes in roomsWithNodes)
+            {
+                var (roomName, roomShape) = roomNodes.Key;
+                var nodes = roomNodes.Value;
+
+                binaryWriter.Write(roomName.ToString());
+                binaryWriter.Write(roomShape.ToString());
+                binaryWriter.Write(nodes.Count);
+
+                foreach (var node in nodes)
+                {
+                    binaryWriter.Write(node.LocalPosition.x);
+                    binaryWriter.Write(node.LocalPosition.y);
+                    binaryWriter.Write(node.LocalPosition.z);
+
+                    binaryWriter.Write(node.Radius);
+
+                    binaryWriter.Write(node.ConnectedNodes.Count);
+
+                    foreach (var i in node.ConnectedNodes.Select((_, i) => i))
+                    {
+                        binaryWriter.Write(i);
+                    }
+                }
+            }
+        }
+
         public void InitNodeGraph()
         {
             foreach (var roomNodes in NodesByRoom)
@@ -107,7 +170,6 @@ namespace SCPSLBot.Navigation.Graph
                 {
                     node.Id = i;
                     node.RoomNameShape = roomNodes.Key;
-                    node.ConnectedNodes.AddRange(node.ConnectedNodeIndices.Select(connectedIndex => roomNodes.Value[connectedIndex]));
                 }
             }
         }

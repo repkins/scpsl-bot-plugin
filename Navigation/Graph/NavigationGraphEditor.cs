@@ -54,7 +54,7 @@ namespace SCPSLBot.Navigation.Graph
         {
             var room = RoomIdUtils.RoomAtPositionRaycasts(position);
 
-            var newNode = NavigationGraph.AddNode(room.transform.InverseTransformPoint(position), (room.Name, room.Shape), new int[] { });
+            var newNode = NavigationGraph.AddNode(room.transform.InverseTransformPoint(position), (room.Name, room.Shape));
 
             Log.Info($"Node #{newNode.Id} at local position {newNode.LocalPosition} added under room {(room.Name, room.Shape)}.");
 

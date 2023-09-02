@@ -86,7 +86,6 @@ namespace SCPSLBot.Commands.Navigation
             }
 
             node.ConnectedNodes.Add(targetNode);
-            node.ConnectedNodeIndices.Add(targetNode.Id);
 
             response = $"Node #{node.Id} connected with node {targetNode.Id}.";
 
