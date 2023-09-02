@@ -74,7 +74,7 @@ namespace SCPSLBot.Navigation.Graph
 
             var room = RoomIdUtils.RoomAtPositionRaycasts(position);
 
-            NavigationGraph.RemoveNode(node, (room.Name, room.Shape));
+            NavigationGraph.RemoveNode(node.Template, (room.Name, room.Shape));
 
             Log.Info($"Node at local position {node.LocalPosition} removed under room {(room.Name, room.Shape)}.");
         }
@@ -93,7 +93,7 @@ namespace SCPSLBot.Navigation.Graph
         {
             if (PlayerEditing != null)
             {
-                Visuals.NearestNode = NavigationGraph.FindNearestNode(PlayerEditing.Camera.position);
+                Visuals.NearestNodeTemplate = NavigationGraph.FindNearestNode(PlayerEditing.Camera.position)?.Template;
             }
         }
 
@@ -106,7 +106,7 @@ namespace SCPSLBot.Navigation.Graph
                 var localPosition = room.transform.InverseTransformPoint(PlayerEditing.Camera.position);
                 var localForward = room.transform.InverseTransformDirection(PlayerEditing.Camera.forward);
 
-                Visuals.FacingNode = FindClosestNodeFacingAt((room.Name, room.Shape), localPosition, localForward);
+                Visuals.FacingNodeTemplate = FindClosestNodeFacingAt((room.Name, room.Shape), localPosition, localForward);
             }
         }
 

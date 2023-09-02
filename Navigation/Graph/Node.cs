@@ -11,13 +11,13 @@ namespace SCPSLBot.Navigation.Graph
 {
     internal class Node
     {
-        public int Id { get; set; }
         public Vector3 LocalPosition { get; set; }
         public float Radius { get; set; }
-
-        public FacilityRoom Room { get; set; }
-
         public List<Node> ConnectedNodes { get; } = new List<Node>();
+
+        public int Id { get; private set; }
+        public FacilityRoom Room { get; private set; }
+        public NodeTemplate Template { get; private set; }
 
         public Node(NodeTemplate nodeTemplate, FacilityRoom room)
         {
@@ -25,6 +25,7 @@ namespace SCPSLBot.Navigation.Graph
             LocalPosition = nodeTemplate.LocalPosition;
             Radius = nodeTemplate.Radius;
             Room = room;
+            Template = nodeTemplate;
         }
 
         public Node(Vector3 localPosition)

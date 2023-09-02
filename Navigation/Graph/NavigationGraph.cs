@@ -29,11 +29,11 @@ namespace SCPSLBot.Navigation.Graph
         public void Init()
         { }
 
-        public NodeTemplate FindNearestNode(Vector3 position, float radius = 1f)
+        public Node FindNearestNode(Vector3 position, float radius = 1f)
         {
             var room = RoomIdUtils.RoomAtPositionRaycasts(position);
 
-            if (!NodeTemplatesByRoom.TryGetValue((room.Name, room.Shape), out var roomNodes))
+            if (!NodesByRoom.TryGetValue(room.ApiRoom, out var roomNodes))
             {
                 return null;
             }
@@ -56,32 +56,42 @@ namespace SCPSLBot.Navigation.Graph
 
         public NodeTemplate AddNode(Vector3 localPosition, (RoomName, RoomShape) roomNameShape)
         {
-            if (!NodeTemplatesByRoom.TryGetValue(roomNameShape, out var roomNodes))
+            if (!NodeTemplatesByRoom.TryGetValue(roomNameShape, out var roomNodeTemplates))
             {
-                roomNodes = new List<NodeTemplate>();
-                NodeTemplatesByRoom.Add(roomNameShape, roomNodes);
+                roomNodeTemplates = new List<NodeTemplate>();
+                NodeTemplatesByRoom.Add(roomNameShape, roomNodeTemplates);
             }
 
-            var newNode = new NodeTemplate(localPosition)
+            var newNodeTemplate = new NodeTemplate(localPosition)
             {
-                Id = roomNodes.Count,
+                Id = roomNodeTemplates.Count,
                 RoomNameShape = roomNameShape,
             };
 
-            roomNodes.Add(newNode);
+            roomNodeTemplates.Add(newNodeTemplate);
 
-            return newNode;
+            foreach (var roomOfNameShape in NodesByRoom.Where(r => (r.Key.Identifier.Name, r.Key.Identifier.Shape) == roomNameShape))
+            {
+                roomOfNameShape.Value.Add(new Node(newNodeTemplate, roomOfNameShape.Key));
+            }
+
+            return newNodeTemplate;
         }
 
-        public void RemoveNode(NodeTemplate node, (RoomName, RoomShape) roomNameShape)
+        public void RemoveNode(NodeTemplate nodeTemplate, (RoomName, RoomShape) roomNameShape)
         {
-            if (!NodeTemplatesByRoom.TryGetValue(roomNameShape, out var roomNodes))
+            if (!NodeTemplatesByRoom.TryGetValue(roomNameShape, out var roomNodeTemplates))
             {
                 Log.Warning($"No nodes at room {roomNameShape} to remove node from.");
                 return;
             }
 
-            roomNodes.Remove(node);
+            roomNodeTemplates.Remove(nodeTemplate);
+
+            foreach (var roomOfNameShape in NodesByRoom.Where(r => (r.Key.Identifier.Name, r.Key.Identifier.Shape) == roomNameShape))
+            {
+                roomOfNameShape.Value.RemoveAll(node => node.Template == nodeTemplate);
+            }
         }
 
         public void ReadNodes(BinaryReader binaryReader)

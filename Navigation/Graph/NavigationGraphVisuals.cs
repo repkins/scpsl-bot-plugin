@@ -16,17 +16,17 @@ namespace SCPSLBot.Navigation.Graph
     {
         public Player EnabledVisualsForPlayer { get; set; }
 
-        public NodeTemplate NearestNode { get; set; }
-        public NodeTemplate FacingNode { get; set; }
+        public NodeTemplate NearestNodeTemplate { get; set; }
+        public NodeTemplate FacingNodeTemplate { get; set; }
 
-        private Dictionary<NodeTemplate, PrimitiveObjectToy> NodeVisuals { get; } = new Dictionary<NodeTemplate, PrimitiveObjectToy>();
-        private Dictionary<(NodeTemplate From, NodeTemplate To), PrimitiveObjectToy> NodeConnectionVisuals { get; } = new Dictionary<(NodeTemplate, NodeTemplate), PrimitiveObjectToy>();
-        private Dictionary<(NodeTemplate, NodeTemplate), PrimitiveObjectToy> NodeConnectionOriginVisuals { get; } = new Dictionary<(NodeTemplate, NodeTemplate), PrimitiveObjectToy>();
+        private Dictionary<Node, PrimitiveObjectToy> NodeVisuals { get; } = new Dictionary<Node, PrimitiveObjectToy>();
+        private Dictionary<(Node From, Node To), PrimitiveObjectToy> NodeConnectionVisuals { get; } = new Dictionary<(Node, Node), PrimitiveObjectToy>();
+        private Dictionary<(Node, Node), PrimitiveObjectToy> NodeConnectionOriginVisuals { get; } = new Dictionary<(Node, Node), PrimitiveObjectToy>();
 
         private NavigationGraph NavigationGraph { get; } = NavigationGraph.Instance;
 
-        private NodeTemplate LastNearestNode { get; set; }
-        private NodeTemplate LastFacingNode { get; set; }
+        private NodeTemplate LastNearestNodeTemplate { get; set; }
+        private NodeTemplate LastFacingNodeTemplate { get; set; }
 
         private string[] NodeVisualsMessages { get; } = new string[2];
 
@@ -34,11 +34,11 @@ namespace SCPSLBot.Navigation.Graph
         {
             if (EnabledVisualsForPlayer != null)
             {
-                var nearestNode = NearestNode;
+                var nearestNode = NearestNodeTemplate;
 
-                if (nearestNode != LastNearestNode)
+                if (nearestNode != LastNearestNodeTemplate)
                 {
-                    LastNearestNode = nearestNode;
+                    LastNearestNodeTemplate = nearestNode;
 
                     if (nearestNode != null)
                     {
@@ -51,13 +51,13 @@ namespace SCPSLBot.Navigation.Graph
                     }
                 }
 
-                if (FacingNode != LastFacingNode)
+                if (FacingNodeTemplate != LastFacingNodeTemplate)
                 {
-                    LastFacingNode = FacingNode;
+                    LastFacingNodeTemplate = FacingNodeTemplate;
 
-                    if (FacingNode != null)
+                    if (FacingNodeTemplate != null)
                     {
-                        NodeVisualsMessages[1] = $"Facing node #{FacingNode.Id} in {FacingNode.RoomNameShape}";
+                        NodeVisualsMessages[1] = $"Facing node #{FacingNodeTemplate.Id} in {FacingNodeTemplate.RoomNameShape}";
                     }
                     else
                     {
@@ -85,7 +85,7 @@ namespace SCPSLBot.Navigation.Graph
 
                 foreach (var nodeVisual in NodeVisuals.ToArray())
                 {
-                    if (!NavigationGraph.NodeTemplatesByRoom.Values.Any(l => l.Contains(nodeVisual.Key)))
+                    if (!NavigationGraph.NodesByRoom.Values.Any(l => l.Contains(nodeVisual.Key)))
                     {
                         NetworkServer.Destroy(nodeVisual.Value.gameObject);
                         NodeVisuals.Remove(nodeVisual.Key);
@@ -115,10 +115,9 @@ namespace SCPSLBot.Navigation.Graph
                     }
                 }
 
-                foreach (var node in NavigationGraph.NodeTemplatesByRoom.Values.SelectMany(l => l))
+                foreach (var node in NavigationGraph.NodesByRoom.Values.SelectMany(l => l))
                 {
-                    var (roomName, roomShape) = node.RoomNameShape;
-                    RoomIdUtils.TryFindRoom(roomName, FacilityZone.None, roomShape, out var room);
+                    var room = node.Room.Identifier;
 
                     if (!NodeVisuals.TryGetValue(node, out var visual))
                     {
@@ -131,7 +130,7 @@ namespace SCPSLBot.Navigation.Graph
                         NodeVisuals.Add(node, visual);
                     }
 
-                    visual.NetworkMaterialColor = (node == FacingNode) ? Color.green : Color.yellow;
+                    visual.NetworkMaterialColor = (node.Template == FacingNodeTemplate) ? Color.green : Color.yellow;
 
                     foreach (var connectedNode in node.ConnectedNodes)
                     {
