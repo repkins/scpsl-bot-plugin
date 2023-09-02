@@ -41,7 +41,7 @@ namespace SCPSLBot.Navigation.Graph
 
         public Node FindClosestNodeFacingAt((RoomName, RoomShape) roomNameShape, Vector3 localPosition, Vector3 localDirection)
         {
-            var targetNode = NavigationGraph.Instance.NodesByRoom[roomNameShape]
+            var targetNode = NavigationGraph.Instance.NodesTemplatesByRoom[roomNameShape]
                 .Select(n => (n, d: Vector3.SqrMagnitude(n.LocalPosition - localPosition)))
                 .Where(t => t.d < 50f && t.d > 1f)
                 .OrderBy(t => t.d)

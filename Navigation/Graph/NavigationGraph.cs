@@ -5,6 +5,7 @@ using MEC;
 using Mirror;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
+using PluginAPI.Core.Zones;
 using PluginAPI.Events;
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,8 @@ namespace SCPSLBot.Navigation.Graph
     {
         public static NavigationGraph Instance { get; } = new NavigationGraph();
 
-        public Dictionary<(RoomName, RoomShape), List<Node>> NodesByRoom { get; } = new Dictionary<(RoomName, RoomShape), List<Node>>();
+        public Dictionary<(RoomName, RoomShape), List<Node>> NodesTemplatesByRoom { get; } = new Dictionary<(RoomName, RoomShape), List<Node>>();
+        //public Dictionary<FacilityRoom, List<Node>> NodesByRoom { get; } = new Dictionary<FacilityRoom, List<Node>>();
 
         public void Init()
         { }
@@ -30,7 +32,7 @@ namespace SCPSLBot.Navigation.Graph
         {
             var room = RoomIdUtils.RoomAtPositionRaycasts(position);
 
-            if (!NodesByRoom.TryGetValue((room.Name, room.Shape), out var roomNodes))
+            if (!NodesTemplatesByRoom.TryGetValue((room.Name, room.Shape), out var roomNodes))
             {
                 return null;
             }
@@ -53,10 +55,10 @@ namespace SCPSLBot.Navigation.Graph
 
         public Node AddNode(Vector3 localPosition, (RoomName, RoomShape) roomNameShape)
         {
-            if (!NodesByRoom.TryGetValue(roomNameShape, out var roomNodes))
+            if (!NodesTemplatesByRoom.TryGetValue(roomNameShape, out var roomNodes))
             {
                 roomNodes = new List<Node>();
-                NodesByRoom.Add(roomNameShape, roomNodes);
+                NodesTemplatesByRoom.Add(roomNameShape, roomNodes);
             }
 
             var newNode = new Node(localPosition)
@@ -72,7 +74,7 @@ namespace SCPSLBot.Navigation.Graph
 
         public void RemoveNode(Node node, (RoomName, RoomShape) roomNameShape)
         {
-            if (!NodesByRoom.TryGetValue(roomNameShape, out var roomNodes))
+            if (!NodesTemplatesByRoom.TryGetValue(roomNameShape, out var roomNodes))
             {
                 Log.Warning($"No nodes at room {roomNameShape} to remove node from.");
                 return;
@@ -92,10 +94,10 @@ namespace SCPSLBot.Navigation.Graph
                 Enum.TryParse<RoomName>(binaryReader.ReadString(), out var roomName);
                 Enum.TryParse<RoomShape>(binaryReader.ReadString(), out var roomShape);
 
-                if (!NodesByRoom.TryGetValue((roomName, roomShape), out var nodes))
+                if (!NodesTemplatesByRoom.TryGetValue((roomName, roomShape), out var nodes))
                 {
                     nodes = new List<Node>();
-                    NodesByRoom.Add((roomName, roomShape), nodes);
+                    NodesTemplatesByRoom.Add((roomName, roomShape), nodes);
                 }
                 else
                 {
@@ -141,7 +143,7 @@ namespace SCPSLBot.Navigation.Graph
             byte version = 1;
             binaryWriter.Write(version);
 
-            var roomsWithNodes = NodesByRoom;
+            var roomsWithNodes = NodesTemplatesByRoom;
 
             binaryWriter.Write(roomsWithNodes.Count);
 

@@ -85,7 +85,7 @@ namespace SCPSLBot.Navigation.Graph
 
                 foreach (var nodeVisual in NodeVisuals.ToArray())
                 {
-                    if (!NavigationGraph.NodesByRoom.Values.Any(l => l.Contains(nodeVisual.Key)))
+                    if (!NavigationGraph.NodesTemplatesByRoom.Values.Any(l => l.Contains(nodeVisual.Key)))
                     {
                         NetworkServer.Destroy(nodeVisual.Value.gameObject);
                         NodeVisuals.Remove(nodeVisual.Key);
@@ -115,7 +115,7 @@ namespace SCPSLBot.Navigation.Graph
                     }
                 }
 
-                foreach (var node in NavigationGraph.NodesByRoom.Values.SelectMany(l => l))
+                foreach (var node in NavigationGraph.NodesTemplatesByRoom.Values.SelectMany(l => l))
                 {
                     var (roomName, roomShape) = node.RoomNameShape;
                     RoomIdUtils.TryFindRoom(roomName, FacilityZone.None, roomShape, out var room);

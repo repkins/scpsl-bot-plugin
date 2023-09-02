@@ -1,4 +1,5 @@
 ﻿using MapGeneration;
+using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Events;
 using SCPSLBot.Navigation.Graph;
@@ -66,7 +67,10 @@ namespace SCPSLBot.Navigation
         [PluginEvent(PluginAPI.Enums.ServerEventType.MapGenerated)]
         public void OnMapGenerated()
         {
+            // 
             // Connect door waypoints
+
+            //Facility.Rooms[0].
         }
 
         public void LoadNodes()

@@ -56,7 +56,7 @@ namespace SCPSLBot.Commands.Navigation
                     return false;
                 }
 
-                if (!NavigationGraph.Instance.NodesByRoom[node.RoomNameShape].TryGet(nodeId, out targetNode))
+                if (!NavigationGraph.Instance.NodesTemplatesByRoom[node.RoomNameShape].TryGet(nodeId, out targetNode))
                 {
                     response = $"No target node exists at index {nodeId}.";
                     return false;
