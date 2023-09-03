@@ -14,7 +14,7 @@ namespace SCPSLBot.Navigation.Graph
         public int Id { get; set; }
         public Vector3 LocalPosition { get; set; }
         public float Radius { get; set; }
-        public (RoomName, RoomShape) RoomNameShape { get; set; }
+        public (RoomName, RoomShape, RoomZone) RoomKind { get; set; }
 
         public List<RoomKindNode> ConnectedNodes { get; } = new List<RoomKindNode>();
         public Dictionary<FacilityRoom, Node> NodesOfRoom { get; } = new Dictionary<FacilityRoom, Node>();

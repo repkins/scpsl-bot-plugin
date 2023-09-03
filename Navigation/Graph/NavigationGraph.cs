@@ -22,7 +22,7 @@ namespace SCPSLBot.Navigation.Graph
     {
         public static NavigationGraph Instance { get; } = new NavigationGraph();
 
-        public Dictionary<(RoomName, RoomShape), List<RoomKindNode>> NodesByRoomKind { get; } = new Dictionary<(RoomName, RoomShape), List<RoomKindNode>>();
+        public Dictionary<(RoomName, RoomShape, RoomZone), List<RoomKindNode>> NodesByRoomKind { get; } = new Dictionary<(RoomName, RoomShape, RoomZone), List<RoomKindNode>>();
         
         public Dictionary<FacilityRoom, List<Node>> NodesByRoom { get; } = new Dictionary<FacilityRoom, List<Node>>();
 
@@ -54,23 +54,23 @@ namespace SCPSLBot.Navigation.Graph
                 .node;
         }
 
-        public RoomKindNode AddNode(Vector3 localPosition, (RoomName, RoomShape) roomNameShape)
+        public RoomKindNode AddNode(Vector3 localPosition, (RoomName, RoomShape, RoomZone) roomKind)
         {
-            if (!NodesByRoomKind.TryGetValue(roomNameShape, out var roomKindNodes))
+            if (!NodesByRoomKind.TryGetValue(roomKind, out var roomKindNodes))
             {
                 roomKindNodes = new List<RoomKindNode>();
-                NodesByRoomKind.Add(roomNameShape, roomKindNodes);
+                NodesByRoomKind.Add(roomKind, roomKindNodes);
             }
 
             var newRoomKindNode = new RoomKindNode(localPosition)
             {
                 Id = roomKindNodes.Count,
-                RoomNameShape = roomNameShape,
+                RoomKind = roomKind,
             };
 
             roomKindNodes.Add(newRoomKindNode);
 
-            foreach (var roomOfKind in NodesByRoom.Where(r => (r.Key.Identifier.Name, r.Key.Identifier.Shape) == roomNameShape))
+            foreach (var roomOfKind in NodesByRoom.Where(r => (r.Key.Identifier.Name, r.Key.Identifier.Shape, (RoomZone)r.Key.Identifier.Zone) == roomKind))
             {
                 roomOfKind.Value.Add(new Node(newRoomKindNode, roomOfKind.Key));
             }
@@ -78,17 +78,22 @@ namespace SCPSLBot.Navigation.Graph
             return newRoomKindNode;
         }
 
-        public void RemoveNode(RoomKindNode roomKindNode, (RoomName, RoomShape) roomNameShape)
+        public void RemoveNode(RoomKindNode roomKindNode, (RoomName, RoomShape, RoomZone) roomKind)
         {
-            if (!NodesByRoomKind.TryGetValue(roomNameShape, out var roomKindNodes))
+            if (!NodesByRoomKind.TryGetValue(roomKind, out var roomKindNodes))
             {
-                Log.Warning($"No nodes at room {roomNameShape} to remove node from.");
+                Log.Warning($"No nodes at room {roomKind} to remove node from.");
                 return;
+            }
+
+            foreach (var connectedToRemovingNode in roomKindNode.ConnectedNodes)
+            {
+                connectedToRemovingNode.ConnectedNodes.Remove(roomKindNode);
             }
 
             roomKindNodes.Remove(roomKindNode);
 
-            foreach (var roomOfKind in NodesByRoom.Where(r => (r.Key.Identifier.Name, r.Key.Identifier.Shape) == roomNameShape))
+            foreach (var roomOfKind in NodesByRoom.Where(r => (r.Key.Identifier.Name, r.Key.Identifier.Shape, (RoomZone)r.Key.Identifier.Zone) == roomKind))
             {
                 var node = roomOfKind.Value.Find(n => n.RoomKindNode == roomKindNode);
                 roomOfKind.Value.Remove(node);
@@ -106,10 +111,20 @@ namespace SCPSLBot.Navigation.Graph
                 Enum.TryParse<RoomName>(binaryReader.ReadString(), out var roomName);
                 Enum.TryParse<RoomShape>(binaryReader.ReadString(), out var roomShape);
 
-                if (!NodesByRoomKind.TryGetValue((roomName, roomShape), out var roomKindNodes))
+                RoomZone roomZone;
+                if (version > 1)
+                {
+                    Enum.TryParse<RoomZone>(binaryReader.ReadString(), out roomZone);
+                }
+                else
+                {
+                    roomZone = RoomZone.LightContainment;
+                }
+
+                if (!NodesByRoomKind.TryGetValue((roomName, roomShape, roomZone), out var roomKindNodes))
                 {
                     roomKindNodes = new List<RoomKindNode>();
-                    NodesByRoomKind.Add((roomName, roomShape), roomKindNodes);
+                    NodesByRoomKind.Add((roomName, roomShape, roomZone), roomKindNodes);
                 }
                 else
                 {
@@ -138,7 +153,7 @@ namespace SCPSLBot.Navigation.Graph
                         connectedNodes[k] = binaryReader.ReadInt32();
                     }
 
-                    AddNode(localPos, (roomName, roomShape));
+                    AddNode(localPos, (roomName, roomShape, roomZone));
                     
                     nodesConnections[j] = connectedNodes;
                 }
@@ -152,18 +167,19 @@ namespace SCPSLBot.Navigation.Graph
 
         public void WriteNodes(BinaryWriter binaryWriter)
         {
-            byte version = 1;
+            byte version = 2;
             binaryWriter.Write(version);
 
             binaryWriter.Write(NodesByRoomKind.Count);
 
             foreach (var roomNodes in NodesByRoomKind)
             {
-                var (roomName, roomShape) = roomNodes.Key;
+                var (roomName, roomShape, roomZone) = roomNodes.Key;
                 var nodes = roomNodes.Value;
 
                 binaryWriter.Write(roomName.ToString());
                 binaryWriter.Write(roomShape.ToString());
+                binaryWriter.Write(roomZone.ToString());
                 binaryWriter.Write(nodes.Count);
 
                 foreach (var node in nodes)

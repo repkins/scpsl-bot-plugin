@@ -33,7 +33,11 @@ namespace SCPSLBot.Commands.Navigation
                 return false;
             }
 
-            NavigationGraphEditor.Instance.RemoveNode(playerCommandSender.ReferenceHub.transform.position);
+            if (!NavigationGraphEditor.Instance.RemoveNode(playerCommandSender.ReferenceHub.transform.position))
+            {
+                response = $"No node to be removed.";
+                return false;
+            }
 
             response = $"Node removed.";
             return true;

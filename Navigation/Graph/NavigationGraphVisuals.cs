@@ -43,7 +43,7 @@ namespace SCPSLBot.Navigation.Graph
                     if (nearestNode != null)
                     {
                         var connectedIdsStr = string.Join(", ", nearestNode.ConnectedNodes.Select(c => $"#{c.Id}"));
-                        NodeVisualsMessages[0] = $"Node #{nearestNode.Id} in {nearestNode.RoomNameShape} connected to {connectedIdsStr}";
+                        NodeVisualsMessages[0] = $"Node #{nearestNode.Id} in {nearestNode.RoomKind} connected to {connectedIdsStr}";
                     }
                     else
                     {
@@ -57,7 +57,7 @@ namespace SCPSLBot.Navigation.Graph
 
                     if (FacingNodeTemplate != null)
                     {
-                        NodeVisualsMessages[1] = $"Facing node #{FacingNodeTemplate.Id} in {FacingNodeTemplate.RoomNameShape}";
+                        NodeVisualsMessages[1] = $"Facing node #{FacingNodeTemplate.Id} in {FacingNodeTemplate.RoomKind}";
                     }
                     else
                     {

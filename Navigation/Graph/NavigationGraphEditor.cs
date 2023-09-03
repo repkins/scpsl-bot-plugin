@@ -39,9 +39,14 @@ namespace SCPSLBot.Navigation.Graph
             Timing.RunCoroutine(RunEachFrame(Visuals.UpdateNodeVisuals));
         }
 
-        public RoomKindNode FindClosestNodeFacingAt((RoomName, RoomShape) roomNameShape, Vector3 localPosition, Vector3 localDirection)
+        public RoomKindNode FindClosestNodeFacingAt((RoomName, RoomShape, RoomZone) roomKind, Vector3 localPosition, Vector3 localDirection)
         {
-            var targetNode = NavigationGraph.Instance.NodesByRoomKind[roomNameShape]
+            if (!NavigationGraph.Instance.NodesByRoomKind.TryGetValue(roomKind, out var roomKindNodes))
+            {
+                return null;
+            }
+
+            var targetNode = roomKindNodes
                 .Select(n => (n, d: Vector3.SqrMagnitude(n.LocalPosition - localPosition)))
                 .Where(t => t.d < 50f && t.d > 1f)
                 .OrderBy(t => t.d)
@@ -55,28 +60,30 @@ namespace SCPSLBot.Navigation.Graph
         {
             var room = RoomIdUtils.RoomAtPositionRaycasts(position);
 
-            var newNode = NavigationGraph.AddNode(room.transform.InverseTransformPoint(position), (room.Name, room.Shape));
+            var newNode = NavigationGraph.AddNode(room.transform.InverseTransformPoint(position), (room.Name, room.Shape, (RoomZone)room.Zone));
 
-            Log.Info($"Node #{newNode.Id} at local position {newNode.LocalPosition} added under room {(room.Name, room.Shape)}.");
+            Log.Info($"Node #{newNode.Id} at local position {newNode.LocalPosition} added under room {(room.Name, room.Shape, room.Zone)}.");
 
             return newNode;
         }
 
-        public void RemoveNode(Vector3 position)
+        public bool RemoveNode(Vector3 position)
         {
             var node = NavigationGraph.FindNearestNode(position);
             if (node == null)
             {
                 Log.Warning($"No node found nearby to remove.");
 
-                return;
+                return false;
             }
 
             var room = RoomIdUtils.RoomAtPositionRaycasts(position);
 
-            NavigationGraph.RemoveNode(node.RoomKindNode, (room.Name, room.Shape));
+            NavigationGraph.RemoveNode(node.RoomKindNode, (room.Name, room.Shape, (RoomZone)room.Zone));
 
-            Log.Info($"Node at local position {node.LocalPosition} removed under room {(room.Name, room.Shape)}.");
+            Log.Info($"Node at local position {node.LocalPosition} removed under room {(room.Name, room.Shape, room.Zone)}.");
+
+            return true;
         }
 
         public void UpdateEditing()
@@ -106,7 +113,7 @@ namespace SCPSLBot.Navigation.Graph
                 var localPosition = room.transform.InverseTransformPoint(PlayerEditing.Camera.position);
                 var localForward = room.transform.InverseTransformDirection(PlayerEditing.Camera.forward);
 
-                Visuals.FacingNodeTemplate = FindClosestNodeFacingAt((room.Name, room.Shape), localPosition, localForward);
+                Visuals.FacingNodeTemplate = FindClosestNodeFacingAt((room.Name, room.Shape, (RoomZone)room.Zone), localPosition, localForward);
             }
         }
 

@@ -29,7 +29,9 @@ namespace SCPSLBot.Commands.Navigation
                 return false;
             }
 
+            NavigationSystem.Instance.ResetNodes();
             NavigationSystem.Instance.LoadNodes();
+            NavigationSystem.Instance.InitRoomNodes();  // Assuming map is already generated.
 
             response = $"Navigation graph re-loaded.";
             return true;

@@ -44,10 +44,9 @@ namespace SCPSLBot.Commands.Navigation
             }
             var roomKindNode = nearestNode.RoomKindNode;
 
-            RoomKindNode targetRoomKindNode = null;
+            RoomKindNode targetRoomKindNode;
 
-            var (roomName, roomShape) = roomKindNode.RoomNameShape;
-            var room = RoomIdentifier.AllRoomIdentifiers.First(r => r.Name == roomName && r.Shape == roomShape);
+            var room = nearestNode.Room.Identifier;
 
             if (arguments.Count > 1)
             {
@@ -57,7 +56,7 @@ namespace SCPSLBot.Commands.Navigation
                     return false;
                 }
 
-                if (!NavigationGraph.Instance.NodesByRoomKind[roomKindNode.RoomNameShape].TryGet(nodeId, out targetRoomKindNode))
+                if (!NavigationGraph.Instance.NodesByRoomKind[roomKindNode.RoomKind].TryGet(nodeId, out targetRoomKindNode))
                 {
                     response = $"No target node exists at index {nodeId}.";
                     return false;
@@ -71,7 +70,7 @@ namespace SCPSLBot.Commands.Navigation
 
                 var localPosition = room.transform.InverseTransformPoint(cameraPosition);
                 var localForward = room.transform.InverseTransformDirection(cameraForward);
-                targetRoomKindNode = NavigationGraphEditor.Instance.FindClosestNodeFacingAt(roomKindNode.RoomNameShape, localPosition, localForward);
+                targetRoomKindNode = NavigationGraphEditor.Instance.FindClosestNodeFacingAt(roomKindNode.RoomKind, localPosition, localForward);
 
                 if (targetRoomKindNode == null)
                 {
@@ -82,7 +81,7 @@ namespace SCPSLBot.Commands.Navigation
 
             if (!roomKindNode.ConnectedNodes.Contains(targetRoomKindNode))
             {
-                response = $"Node #{roomKindNode.Id} is not connected with node {targetRoomKindNode.Id}.";
+                response = $"Node #{roomKindNode.Id} is not connected with node #{targetRoomKindNode.Id}.";
                 return false;
             }
 

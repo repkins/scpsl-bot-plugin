@@ -67,17 +67,9 @@ namespace SCPSLBot.Navigation
         [PluginEvent(PluginAPI.Enums.ServerEventType.MapGenerated)]
         public void OnMapGenerated()
         {
-            foreach (var room in Facility.Rooms)
-            {
-                if (!NavigationGraph.NodesByRoomKind.TryGetValue((room.Identifier.Name, room.Identifier.Shape), out var roomKindNodes))
-                {
-                    continue;
-                }
+            Log.Info($"Initializing nodes from room kind nodes.");
 
-                var nodes = roomKindNodes.Select(k => new Node(k, room)).ToList();
-
-                NavigationGraph.NodesByRoom.Add(room, nodes);
-            }
+            InitRoomNodes();
 
             // 
             // Connect door waypoints
@@ -103,6 +95,27 @@ namespace SCPSLBot.Navigation
             {
                 NavigationGraph.WriteNodes(binaryWriter);
             }
+        }
+
+        public void InitRoomNodes()
+        {
+            foreach (var room in Facility.Rooms)
+            {
+                var nodes = new List<Node>();
+                NavigationGraph.NodesByRoom.Add(room, nodes);
+
+                if (!NavigationGraph.NodesByRoomKind.TryGetValue((room.Identifier.Name, room.Identifier.Shape, (RoomZone)room.Identifier.Zone), out var roomKindNodes))
+                {
+                    continue;
+                }
+
+                nodes.AddRange(roomKindNodes.Select(k => new Node(k, room)));
+            }
+        }
+
+        public void ResetNodes()
+        {
+            NavigationGraph.NodesByRoom.Clear();
         }
 
         #region Private constructor

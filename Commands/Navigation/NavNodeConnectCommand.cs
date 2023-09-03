@@ -56,7 +56,7 @@ namespace SCPSLBot.Commands.Navigation
                     return false;
                 }
 
-                if (!NavigationGraph.Instance.NodesByRoomKind[roomKindNode.RoomNameShape].TryGet(nodeId, out targetRoomKindNode))
+                if (!NavigationGraph.Instance.NodesByRoomKind[roomKindNode.RoomKind].TryGet(nodeId, out targetRoomKindNode))
                 {
                     response = $"No target node exists at index {nodeId}.";
                     return false;
@@ -70,7 +70,7 @@ namespace SCPSLBot.Commands.Navigation
 
                 var localPosition = room.transform.InverseTransformPoint(cameraPosition);
                 var localForward = room.transform.InverseTransformDirection(cameraForward);
-                targetRoomKindNode = NavigationGraphEditor.Instance.FindClosestNodeFacingAt(roomKindNode.RoomNameShape, localPosition, localForward);
+                targetRoomKindNode = NavigationGraphEditor.Instance.FindClosestNodeFacingAt(roomKindNode.RoomKind, localPosition, localForward);
 
                 if (targetRoomKindNode == null)
                 {
@@ -87,7 +87,7 @@ namespace SCPSLBot.Commands.Navigation
 
             roomKindNode.ConnectedNodes.Add(targetRoomKindNode);
 
-            response = $"Node #{roomKindNode.Id} connected with node #{targetRoomKindNode.Id} at {roomKindNode.RoomNameShape}.";
+            response = $"Node #{roomKindNode.Id} connected with node #{targetRoomKindNode.Id} at {roomKindNode.RoomKind}.";
 
             return true;
         }
