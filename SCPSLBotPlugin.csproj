@@ -81,7 +81,7 @@
     <Compile Include="AI\FirstPersonControl\Actions\FpcPlayAction.cs" />
     <Compile Include="AI\FirstPersonControl\IBotPlayer.cs" />
     <Compile Include="Navigation\Graph\NavigationGraphEditor.cs" />
-    <Compile Include="Navigation\Graph\NodeTemplate.cs" />
+    <Compile Include="Navigation\Graph\RoomKindNode.cs" />
     <Compile Include="Commands\BotApproachCommand.cs" />
     <Compile Include="Commands\BotTurnCommand.cs" />
     <Compile Include="Commands\BotMoveCommand.cs" />

@@ -67,25 +67,20 @@ namespace SCPSLBot.Navigation
         [PluginEvent(PluginAPI.Enums.ServerEventType.MapGenerated)]
         public void OnMapGenerated()
         {
-            // 
-            // Connect door waypoints
-
             foreach (var room in Facility.Rooms)
             {
-                if (!NavigationGraph.NodeTemplatesByRoom.TryGetValue((room.Identifier.Name, room.Identifier.Shape), out var nodesTmpls))
+                if (!NavigationGraph.NodesByRoomKind.TryGetValue((room.Identifier.Name, room.Identifier.Shape), out var roomKindNodes))
                 {
                     continue;
                 }
 
-                var nodes = nodesTmpls.Select(t => new Node(t, room)).ToList();
-
-                foreach (var node in nodes)
-                {
-                    node.ConnectedNodes.AddRange(nodesTmpls[node.Id].ConnectedNodes.Select(t => nodes[t.Id]));
-                }
+                var nodes = roomKindNodes.Select(k => new Node(k, room)).ToList();
 
                 NavigationGraph.NodesByRoom.Add(room, nodes);
             }
+
+            // 
+            // Connect door waypoints
         }
 
         public void LoadNodes()

@@ -43,12 +43,12 @@ namespace SCPSLBot.Commands.Navigation
                 return false;
             }
 
-            var (roomName, roomShape) = node.Template.RoomNameShape;
+            var (roomName, roomShape) = node.RoomKindNode.RoomNameShape;
             var room = RoomIdentifier.AllRoomIdentifiers.First(r => r.Name == roomName && r.Shape == roomShape);
             var nodePosition = room.transform.TransformPoint(node.LocalPosition);
             var distance = Vector3.Distance(nodePosition, position);
 
-            response = $"Node found at {node.LocalPosition} in {node.Template.RoomNameShape} from distance {distance}.";
+            response = $"Node found at {node.LocalPosition} in {node.RoomKindNode.RoomNameShape} from distance {distance}.";
             return true;
         }
     }

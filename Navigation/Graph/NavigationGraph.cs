@@ -22,7 +22,7 @@ namespace SCPSLBot.Navigation.Graph
     {
         public static NavigationGraph Instance { get; } = new NavigationGraph();
 
-        public Dictionary<(RoomName, RoomShape), List<NodeTemplate>> NodeTemplatesByRoom { get; } = new Dictionary<(RoomName, RoomShape), List<NodeTemplate>>();
+        public Dictionary<(RoomName, RoomShape), List<RoomKindNode>> NodesByRoomKind { get; } = new Dictionary<(RoomName, RoomShape), List<RoomKindNode>>();
         
         public Dictionary<FacilityRoom, List<Node>> NodesByRoom { get; } = new Dictionary<FacilityRoom, List<Node>>();
 
@@ -54,43 +54,44 @@ namespace SCPSLBot.Navigation.Graph
                 .node;
         }
 
-        public NodeTemplate AddNode(Vector3 localPosition, (RoomName, RoomShape) roomNameShape)
+        public RoomKindNode AddNode(Vector3 localPosition, (RoomName, RoomShape) roomNameShape)
         {
-            if (!NodeTemplatesByRoom.TryGetValue(roomNameShape, out var roomNodeTemplates))
+            if (!NodesByRoomKind.TryGetValue(roomNameShape, out var roomKindNodes))
             {
-                roomNodeTemplates = new List<NodeTemplate>();
-                NodeTemplatesByRoom.Add(roomNameShape, roomNodeTemplates);
+                roomKindNodes = new List<RoomKindNode>();
+                NodesByRoomKind.Add(roomNameShape, roomKindNodes);
             }
 
-            var newNodeTemplate = new NodeTemplate(localPosition)
+            var newRoomKindNode = new RoomKindNode(localPosition)
             {
-                Id = roomNodeTemplates.Count,
+                Id = roomKindNodes.Count,
                 RoomNameShape = roomNameShape,
             };
 
-            roomNodeTemplates.Add(newNodeTemplate);
+            roomKindNodes.Add(newRoomKindNode);
 
-            foreach (var roomOfNameShape in NodesByRoom.Where(r => (r.Key.Identifier.Name, r.Key.Identifier.Shape) == roomNameShape))
+            foreach (var roomOfKind in NodesByRoom.Where(r => (r.Key.Identifier.Name, r.Key.Identifier.Shape) == roomNameShape))
             {
-                roomOfNameShape.Value.Add(new Node(newNodeTemplate, roomOfNameShape.Key));
+                roomOfKind.Value.Add(new Node(newRoomKindNode, roomOfKind.Key));
             }
 
-            return newNodeTemplate;
+            return newRoomKindNode;
         }
 
-        public void RemoveNode(NodeTemplate nodeTemplate, (RoomName, RoomShape) roomNameShape)
+        public void RemoveNode(RoomKindNode roomKindNode, (RoomName, RoomShape) roomNameShape)
         {
-            if (!NodeTemplatesByRoom.TryGetValue(roomNameShape, out var roomNodeTemplates))
+            if (!NodesByRoomKind.TryGetValue(roomNameShape, out var roomKindNodes))
             {
                 Log.Warning($"No nodes at room {roomNameShape} to remove node from.");
                 return;
             }
 
-            roomNodeTemplates.Remove(nodeTemplate);
+            roomKindNodes.Remove(roomKindNode);
 
-            foreach (var roomOfNameShape in NodesByRoom.Where(r => (r.Key.Identifier.Name, r.Key.Identifier.Shape) == roomNameShape))
+            foreach (var roomOfKind in NodesByRoom.Where(r => (r.Key.Identifier.Name, r.Key.Identifier.Shape) == roomNameShape))
             {
-                roomOfNameShape.Value.RemoveAll(node => node.Template == nodeTemplate);
+                var node = roomOfKind.Value.Find(n => n.RoomKindNode == roomKindNode);
+                roomOfKind.Value.Remove(node);
             }
         }
 
@@ -105,14 +106,14 @@ namespace SCPSLBot.Navigation.Graph
                 Enum.TryParse<RoomName>(binaryReader.ReadString(), out var roomName);
                 Enum.TryParse<RoomShape>(binaryReader.ReadString(), out var roomShape);
 
-                if (!NodeTemplatesByRoom.TryGetValue((roomName, roomShape), out var nodeTemplates))
+                if (!NodesByRoomKind.TryGetValue((roomName, roomShape), out var roomKindNodes))
                 {
-                    nodeTemplates = new List<NodeTemplate>();
-                    NodeTemplatesByRoom.Add((roomName, roomShape), nodeTemplates);
+                    roomKindNodes = new List<RoomKindNode>();
+                    NodesByRoomKind.Add((roomName, roomShape), roomKindNodes);
                 }
                 else
                 {
-                    nodeTemplates.Clear();
+                    roomKindNodes.Clear();
                 }
 
                 var nodesCount = binaryReader.ReadInt32();
@@ -142,9 +143,9 @@ namespace SCPSLBot.Navigation.Graph
                     nodesConnections[j] = connectedNodes;
                 }
 
-                foreach (var (node, conns) in nodesConnections.Select((conns, nodeIndex) => (nodeTemplates[nodeIndex], conns)))
+                foreach (var (node, conns) in nodesConnections.Select((conns, nodeIndex) => (roomKindNodes[nodeIndex], conns)))
                 {
-                    node.ConnectedNodes.AddRange(conns.Select(connectedIndex => nodeTemplates[connectedIndex]));
+                    node.ConnectedNodes.AddRange(conns.Select(connectedIndex => roomKindNodes[connectedIndex]));
                 }
             }
         }
@@ -154,9 +155,9 @@ namespace SCPSLBot.Navigation.Graph
             byte version = 1;
             binaryWriter.Write(version);
 
-            binaryWriter.Write(NodeTemplatesByRoom.Count);
+            binaryWriter.Write(NodesByRoomKind.Count);
 
-            foreach (var roomNodes in NodeTemplatesByRoom)
+            foreach (var roomNodes in NodesByRoomKind)
             {
                 var (roomName, roomShape) = roomNodes.Key;
                 var nodes = roomNodes.Value;

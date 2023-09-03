@@ -42,11 +42,11 @@ namespace SCPSLBot.Commands.Navigation
                 response = $"No nearby node found at position {playerPosition}.";
                 return false;
             }
-            var nodeTemplate = nearestNode.Template;
+            var roomKindNode = nearestNode.RoomKindNode;
 
-            NodeTemplate targetNodeTemplate = null;
+            RoomKindNode targetRoomKindNode = null;
 
-            var (roomName, roomShape) = nodeTemplate.RoomNameShape;
+            var (roomName, roomShape) = roomKindNode.RoomNameShape;
             var room = RoomIdentifier.AllRoomIdentifiers.First(r => r.Name == roomName && r.Shape == roomShape);
 
             if (arguments.Count > 1)
@@ -57,7 +57,7 @@ namespace SCPSLBot.Commands.Navigation
                     return false;
                 }
 
-                if (!NavigationGraph.Instance.NodeTemplatesByRoom[nodeTemplate.RoomNameShape].TryGet(nodeId, out targetNodeTemplate))
+                if (!NavigationGraph.Instance.NodesByRoomKind[roomKindNode.RoomNameShape].TryGet(nodeId, out targetRoomKindNode))
                 {
                     response = $"No target node exists at index {nodeId}.";
                     return false;
@@ -71,31 +71,24 @@ namespace SCPSLBot.Commands.Navigation
 
                 var localPosition = room.transform.InverseTransformPoint(cameraPosition);
                 var localForward = room.transform.InverseTransformDirection(cameraForward);
-                targetNodeTemplate = NavigationGraphEditor.Instance.FindClosestNodeFacingAt(nodeTemplate.RoomNameShape, localPosition, localForward);
+                targetRoomKindNode = NavigationGraphEditor.Instance.FindClosestNodeFacingAt(roomKindNode.RoomNameShape, localPosition, localForward);
 
-                if (targetNodeTemplate == null)
+                if (targetRoomKindNode == null)
                 {
                     response = $"No target node at player direction.";
                     return false;
                 }
             }
 
-            if (!nodeTemplate.ConnectedNodes.Contains(targetNodeTemplate))
+            if (!roomKindNode.ConnectedNodes.Contains(targetRoomKindNode))
             {
-                response = $"Node #{nodeTemplate.Id} is not connected with node {targetNodeTemplate.Id}.";
+                response = $"Node #{roomKindNode.Id} is not connected with node {targetRoomKindNode.Id}.";
                 return false;
             }
 
-            nodeTemplate.ConnectedNodes.Remove(targetNodeTemplate);
+            roomKindNode.ConnectedNodes.Remove(targetRoomKindNode);
 
-            foreach (var roomOfNameShape in NavigationGraph.Instance.NodesByRoom.Where(r => (r.Key.Identifier.Name, r.Key.Identifier.Shape) == nodeTemplate.RoomNameShape))
-            {
-                var node = roomOfNameShape.Value.Find(n => n.Template == nodeTemplate);
-                var targetNode = roomOfNameShape.Value.Find(n => n.Template == targetNodeTemplate);
-                node.ConnectedNodes.Remove(targetNode);
-            }
-
-            response = $"Node #{nodeTemplate.Id} disconnected with node #{targetNodeTemplate.Id}.";
+            response = $"Node #{roomKindNode.Id} disconnected with node #{targetRoomKindNode.Id}.";
 
             return true;
         }

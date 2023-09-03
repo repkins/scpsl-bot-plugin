@@ -16,8 +16,8 @@ namespace SCPSLBot.Navigation.Graph
     {
         public Player EnabledVisualsForPlayer { get; set; }
 
-        public NodeTemplate NearestNodeTemplate { get; set; }
-        public NodeTemplate FacingNodeTemplate { get; set; }
+        public RoomKindNode NearestNodeTemplate { get; set; }
+        public RoomKindNode FacingNodeTemplate { get; set; }
 
         private Dictionary<Node, PrimitiveObjectToy> NodeVisuals { get; } = new Dictionary<Node, PrimitiveObjectToy>();
         private Dictionary<(Node From, Node To), PrimitiveObjectToy> NodeConnectionVisuals { get; } = new Dictionary<(Node, Node), PrimitiveObjectToy>();
@@ -25,8 +25,8 @@ namespace SCPSLBot.Navigation.Graph
 
         private NavigationGraph NavigationGraph { get; } = NavigationGraph.Instance;
 
-        private NodeTemplate LastNearestNodeTemplate { get; set; }
-        private NodeTemplate LastFacingNodeTemplate { get; set; }
+        private RoomKindNode LastNearestNodeTemplate { get; set; }
+        private RoomKindNode LastFacingNodeTemplate { get; set; }
 
         private string[] NodeVisualsMessages { get; } = new string[2];
 
@@ -130,7 +130,7 @@ namespace SCPSLBot.Navigation.Graph
                         NodeVisuals.Add(node, visual);
                     }
 
-                    visual.NetworkMaterialColor = (node.Template == FacingNodeTemplate) ? Color.green : Color.yellow;
+                    visual.NetworkMaterialColor = (node.RoomKindNode == FacingNodeTemplate) ? Color.green : Color.yellow;
 
                     foreach (var connectedNode in node.ConnectedNodes)
                     {
