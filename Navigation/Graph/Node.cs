@@ -13,10 +13,11 @@ namespace SCPSLBot.Navigation.Graph
         public int Id => RoomKindNode.Id;
         public Vector3 LocalPosition => RoomKindNode.LocalPosition;
         public float Radius => RoomKindNode.Radius;
-        public IEnumerable<Node> ConnectedNodes => RoomKindNode.ConnectedNodes.Select(k => k.NodesOfRoom[Room]);
+        public IEnumerable<Node> ConnectedNodes => RoomKindNode.ConnectedNodes.Select(k => k.NodesOfRoom[Room]).Concat(ForeignNodes);
 
         public FacilityRoom Room { get; private set; }
         public RoomKindNode RoomKindNode { get; private set; }
+        public List<Node> ForeignNodes { get; private set; } = new List<Node>();
 
         public Node(RoomKindNode roomKindNode, FacilityRoom room)
         {

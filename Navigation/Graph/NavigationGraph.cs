@@ -29,7 +29,7 @@ namespace SCPSLBot.Navigation.Graph
         {
             var room = RoomIdUtils.RoomAtPositionRaycasts(position);
 
-            if (!NodesByRoom.TryGetValue(room.ApiRoom, out var roomNodes))
+            if (!room || !NodesByRoom.TryGetValue(room.ApiRoom, out var roomNodes))
             {
                 return null;
             }

@@ -1,4 +1,5 @@
 ﻿using MapGeneration;
+using MEC;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Events;
@@ -36,8 +37,33 @@ namespace SCPSLBot.Navigation
 
             InitRoomNodes();
 
-            // 
-            // Connect door waypoints
+            Timing.RunCoroutine(ConnectForeignNodesAsync());
+        }
+
+        private IEnumerator<float> ConnectForeignNodesAsync()
+        {
+            yield return Timing.WaitUntilTrue(() => SeedSynchronizer.MapGenerated);
+
+            Log.Info($"Connecting nodes between rooms.");
+            foreach (var door in Facility.Doors)
+            {
+                if (door.OriginalObject.Rooms.Length == 2)
+                {
+                    var doorPosition = door.Position;
+                    var doorForward = door.Transform.forward;
+
+                    var nodeInFront = NavigationGraph.FindNearestNode(doorPosition + doorForward * 2f, 2f);
+                    var nodeInBack = NavigationGraph.FindNearestNode(doorPosition - doorForward * 2f, 2f);
+
+                    if (nodeInFront != null && nodeInBack != null)
+                    {
+                        // Connect
+                        nodeInFront.ForeignNodes.Add(nodeInBack);
+                        nodeInBack.ForeignNodes.Add(nodeInFront);
+                    }
+                }
+            }
+            Log.Info($"Connecting nodes finished.");
         }
 
         public void LoadNodes()

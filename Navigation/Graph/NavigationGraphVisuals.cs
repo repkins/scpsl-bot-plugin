@@ -134,17 +134,18 @@ namespace SCPSLBot.Navigation.Graph
 
                     foreach (var connectedNode in node.ConnectedNodes)
                     {
+                        var connectedRoom = connectedNode.Room.Identifier;
                         if (!NodeConnectionVisuals.TryGetValue((node, connectedNode), out var outConnectionVisual))
                         {
                             if (!NodeConnectionVisuals.TryGetValue((connectedNode, node), out var inConnectionVisual))
                             {
                                 outConnectionVisual = UnityEngine.Object.Instantiate(primPrefab);
                                 outConnectionVisual.NetworkPrimitiveType = PrimitiveType.Cylinder;
-                                outConnectionVisual.transform.position = room.transform.TransformPoint(Vector3.Lerp(node.LocalPosition, connectedNode.LocalPosition, 0.5f));
-                                outConnectionVisual.transform.LookAt(room.transform.TransformPoint(connectedNode.LocalPosition));
+                                outConnectionVisual.transform.position = Vector3.Lerp(room.transform.TransformPoint(node.LocalPosition), connectedRoom.transform.TransformPoint(connectedNode.LocalPosition), 0.5f);
+                                outConnectionVisual.transform.LookAt(connectedRoom.transform.TransformPoint(connectedNode.LocalPosition));
                                 outConnectionVisual.transform.RotateAround(outConnectionVisual.transform.position, outConnectionVisual.transform.right, 90f);
                                 outConnectionVisual.transform.localScale = -Vector3.forward * 0.1f + -Vector3.right * 0.1f;
-                                outConnectionVisual.transform.localScale += -Vector3.up * Vector3.Distance(node.LocalPosition, connectedNode.LocalPosition) * 0.5f;
+                                outConnectionVisual.transform.localScale += -Vector3.up * Vector3.Distance(room.transform.TransformPoint(node.LocalPosition), connectedRoom.transform.TransformPoint(connectedNode.LocalPosition)) * 0.5f;
                                 NetworkServer.Spawn(outConnectionVisual.gameObject);
 
                                 NodeConnectionVisuals.Add((node, connectedNode), outConnectionVisual);
@@ -159,7 +160,7 @@ namespace SCPSLBot.Navigation.Graph
                         {
                             outConnectionOriginVisual = UnityEngine.Object.Instantiate(primPrefab);
                             outConnectionOriginVisual.transform.position = room.transform.TransformPoint(node.LocalPosition);
-                            outConnectionOriginVisual.transform.position += room.transform.TransformDirection(Vector3.Normalize(connectedNode.LocalPosition - node.LocalPosition)) * 0.125f;
+                            outConnectionOriginVisual.transform.position += Vector3.Normalize(connectedRoom.transform.TransformPoint(connectedNode.LocalPosition) - outConnectionOriginVisual.transform.position) * 0.125f;
                             outConnectionOriginVisual.transform.localScale = -Vector3.one * 0.2f;
                             NetworkServer.Spawn(outConnectionOriginVisual.gameObject);
 
