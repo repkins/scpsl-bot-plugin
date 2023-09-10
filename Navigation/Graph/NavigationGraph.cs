@@ -1,8 +1,4 @@
-﻿using AdminToys;
-using InventorySystem.Items.Coin;
-using MapGeneration;
-using MEC;
-using Mirror;
+﻿using MapGeneration;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Core.Zones;
@@ -145,6 +141,13 @@ namespace SCPSLBot.Navigation.Graph
 
                     var radius = binaryReader.ReadSingle();
 
+                    var newRoomKindNode = new RoomKindNode(localPos)
+                    {
+                        Id = roomKindNodes.Count,
+                        RoomKind = (roomName, roomShape, roomZone),
+                    };
+                    roomKindNodes.Add(newRoomKindNode);
+
                     var connectedNodesCount = binaryReader.ReadInt32();
 
                     var connectedNodes = new int[connectedNodesCount];
@@ -152,8 +155,6 @@ namespace SCPSLBot.Navigation.Graph
                     {
                         connectedNodes[k] = binaryReader.ReadInt32();
                     }
-
-                    AddNode(localPos, (roomName, roomShape, roomZone));
                     
                     nodesConnections[j] = connectedNodes;
                 }
