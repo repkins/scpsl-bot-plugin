@@ -19,6 +19,8 @@ namespace SCPSLBot.Navigation.Graph
         public RoomKindNode RoomKindNode { get; private set; }
         public List<Node> ForeignNodes { get; private set; } = new List<Node>();
 
+        public Vector3 Position => Room.Transform.TransformPoint(LocalPosition);
+
         public Node(RoomKindNode roomKindNode, FacilityRoom room)
         {
             Room = room;

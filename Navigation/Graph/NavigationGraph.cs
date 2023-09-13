@@ -50,6 +50,80 @@ namespace SCPSLBot.Navigation.Graph
                 .node;
         }
 
+        public List<Node> GetShortestPath(Node startingNode, Node endNode)
+        {
+            var nodesWithPriorityToEvaluate = new Dictionary<Node, float>();
+            var cameFromNodes = new Dictionary<Node, Node>();
+            var nodeCosts = new Dictionary<Node, float>();
+
+            var cost = 0f;
+            var heuristic = Vector3.SqrMagnitude(endNode.Position - startingNode.Position);
+
+            nodesWithPriorityToEvaluate.Add(startingNode, cost + heuristic);
+            cameFromNodes.Add(startingNode, null);
+            nodeCosts.Add(startingNode, cost);
+
+            var node = startingNode;
+
+            do
+            {
+                node = nodesWithPriorityToEvaluate.OrderBy(p => p.Value).First().Key;
+                nodesWithPriorityToEvaluate.Remove(node);
+
+                if (node == endNode)
+                {
+                    break;
+                }
+
+                cost = nodeCosts[node];
+
+                foreach (var connectedNode in node.ConnectedNodes)
+                {
+                    var newCost = cost + Vector3.SqrMagnitude(connectedNode.Position - node.Position);
+
+                    if (!nodeCosts.ContainsKey(connectedNode) || newCost < nodeCosts[connectedNode])
+                    {
+                        if (nodeCosts.ContainsKey(connectedNode))
+                        {
+                            nodeCosts[connectedNode] = newCost;
+                        }
+                        else
+                        {
+                            nodeCosts.Add(connectedNode, newCost);
+                        }
+
+                        heuristic = Vector3.SqrMagnitude(endNode.Position - connectedNode.Position);
+                        nodesWithPriorityToEvaluate.Add(connectedNode, newCost + heuristic);
+
+                        if (cameFromNodes.ContainsKey(connectedNode))
+                        {
+                            cameFromNodes[connectedNode] = node;
+                        }
+                        else
+                        {
+                            cameFromNodes.Add(connectedNode, node);
+                        }
+                    }
+                }
+            }
+            while (nodesWithPriorityToEvaluate.Any());
+
+            var shortestPath = new List<Node>();
+
+            if (cameFromNodes.ContainsKey(endNode))
+            {
+                node = endNode;
+                while (node != null)
+                {
+                    shortestPath.Add(node);
+                    cameFromNodes.TryGetValue(node, out node);
+                }
+                shortestPath.Reverse();
+            }
+
+            return shortestPath;
+        }
+
         public RoomKindNode AddNode(Vector3 localPosition, (RoomName, RoomShape, RoomZone) roomKind)
         {
             if (!NodesByRoomKind.TryGetValue(roomKind, out var roomKindNodes))
