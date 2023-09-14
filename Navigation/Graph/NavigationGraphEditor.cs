@@ -135,7 +135,7 @@ namespace SCPSLBot.Navigation.Graph
         {
             if (PlayerEditing != null)
             {
-                Visuals.NearestNodeTemplate = NavigationGraph.FindNearestNode(PlayerEditing.Camera.position)?.RoomKindNode;
+                Visuals.NearestNode = NavigationGraph.FindNearestNode(PlayerEditing.Camera.position)?.RoomKindNode;
             }
         }
 

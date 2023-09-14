@@ -16,7 +16,7 @@ namespace SCPSLBot.Navigation.Graph
     {
         public Player EnabledVisualsForPlayer { get; set; }
 
-        public RoomKindNode NearestNodeTemplate { get; set; }
+        public RoomKindNode NearestNode { get; set; }
         public RoomKindNode FacingNodeTemplate { get; set; }
 
         public List<Node> Path { get; } = new List<Node>();
@@ -27,7 +27,7 @@ namespace SCPSLBot.Navigation.Graph
 
         private NavigationGraph NavigationGraph { get; } = NavigationGraph.Instance;
 
-        private RoomKindNode LastNearestNodeTemplate { get; set; }
+        private RoomKindNode LastNearestNode { get; set; }
         private RoomKindNode LastFacingNodeTemplate { get; set; }
 
         private string[] NodeVisualsMessages { get; } = new string[2];
@@ -36,16 +36,16 @@ namespace SCPSLBot.Navigation.Graph
         {
             if (EnabledVisualsForPlayer != null)
             {
-                var nearestNode = NearestNodeTemplate;
+                var nearestNode = NearestNode;
 
-                if (nearestNode != LastNearestNodeTemplate)
+                if (nearestNode != LastNearestNode)
                 {
-                    LastNearestNodeTemplate = nearestNode;
+                    LastNearestNode = nearestNode;
 
                     if (nearestNode != null)
                     {
-                        var connectedIdsStr = string.Join(", ", nearestNode.ConnectedNodes.Select(c => $"#{c.Id}"));
-                        NodeVisualsMessages[0] = $"Node #{nearestNode.Id} in {nearestNode.RoomKind} connected to {connectedIdsStr}";
+                        //var connectedIdsStr = string.Join(", ", nearestNode.ConnectedNodes.Select(c => $"#{c.Id}"));
+                        NodeVisualsMessages[0] = $"Node #{nearestNode.Id} in {nearestNode.RoomKind}";
                     }
                     else
                     {

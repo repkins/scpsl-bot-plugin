@@ -52,8 +52,8 @@ namespace SCPSLBot.Navigation
                     var doorPosition = door.Position;
                     var doorForward = door.Transform.forward;
 
-                    var nodeInFront = NavigationGraph.FindNearestNode(doorPosition + doorForward * 2f, 2f);
-                    var nodeInBack = NavigationGraph.FindNearestNode(doorPosition - doorForward * 2f, 2f);
+                    var nodeInFront = NavigationGraph.FindNearestNode(doorPosition + doorForward * 1f, 3f);
+                    var nodeInBack = NavigationGraph.FindNearestNode(doorPosition - doorForward * 1f, 3f);
 
                     if (nodeInFront != null && nodeInBack != null)
                     {

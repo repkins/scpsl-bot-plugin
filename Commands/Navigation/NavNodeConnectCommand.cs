@@ -87,6 +87,11 @@ namespace SCPSLBot.Commands.Navigation
 
             roomKindNode.ConnectedNodes.Add(targetRoomKindNode);
 
+            if (!targetRoomKindNode.ConnectedNodes.Contains(roomKindNode))
+            {
+                targetRoomKindNode.ConnectedNodes.Add(roomKindNode);
+            }
+
             response = $"Node #{roomKindNode.Id} connected with node #{targetRoomKindNode.Id} at {roomKindNode.RoomKind}.";
 
             return true;
