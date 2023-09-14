@@ -30,6 +30,9 @@ namespace SCPSLBot.Navigation.Graph
 
         private Player LastPlayerEditing { get; set; }
 
+        private Node CachedNode { get; set; }
+        private Node TracingEndingNode { get; set; }
+
         public void Init()
         {
             Timing.RunCoroutine(RunEachFrame(UpdateEditing));
@@ -86,7 +89,39 @@ namespace SCPSLBot.Navigation.Graph
             return true;
         }
 
-        public void UpdateEditing()
+        public bool CacheNode(Vector3 position)
+        {
+            CachedNode = NavigationGraph.FindNearestNode(position);
+
+            return CachedNode != null;
+        }
+
+        public bool TracePath(Vector3 position)
+        {
+            if (CachedNode == null)
+            {
+                return false;
+            }
+
+            var targetNode = NavigationGraph.FindNearestNode(position);
+            if (targetNode == null)
+            {
+                return false;
+            }
+
+            var path = NavigationGraph.GetShortestPath(CachedNode, targetNode);
+            if (path.Count == 0)
+            {
+                Log.Warning($"No path found.");
+            }
+
+            Visuals.Path.Clear();
+            Visuals.Path.AddRange(path);
+
+            return true;
+        }
+
+        private void UpdateEditing()
         {
             if (PlayerEditing != LastPlayerEditing)
             {
@@ -96,7 +131,7 @@ namespace SCPSLBot.Navigation.Graph
             }
         }
 
-        public void UpdateNearestNode()
+        private void UpdateNearestNode()
         {
             if (PlayerEditing != null)
             {
@@ -104,7 +139,7 @@ namespace SCPSLBot.Navigation.Graph
             }
         }
 
-        public void UpdateFacingNode()
+        private void UpdateFacingNode()
         {
             if (PlayerEditing != null)
             {

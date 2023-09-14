@@ -19,6 +19,8 @@ namespace SCPSLBot.Navigation.Graph
         public RoomKindNode NearestNodeTemplate { get; set; }
         public RoomKindNode FacingNodeTemplate { get; set; }
 
+        public List<Node> Path { get; } = new List<Node>();
+
         private Dictionary<Node, PrimitiveObjectToy> NodeVisuals { get; } = new Dictionary<Node, PrimitiveObjectToy>();
         private Dictionary<(Node From, Node To), PrimitiveObjectToy> NodeConnectionVisuals { get; } = new Dictionary<(Node, Node), PrimitiveObjectToy>();
         private Dictionary<(Node, Node), PrimitiveObjectToy> NodeConnectionOriginVisuals { get; } = new Dictionary<(Node, Node), PrimitiveObjectToy>();
@@ -179,6 +181,12 @@ namespace SCPSLBot.Navigation.Graph
                             outConnectionOriginVisual.NetworkMaterialColor = Color.white;
                         }
                     }
+                }
+
+                foreach (var nodeInPath in Path)
+                {
+                    var nodeVisual = NodeVisuals[nodeInPath];
+                    nodeVisual.NetworkMaterialColor = Color.blue;
                 }
             }
             else

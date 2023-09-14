@@ -57,7 +57,7 @@ namespace SCPSLBot.Navigation.Graph
             var nodeCosts = new Dictionary<Node, float>();
 
             var cost = 0f;
-            var heuristic = Vector3.SqrMagnitude(endNode.Position - startingNode.Position);
+            var heuristic = Vector3.Magnitude(endNode.Position - startingNode.Position);
 
             nodesWithPriorityToEvaluate.Add(startingNode, cost + heuristic);
             cameFromNodes.Add(startingNode, null);
@@ -79,7 +79,7 @@ namespace SCPSLBot.Navigation.Graph
 
                 foreach (var connectedNode in node.ConnectedNodes)
                 {
-                    var newCost = cost + Vector3.SqrMagnitude(connectedNode.Position - node.Position);
+                    var newCost = cost + Vector3.Magnitude(connectedNode.Position - node.Position);
 
                     if (!nodeCosts.ContainsKey(connectedNode) || newCost < nodeCosts[connectedNode])
                     {
@@ -92,8 +92,16 @@ namespace SCPSLBot.Navigation.Graph
                             nodeCosts.Add(connectedNode, newCost);
                         }
 
-                        heuristic = Vector3.SqrMagnitude(endNode.Position - connectedNode.Position);
-                        nodesWithPriorityToEvaluate.Add(connectedNode, newCost + heuristic);
+                        heuristic = Vector3.Magnitude(endNode.Position - connectedNode.Position);
+
+                        if (nodesWithPriorityToEvaluate.ContainsKey(connectedNode))
+                        {
+                            nodesWithPriorityToEvaluate[connectedNode] = newCost + heuristic;
+                        }
+                        else
+                        {
+                            nodesWithPriorityToEvaluate.Add(connectedNode, newCost + heuristic);
+                        }
 
                         if (cameFromNodes.ContainsKey(connectedNode))
                         {
