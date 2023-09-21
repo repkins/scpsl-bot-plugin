@@ -63,6 +63,16 @@
     <Reference Include="UnityEngine.PhysicsModule" HintPath="$(UNITY_REFERENCES)\UnityEngine.PhysicsModule.dll" Private="false" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AI\FirstPersonControl\Beliefs\Himself\HealingItemInInventory.cs" />
+    <Compile Include="AI\FirstPersonControl\Beliefs\Himself\KeycardInInventory.cs" />
+    <Compile Include="AI\FirstPersonControl\Beliefs\Himself\PickingUpItem.cs" />
+    <Compile Include="AI\FirstPersonControl\Beliefs\World\AccessToSurfaceLocation.cs" />
+    <Compile Include="AI\FirstPersonControl\Beliefs\World\LastKnownHealingItemLocation.cs" />
+    <Compile Include="AI\FirstPersonControl\Beliefs\World\LastKnownKeycardLocation.cs" />
+    <Compile Include="AI\FirstPersonControl\Beliefs\World\LczCheckpointLocation.cs" />
+    <Compile Include="AI\FirstPersonControl\Beliefs\World\Scp914Location.cs" />
+    <Compile Include="AI\FirstPersonControl\Desires\EscapeTheFacility.cs" />
+    <Compile Include="AI\FirstPersonControl\Desires\GetO5Keycard.cs" />
     <Compile Include="Commands\Navigation\NavCommand.cs" />
     <Compile Include="Commands\Navigation\NavLoadCommand.cs" />
     <Compile Include="Commands\Navigation\NavNodeCommand.cs" />
