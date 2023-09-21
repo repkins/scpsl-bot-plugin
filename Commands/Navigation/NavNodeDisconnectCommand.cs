@@ -12,10 +12,10 @@ using UnityEngine;
 
 namespace SCPSLBot.Commands.Navigation
 {
-    [CommandHandler(typeof(RemoteAdminCommandHandler))]
+    [CommandHandler(typeof(NavNodeCommand))]
     internal class NavNodeDisconnectCommand : ICommand
     {
-        public string Command { get; } = "nav_node_disconnect";
+        public string Command { get; } = "disconnect";
 
         public string[] Aliases { get; } = new string[] { };
 

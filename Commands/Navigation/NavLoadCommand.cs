@@ -12,10 +12,10 @@ using System.Threading.Tasks;
 
 namespace SCPSLBot.Commands.Navigation
 {
-    [CommandHandler(typeof(RemoteAdminCommandHandler))]
+    [CommandHandler(typeof(NavCommand))]
     internal class NavLoadCommand : ICommand
     {
-        public string Command { get; } = "nav_load";
+        public string Command { get; } = "load";
 
         public string[] Aliases { get; } = new string[] { };
 

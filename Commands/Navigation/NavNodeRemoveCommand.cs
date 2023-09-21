@@ -10,10 +10,10 @@ using System.Threading.Tasks;
 
 namespace SCPSLBot.Commands.Navigation
 {
-    [CommandHandler(typeof(RemoteAdminCommandHandler))]
+    [CommandHandler(typeof(NavNodeCommand))]
     internal class NavNodeRemoveCommand : ICommand
     {
-        public string Command { get; } = "nav_node_remove";
+        public string Command { get; } = "remove";
 
         public string[] Aliases { get; } = new string[] { "nnr" };
 

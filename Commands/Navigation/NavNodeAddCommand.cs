@@ -10,10 +10,10 @@ using System.Threading.Tasks;
 
 namespace SCPSLBot.Commands.Navigation
 {
-    [CommandHandler(typeof(RemoteAdminCommandHandler))]
+    [CommandHandler(typeof(NavNodeCommand))]
     internal class NavNodeAddCommand : ICommand
     {
-        public string Command { get; } = "nav_node_add";
+        public string Command { get; } = "add";
 
         public string[] Aliases { get; } = new string[] { };
 

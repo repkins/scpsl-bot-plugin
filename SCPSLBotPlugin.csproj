@@ -63,7 +63,9 @@
     <Reference Include="UnityEngine.PhysicsModule" HintPath="$(UNITY_REFERENCES)\UnityEngine.PhysicsModule.dll" Private="false" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\Navigation\NavCommand.cs" />
     <Compile Include="Commands\Navigation\NavLoadCommand.cs" />
+    <Compile Include="Commands\Navigation\NavNodeCommand.cs" />
     <Compile Include="Commands\Navigation\NavNodeTraceCommand.cs" />
     <Compile Include="Commands\Navigation\NavNodeCacheCommand.cs" />
     <Compile Include="Commands\Navigation\NavNodeRemoveCommand.cs" />
@@ -92,7 +94,6 @@
     <Compile Include="AI\BotHub.cs" />
     <Compile Include="AI\BotManager.cs" />
     <Compile Include="Commands\Navigation\NavEditCommand.cs" />
-    <Compile Include="Commands\Navigation\NavNodeInfoCommand.cs" />
     <Compile Include="Commands\Navigation\NavNodeAddCommand.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="DebugPatches.cs" />
