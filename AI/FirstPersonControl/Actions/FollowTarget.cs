@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Actions
 {
-    internal class FpcFollowAction : IFpcAction
+    internal class FollowTarget : IFpcAction
     {
         public ReferenceHub TargetToFollow { get; set; }
 
@@ -19,7 +19,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Actions
 
         public bool IsTargetLost { get; set; }
 
-        public FpcFollowAction(FpcBotPlayer botPlayer)
+        public FollowTarget(FpcBotPlayer botPlayer)
         {
             _botPlayer = botPlayer;
             _moveAction = new FpcMoveAction(botPlayer);

@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SCPSLBot.AI.FirstPersonControl.Beliefs.World
+namespace SCPSLBot.AI.FirstPersonControl.Activities
 {
-    internal class LastKnownKeycardLocation
+    internal interface IActivity
     {
+        void Tick();
     }
 }

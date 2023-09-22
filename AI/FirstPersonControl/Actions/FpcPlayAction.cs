@@ -10,8 +10,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Actions
         {
             _botPlayer = fpcBotPlayer;
             _findPlayerAction = new FpcFindPlayerAction(fpcBotPlayer);
-            _followAction = new FpcFollowAction(fpcBotPlayer);
-            _attackAction = new FpcAttackAction(fpcBotPlayer);
+            _followAction = new FollowTarget(fpcBotPlayer);
+            _attackAction = new AttackTarget(fpcBotPlayer);
         }
 
         public void Reset()
@@ -59,8 +59,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Actions
 
         private FpcBotPlayer _botPlayer;
 
-        private FpcFollowAction _followAction;
-        private FpcAttackAction _attackAction;
+        private FollowTarget _followAction;
+        private AttackTarget _attackAction;
         private FpcFindPlayerAction _findPlayerAction;
     }
 }

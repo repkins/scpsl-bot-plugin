@@ -1,4 +1,6 @@
-﻿using MEC;
+﻿using Hints;
+using Interactables;
+using MEC;
 using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
@@ -22,8 +24,6 @@ namespace SCPSLBot.AI.FirstPersonControl
         {
             BotHub = botHub;
             Perception = new FpcBotPerception(this);
-
-            SetupActionTree();
         }
 
         public void Update()
@@ -37,6 +37,37 @@ namespace SCPSLBot.AI.FirstPersonControl
         {
             Log.Info($"Bot got FPC role assigned.");
             _rootAction.Reset();
+        }
+
+        public bool Interact(InteractableCollider interactableCollider)
+        {
+            if (interactableCollider == null)
+            {
+                if (!Physics.Raycast(FpcRole.FpcModule.transform.position, DesiredMoveDirection, out var hit))
+                {
+                    return false;
+                }
+
+                interactableCollider = hit.collider.GetComponent<InteractableCollider>();
+            }
+
+            if (!interactableCollider)
+            {
+                return false;
+            }
+
+            var interactable = interactableCollider.GetComponentInParent<IServerInteractable>();
+            if (interactable == null)
+            {
+                return false;
+            }
+
+            var hub = BotHub.PlayerHub;
+            var colliderId = interactableCollider.ColliderId;
+
+            interactable.ServerInteract(hub, colliderId);
+
+            return true;
         }
 
         #region Debug functions
@@ -82,12 +113,6 @@ namespace SCPSLBot.AI.FirstPersonControl
         }
 
         #endregion
-
-        private void SetupActionTree()
-        {
-            // Assign root action (node).
-            _rootAction = new FpcPlayAction(this);
-        }
 
         private IFpcAction _rootAction;
     }

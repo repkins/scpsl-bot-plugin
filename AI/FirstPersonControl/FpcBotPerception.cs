@@ -1,4 +1,5 @@
-﻿using InventorySystem.Items.Firearms;
+﻿using InventorySystem.Items;
+using InventorySystem.Items.Firearms;
 using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
@@ -13,6 +14,8 @@ namespace SCPSLBot.AI.FirstPersonControl
         public HashSet<ReferenceHub> PlayersWithinSight { get; } = new HashSet<ReferenceHub>();
         public IEnumerable<ReferenceHub> EnemiesWithinSight { get; }
         public IEnumerable<ReferenceHub> FriendiesWithinSight { get; }
+
+        public HashSet<ItemBase> ItemsWithinSight { get; }
 
         public bool HasFirearmInInventory { get; private set; }
 
@@ -39,6 +42,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             var overlappingColliders = _overlappingCollidersBuffer.Take(_numOverlappingColliders);
 
             PlayersWithinSight.Clear();
+            ItemsWithinSight.Clear();
 
             var facingDir = fpcTransform.forward;
             foreach (var collider in overlappingColliders)
@@ -53,6 +57,18 @@ namespace SCPSLBot.AI.FirstPersonControl
                         && hitHub == otherPlayer)
                     {
                         PlayersWithinSight.Add(otherPlayer);
+                    }
+                }
+
+                if (collider.GetComponentInParent<ItemBase>() is ItemBase item
+                    && !ItemsWithinSight.Contains(item))
+                {
+                    if (IsWithinFov(fpcTransform, facingDir, collider.transform)
+                        && Physics.Raycast(fpcTransform.position, item.transform.position - fpcTransform.position, out var hit)
+                        && hit.collider.GetComponentInParent<ItemBase>() is ItemBase hitItem
+                        && hitItem == item)
+                    {
+                        ItemsWithinSight.Add(item);
                     }
                 }
             }

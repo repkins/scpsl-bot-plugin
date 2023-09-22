@@ -5,11 +5,11 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Actions
 {
-    internal class FpcAttackAction : IFpcAction
+    internal class AttackTarget : IFpcAction
     {
         public ReferenceHub TargetToAttack { get; set; }
 
-        public FpcAttackAction(FpcBotPlayer fpcBotPlayer)
+        public AttackTarget(FpcBotPlayer fpcBotPlayer)
         {
             _botPlayer = fpcBotPlayer;
             _lookAction = new FpcLookAction(fpcBotPlayer);
