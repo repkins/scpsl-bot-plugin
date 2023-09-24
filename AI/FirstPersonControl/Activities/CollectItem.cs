@@ -21,6 +21,16 @@ namespace SCPSLBot.AI.FirstPersonControl.Activities
             _lastKnownItemLocation = lastKnownItemLocation;
         }
 
+        public void SetImpactsBeliefs(FpcMindRunner fpcMind)
+        {
+
+        }
+
+        public void SetEnabledByBeliefs(FpcMindRunner fpcMind)
+        {
+            fpcMind.ActivityEnabledBy<LastKnownItemLocation<T>>(this);
+        }
+
         public void Tick()
         {
             var playerPosition = _botPlayer.FpcRole.FpcModule.Position;

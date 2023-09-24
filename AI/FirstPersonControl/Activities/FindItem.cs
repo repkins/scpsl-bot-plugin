@@ -9,19 +9,29 @@ using System.Threading.Tasks;
 
 namespace SCPSLBot.AI.FirstPersonControl.Activities
 {
-    internal class FindItem<T> : IActivity where T : ItemBase
+    internal class FindItem<I> : IActivity where I : ItemBase
     {
-        public FindItem(FpcBotPlayer botPlayer, LastKnownItemLocation<T> lastKnownItemLocation)
+        public FindItem(FpcBotPlayer botPlayer, LastKnownItemLocation<I> lastKnownItemLocation)
         {
             _botPlayer = botPlayer;
             _lastKnownItemLocation = lastKnownItemLocation;
+        }
+
+        public void SetImpactsBeliefs(FpcMindRunner fpcMind)
+        {
+            fpcMind.ActivityImpacts<LastKnownItemLocation<I>>(this);
+        }
+
+        public void SetEnabledByBeliefs(FpcMindRunner fpcMind)
+        {
+
         }
 
         public void Tick()
         {
             var position = _botPlayer.FpcRole.FpcModule.Position;
 
-            var itemPosWithinSight = _botPlayer.Perception.ItemsWithinSight.FirstOrDefault(c => c is T);
+            var itemPosWithinSight = _botPlayer.Perception.ItemsWithinSight.FirstOrDefault(c => c is I);
             if (itemPosWithinSight)
             {
                 _lastKnownItemLocation.Update(itemPosWithinSight.transform.position);
@@ -29,6 +39,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Activities
         }
 
         private readonly FpcBotPlayer _botPlayer;
-        private readonly LastKnownItemLocation<T> _lastKnownItemLocation;
+        private readonly LastKnownItemLocation<I> _lastKnownItemLocation;
     }
 }

@@ -8,6 +8,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Activities
 {
     internal interface IActivity
     {
+        void SetEnabledByBeliefs(FpcMindRunner fpcMind);
+        void SetImpactsBeliefs(FpcMindRunner fpcMind);
         void Tick();
     }
 }

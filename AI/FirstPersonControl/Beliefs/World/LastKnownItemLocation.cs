@@ -8,16 +8,16 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Beliefs.World
 {
-    internal class LastKnownItemLocation<T> where T : ItemBase
+    internal class LastKnownItemLocation<T> : IBelief where T : ItemBase
     {
         public Vector3? Position { get; private set; }
 
-        public event Action<Vector3> OnUpdate;
+        public event Action OnUpdate;
 
         public void Update(Vector3 value)
         {
             Position = value;
-            OnUpdate?.Invoke(value);
+            OnUpdate?.Invoke();
         }
     }
 }
