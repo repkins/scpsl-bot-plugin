@@ -1,8 +1,11 @@
-﻿using InventorySystem.Items;
+﻿using Interactables.Interobjects;
+using Interactables.Interobjects.DoorUtils;
+using InventorySystem.Items;
 using InventorySystem.Items.Firearms;
 using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
+using PluginAPI.Core.Doors;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -15,9 +18,14 @@ namespace SCPSLBot.AI.FirstPersonControl
         public IEnumerable<ReferenceHub> EnemiesWithinSight { get; }
         public IEnumerable<ReferenceHub> FriendiesWithinSight { get; }
 
-        public HashSet<ItemBase> ItemsWithinSight { get; }
+        public HashSet<ItemBase> ItemsWithinSight { get; } = new HashSet<ItemBase>();
+        public HashSet<DoorVariant> DoorsWithinSight { get; } = new HashSet<DoorVariant>();
 
         public bool HasFirearmInInventory { get; private set; }
+
+        #region Debugging
+        public Dictionary<Collider, (int, string)> Layers { get; } = new Dictionary<Collider, (int, string)>();
+        #endregion
 
         public FpcBotPerception(FpcBotPlayer fpcBotPlayer)
         {
@@ -32,7 +40,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             var fpcTransform = fpcRole.FpcModule.transform;
 
             var prevNumOverlappingColliders = _numOverlappingColliders;
-            _numOverlappingColliders = Physics.OverlapSphereNonAlloc(fpcTransform.position, 10f, _overlappingCollidersBuffer);
+            _numOverlappingColliders = Physics.OverlapSphereNonAlloc(fpcTransform.position, 32f, _overlappingCollidersBuffer, _perceptionLayerMask);
 
             if (_numOverlappingColliders >= OverlappingCollidersBufferSize && _numOverlappingColliders != prevNumOverlappingColliders)
             {
@@ -43,6 +51,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             PlayersWithinSight.Clear();
             ItemsWithinSight.Clear();
+            DoorsWithinSight.Clear();
 
             var facingDir = fpcTransform.forward;
             foreach (var collider in overlappingColliders)
@@ -71,6 +80,18 @@ namespace SCPSLBot.AI.FirstPersonControl
                         ItemsWithinSight.Add(item);
                     }
                 }
+
+                if (collider.GetComponentInParent<DoorVariant>() is DoorVariant door
+                    && !DoorsWithinSight.Contains(door))
+                {
+                    if (IsWithinFov(fpcTransform, facingDir, collider.transform)
+                        && Physics.Raycast(fpcTransform.position, door.transform.position - fpcTransform.position, out var hit)
+                        && hit.collider.GetComponentInParent<ItemBase>() is ItemBase hitDoor
+                        && hitDoor == door)
+                    {
+                        DoorsWithinSight.Add(door);
+                    }
+                }
             }
 
             HasFirearmInInventory = _fpcBotPlayer.BotHub.PlayerHub.inventory.UserInventory.Items.Any(i => i.Value is Firearm);
@@ -96,8 +117,10 @@ namespace SCPSLBot.AI.FirstPersonControl
         private const int OverlappingCollidersBufferSize = 1000;
 
         private static int _numOverlappingColliders;
-        private static Collider[] _overlappingCollidersBuffer = new Collider[OverlappingCollidersBufferSize];
+        private static readonly Collider[] _overlappingCollidersBuffer = new Collider[OverlappingCollidersBufferSize];
 
         private FpcBotPlayer _fpcBotPlayer;
+
+        private LayerMask _perceptionLayerMask = LayerMask.GetMask("Hitbox", "Door", "InteractableNoPlayerCollision", "Glass");
     }
 }

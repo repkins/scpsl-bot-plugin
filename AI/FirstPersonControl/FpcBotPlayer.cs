@@ -30,13 +30,13 @@ namespace SCPSLBot.AI.FirstPersonControl
         {
             Perception.Tick(FpcRole);
 
-            _rootAction.UpdatePlayer();
+            //_rootAction.UpdatePlayer();
         }
 
         public void OnRoleChanged()
         {
             Log.Info($"Bot got FPC role assigned.");
-            _rootAction.Reset();
+            //_rootAction.Reset();
         }
 
         public bool Interact(InteractableCollider interactableCollider)
