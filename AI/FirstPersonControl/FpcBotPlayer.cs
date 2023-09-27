@@ -1,10 +1,15 @@
 ﻿using Hints;
 using Interactables;
+using InventorySystem.Items.Firearms;
+using InventorySystem.Items.Keycards;
+using InventorySystem.Items.Usables;
 using MEC;
 using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Actions;
+using SCPSLBot.AI.FirstPersonControl.Activities;
+using SCPSLBot.AI.FirstPersonControl.Beliefs.World;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,6 +21,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         public BotHub BotHub { get; }
         public FpcBotPerception Perception { get; }
+        public FpcMindRunner MindRunner { get; }
 
         public Vector3 DesiredMoveDirection { get; set; } = Vector3.zero;
         public Vector3 DesiredLook { get; set; } = Vector3.zero;
@@ -24,19 +30,27 @@ namespace SCPSLBot.AI.FirstPersonControl
         {
             BotHub = botHub;
             Perception = new FpcBotPerception(this);
+            MindRunner = new FpcMindRunner();
+
+            MindRunner.AddBelief(new LastKnownItemLocation<Firearm>());
+            MindRunner.AddBelief(new LastKnownItemLocation<Medkit>());
+            MindRunner.AddBelief(new LastKnownItemLocation<KeycardItem>());
+
+            MindRunner.AddActivity(new FindItem<KeycardItem>(this));
+            MindRunner.AddActivity(new CollectItem<KeycardItem>(this));
+
+            MindRunner.SubscribeToBeliefUpdates();
         }
 
         public void Update()
         {
             Perception.Tick(FpcRole);
-
-            //_rootAction.UpdatePlayer();
+            MindRunner.Tick();
         }
 
         public void OnRoleChanged()
         {
             Log.Info($"Bot got FPC role assigned.");
-            //_rootAction.Reset();
         }
 
         public bool Interact(InteractableCollider interactableCollider)
@@ -113,7 +127,5 @@ namespace SCPSLBot.AI.FirstPersonControl
         }
 
         #endregion
-
-        private IFpcAction _rootAction;
     }
 }

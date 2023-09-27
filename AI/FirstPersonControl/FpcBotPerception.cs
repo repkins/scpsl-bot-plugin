@@ -53,14 +53,13 @@ namespace SCPSLBot.AI.FirstPersonControl
             ItemsWithinSight.Clear();
             DoorsWithinSight.Clear();
 
-            var facingDir = fpcTransform.forward;
             foreach (var collider in overlappingColliders)
             {
                 if (collider.GetComponentInParent<ReferenceHub>() is ReferenceHub otherPlayer
                     && otherPlayer != _fpcBotPlayer.BotHub.PlayerHub
                     && !PlayersWithinSight.Contains(otherPlayer))
                 {
-                    if (IsWithinFov(fpcTransform, facingDir, collider.transform)
+                    if (IsWithinFov(fpcTransform, collider.transform)
                         && Physics.Raycast(fpcTransform.position, otherPlayer.transform.position - fpcTransform.position, out var hit)
                         && hit.collider.GetComponentInParent<ReferenceHub>() is ReferenceHub hitHub
                         && hitHub == otherPlayer)
@@ -72,7 +71,7 @@ namespace SCPSLBot.AI.FirstPersonControl
                 if (collider.GetComponentInParent<ItemBase>() is ItemBase item
                     && !ItemsWithinSight.Contains(item))
                 {
-                    if (IsWithinFov(fpcTransform, facingDir, collider.transform)
+                    if (IsWithinFov(fpcTransform, collider.transform)
                         && Physics.Raycast(fpcTransform.position, item.transform.position - fpcTransform.position, out var hit)
                         && hit.collider.GetComponentInParent<ItemBase>() is ItemBase hitItem
                         && hitItem == item)
@@ -84,7 +83,7 @@ namespace SCPSLBot.AI.FirstPersonControl
                 if (collider.GetComponentInParent<DoorVariant>() is DoorVariant door
                     && !DoorsWithinSight.Contains(door))
                 {
-                    if (IsWithinFov(fpcTransform, facingDir, collider.transform)
+                    if (IsWithinFov(fpcTransform, collider.transform)
                         && Physics.Raycast(fpcTransform.position, door.transform.position - fpcTransform.position, out var hit)
                         && hit.collider.GetComponentInParent<ItemBase>() is ItemBase hitDoor
                         && hitDoor == door)
@@ -97,8 +96,9 @@ namespace SCPSLBot.AI.FirstPersonControl
             HasFirearmInInventory = _fpcBotPlayer.BotHub.PlayerHub.inventory.UserInventory.Items.Any(i => i.Value is Firearm);
         }
 
-        private bool IsWithinFov(Transform transform, Vector3 facingDir, Transform targetTransform)
+        private bool IsWithinFov(Transform transform, Transform targetTransform)
         {
+            var facingDir = transform.forward;
             var diff = targetTransform.position - transform.position;
 
             if (Vector3.Dot(facingDir, diff) < 0)

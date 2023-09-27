@@ -1,5 +1,6 @@
 ﻿using Interactables;
 using InventorySystem.Items;
+using InventorySystem.Items.Pickups;
 using PlayerRoles.FirstPersonControl;
 using SCPSLBot.AI.FirstPersonControl.Beliefs.World;
 using System;
@@ -13,14 +14,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Activities
 {
     internal class CollectItem<T> : IActivity where T : ItemBase
     {
-        public Predicate<LastKnownItemLocation<T>> Condition = (LastKnownItemLocation<T> location) => location.Position.HasValue;
-
-        public CollectItem(FpcBotPlayer botPlayer, LastKnownItemLocation<T> lastKnownItemLocation)
-        {
-            _botPlayer = botPlayer;
-            _lastKnownItemLocation = lastKnownItemLocation;
-        }
-
         public void SetImpactsBeliefs(FpcMindRunner fpcMind)
         {
 
@@ -28,7 +21,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Activities
 
         public void SetEnabledByBeliefs(FpcMindRunner fpcMind)
         {
-            fpcMind.ActivityEnabledBy<LastKnownItemLocation<T>>(this);
+            _lastKnownItemLocation = fpcMind.ActivityEnabledBy<LastKnownItemLocation<T>>(this);
+        }
+
+        public bool Condition => _lastKnownItemLocation.Position.HasValue;
+
+        public CollectItem(FpcBotPlayer botPlayer)
+        {
+            _botPlayer = botPlayer;
         }
 
         public void Tick()
@@ -41,7 +41,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Activities
                 if (Physics.Raycast(_botPlayer.FpcRole.FpcModule.transform.position, _botPlayer.DesiredMoveDirection, out var hit))
                 {
                     if (hit.collider.GetComponent<InteractableCollider>() is InteractableCollider interactableCollider
-                        && hit.collider.GetComponentInParent<T>() is T item)
+                        && hit.collider.GetComponentInParent<T>() is ItemPickupBase item)
                     {
                         _botPlayer.Interact(interactableCollider);
                     }
@@ -51,6 +51,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Activities
         }
 
         private readonly FpcBotPlayer _botPlayer;
-        private readonly LastKnownItemLocation<T> _lastKnownItemLocation;
+        private LastKnownItemLocation<T> _lastKnownItemLocation;
     }
 }

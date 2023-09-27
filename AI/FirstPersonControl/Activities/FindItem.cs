@@ -11,20 +11,21 @@ namespace SCPSLBot.AI.FirstPersonControl.Activities
 {
     internal class FindItem<I> : IActivity where I : ItemBase
     {
-        public FindItem(FpcBotPlayer botPlayer, LastKnownItemLocation<I> lastKnownItemLocation)
-        {
-            _botPlayer = botPlayer;
-            _lastKnownItemLocation = lastKnownItemLocation;
-        }
-
         public void SetImpactsBeliefs(FpcMindRunner fpcMind)
         {
-            fpcMind.ActivityImpacts<LastKnownItemLocation<I>>(this);
+            _lastKnownItemLocation = fpcMind.ActivityImpacts<LastKnownItemLocation<I>>(this);
         }
 
         public void SetEnabledByBeliefs(FpcMindRunner fpcMind)
         {
 
+        }
+
+        public bool Condition => true;
+
+        public FindItem(FpcBotPlayer botPlayer)
+        {
+            _botPlayer = botPlayer;
         }
 
         public void Tick()
@@ -39,6 +40,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Activities
         }
 
         private readonly FpcBotPlayer _botPlayer;
-        private readonly LastKnownItemLocation<I> _lastKnownItemLocation;
+        private LastKnownItemLocation<I> _lastKnownItemLocation;
     }
 }

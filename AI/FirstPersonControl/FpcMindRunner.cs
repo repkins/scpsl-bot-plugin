@@ -14,6 +14,7 @@ namespace SCPSLBot.AI.FirstPersonControl
         public Dictionary<Type, IBelief> Beliefs { get; } = new Dictionary<Type, IBelief>();
         public Dictionary<IActivity, List<IBelief>> ActivitiesImpactingBeliefs { get; } = new Dictionary<IActivity, List<IBelief>>();
         public Dictionary<IBelief, List<IActivity>> BeliefsEnablingActivities { get; } = new Dictionary<IBelief, List<IActivity>>();
+        public Dictionary<IActivity, Predicate<IBelief>> ActivityEnablingConditions { get; } = new Dictionary<IActivity, Predicate<IBelief>>();
 
         public IActivity RunningActivity { get; private set; }
 
@@ -34,7 +35,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             return this;
         }
 
-        public FpcMindRunner ActivityImpacts<B>(IActivity activity) where B : IBelief
+        public B ActivityImpacts<B>(IActivity activity) where B : class
         {
             var belief = Beliefs[typeof(B)];
 
@@ -46,10 +47,10 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             impactingBeliefs.Add(belief);
 
-            return this;
+            return belief as B;
         }
 
-        public FpcMindRunner ActivityEnabledBy<B>(IActivity activity)
+        public B ActivityEnabledBy<B>(IActivity activity) where B : class
         {
             var belief = Beliefs[typeof(B)];
 
@@ -61,7 +62,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             enablesActivities.Add(activity);
 
-            return this;
+            return belief as B;
         }
 
         public void SubscribeToBeliefUpdates()
@@ -81,7 +82,7 @@ namespace SCPSLBot.AI.FirstPersonControl
         {
             var enablingActivities = BeliefsEnablingActivities[updatedBelief];
 
-            var activity = enablingActivities.First();  // TODO: cost? conditions?
+            var activity = enablingActivities.First(a => a.Condition);  // TODO: cost?
 
             RunningActivity = activity;
         }
