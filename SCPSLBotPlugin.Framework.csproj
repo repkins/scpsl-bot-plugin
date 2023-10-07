@@ -1,0 +1,147 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{7F9D71A9-C036-48A4-A3E9-AC792EF8891B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SCPSLBot</RootNamespace>
+    <AssemblyName>SCPSLBot</AssemblyName>
+    <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>..\..\..\AppData\Roaming\SCP Secret Laboratory\PluginAPI\plugins\global\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="0Harmony, Version=2.2.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Lib.Harmony.2.2.2\lib\net48\0Harmony.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PluginAPI, Version=13.1.1.0, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>packages\Northwood.PluginAPI.13.1.1\lib\net48\PluginAPI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="YamlDotNet, Version=11.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e, processorArchitecture=MSIL">
+      <HintPath>packages\YamlDotNet.11.0.1\lib\net45\YamlDotNet.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp" HintPath="$(SL_REFERENCES)\Assembly-CSharp.dll" Private="false" />
+    <Reference Include="Assembly-CSharp-firstpass" HintPath="$(SL_REFERENCES)\Assembly-CSharp-firstpass.dll" Private="false" />
+    <Reference Include="CommandSystem.Core" HintPath="$(SL_REFERENCES)\CommandSystem.Core.dll" Private="false" />
+    <Reference Include="Mirror" HintPath="$(SL_REFERENCES)\Mirror.dll" Private="false" />
+    <Reference Include="Pooling" HintPath="$(SL_REFERENCES)\Pooling.dll" Private="false" />
+    <Reference Include="UnityEngine.CoreModule" HintPath="$(UNITY_REFERENCES)\UnityEngine.CoreModule.dll" Private="false" />
+    <Reference Include="UnityEngine.PhysicsModule" HintPath="$(UNITY_REFERENCES)\UnityEngine.PhysicsModule.dll" Private="false" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AI\FirstPersonControl\Activities\CollectItem.cs" />
+    <Compile Include="AI\FirstPersonControl\Activities\FindItem.cs" />
+    <Compile Include="AI\FirstPersonControl\Activities\IActivity.cs" />
+    <Compile Include="AI\FirstPersonControl\Beliefs\Himself\HealingItemInInventory.cs" />
+    <Compile Include="AI\FirstPersonControl\Beliefs\Himself\KeycardInInventory.cs" />
+    <Compile Include="AI\FirstPersonControl\Beliefs\Himself\PickingUpItem.cs" />
+    <Compile Include="AI\FirstPersonControl\Beliefs\IBelief.cs" />
+    <Compile Include="AI\FirstPersonControl\Beliefs\World\AccessToSurfaceLocation.cs" />
+    <Compile Include="AI\FirstPersonControl\Beliefs\World\LastKnownHealingItemLocation.cs" />
+    <Compile Include="AI\FirstPersonControl\Beliefs\World\ItemWithinSight.cs" />
+    <Compile Include="AI\FirstPersonControl\Beliefs\World\LastKnownItemLocation.cs" />
+    <Compile Include="AI\FirstPersonControl\Beliefs\World\LczCheckpointLocation.cs" />
+    <Compile Include="AI\FirstPersonControl\Beliefs\World\Scp914Location.cs" />
+    <Compile Include="AI\FirstPersonControl\Desires\EscapeTheFacility.cs" />
+    <Compile Include="AI\FirstPersonControl\Desires\GetO5Keycard.cs" />
+    <Compile Include="AI\FirstPersonControl\FpcMindRunner.cs" />
+    <Compile Include="Commands\Navigation\NavCommand.cs" />
+    <Compile Include="Commands\Navigation\NavLoadCommand.cs" />
+    <Compile Include="Commands\Navigation\NavNodeCommand.cs" />
+    <Compile Include="Commands\Navigation\NavNodeTraceCommand.cs" />
+    <Compile Include="Commands\Navigation\NavNodeCacheCommand.cs" />
+    <Compile Include="Commands\Navigation\NavNodeRemoveCommand.cs" />
+    <Compile Include="Commands\Navigation\NavSaveCommand.cs" />
+    <Compile Include="Commands\Navigation\NavNodeDisconnectCommand.cs" />
+    <Compile Include="Commands\Navigation\NavNodeConnectCommand.cs" />
+    <Compile Include="MapGeneration\RoomZone.cs" />
+    <Compile Include="Navigation\Graph\Node.cs" />
+    <Compile Include="Navigation\NavigationSystem.cs" />
+    <Compile Include="Navigation\Graph\NavigationGraphVisuals.cs" />
+    <Compile Include="Navigation\NodeGraphSerializer.cs" />
+    <Compile Include="Navigation\Graph\NavigationGraph.cs" />
+    <Compile Include="AI\FirstPersonControl\Actions\FpcFireAction.cs" />
+    <Compile Include="AI\FirstPersonControl\Actions\FpcEquipAction.cs" />
+    <Compile Include="AI\FirstPersonControl\Actions\FpcReloadFirearmAction.cs" />
+    <Compile Include="AI\FirstPersonControl\Actions\FpcInteractAction.cs" />
+    <Compile Include="AI\FirstPersonControl\Actions\FpcLookAction.cs" />
+    <Compile Include="AI\FirstPersonControl\Actions\FpcMoveAction.cs" />
+    <Compile Include="AI\FirstPersonControl\Actions\FpcPlayAction.cs" />
+    <Compile Include="AI\FirstPersonControl\IBotPlayer.cs" />
+    <Compile Include="Navigation\Graph\NavigationGraphEditor.cs" />
+    <Compile Include="Navigation\Graph\RoomKindNode.cs" />
+    <Compile Include="Commands\BotApproachCommand.cs" />
+    <Compile Include="Commands\BotTurnCommand.cs" />
+    <Compile Include="Commands\BotMoveCommand.cs" />
+    <Compile Include="AI\BotHub.cs" />
+    <Compile Include="AI\BotManager.cs" />
+    <Compile Include="Commands\Navigation\NavEditCommand.cs" />
+    <Compile Include="Commands\Navigation\NavNodeAddCommand.cs" />
+    <Compile Include="Config.cs" />
+    <Compile Include="DebugPatches.cs" />
+    <Compile Include="LocalNetworking\LocalConnectionToServer.cs" />
+    <Compile Include="LocalNetworking\NetworkConnectionExtensions.cs" />
+    <Compile Include="LocalNetworking\LocalConnectionToClient.cs" />
+    <Compile Include="LocalNetworking\NetworkIdentityExtensions.cs" />
+    <Compile Include="NWAPIPlugin.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Commands\BotAddCommand.cs" />
+    <Compile Include="Commands\TestCommand.cs" />
+    <Compile Include="AI\FirstPersonControl\Actions\FpcFindPlayerAction.cs" />
+    <Compile Include="AI\FirstPersonControl\Actions\FpcActionTransition.cs" />
+    <Compile Include="AI\FirstPersonControl\Actions\FpcIdleAction.cs" />
+    <Compile Include="AI\FirstPersonControl\Actions\AttackTarget.cs" />
+    <Compile Include="AI\FirstPersonControl\Actions\IFpcAction.cs" />
+    <Compile Include="AI\FirstPersonControl\FpcBotPerception.cs" />
+    <Compile Include="AI\FirstPersonControl\FpcBotPlayer.cs" />
+    <Compile Include="AI\FirstPersonControl\Actions\FollowTarget.cs" />
+    <Compile Include="AI\FirstPersonControl\FpcMotorPatches.cs" />
+    <Compile Include="AI\FirstPersonControl\FpcMouseLookPatches.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>echo Copying output file $(TargetName)
+copy $(TargetPath) "C:\Users\repkins\AppData\Roaming\SCP Secret Laboratory\PluginAPI\plugins\global\$(TargetFileName)"
+
+echo Copying output file symbols $(TargetName).pdb
+copy $(TargetDir)$(TargetName).pdb "C:\Users\repkins\AppData\Roaming\SCP Secret Laboratory\PluginAPI\plugins\global\$(TargetName).pdb"</PostBuildEvent>
+  </PropertyGroup>
+</Project>
