@@ -34,7 +34,7 @@
   <ItemGroup>
     <Reference Include="0Harmony, Version=2.2.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\Lib.Harmony.2.2.2\lib\net48\0Harmony.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="PluginAPI, Version=13.1.1.0, Culture=neutral, processorArchitecture=AMD64">
       <HintPath>packages\Northwood.PluginAPI.13.1.1\lib\net48\PluginAPI.dll</HintPath>
@@ -138,7 +138,7 @@
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>echo Copying output file $(TargetPath)
+    <PostBuildEvent>echo Copying output file $(TargetName)
 copy $(TargetPath) "C:\Users\repkins\AppData\Roaming\SCP Secret Laboratory\PluginAPI\plugins\global\$(TargetFileName)"
 
 echo Copying output file symbols $(TargetName).pdb
