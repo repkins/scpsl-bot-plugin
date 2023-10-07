@@ -65,6 +65,12 @@ namespace SCPSLBot.AI.FirstPersonControl
             return belief as B;
         }
 
+        public B GetBelief<B>() where B : IBelief
+        {
+            var belief = Beliefs[typeof(B)];
+            return (B)belief;
+        }
+
         public void SubscribeToBeliefUpdates()
         {
             foreach (var belief in Beliefs.Values)

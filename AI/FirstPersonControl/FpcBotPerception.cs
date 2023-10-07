@@ -2,10 +2,12 @@
 using Interactables.Interobjects.DoorUtils;
 using InventorySystem.Items;
 using InventorySystem.Items.Firearms;
+using InventorySystem.Items.Keycards;
 using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
 using PluginAPI.Core.Doors;
+using SCPSLBot.AI.FirstPersonControl.Beliefs.World;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -90,6 +92,16 @@ namespace SCPSLBot.AI.FirstPersonControl
                     {
                         DoorsWithinSight.Add(door);
                     }
+                }
+
+                foreach (var itemWithinSight in ItemsWithinSight)
+                {
+                    if (itemWithinSight is KeycardItem keycard)
+                    {
+                        var keycardItemBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemWithinSight<KeycardItem>>();
+                        keycardItemBelief.Update(keycard);
+                    }
+
                 }
             }
 

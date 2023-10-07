@@ -72,6 +72,7 @@
     <Compile Include="AI\FirstPersonControl\Beliefs\IBelief.cs" />
     <Compile Include="AI\FirstPersonControl\Beliefs\World\AccessToSurfaceLocation.cs" />
     <Compile Include="AI\FirstPersonControl\Beliefs\World\LastKnownHealingItemLocation.cs" />
+    <Compile Include="AI\FirstPersonControl\Beliefs\World\ItemWithinSight.cs" />
     <Compile Include="AI\FirstPersonControl\Beliefs\World\LastKnownItemLocation.cs" />
     <Compile Include="AI\FirstPersonControl\Beliefs\World\LczCheckpointLocation.cs" />
     <Compile Include="AI\FirstPersonControl\Beliefs\World\Scp914Location.cs" />
