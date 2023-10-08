@@ -15,6 +15,8 @@ namespace SCPSLBot
 
         public static Harmony HarmonyInstance;
 
+        public static readonly string Some = "fd";
+
         [PluginConfig()]
         public Config Config;
 
@@ -23,6 +25,11 @@ namespace SCPSLBot
         {
             Instance = this;
             Log.Info("Loaded plugin.");
+
+            if (Instance is not null)
+            {
+
+            }
 
             HarmonyInstance = new Harmony($"SCPSLBot.100.{DateTime.Now.Ticks}");
             HarmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
