@@ -7,8 +7,6 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using Utf8Json;
-using YamlDotNet.Core;
-using YamlDotNet.Serialization;
 
 namespace SCPSLBot.Commands.Navigation
 {

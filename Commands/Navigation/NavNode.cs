@@ -4,8 +4,8 @@ using System.Linq;
 
 namespace SCPSLBot.Commands.Navigation
 {
-    [CommandHandler(typeof(NavCommand))]
-    internal class NavNodeCommand : ParentCommand
+    [CommandHandler(typeof(Nav))]
+    internal class NavNode : ParentCommand
     {
         public override string Command { get; } = "node";
 

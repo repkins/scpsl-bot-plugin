@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace SCPSLBot.Commands.Navigation
 {
-    [CommandHandler(typeof(NavCommand))]
+    [CommandHandler(typeof(Nav))]
     internal class NavLoadCommand : ICommand
     {
         public string Command { get; } = "load";

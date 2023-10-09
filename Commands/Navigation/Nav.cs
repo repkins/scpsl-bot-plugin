@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace SCPSLBot.Commands.Navigation
 {
 	[CommandHandler(typeof(RemoteAdminCommandHandler))]
-    internal class NavCommand : ParentCommand
+    internal class Nav : ParentCommand
     {
         public override string Command { get; } = "nav";
 
@@ -21,7 +21,7 @@ namespace SCPSLBot.Commands.Navigation
             this.RegisterCommand(new NavEditCommand());
             this.RegisterCommand(new NavLoadCommand());
             this.RegisterCommand(new NavSaveCommand());
-            this.RegisterCommand(new NavNodeCommand());
+            this.RegisterCommand(new NavNode());
         }
 
         protected override bool ExecuteParent(ArraySegment<string> arguments, ICommandSender sender, out string response)

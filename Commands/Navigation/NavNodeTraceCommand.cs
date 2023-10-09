@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace SCPSLBot.Commands.Navigation
 {
-    [CommandHandler(typeof(NavNodeCommand))]
+    [CommandHandler(typeof(NavNode))]
     internal class NavNodeTraceCommand : ICommand
     {
         public string Command { get; } = "trace";

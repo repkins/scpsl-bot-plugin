@@ -3,7 +3,6 @@ using LiteNetLib;
 using Mirror;
 using PluginAPI.Core;
 using System.Diagnostics;
-using YamlDotNet.Core.Tokens;
 using System.Net;
 using Mirror.LiteNetLib4Mirror;
 using System.Net.Sockets;
