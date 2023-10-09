@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace SCPSLBot.Commands.Navigation
 {
-    [CommandHandler(typeof(NavNodeCommand))]
+    [CommandHandler(typeof(NavNode))]
     internal class NavNodeCacheCommand : ICommand
     {
         public string Command { get; } = "cache";
