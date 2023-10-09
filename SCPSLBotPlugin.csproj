@@ -1,12 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
 	  <Platforms>x64</Platforms>
 	  <AssemblyName>SCPSLBot</AssemblyName>
 	  <RootNamespace>SCPSLBot</RootNamespace>
 
 	  <LangVersion>9.0</LangVersion>
+	  <Nullable>warnings</Nullable>
   </PropertyGroup>
 
 	
@@ -15,7 +16,7 @@
 	</Target>
 
 	<ItemGroup>
-		<PackageReference Include="Lib.Harmony" Version="2.3.0-prerelease.2" />
+		<PackageReference Include="Lib.Harmony" Version="2.2.2" />
 		<PackageReference Include="Northwood.PluginAPI" Version="13.1.1" />
 	</ItemGroup>
 
