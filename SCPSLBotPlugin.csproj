@@ -50,4 +50,10 @@
 			<Private>false</Private>
 		</Reference>
 	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="Assets\navgraph.slngf">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
 </Project>
