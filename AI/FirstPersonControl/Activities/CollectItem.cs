@@ -12,6 +12,7 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Activities
 {
+    [ActivityEnabledBy<LastKnownItemLocation<ItemBase>>]
     internal class CollectItem<T> : IActivity where T : ItemBase
     {
         public void SetImpactsBeliefs(FpcMindRunner fpcMind)
