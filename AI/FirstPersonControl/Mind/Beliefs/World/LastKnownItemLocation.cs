@@ -1,4 +1,5 @@
 ﻿using InventorySystem.Items;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace SCPSLBot.AI.FirstPersonControl.Beliefs.World
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World
 {
     internal class LastKnownItemLocation<T> : IBelief where T : ItemBase
     {

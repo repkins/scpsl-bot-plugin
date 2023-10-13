@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SCPSLBot.AI.FirstPersonControl.Beliefs
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs
 {
-    internal class Scp914Location
+    internal interface IBelief
     {
-
+        event Action OnUpdate;
     }
 }

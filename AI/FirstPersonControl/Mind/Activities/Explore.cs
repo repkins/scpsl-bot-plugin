@@ -2,31 +2,30 @@
 using InventorySystem.Items.Firearms;
 using InventorySystem.Items.Keycards;
 using InventorySystem.Items.Usables;
-using SCPSLBot.AI.FirstPersonControl.Beliefs.World;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SCPSLBot.AI.FirstPersonControl.Activities
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 {
-    [ActivityImpacts<ItemWithinSight<KeycardItem>>()]
-    [ActivityImpacts<ItemWithinSight<Medkit>>()]
-    [ActivityImpacts<ItemWithinSight<Firearm>>()]
     internal class Explore : IActivity
     {
-        public void SetImpactsBeliefs(FpcMindRunner fpcMind)
+        public void SetImpactsBeliefs(FpcMind fpcMind)
         {
             fpcMind.ActivityImpacts<ItemWithinSight<KeycardItem>>(this);
+            fpcMind.ActivityImpacts<ItemWithinSight<Medkit>>(this);
+            fpcMind.ActivityImpacts<ItemWithinSight<Firearm>>(this);
         }
 
-        public void SetEnabledByBeliefs(FpcMindRunner fpcMind)
+        public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
 
         }
 
-        public bool Condition => true;
+        public Func<bool> Condition => () => true;
 
         public Explore(FpcBotPlayer botPlayer)
         {

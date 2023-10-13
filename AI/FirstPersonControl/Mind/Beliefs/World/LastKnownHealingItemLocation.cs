@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SCPSLBot.AI.FirstPersonControl.Beliefs.Himself
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World
 {
-    internal class KeycardInInventory
+    internal class LastKnownHealingItemLocation
     {
     }
 }

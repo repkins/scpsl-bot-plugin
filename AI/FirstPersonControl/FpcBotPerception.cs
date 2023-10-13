@@ -7,7 +7,8 @@ using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
 using PluginAPI.Core.Doors;
-using SCPSLBot.AI.FirstPersonControl.Beliefs.World;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Himself;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -21,6 +22,7 @@ namespace SCPSLBot.AI.FirstPersonControl
         public IEnumerable<ReferenceHub> FriendiesWithinSight { get; }
 
         public HashSet<ItemBase> ItemsWithinSight { get; } = new HashSet<ItemBase>();
+        public HashSet<ItemBase> ItemsWithinPickupDistance { get; } = new HashSet<ItemBase>();
         public HashSet<DoorVariant> DoorsWithinSight { get; } = new HashSet<DoorVariant>();
 
         public bool HasFirearmInInventory { get; private set; }
@@ -54,6 +56,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             PlayersWithinSight.Clear();
             ItemsWithinSight.Clear();
             DoorsWithinSight.Clear();
+            ItemsWithinPickupDistance.Clear();
 
             foreach (var collider in overlappingColliders)
             {
@@ -79,6 +82,11 @@ namespace SCPSLBot.AI.FirstPersonControl
                         && hitItem == item)
                     {
                         ItemsWithinSight.Add(item);
+
+                        if (Vector3.Distance(item.transform.position, fpcTransform.position) <= 1f) // TODO: constant
+                        {
+                            ItemsWithinPickupDistance.Add(item);
+                        }
                     }
                 }
 
@@ -94,18 +102,47 @@ namespace SCPSLBot.AI.FirstPersonControl
                     }
                 }
 
+                var keycardItemBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemWithinSight<KeycardItem>>();
                 foreach (var itemWithinSight in ItemsWithinSight)
                 {
-                    if (itemWithinSight is KeycardItem keycard)
+                    if (itemWithinSight is KeycardItem keycard && keycardItemBelief.Item is null)
                     {
-                        var keycardItemBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemWithinSight<KeycardItem>>();
                         keycardItemBelief.Update(keycard);
                     }
+                }
+                if (!ItemsWithinSight.Contains(keycardItemBelief.Item))
+                {
+                    keycardItemBelief.Update(null);
+                }
 
+                var keycardPickupBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemWithinPickupDistance<KeycardItem>>();
+                foreach (var itemWithinPickup in ItemsWithinPickupDistance)
+                {
+                    if (itemWithinPickup is KeycardItem keycard && keycardPickupBelief.Item is null)
+                    {
+                        keycardPickupBelief.Update(keycard);
+                    }
+                }
+                if (!ItemsWithinPickupDistance.Contains(keycardPickupBelief.Item))
+                {
+                    keycardPickupBelief.Update(null);
                 }
             }
 
-            HasFirearmInInventory = _fpcBotPlayer.BotHub.PlayerHub.inventory.UserInventory.Items.Any(i => i.Value is Firearm);
+            var keycardInventoryBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemInInventory<KeycardItem>>();
+            foreach (var item in _fpcBotPlayer.BotHub.PlayerHub.inventory.UserInventory.Items.Values)
+            {
+                if (item is KeycardItem keycard && keycardInventoryBelief.Item is null)
+                {
+                    keycardInventoryBelief.Update(keycard);
+                }
+
+                HasFirearmInInventory = item is Firearm;
+            }
+            if (!_fpcBotPlayer.BotHub.PlayerHub.inventory.UserInventory.Items.ContainsKey(keycardInventoryBelief.Item.ItemSerial))
+            {
+                keycardInventoryBelief.Update(null);
+            }
         }
 
         private bool IsWithinFov(Transform transform, Transform targetTransform)

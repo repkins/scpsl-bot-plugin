@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SCPSLBot.AI.FirstPersonControl.Beliefs
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World
 {
-    internal class PickingUpItem
+    internal class Scp914Location
     {
+
     }
 }

@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SCPSLBot.AI.FirstPersonControl.Beliefs
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Himself
 {
-    internal interface IBelief
+    internal class PickingUpItem
     {
-        event Action OnUpdate;
     }
 }

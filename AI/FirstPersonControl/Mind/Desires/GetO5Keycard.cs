@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SCPSLBot.AI.FirstPersonControl.Beliefs.Himself
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Desires
 {
-    internal class HealingItemInInventory
+    internal class GetO5Keycard
     {
     }
 }

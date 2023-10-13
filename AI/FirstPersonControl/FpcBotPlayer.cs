@@ -7,8 +7,8 @@ using MEC;
 using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
-using SCPSLBot.AI.FirstPersonControl.Activities;
-using SCPSLBot.AI.FirstPersonControl.Beliefs.World;
+using SCPSLBot.AI.FirstPersonControl.Mind.Activities;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -36,9 +36,8 @@ namespace SCPSLBot.AI.FirstPersonControl
             MindRunner.AddBelief(new LastKnownItemLocation<KeycardItem>());
 
             MindRunner.AddBelief(new ItemWithinSight<KeycardItem>());
-
-            MindRunner.AddActivity(new FindItem<KeycardItem>(this));
-            MindRunner.AddActivity(new CollectItem<KeycardItem>(this));
+            MindRunner.AddActivity(new GoToPickupItem<KeycardItem>(this));
+            MindRunner.AddActivity(new PickupItem<KeycardItem>(this));
 
             MindRunner.SubscribeToBeliefUpdates();
         }

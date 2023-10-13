@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SCPSLBot.AI.FirstPersonControl.Desires
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World
 {
-    internal class GetO5Keycard
+    internal class LczCheckpointLocation
     {
     }
 }
