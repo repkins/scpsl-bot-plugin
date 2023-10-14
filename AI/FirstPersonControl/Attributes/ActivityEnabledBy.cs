@@ -1,4 +1,4 @@
-﻿using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs;
+﻿using SCPSLBot.AI.FirstPersonControl.Mind;
 using System;
 using System.Collections.Generic;
 using System.Linq;

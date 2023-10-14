@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs
+namespace SCPSLBot.AI.FirstPersonControl.Mind
 {
     internal interface IBelief
     {

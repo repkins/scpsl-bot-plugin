@@ -2,7 +2,6 @@
 using InventorySystem.Items.Keycards;
 using SCPSLBot.AI.FirstPersonControl.Attributes;
 using SCPSLBot.AI.FirstPersonControl.Mind;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs;
 using System;
 using System.Collections.Generic;
 using System.Linq;

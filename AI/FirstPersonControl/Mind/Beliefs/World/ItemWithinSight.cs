@@ -1,5 +1,4 @@
 ﻿using InventorySystem.Items;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
