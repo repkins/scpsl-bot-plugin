@@ -1,5 +1,6 @@
 ﻿using Hints;
 using Interactables;
+using Interactables.Interobjects.DoorUtils;
 using InventorySystem.Items.Firearms;
 using InventorySystem.Items.Keycards;
 using InventorySystem.Items.Usables;
@@ -35,6 +36,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             MindRunner.AddBelief(new LastKnownItemLocation<Medkit>());
             MindRunner.AddBelief(new LastKnownItemLocation<KeycardItem>());
 
+            //MindRunner.AddBelief(new KeycardWithinSight(KeycardPermissions.ContainmentLevelOne));
             MindRunner.AddBelief(new ItemWithinSight<KeycardItem>());
             MindRunner.AddActivity(new GoToPickupItem<KeycardItem>(this));
             MindRunner.AddActivity(new PickupItem<KeycardItem>(this));

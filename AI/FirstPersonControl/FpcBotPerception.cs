@@ -127,6 +127,19 @@ namespace SCPSLBot.AI.FirstPersonControl
                 {
                     keycardPickupBelief.Update(null);
                 }
+
+                var pryableWithinSightBelief = _fpcBotPlayer.MindRunner.GetBelief<DoorWithinSight<PryableDoor>>();
+                foreach (var doorWithinSight in DoorsWithinSight)
+                {
+                    if (doorWithinSight is PryableDoor gate && pryableWithinSightBelief.Door is null)
+                    {
+                        pryableWithinSightBelief.Update(gate);
+                    }
+                }
+                if (!DoorsWithinSight.Contains(pryableWithinSightBelief.Door))
+                {
+                    pryableWithinSightBelief.Update(null);
+                }
             }
 
             var keycardInventoryBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemInInventory<KeycardItem>>();

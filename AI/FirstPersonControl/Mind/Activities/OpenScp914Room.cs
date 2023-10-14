@@ -1,0 +1,40 @@
+﻿using Interactables.Interobjects;
+using Interactables.Interobjects.DoorUtils;
+using InventorySystem.Items.Keycards;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Himself;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
+{
+    internal class OpenScp914Room : IActivity
+    {
+        public Func<bool> Condition =>
+            () => _keycardInInventory.Item.Permissions.HasFlag(KeycardPermissions.ContainmentLevelOne)
+                && _gateWithinSight.Door.RequiredPermissions.RequiredPermissions == KeycardPermissions.ContainmentLevelOne;
+
+        public void SetEnabledByBeliefs(FpcMind fpcMind)
+        {
+            _keycardInInventory = fpcMind.ActivityEnabledBy<ItemInInventory<KeycardItem>>(this);
+            _gateWithinSight = fpcMind.ActivityEnabledBy<DoorWithinSight<PryableDoor>>(this);
+        }
+
+        public void SetImpactsBeliefs(FpcMind fpcMind)
+        {
+            // 914 room opened within sight
+            fpcMind.ActivityImpacts<DoorWithinSight<PryableDoor>>(this);
+        }
+
+        public void Tick()
+        {
+            throw new NotImplementedException();
+        }
+
+        private ItemInInventory<KeycardItem> _keycardInInventory;
+        private DoorWithinSight<PryableDoor> _gateWithinSight;
+    }
+}

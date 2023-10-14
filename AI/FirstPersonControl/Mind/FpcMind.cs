@@ -12,7 +12,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
         public Dictionary<Type, IBelief> Beliefs { get; } = new Dictionary<Type, IBelief>();
         public Dictionary<IBelief, List<IActivity>> BeliefsEnablingActivities { get; } = new Dictionary<IBelief, List<IActivity>>();
 
-        public B ActivityEnabledBy<B>(IActivity activity) where B : class
+        public B ActivityEnabledBy<B>(IActivity activity) where B : class, IBelief
         {
             var belief = Beliefs[typeof(B)];
 
@@ -21,7 +21,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
             return belief as B;
         }
 
-        public B ActivityImpacts<B>(IActivity activity) where B : class
+        public B ActivityImpacts<B>(IActivity activity) where B : class, IBelief
         {
             var belief = Beliefs[typeof(B)];
 
