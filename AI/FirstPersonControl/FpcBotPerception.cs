@@ -3,6 +3,7 @@ using Interactables.Interobjects.DoorUtils;
 using InventorySystem.Items;
 using InventorySystem.Items.Firearms;
 using InventorySystem.Items.Keycards;
+using InventorySystem.Items.Pickups;
 using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
@@ -21,9 +22,9 @@ namespace SCPSLBot.AI.FirstPersonControl
         public IEnumerable<ReferenceHub> EnemiesWithinSight { get; }
         public IEnumerable<ReferenceHub> FriendiesWithinSight { get; }
 
-        public HashSet<ItemBase> ItemsWithinSight { get; } = new HashSet<ItemBase>();
-        public HashSet<ItemBase> ItemsWithinPickupDistance { get; } = new HashSet<ItemBase>();
-        public HashSet<DoorVariant> DoorsWithinSight { get; } = new HashSet<DoorVariant>();
+        public HashSet<ItemPickupBase> ItemsWithinSight { get; } = new ();
+        public HashSet<ItemPickupBase> ItemsWithinPickupDistance { get; } = new ();
+        public HashSet<DoorVariant> DoorsWithinSight { get; } = new ();
 
         public bool HasFirearmInInventory { get; private set; }
 
@@ -73,12 +74,12 @@ namespace SCPSLBot.AI.FirstPersonControl
                     }
                 }
 
-                if (collider.GetComponentInParent<ItemBase>() is ItemBase item
+                if (collider.GetComponentInParent<ItemPickupBase>() is ItemPickupBase item
                     && !ItemsWithinSight.Contains(item))
                 {
                     if (IsWithinFov(fpcTransform, collider.transform)
                         && Physics.Raycast(fpcTransform.position, item.transform.position - fpcTransform.position, out var hit)
-                        && hit.collider.GetComponentInParent<ItemBase>() is ItemBase hitItem
+                        && hit.collider.GetComponentInParent<ItemPickupBase>() is ItemPickupBase hitItem
                         && hitItem == item)
                     {
                         ItemsWithinSight.Add(item);
@@ -95,17 +96,17 @@ namespace SCPSLBot.AI.FirstPersonControl
                 {
                     if (IsWithinFov(fpcTransform, collider.transform)
                         && Physics.Raycast(fpcTransform.position, door.transform.position - fpcTransform.position, out var hit)
-                        && hit.collider.GetComponentInParent<ItemBase>() is ItemBase hitDoor
+                        && hit.collider.GetComponentInParent<DoorVariant>() is DoorVariant hitDoor
                         && hitDoor == door)
                     {
                         DoorsWithinSight.Add(door);
                     }
                 }
 
-                var keycardItemBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemWithinSight<KeycardItem>>();
+                var keycardItemBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemWithinSight<KeycardPickup>>();
                 foreach (var itemWithinSight in ItemsWithinSight)
                 {
-                    if (itemWithinSight is KeycardItem keycard && keycardItemBelief.Item is null)
+                    if (itemWithinSight is KeycardPickup keycard && keycardItemBelief.Item is null)
                     {
                         keycardItemBelief.Update(keycard);
                     }
@@ -115,10 +116,10 @@ namespace SCPSLBot.AI.FirstPersonControl
                     keycardItemBelief.Update(null);
                 }
 
-                var keycardPickupBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemWithinPickupDistance<KeycardItem>>();
+                var keycardPickupBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemWithinPickupDistance<KeycardPickup>>();
                 foreach (var itemWithinPickup in ItemsWithinPickupDistance)
                 {
-                    if (itemWithinPickup is KeycardItem keycard && keycardPickupBelief.Item is null)
+                    if (itemWithinPickup is KeycardPickup keycard && keycardPickupBelief.Item is null)
                     {
                         keycardPickupBelief.Update(keycard);
                     }

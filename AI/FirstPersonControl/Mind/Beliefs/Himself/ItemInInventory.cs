@@ -1,4 +1,5 @@
 ﻿using InventorySystem.Items;
+using InventorySystem.Items.Pickups;
 using System;
 using System.Collections.Generic;
 using System.Linq;

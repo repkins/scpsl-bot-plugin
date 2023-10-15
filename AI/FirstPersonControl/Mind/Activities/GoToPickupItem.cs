@@ -1,4 +1,5 @@
 ﻿using InventorySystem.Items;
+using InventorySystem.Items.Pickups;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Himself;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World;
 using System;
@@ -10,7 +11,7 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 {
-    internal class GoToPickupItem<T> : IActivity where T : ItemBase
+    internal class GoToPickupItem<T> : IActivity where T : ItemPickupBase
     {
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {

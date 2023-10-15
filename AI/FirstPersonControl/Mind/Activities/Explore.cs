@@ -1,6 +1,7 @@
 ﻿using InventorySystem.Items;
 using InventorySystem.Items.Firearms;
 using InventorySystem.Items.Keycards;
+using InventorySystem.Items.Pickups;
 using InventorySystem.Items.Usables;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World;
 using System;
@@ -15,9 +16,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
     {
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityImpacts<ItemWithinSight<KeycardItem>>(this);
-            fpcMind.ActivityImpacts<ItemWithinSight<Medkit>>(this);
-            fpcMind.ActivityImpacts<ItemWithinSight<Firearm>>(this);
+            fpcMind.ActivityImpacts<ItemWithinSight<KeycardPickup>>(this);
+            //fpcMind.ActivityImpacts<MedkitWithinSight>(this); // TODO: Define subclass for specific collision pickup item
+            fpcMind.ActivityImpacts<ItemWithinSight<FirearmPickup>>(this);
         }
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)

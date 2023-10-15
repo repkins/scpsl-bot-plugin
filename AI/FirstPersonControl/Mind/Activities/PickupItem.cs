@@ -14,17 +14,18 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 {
-    internal class PickupItem<T> : IActivity where T : ItemBase
+    internal class PickupItem<P, I> : IActivity where P : ItemPickupBase 
+                                                where I : ItemBase
     {
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityImpacts<ItemInInventory<T>>(this);
+            fpcMind.ActivityImpacts<ItemInInventory<I>>(this);
         }
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            _itemWithinSight = fpcMind.ActivityEnabledBy<ItemWithinSight<T>>(this);
-            _itemWithinPickupDistance = fpcMind.ActivityEnabledBy<ItemWithinPickupDistance<T>>(this);
+            _itemWithinSight = fpcMind.ActivityEnabledBy<ItemWithinSight<P>>(this);
+            _itemWithinPickupDistance = fpcMind.ActivityEnabledBy<ItemWithinPickupDistance<P>>(this);
         }
 
         public Func<bool> Condition => 
@@ -53,7 +54,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
                 if (Physics.Raycast(_botPlayer.FpcRole.FpcModule.transform.position, _botPlayer.FpcRole.transform.forward, out var hit))
                 {
                     if (hit.collider.GetComponent<InteractableCollider>() is InteractableCollider interactableCollider
-                        && hit.collider.GetComponentInParent<T>() is ItemBase item)
+                        && hit.collider.GetComponentInParent<P>() is ItemBase item)
                     {
                         Log.Debug($"Attempting to pick up item {item} by {_botPlayer}");
                     }
@@ -63,7 +64,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
         }
 
         private readonly FpcBotPlayer _botPlayer;
-        private ItemWithinSight<T> _itemWithinSight;
-        private ItemWithinPickupDistance<T> _itemWithinPickupDistance;
+        private ItemWithinSight<P> _itemWithinSight;
+        private ItemWithinPickupDistance<P> _itemWithinPickupDistance;
     }
 }

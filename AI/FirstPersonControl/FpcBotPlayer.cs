@@ -36,10 +36,9 @@ namespace SCPSLBot.AI.FirstPersonControl
             MindRunner.AddBelief(new LastKnownItemLocation<Medkit>());
             MindRunner.AddBelief(new LastKnownItemLocation<KeycardItem>());
 
-            //MindRunner.AddBelief(new KeycardWithinSight(KeycardPermissions.ContainmentLevelOne));
-            MindRunner.AddBelief(new ItemWithinSight<KeycardItem>());
-            MindRunner.AddActivity(new GoToPickupItem<KeycardItem>(this));
-            MindRunner.AddActivity(new PickupItem<KeycardItem>(this));
+            MindRunner.AddBelief(new ItemWithinSight<KeycardPickup>());
+            MindRunner.AddActivity(new GoToPickupItem<KeycardPickup>(this));
+            MindRunner.AddActivity(new PickupItem<KeycardPickup, KeycardItem>(this));
 
             MindRunner.SubscribeToBeliefUpdates();
         }
