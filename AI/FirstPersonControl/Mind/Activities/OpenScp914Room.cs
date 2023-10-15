@@ -15,7 +15,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
     {
         public Func<bool> Condition =>
             () => _keycardInInventory.Item.Permissions.HasFlag(KeycardPermissions.ContainmentLevelOne)
-                && _gateWithinSight.Door.RequiredPermissions.RequiredPermissions == KeycardPermissions.ContainmentLevelOne;
+                && _gateWithinSight.Door.RequiredPermissions.RequiredPermissions == KeycardPermissions.ContainmentLevelOne
+                && _gateWithinSight.Door.IsConsideredOpen();
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
