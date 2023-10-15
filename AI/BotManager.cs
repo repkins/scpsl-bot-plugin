@@ -5,8 +5,8 @@ using PluginAPI.Core;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using LocalConnectionToClient = TestPlugin.LocalNetworking.LocalConnectionToClient;
-using LocalConnectionToServer = TestPlugin.LocalNetworking.LocalConnectionToServer;
+using LocalConnectionToClient = SCPSLBot.LocalNetworking.LocalConnectionToClient;
+using LocalConnectionToServer = SCPSLBot.LocalNetworking.LocalConnectionToServer;
 
 namespace SCPSLBot.AI
 {

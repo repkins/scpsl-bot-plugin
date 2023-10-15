@@ -1,15 +1,11 @@
 ﻿using Interactables;
 using InventorySystem.Items;
 using InventorySystem.Items.Pickups;
-using PlayerRoles.FirstPersonControl;
+using InventorySystem.Searching;
 using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Himself;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
@@ -39,6 +35,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 
         public void Tick()
         {
+            if (isPickingUp)
+            {
+                return;
+            }
+
             var playerPosition = _botPlayer.FpcRole.FpcModule.Position;
             var itemPosition = _itemWithinPickupDistance.Item.transform.position;
 
@@ -53,18 +54,25 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
             {
                 if (Physics.Raycast(_botPlayer.FpcRole.FpcModule.transform.position, _botPlayer.FpcRole.transform.forward, out var hit))
                 {
-                    if (hit.collider.GetComponent<InteractableCollider>() is InteractableCollider interactableCollider
-                        && hit.collider.GetComponentInParent<P>() is ItemBase item)
+                    if (hit.collider.GetComponent<InteractableCollider>() is not null
+                        && hit.collider.GetComponentInParent<P>() is P item)
                     {
                         Log.Debug($"Attempting to pick up item {item} by {_botPlayer}");
+
+                        var searchRequestMsg = new SearchRequest { Target = item };
+                        _botPlayer.BotHub.ConnectionToServer.Send(searchRequestMsg);
+
+                        this.isPickingUp = true;
                     }
                 }
-
             }
         }
 
         private readonly FpcBotPlayer _botPlayer;
+
         private ItemWithinSight<P> _itemWithinSight;
         private ItemWithinPickupDistance<P> _itemWithinPickupDistance;
+
+        private bool isPickingUp;
     }
 }

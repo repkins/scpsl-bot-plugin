@@ -1,6 +1,7 @@
 ﻿using Mirror;
+using TestPlugin.LocalNetworking;
 
-namespace TestPlugin.LocalNetworking
+namespace SCPSLBot.LocalNetworking
 {
     public static class NetworkConnectionExtensions
     {

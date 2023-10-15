@@ -2,9 +2,9 @@
 using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl;
+using SCPSLBot.LocalNetworking;
 using System;
 using System.Collections.Generic;
-using TestPlugin.LocalNetworking;
 using UnityEngine;
 
 namespace SCPSLBot.AI

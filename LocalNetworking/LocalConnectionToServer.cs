@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 
-namespace TestPlugin.LocalNetworking
+namespace SCPSLBot.LocalNetworking
 {
     internal class LocalConnectionToServer : NetworkConnectionToServer
     {
@@ -22,7 +22,7 @@ namespace TestPlugin.LocalNetworking
             {
                 if (batchForChannelId.GetBatch(networkWriterPooled))
                 {
-                    Transport.active.OnServerDataReceived(this.connectionId, networkWriterPooled.ToArraySegment(), channelId);
+                    Transport.active.OnServerDataReceived(connectionId, networkWriterPooled.ToArraySegment(), channelId);
                 }
                 else
                 {
@@ -33,7 +33,7 @@ namespace TestPlugin.LocalNetworking
 
         internal void Update()
         {
-            foreach (KeyValuePair<int, Batcher> keyValuePair in this.batches)
+            foreach (KeyValuePair<int, Batcher> keyValuePair in batches)
             {
                 using (NetworkWriterPooled networkWriterPooled = NetworkWriterPool.Get())
                 {
@@ -49,9 +49,9 @@ namespace TestPlugin.LocalNetworking
                 }
             }
 
-            while (this.queue.Count > 0)
+            while (queue.Count > 0)
             {
-                NetworkWriterPooled networkWriterPooled = this.queue.Dequeue();
+                NetworkWriterPooled networkWriterPooled = queue.Dequeue();
                 ArraySegment<byte> message = networkWriterPooled.ToArraySegment();
                 Batcher batchForChannelId = GetBatchForChannelId(0);
                 batchForChannelId.AddMessage(message, NetworkTime.localTime);
@@ -69,12 +69,12 @@ namespace TestPlugin.LocalNetworking
 
         internal void DisconnectInternal()
         {
-            this.isReady = false;
+            isReady = false;
         }
 
         public override void Disconnect()
         {
-            this.connectionToClient.DisconnectInternal();
+            connectionToClient.DisconnectInternal();
             DisconnectInternal();
         }
 

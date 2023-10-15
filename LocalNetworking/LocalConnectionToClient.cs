@@ -1,7 +1,7 @@
 ﻿using Mirror;
 using System;
 
-namespace TestPlugin.LocalNetworking
+namespace SCPSLBot.LocalNetworking
 {
     public class LocalConnectionToClient : NetworkConnectionToClient
     {
@@ -32,7 +32,7 @@ namespace TestPlugin.LocalNetworking
         public override void Disconnect()
         {
             DisconnectInternal();
-            this.connectionToServer.DisconnectInternal();
+            connectionToServer.DisconnectInternal();
         }
 
         internal LocalConnectionToServer connectionToServer;
