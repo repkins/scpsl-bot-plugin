@@ -17,7 +17,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
             fpcMind.ActivityImpacts<ItemWithinSight<KeycardPickup>>(this);
-            fpcMind.ActivityImpacts<ItemWithinSightMedkit>(this);
+            //fpcMind.ActivityImpacts<MedkitWithinSight>(this); // TODO: Define subclass for specific collision pickup item
             fpcMind.ActivityImpacts<ItemWithinSight<FirearmPickup>>(this);
         }
 

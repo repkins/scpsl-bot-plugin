@@ -18,13 +18,13 @@ namespace SCPSLBot.AI.FirstPersonControl
 {
     internal class FpcBotPerception
     {
-        public LinkedList<ReferenceHub> PlayersWithinSight { get; } = new LinkedList<ReferenceHub>();
+        public HashSet<ReferenceHub> PlayersWithinSight { get; } = new HashSet<ReferenceHub>();
         public IEnumerable<ReferenceHub> EnemiesWithinSight { get; }
         public IEnumerable<ReferenceHub> FriendiesWithinSight { get; }
 
-        public LinkedList<ItemPickupBase> ItemsWithinSight { get; } = new ();
-        public LinkedList<ItemPickupBase> ItemsWithinPickupDistance { get; } = new ();
-        public LinkedList<DoorVariant> DoorsWithinSight { get; } = new ();
+        public HashSet<ItemPickupBase> ItemsWithinSight { get; } = new ();
+        public HashSet<ItemPickupBase> ItemsWithinPickupDistance { get; } = new ();
+        public HashSet<DoorVariant> DoorsWithinSight { get; } = new ();
 
         public bool HasFirearmInInventory { get; private set; }
 
@@ -62,71 +62,58 @@ namespace SCPSLBot.AI.FirstPersonControl
             foreach (var collider in overlappingColliders)
             {
                 if (collider.GetComponentInParent<ReferenceHub>() is ReferenceHub otherPlayer
-                    && otherPlayer != _fpcBotPlayer.BotHub.PlayerHub)
+                    && otherPlayer != _fpcBotPlayer.BotHub.PlayerHub
+                    && !PlayersWithinSight.Contains(otherPlayer))
                 {
                     if (IsWithinFov(fpcTransform, collider.transform)
                         && Physics.Raycast(fpcTransform.position, otherPlayer.transform.position - fpcTransform.position, out var hit)
                         && hit.collider.GetComponentInParent<ReferenceHub>() is ReferenceHub hitHub
                         && hitHub == otherPlayer)
                     {
-                        PlayersWithinSight.AddLast(otherPlayer);
+                        PlayersWithinSight.Add(otherPlayer);
                     }
                 }
 
-                if (collider.GetComponentInParent<ItemPickupBase>() is ItemPickupBase item)
+                if (collider.GetComponentInParent<ItemPickupBase>() is ItemPickupBase item
+                    && !ItemsWithinSight.Contains(item))
                 {
                     if (IsWithinFov(fpcTransform, collider.transform)
                         && Physics.Raycast(fpcTransform.position, item.transform.position - fpcTransform.position, out var hit)
                         && hit.collider.GetComponentInParent<ItemPickupBase>() is ItemPickupBase hitItem
                         && hitItem == item)
                     {
-                        ItemsWithinSight.AddLast(item);
+                        ItemsWithinSight.Add(item);
 
                         if (Vector3.Distance(item.transform.position, fpcTransform.position) <= 1f) // TODO: constant
                         {
-                            ItemsWithinPickupDistance.AddLast(item);
+                            ItemsWithinPickupDistance.Add(item);
                         }
                     }
                 }
 
-                if (collider.GetComponentInParent<DoorVariant>() is DoorVariant door)
+                if (collider.GetComponentInParent<DoorVariant>() is DoorVariant door
+                    && !DoorsWithinSight.Contains(door))
                 {
                     if (IsWithinFov(fpcTransform, collider.transform)
                         && Physics.Raycast(fpcTransform.position, door.transform.position - fpcTransform.position, out var hit)
                         && hit.collider.GetComponentInParent<DoorVariant>() is DoorVariant hitDoor
                         && hitDoor == door)
                     {
-                        DoorsWithinSight.AddLast(door);
+                        DoorsWithinSight.Add(door);
                     }
                 }
 
-                var numKeycards = 0u;
-                var numMedkits = 0u;
-
                 var keycardItemBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemWithinSight<KeycardPickup>>();
-                var medkitItemBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemWithinSightMedkit>();
                 foreach (var itemWithinSight in ItemsWithinSight)
                 {
                     if (itemWithinSight is KeycardPickup keycard && keycardItemBelief.Item is null)
                     {
                         keycardItemBelief.Update(keycard);
-                        numKeycards++;
-                    }
-                    if (itemWithinSight.Info.ItemId == ItemType.Medkit && medkitItemBelief.Item is null)
-                    {
-                        medkitItemBelief.Update(itemWithinSight);
-                        numMedkits++;
                     }
                 }
-                if (numKeycards <= 0 && keycardItemBelief.Item is not null)
+                if (!ItemsWithinSight.Contains(keycardItemBelief.Item))
                 {
                     keycardItemBelief.Update(null);
-                    numKeycards = 0;
-                }
-                if (numMedkits <= 0 && medkitItemBelief.Item is not null)
-                {
-                    medkitItemBelief.Update(null);
-                    numMedkits = 0;
                 }
 
                 var keycardPickupBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemWithinPickupDistance<KeycardPickup>>();
@@ -135,29 +122,24 @@ namespace SCPSLBot.AI.FirstPersonControl
                     if (itemWithinPickup is KeycardPickup keycard && keycardPickupBelief.Item is null)
                     {
                         keycardPickupBelief.Update(keycard);
-                        numKeycards++;
                     }
                 }
-                if (numKeycards <= 0 && keycardPickupBelief.Item is not null)
+                if (!ItemsWithinPickupDistance.Contains(keycardPickupBelief.Item))
                 {
                     keycardPickupBelief.Update(null);
-                    numKeycards = 0;
                 }
 
-                var numPryableDoors = 0u;
                 var pryableWithinSightBelief = _fpcBotPlayer.MindRunner.GetBelief<DoorWithinSight<PryableDoor>>();
                 foreach (var doorWithinSight in DoorsWithinSight)
                 {
                     if (doorWithinSight is PryableDoor gate && pryableWithinSightBelief.Door is null)
                     {
                         pryableWithinSightBelief.Update(gate);
-                        numPryableDoors++;
                     }
                 }
-                if (numPryableDoors <= 0 && pryableWithinSightBelief.Door is not null)
+                if (!DoorsWithinSight.Contains(pryableWithinSightBelief.Door))
                 {
                     pryableWithinSightBelief.Update(null);
-                    numPryableDoors = 0;
                 }
             }
 

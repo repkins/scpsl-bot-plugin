@@ -9,7 +9,6 @@ using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Mind.Activities;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Himself;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World;
 using System.Collections.Generic;
 using UnityEngine;
@@ -33,18 +32,13 @@ namespace SCPSLBot.AI.FirstPersonControl
             Perception = new FpcBotPerception(this);
             MindRunner = new FpcMindRunner();
 
-            MindRunner.AddBelief(new LastKnownItemLocation<KeycardItem>());
-            MindRunner.AddBelief(new LastKnownItemLocation<Medkit>());
             MindRunner.AddBelief(new LastKnownItemLocation<Firearm>());
+            MindRunner.AddBelief(new LastKnownItemLocation<Medkit>());
+            MindRunner.AddBelief(new LastKnownItemLocation<KeycardItem>());
 
             MindRunner.AddBelief(new ItemWithinSight<KeycardPickup>());
-            MindRunner.AddBelief(new ItemWithinPickupDistance<KeycardPickup>());
-            MindRunner.AddBelief(new ItemInInventory<KeycardItem>());
-
             MindRunner.AddActivity(new GoToPickupItem<KeycardPickup>(this));
             MindRunner.AddActivity(new PickupItem<KeycardPickup, KeycardItem>(this));
-
-            MindRunner.AddActivity(new Explore(this));
 
             MindRunner.SubscribeToBeliefUpdates();
         }
