@@ -1,5 +1,6 @@
 ﻿using InventorySystem.Items;
 using InventorySystem.Items.Keycards;
+using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Attributes;
 using SCPSLBot.AI.FirstPersonControl.Mind;
 using System;
@@ -32,9 +33,11 @@ namespace SCPSLBot.AI.FirstPersonControl
         {
             var enablingActivities = BeliefsEnablingActivities[updatedBelief];
 
-            var activity = enablingActivities.First(a => a.Condition());  // TODO: cost?
+            var activity = enablingActivities.FirstOrDefault(a => a.Condition());  // TODO: cost?
 
-            RunningActivity = activity;
+            RunningActivity = activity ?? (RunningActivity.Condition() ? RunningActivity : null);
+
+            Log.Debug($"New activity for bot: {activity}");
         }
     }
 }

@@ -8,6 +8,7 @@ using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
 using PluginAPI.Core.Doors;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Himself;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World;
 using System.Collections.Generic;
@@ -102,82 +103,120 @@ namespace SCPSLBot.AI.FirstPersonControl
                         DoorsWithinSight.Add(door);
                     }
                 }
-
-                var numKeycards = 0u;
-                var numMedkits = 0u;
-
-                var keycardItemBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemWithinSight<KeycardPickup>>();
-                var medkitItemBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemWithinSightMedkit>();
-                foreach (var itemWithinSight in ItemsWithinSight)
-                {
-                    if (itemWithinSight is KeycardPickup keycard && keycardItemBelief.Item is null)
-                    {
-                        keycardItemBelief.Update(keycard);
-                        numKeycards++;
-                    }
-                    if (itemWithinSight.Info.ItemId == ItemType.Medkit && medkitItemBelief.Item is null)
-                    {
-                        medkitItemBelief.Update(itemWithinSight);
-                        numMedkits++;
-                    }
-                }
-                if (numKeycards <= 0 && keycardItemBelief.Item is not null)
-                {
-                    keycardItemBelief.Update(null);
-                    numKeycards = 0;
-                }
-                if (numMedkits <= 0 && medkitItemBelief.Item is not null)
-                {
-                    medkitItemBelief.Update(null);
-                    numMedkits = 0;
-                }
-
-                var keycardPickupBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemWithinPickupDistance<KeycardPickup>>();
-                foreach (var itemWithinPickup in ItemsWithinPickupDistance)
-                {
-                    if (itemWithinPickup is KeycardPickup keycard && keycardPickupBelief.Item is null)
-                    {
-                        keycardPickupBelief.Update(keycard);
-                        numKeycards++;
-                    }
-                }
-                if (numKeycards <= 0 && keycardPickupBelief.Item is not null)
-                {
-                    keycardPickupBelief.Update(null);
-                    numKeycards = 0;
-                }
-
-                var numPryableDoors = 0u;
-                var pryableWithinSightBelief = _fpcBotPlayer.MindRunner.GetBelief<DoorWithinSight<PryableDoor>>();
-                foreach (var doorWithinSight in DoorsWithinSight)
-                {
-                    if (doorWithinSight is PryableDoor gate && pryableWithinSightBelief.Door is null)
-                    {
-                        pryableWithinSightBelief.Update(gate);
-                        numPryableDoors++;
-                    }
-                }
-                if (numPryableDoors <= 0 && pryableWithinSightBelief.Door is not null)
-                {
-                    pryableWithinSightBelief.Update(null);
-                    numPryableDoors = 0;
-                }
             }
 
+            ProcessBeliefs();
+        }
+
+        private void ProcessBeliefs()
+        {
+            ProcessItemsWithinSight();
+            ProcessItemsWithinDistance();
+            ProcessDoorsWithinSight();
+            ProcessItemsInInventory();
+        }
+
+        private void ProcessItemsWithinSight()
+        {
+            var numKeycards = 0u;
+            var numMedkits = 0u;
+
+            var keycardItemBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemWithinSight<KeycardPickup>>();
+            var medkitItemBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemWithinSightMedkit>();
+            foreach (var itemWithinSight in ItemsWithinSight)
+            {
+                if (itemWithinSight is KeycardPickup keycard && keycardItemBelief.Item is null)
+                {
+                    UpdateItemBelief(keycardItemBelief, keycard);
+                    numKeycards++;
+                }
+                if (itemWithinSight.Info.ItemId == ItemType.Medkit && medkitItemBelief.Item is null)
+                {
+                    UpdateItemBelief(medkitItemBelief, itemWithinSight);
+                    numMedkits++;
+                }
+            }
+            if (numKeycards <= 0 && keycardItemBelief.Item is not null)
+            {
+                UpdateItemBelief(keycardItemBelief, null as KeycardPickup);
+            }
+            if (numMedkits <= 0 && medkitItemBelief.Item is not null)
+            {
+                UpdateItemBelief(medkitItemBelief, null as ItemPickupBase);
+            }
+        }
+
+        private void ProcessItemsWithinDistance()
+        {
+            var numKeycards = 0u;
+
+            var keycardPickupBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemWithinPickupDistance<KeycardPickup>>();
+            foreach (var itemWithinPickup in ItemsWithinPickupDistance)
+            {
+                if (itemWithinPickup is KeycardPickup keycard && keycardPickupBelief.Item is null)
+                {
+                    UpdateItemBelief(keycardPickupBelief, keycard);
+                    numKeycards++;
+                }
+            }
+            if (numKeycards <= 0 && keycardPickupBelief.Item is not null)
+            {
+                UpdateItemBelief(keycardPickupBelief, null as KeycardPickup);
+            }
+        }
+
+        private void ProcessItemsInInventory()
+        {
             var keycardInventoryBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemInInventory<KeycardItem>>();
             foreach (var item in _fpcBotPlayer.BotHub.PlayerHub.inventory.UserInventory.Items.Values)
             {
                 if (item is KeycardItem keycard && keycardInventoryBelief.Item is null)
                 {
-                    keycardInventoryBelief.Update(keycard);
+                    UpdateItemInInventoryBelief(keycardInventoryBelief, keycard);
                 }
 
                 HasFirearmInInventory = item is Firearm;
             }
-            if (!_fpcBotPlayer.BotHub.PlayerHub.inventory.UserInventory.Items.ContainsKey(keycardInventoryBelief.Item.ItemSerial))
+            if (keycardInventoryBelief.Item is not null && !_fpcBotPlayer.BotHub.PlayerHub.inventory.UserInventory.Items.ContainsKey(keycardInventoryBelief.Item.ItemSerial))
             {
-                keycardInventoryBelief.Update(null);
+                UpdateItemInInventoryBelief(keycardInventoryBelief, null);
             }
+        }
+
+        private void ProcessDoorsWithinSight()
+        {
+            var numPryableDoors = 0u;
+            var pryableWithinSightBelief = _fpcBotPlayer.MindRunner.GetBelief<DoorWithinSight<PryableDoor>>();
+            foreach (var doorWithinSight in DoorsWithinSight)
+            {
+                if (doorWithinSight is PryableDoor gate && pryableWithinSightBelief.Door is null)
+                {
+                    UpdateDoorBelief(pryableWithinSightBelief, gate);
+                    numPryableDoors++;
+                }
+            }
+            if (numPryableDoors <= 0 && pryableWithinSightBelief.Door is not null)
+            {
+                UpdateDoorBelief(pryableWithinSightBelief, null as PryableDoor);
+            }
+        }
+
+        private static void UpdateItemBelief<T, I>(T itemBelief, I pickup) where T : ItemBase<I> where I : ItemPickupBase
+        {
+            itemBelief.Update(pickup);
+            Log.Debug($"{itemBelief.GetType().Name} updated: {pickup}");
+        }
+
+        private static void UpdateItemInInventoryBelief<I>(ItemInInventory<I> itemBelief, I pickup) where I : ItemBase
+        {
+            itemBelief.Update(pickup);
+            Log.Debug($"{itemBelief.GetType().Name} updated: {pickup}");
+        }
+
+        private static void UpdateDoorBelief<T, I>(T doorBelief, I door) where T : DoorBase<I> where I : DoorVariant
+        {
+            doorBelief.Update(door);
+            Log.Debug($"{doorBelief.GetType().Name} updated: {door}");
         }
 
         private bool IsWithinFov(Transform transform, Transform targetTransform)
