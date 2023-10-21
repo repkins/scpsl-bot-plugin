@@ -38,7 +38,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
             var itemPosition = _itemWithinSight.Item.transform.position;
             var playerPosition = _botPlayer.FpcRole.FpcModule.Position;
 
-            var directionToTarget = (itemPosition - playerPosition).normalized;
+            var directionToTarget = Vector3.Normalize(itemPosition - playerPosition);
 
             var angleDiff = Vector3.SignedAngle(directionToTarget, _botPlayer.FpcRole.FpcModule.transform.forward, Vector3.down);
             _botPlayer.DesiredLook = new Vector3(0, angleDiff);
@@ -48,6 +48,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 
         private ItemWithinSight<T> _itemWithinSight;
         private ItemWithinPickupDistance<T> _itemWithinPickupDistance;
-        private FpcBotPlayer _botPlayer;
+        private readonly FpcBotPlayer _botPlayer;
     }
 }

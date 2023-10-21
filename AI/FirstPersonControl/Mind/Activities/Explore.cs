@@ -38,7 +38,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 
         public void Tick()
         {
-            var position = botPlayer.FpcRole.FpcModule.Position;
+            var position = this.botPlayer.FpcRole.FpcModule.Position;
             var nodeGraph = NavigationGraph.Instance;
 
             // Set new position leading to unexplored area (room)
@@ -50,13 +50,15 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
             {
                 this.node = nodeGraph.FindNearestNode(position, 5f);
 
-                var possibleGoalNodes = nodeGraph.NodesByRoom[node.Room].Where(n => n.ForeignNodes.Any()).Select(n => n.ForeignNodes.First());
+                var possibleGoalNodes = nodeGraph.NodesByRoom[this.node.Room]
+                    .Where(n => n.ForeignNodes.Any() && n == this.node)
+                    .Select(n => n.ForeignNodes.First());
                 this.goalNode = possibleGoalNodes.First(fn => UnityEngine.Random.value > 0.5f);
 
-                this.path = nodeGraph.GetShortestPath(node, goalNode);
+                this.path = nodeGraph.GetShortestPath(this.node, this.goalNode);
             }
 
-            botPlayer.DesiredMoveDirection = Vector3.Normalize(this.node.Position - position);
+            this.botPlayer.DesiredMoveDirection = Vector3.Normalize(this.node.Position - position);
 
             if (Vector3.Distance(position, this.node.Position) < 1f)
             {
