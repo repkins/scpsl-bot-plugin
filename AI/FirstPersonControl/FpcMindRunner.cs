@@ -35,7 +35,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             var activity = enablingActivities.FirstOrDefault(a => a.Condition());  // TODO: cost?
 
-            RunningActivity = activity ?? (RunningActivity.Condition() ? RunningActivity : null);
+            RunningActivity = activity ?? (RunningActivity?.Condition() ?? false ? RunningActivity : null);
 
             Log.Debug($"New activity for bot: {activity}");
         }

@@ -60,6 +60,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
         {
             Beliefs.Add(belief.GetType(), belief);
 
+            var enablesActivities = new List<IActivity>();
+            BeliefsEnablingActivities.Add(belief, enablesActivities);
+
             return this;
         }
 
@@ -71,11 +74,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
 
         private void ActivityEnabledBy(IActivity activity, IBelief belief)
         {
-            if (!BeliefsEnablingActivities.TryGetValue(belief, out var enablesActivities))
-            {
-                enablesActivities = new List<IActivity>();
-                BeliefsEnablingActivities.Add(belief, enablesActivities);
-            }
+            var enablesActivities = BeliefsEnablingActivities[belief];
 
             enablesActivities.Add(activity);
         }

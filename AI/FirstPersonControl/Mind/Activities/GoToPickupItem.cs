@@ -37,11 +37,16 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
         {
             var itemPosition = _itemWithinSight.Item.transform.position;
             var playerPosition = _botPlayer.FpcRole.FpcModule.Position;
+            playerPosition.y = itemPosition.y;
 
             var directionToTarget = Vector3.Normalize(itemPosition - playerPosition);
 
-            var angleDiff = Vector3.SignedAngle(directionToTarget, _botPlayer.FpcRole.FpcModule.transform.forward, Vector3.down);
-            _botPlayer.DesiredLook = new Vector3(0, angleDiff);
+            var hAngleDiff = Vector3.SignedAngle(directionToTarget, _botPlayer.FpcRole.FpcModule.transform.forward, Vector3.down);
+            //var hAngleDiff = 0f;
+            //var vAngleDiff = Vector3.SignedAngle(directionToTarget, _botPlayer.FpcRole.FpcModule.transform.forward, Vector3.left);
+            var vAngleDiff = 0f;
+
+            _botPlayer.DesiredLook = new Vector3(vAngleDiff, hAngleDiff);
 
             _botPlayer.DesiredMoveDirection = directionToTarget;
         }
