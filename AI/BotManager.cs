@@ -1,4 +1,5 @@
-﻿using MEC;
+﻿using CentralAuth;
+using MEC;
 using Mirror;
 using PlayerRoles;
 using PluginAPI.Core;
@@ -51,7 +52,7 @@ namespace SCPSLBot.AI
 
             yield return Timing.WaitUntilTrue(() => hub.serverRoles != null);
 
-            player.GetComponent<CharacterClassManager>().UserId = $"BotUserId{lastConnNum}";
+            player.GetComponent<PlayerAuthenticationManager>().UserId = $"BotUserId{lastConnNum}";
 
             yield break;
         }
