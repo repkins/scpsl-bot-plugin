@@ -7,8 +7,6 @@ namespace SCPSLBot.LocalNetworking
 {
     internal class LocalConnectionToServer : NetworkConnectionToServer
     {
-        public override string address => "localhost";
-
         public override void Send(ArraySegment<byte> segment, int channelId = 0)
         {
             if (segment.Count == 0)

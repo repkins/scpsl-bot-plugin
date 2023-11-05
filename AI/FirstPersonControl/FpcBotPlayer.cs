@@ -12,6 +12,7 @@ using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Mind.Activities;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Himself;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
