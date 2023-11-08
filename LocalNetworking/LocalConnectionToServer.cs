@@ -31,18 +31,15 @@ namespace SCPSLBot.LocalNetworking
 
         internal void Update()
         {
-            foreach (KeyValuePair<int, Batcher> keyValuePair in batches)
+            foreach (KeyValuePair<int, Batcher> keyValuePair in this.batches)
             {
                 using (NetworkWriterPooled networkWriterPooled = NetworkWriterPool.Get())
                 {
                     while (keyValuePair.Value.GetBatch(networkWriterPooled))
                     {
                         ArraySegment<byte> segment = networkWriterPooled.ToArraySegment();
-                        if (ValidatePacketSize(segment, keyValuePair.Key))
-                        {
-                            SendToTransport(segment, keyValuePair.Key);
-                            networkWriterPooled.Position = 0;
-                        }
+                        this.SendToTransport(segment, keyValuePair.Key);
+                        networkWriterPooled.Position = 0;
                     }
                 }
             }

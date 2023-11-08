@@ -13,9 +13,9 @@ namespace SCPSLBot.AI
 {
     internal class BotManager
     {
-        public static BotManager Instance { get; private set; } = new BotManager();
+        public static BotManager Instance { get; } = new BotManager();
 
-        public Dictionary<ReferenceHub, BotHub> BotPlayers { get; private set; } = new Dictionary<ReferenceHub, BotHub>();
+        public Dictionary<ReferenceHub, BotHub> BotPlayers { get; } = new Dictionary<ReferenceHub, BotHub>();
 
         public void Init()
         {
