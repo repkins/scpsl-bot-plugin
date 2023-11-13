@@ -28,6 +28,8 @@ namespace SCPSLBot.AI.FirstPersonControl
                 hub.transform.rotation = rotation;
                 hub.PlayerCameraReference.localRotation = cameraRotation;
 
+                fpcPlayer.DesiredLook = Vector3.zero;
+
                 return false;
             }
 

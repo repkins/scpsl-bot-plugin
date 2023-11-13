@@ -37,7 +37,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             RunningActivity = activity ?? (RunningActivity?.Condition() ?? false ? RunningActivity : null);
 
-            Log.Debug($"New activity for bot: {activity}");
+            Log.Debug($"New activity for bot: {RunningActivity?.GetType().Name}");
         }
     }
 }

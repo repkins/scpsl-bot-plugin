@@ -43,10 +43,11 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         public void Tick(IFpcRole fpcRole)
         {
-            var fpcTransform = fpcRole.FpcModule.transform;
+            //var fpcTransform = fpcRole.FpcModule.transform;
+            var cameraTransform = _fpcBotPlayer.BotHub.PlayerHub.PlayerCameraReference;
 
             var prevNumOverlappingColliders = _numOverlappingColliders;
-            _numOverlappingColliders = Physics.OverlapSphereNonAlloc(fpcTransform.position, 32f, _overlappingCollidersBuffer, _perceptionLayerMask);
+            _numOverlappingColliders = Physics.OverlapSphereNonAlloc(cameraTransform.position, 32f, _overlappingCollidersBuffer, _perceptionLayerMask);
 
             if (_numOverlappingColliders >= OverlappingCollidersBufferSize && _numOverlappingColliders != prevNumOverlappingColliders)
             {
@@ -66,8 +67,8 @@ namespace SCPSLBot.AI.FirstPersonControl
                     && otherPlayer != _fpcBotPlayer.BotHub.PlayerHub
                     && !PlayersWithinSight.Contains(otherPlayer))
                 {
-                    if (IsWithinFov(fpcTransform, collider.transform)
-                        && Physics.Raycast(fpcTransform.position, otherPlayer.transform.position - fpcTransform.position, out var hit)
+                    if (IsWithinFov(cameraTransform, collider.transform)
+                        && Physics.Raycast(cameraTransform.position, otherPlayer.transform.position - cameraTransform.position, out var hit)
                         && hit.collider.GetComponentInParent<ReferenceHub>() is ReferenceHub hitHub
                         && hitHub == otherPlayer)
                     {
@@ -78,16 +79,17 @@ namespace SCPSLBot.AI.FirstPersonControl
                 if (collider.GetComponentInParent<ItemPickupBase>() is ItemPickupBase item
                     && !ItemsWithinSight.Contains(item))
                 {
-                    if (IsWithinFov(fpcTransform, collider.transform)
-                        && Physics.Raycast(fpcTransform.position, item.transform.position - fpcTransform.position, out var hit)
+                    var directionToItem = Vector3.Normalize(item.transform.position - cameraTransform.position);
+                    if (IsWithinFov(cameraTransform, collider.transform)
+                        && Physics.Raycast(cameraTransform.position + directionToItem, directionToItem, out var hit)
                         && hit.collider.GetComponentInParent<ItemPickupBase>() is ItemPickupBase hitItem
                         && hitItem == item)
                     {
                         ItemsWithinSight.Add(item);
 
-                        if (Vector3.Distance(item.transform.position, fpcTransform.position) <= 1f) // TODO: constant
+                        if (Vector3.Distance(item.transform.position, cameraTransform.position) <= 1f) // TODO: constant
                         {
-                            ItemsWithinPickupDistance.Add(item);
+                            //ItemsWithinPickupDistance.Add(item);
                         }
                     }
                 }
@@ -95,8 +97,8 @@ namespace SCPSLBot.AI.FirstPersonControl
                 if (collider.GetComponentInParent<DoorVariant>() is DoorVariant door
                     && !DoorsWithinSight.Contains(door))
                 {
-                    if (IsWithinFov(fpcTransform, collider.transform)
-                        && Physics.Raycast(fpcTransform.position, door.transform.position - fpcTransform.position, out var hit)
+                    if (IsWithinFov(cameraTransform, collider.transform)
+                        && Physics.Raycast(cameraTransform.position, door.transform.position - cameraTransform.position, out var hit)
                         && hit.collider.GetComponentInParent<DoorVariant>() is DoorVariant hitDoor
                         && hitDoor == door)
                     {
@@ -125,14 +127,20 @@ namespace SCPSLBot.AI.FirstPersonControl
             var medkitItemBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemWithinSightMedkit>();
             foreach (var itemWithinSight in ItemsWithinSight)
             {
-                if (itemWithinSight is KeycardPickup keycard && keycardItemBelief.Item is null)
+                if (itemWithinSight is KeycardPickup keycard)
                 {
-                    UpdateItemBelief(keycardItemBelief, keycard);
+                    if (keycardItemBelief.Item is null)
+                    {
+                        UpdateItemBelief(keycardItemBelief, keycard);
+                    }
                     numKeycards++;
                 }
-                if (itemWithinSight.Info.ItemId == ItemType.Medkit && medkitItemBelief.Item is null)
+                if (itemWithinSight.Info.ItemId == ItemType.Medkit)
                 {
-                    UpdateItemBelief(medkitItemBelief, itemWithinSight);
+                    if (medkitItemBelief.Item is null)
+                    {
+                        UpdateItemBelief(medkitItemBelief, itemWithinSight);
+                    }
                     numMedkits++;
                 }
             }
@@ -153,9 +161,12 @@ namespace SCPSLBot.AI.FirstPersonControl
             var keycardPickupBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemWithinPickupDistance<KeycardPickup>>();
             foreach (var itemWithinPickup in ItemsWithinPickupDistance)
             {
-                if (itemWithinPickup is KeycardPickup keycard && keycardPickupBelief.Item is null)
+                if (itemWithinPickup is KeycardPickup keycard)
                 {
-                    UpdateItemBelief(keycardPickupBelief, keycard);
+                    if (keycardPickupBelief.Item is null)
+                    {
+                        UpdateItemBelief(keycardPickupBelief, keycard);
+                    }
                     numKeycards++;
                 }
             }
@@ -189,9 +200,12 @@ namespace SCPSLBot.AI.FirstPersonControl
             var pryableWithinSightBelief = _fpcBotPlayer.MindRunner.GetBelief<DoorWithinSight<PryableDoor>>();
             foreach (var doorWithinSight in DoorsWithinSight)
             {
-                if (doorWithinSight is PryableDoor gate && pryableWithinSightBelief.Door is null)
+                if (doorWithinSight is PryableDoor gate)
                 {
-                    UpdateDoorBelief(pryableWithinSightBelief, gate);
+                    if (pryableWithinSightBelief.Door is null)
+                    {
+                        UpdateDoorBelief(pryableWithinSightBelief, gate);
+                    }
                     numPryableDoors++;
                 }
             }
@@ -222,7 +236,7 @@ namespace SCPSLBot.AI.FirstPersonControl
         private bool IsWithinFov(Transform transform, Transform targetTransform)
         {
             var facingDir = transform.forward;
-            var diff = targetTransform.position - transform.position;
+            var diff = Vector3.Normalize(targetTransform.position - transform.position);
 
             if (Vector3.Dot(facingDir, diff) < 0)
             {

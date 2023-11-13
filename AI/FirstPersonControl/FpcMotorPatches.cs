@@ -19,6 +19,7 @@ namespace SCPSLBot.AI.FirstPersonControl
                 && botHub.CurrentBotPlayer is FpcBotPlayer fpcPlayer)
             {
                 __result = fpcPlayer.DesiredMoveDirection;
+                fpcPlayer.DesiredMoveDirection = Vector3.zero;
                 return false;
             }
 

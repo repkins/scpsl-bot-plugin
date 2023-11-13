@@ -1,5 +1,6 @@
 ﻿using InventorySystem.Items;
 using InventorySystem.Items.Pickups;
+using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Himself;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World;
 using System;
@@ -41,25 +42,27 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
                 _botPlayer.DesiredMoveDirection = Vector3.zero;
             }
 
+            var playerTransform = _botPlayer.FpcRole.FpcModule.transform;
+            var cameraTransform = _botPlayer.BotHub.PlayerHub.PlayerCameraReference;
+
             var itemPosition = _itemWithinSight.Item.transform.position;
             var playerCameraPosition = _botPlayer.FpcRole.CameraPosition;
 
-            var hItemPosition = itemPosition;
-            hItemPosition.y = playerCameraPosition.y;
+            var diff = itemPosition - playerCameraPosition;
 
-            var vItemPosition = itemPosition;
-            vItemPosition.x = playerCameraPosition.x;
+            var hDirectionToTarget = Vector3.ProjectOnPlane(diff, Vector3.up).normalized;
+            var hForward = playerTransform.forward;
 
-            var hDirectionToTarget = Vector3.Normalize(hItemPosition - playerCameraPosition);
-            var vDirectionToTarget = Vector3.Normalize(vItemPosition - playerCameraPosition);
+            var hAngleDiff = Vector3.SignedAngle(hDirectionToTarget, hForward, Vector3.down);
 
-            var hAngleDiff = Vector3.SignedAngle(hDirectionToTarget, _botPlayer.BotHub.PlayerHub.PlayerCameraReference.forward, Vector3.down);
-            //var hAngleDiff = 0f;
-            //var vAngleDiff = Vector3.SignedAngle(directionToTarget, _botPlayer.FpcRole.FpcModule.transform.forward, Vector3.left);
-            var vAngleDiff = 0f;
+            var hReverseRotation = Quaternion.AngleAxis(-hAngleDiff, Vector3.up);
+
+            var vDirectionToTarget = Vector3.Normalize(hReverseRotation * diff);
+            var vForward = cameraTransform.forward;
+
+            var vAngleDiff = Vector3.SignedAngle(vDirectionToTarget, vForward, cameraTransform.right);
 
             _botPlayer.DesiredLook = new Vector3(vAngleDiff, hAngleDiff);
-            _botPlayer.DesiredMoveDirection = hDirectionToTarget;
         }
 
         private ItemWithinSight<T> _itemWithinSight;
