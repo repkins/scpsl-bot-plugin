@@ -48,7 +48,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
             var directionToTarget = (itemPosition - playerPosition).normalized;
 
             var angleDiff = Vector3.SignedAngle(directionToTarget, _botPlayer.FpcRole.FpcModule.transform.forward, Vector3.down);
-            _botPlayer.DesiredLook = new Vector3(0, angleDiff);
+            _botPlayer.DesiredLookAngles = new Vector3(0, angleDiff);
 
             if (Vector3.Distance(playerPosition, itemPosition) < 1f)
             {

@@ -17,8 +17,8 @@ namespace SCPSLBot.AI.FirstPersonControl
             if (BotManager.Instance.BotPlayers.TryGetValue(hub, out var botHub)
                 && botHub.CurrentBotPlayer is FpcBotPlayer fpcPlayer)
             {
-                float vRot = fpcPlayer.DesiredLook.x;
-                float hRot = fpcPlayer.DesiredLook.y;
+                float vRot = fpcPlayer.DesiredLookAngles.x;
+                float hRot = fpcPlayer.DesiredLookAngles.y;
 
                 __instance.CurrentVertical += vRot;
                 __instance.CurrentHorizontal += hRot;
@@ -28,7 +28,7 @@ namespace SCPSLBot.AI.FirstPersonControl
                 hub.transform.rotation = rotation;
                 hub.PlayerCameraReference.localRotation = cameraRotation;
 
-                fpcPlayer.DesiredLook = Vector3.zero;
+                fpcPlayer.DesiredLookAngles = Vector3.zero;
 
                 return false;
             }

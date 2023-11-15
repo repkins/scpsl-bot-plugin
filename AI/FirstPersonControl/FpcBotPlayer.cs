@@ -27,8 +27,8 @@ namespace SCPSLBot.AI.FirstPersonControl
         public FpcMindRunner MindRunner { get; }
 
         public Vector3 DesiredMoveDirection { get; set; } = Vector3.zero;
-        public Vector3 DesiredLook { get; set; } = Vector3.zero;
-
+        public Vector3 DesiredLookAngles { get; set; } = Vector3.zero;
+        
         public FpcBotPlayer(BotHub botHub)
         {
             BotHub = botHub;
@@ -63,6 +63,28 @@ namespace SCPSLBot.AI.FirstPersonControl
         public void OnRoleChanged()
         {
             Log.Info($"Bot got FPC role assigned.");
+        }
+
+        public void LookTowards(Vector3 targetPosition)
+        {
+            var playerTransform = FpcRole.FpcModule.transform;
+            var cameraTransform = BotHub.PlayerHub.PlayerCameraReference;
+
+            var relativePos = targetPosition - FpcRole.CameraPosition;
+
+            var hDirectionToTarget = Vector3.ProjectOnPlane(relativePos, Vector3.up).normalized;
+            var hForward = playerTransform.forward;
+
+            var hAngleDiff = Vector3.SignedAngle(hDirectionToTarget, hForward, Vector3.down);
+
+            var hReverseRotation = Quaternion.AngleAxis(-hAngleDiff, Vector3.up);
+
+            var vDirectionToTarget = Vector3.Normalize(hReverseRotation * relativePos);
+            var vForward = cameraTransform.forward;
+
+            var vAngleDiff = Vector3.SignedAngle(vDirectionToTarget, vForward, cameraTransform.right);
+
+            DesiredLookAngles = new Vector3(vAngleDiff, hAngleDiff);
         }
 
         public bool Interact(InteractableCollider interactableCollider)
@@ -120,7 +142,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             do
             {
-                DesiredLook = degreesStep * Time.deltaTime;
+                DesiredLookAngles = degreesStep * Time.deltaTime;
 
                 currentMagnitude += degreesStepMagnitude * Time.deltaTime;
 
@@ -128,7 +150,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             }
             while (currentMagnitude < targetDegreesMagnitude);
 
-            DesiredLook = Vector3.zero;
+            DesiredLookAngles = Vector3.zero;
 
             yield break;
         }
