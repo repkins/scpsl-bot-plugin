@@ -84,7 +84,10 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             var vAngleDiff = Vector3.SignedAngle(vDirectionToTarget, vForward, cameraTransform.right);
 
-            DesiredLookAngles = new Vector3(vAngleDiff, hAngleDiff);
+            var targetAngleDiff = new Vector3(vAngleDiff, hAngleDiff);
+            var angleDiff = Vector3.MoveTowards(Vector3.zero, targetAngleDiff, Time.deltaTime * 120f);
+
+            DesiredLookAngles = angleDiff;
         }
 
         public bool Interact(InteractableCollider interactableCollider)
