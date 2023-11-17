@@ -41,31 +41,25 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
             }
 
             var playerPosition = _botPlayer.FpcRole.FpcModule.Position;
+            var cameraPosition = _botPlayer.BotHub.PlayerHub.PlayerCameraReference.position;
             var itemPosition = _itemWithinPickupDistance.Item.transform.position;
+            var cameraDirection = _botPlayer.BotHub.PlayerHub.PlayerCameraReference.forward;
+
+            var item = _itemWithinPickupDistance.Item;
 
             _botPlayer.DesiredMoveDirection = Vector3.zero;
 
-            var directionToTarget = (itemPosition - playerPosition).normalized;
-
-            var angleDiff = Vector3.SignedAngle(directionToTarget, _botPlayer.FpcRole.FpcModule.transform.forward, Vector3.down);
-            _botPlayer.DesiredLookAngles = new Vector3(0, angleDiff);
-
-            if (Vector3.Distance(playerPosition, itemPosition) < 1f)
+            if (Vector3.Dot(itemPosition - cameraPosition, cameraDirection) >= 1f - Mathf.Epsilon)
             {
-                if (Physics.Raycast(_botPlayer.FpcRole.FpcModule.transform.position, _botPlayer.FpcRole.transform.forward, out var hit))
-                {
-                    if (hit.collider.GetComponent<InteractableCollider>() is not null
-                        && hit.collider.GetComponentInParent<P>() is P item)
-                    {
-                        Log.Debug($"Attempting to pick up item {item} by {_botPlayer}");
+                Log.Debug($"Attempting to pick up item {item} by {_botPlayer}");
 
-                        var searchRequestMsg = new SearchRequest { Target = item };
-                        _botPlayer.BotHub.ConnectionToServer.Send(searchRequestMsg);
+                var searchRequestMsg = new SearchRequest { Target = item };
+                _botPlayer.BotHub.ConnectionToServer.Send(searchRequestMsg);
 
-                        this.isPickingUp = true;
-                    }
-                }
+                this.isPickingUp = true;
             }
+
+            _botPlayer.LookTowards(itemPosition);
         }
 
         private readonly FpcBotPlayer _botPlayer;

@@ -87,9 +87,9 @@ namespace SCPSLBot.AI.FirstPersonControl
                     {
                         ItemsWithinSight.Add(item);
 
-                        if (Vector3.Distance(item.transform.position, cameraTransform.position) <= 1f) // TODO: constant
+                        if (Vector3.Distance(item.transform.position, cameraTransform.position) <= 1.75f) // TODO: constant
                         {
-                            //ItemsWithinPickupDistance.Add(item);
+                            ItemsWithinPickupDistance.Add(item);
                         }
                     }
                 }
