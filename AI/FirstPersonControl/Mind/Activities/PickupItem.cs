@@ -37,7 +37,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
         {
             if (isPickingUp)
             {
-                return;
+                pickupCooldown += Time.deltaTime;
+                if (pickupCooldown < 1f)
+                {
+                    return;
+                }
+
+                pickupCooldown = 0f;
+                isPickingUp = false;
             }
 
             var playerPosition = _botPlayer.FpcRole.FpcModule.Position;
@@ -57,6 +64,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
                 _botPlayer.BotHub.ConnectionToServer.Send(searchRequestMsg);
 
                 this.isPickingUp = true;
+
+                return;
             }
 
             _botPlayer.LookTowards(itemPosition);
@@ -68,5 +77,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
         private ItemWithinPickupDistance<P> _itemWithinPickupDistance;
 
         private bool isPickingUp;
+        private float pickupCooldown = 0f;
     }
 }
