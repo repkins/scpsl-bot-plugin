@@ -48,11 +48,10 @@ namespace SCPSLBot.AI
 
         private IEnumerator<float> AssignUserIdAsync(GameObject player)
         {
-            var hub = player.GetComponent<ReferenceHub>();
+            yield return Timing.WaitForSeconds(1f);
 
-            yield return Timing.WaitUntilTrue(() => hub.serverRoles != null);
-
-            player.GetComponent<PlayerAuthenticationManager>().UserId = $"BotUserId{lastConnNum}";
+            PlayerAuthenticationManager playerAuthManager = player.GetComponent<PlayerAuthenticationManager>();
+            playerAuthManager.UserId = $"BotUserId{this.lastConnNum}";
 
             yield break;
         }

@@ -14,13 +14,13 @@ namespace SCPSLBot.LocalNetworking
                 Debug.LogError("LocalConnection.SendBytes cannot send zero bytes");
                 return;
             }
-            Batcher batchForChannelId = GetBatchForChannelId(channelId);
+            Batcher batchForChannelId = base.GetBatchForChannelId(channelId);
             batchForChannelId.AddMessage(segment, NetworkTime.localTime);
             using (NetworkWriterPooled networkWriterPooled = NetworkWriterPool.Get())
             {
                 if (batchForChannelId.GetBatch(networkWriterPooled))
                 {
-                    Transport.active.OnServerDataReceived(connectionId, networkWriterPooled.ToArraySegment(), channelId);
+                    Transport.active.OnServerDataReceived(this.connectionId, networkWriterPooled.ToArraySegment(), channelId);
                 }
                 else
                 {
