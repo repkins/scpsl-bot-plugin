@@ -20,7 +20,7 @@ namespace SCPSLBot.LocalNetworking
             {
                 if (batchForChannelId.GetBatch(networkWriterPooled))
                 {
-                    Transport.active.OnServerDataReceived(this.connectionId, networkWriterPooled.ToArraySegment(), channelId);
+                    Transport.active.OnServerDataReceived(this.connectionToClient.connectionId, networkWriterPooled.ToArraySegment(), channelId);
                 }
                 else
                 {

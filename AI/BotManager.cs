@@ -36,7 +36,10 @@ namespace SCPSLBot.AI
             Log.Info($"connectionToClient = {connectionToClient}");
             //NetworkDiagnostics.InMessageEvent += LogInMessage;
 
+            NetworkServer.AddConnection(connectionToClient);
             NetworkServer.AddPlayerForConnection(connectionToClient, gameObject);
+            NetworkServer.OnConnectedEvent?.Invoke(connectionToClient);
+
             var referenceHub = gameObject.GetComponent<ReferenceHub>();
 
             BotPlayers.Add(referenceHub, new BotHub(connectionToClient, connectionToServer, referenceHub));
