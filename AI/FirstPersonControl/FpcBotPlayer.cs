@@ -12,8 +12,10 @@ using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Mind.Activities;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Himself;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World;
+using SCPSLBot.Navigation.Graph;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl
@@ -65,7 +67,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             Log.Info($"Bot got FPC role assigned.");
         }
 
-        public void LookTowards(Vector3 targetPosition)
+        public void LookToPosition(Vector3 targetPosition)
         {
             var playerTransform = FpcRole.FpcModule.transform;
             var cameraTransform = BotHub.PlayerHub.PlayerCameraReference;
@@ -88,6 +90,29 @@ namespace SCPSLBot.AI.FirstPersonControl
             var angleDiff = Vector3.MoveTowards(Vector3.zero, targetAngleDiff, Time.deltaTime * 120f);
 
             DesiredLookAngles = angleDiff;
+        }
+
+        public void MoveToPosition(Vector3 targetPosition)
+        {
+            var nodeGraph = NavigationGraph.Instance;
+            var playerPosition = FpcRole.FpcModule.transform.position;
+
+            var nearbyNode = nodeGraph.FindNearestNode(playerPosition, 5f);
+            var targetNode = nodeGraph.FindNearestNode(targetPosition, 5f);
+            if (targetNode != this.goalNode || nearbyNode != this.currentNode)
+            {
+                this.currentNode = nearbyNode;
+                this.goalNode = targetNode;
+
+                this.nodesPath = nodeGraph.GetShortestPath(this.currentNode, this.goalNode);
+            }
+
+            DesiredMoveDirection = Vector3.Normalize(this.currentNode.Position - playerPosition);
+
+            if (Vector3.Distance(playerPosition, this.currentNode.Position) < 1f)
+            {
+                this.currentNode = this.nodesPath.Count > this.nextPathIdx ? this.nodesPath[this.nextPathIdx++] : null;
+            }
         }
 
         public bool Interact(InteractableCollider interactableCollider)
@@ -120,6 +145,11 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             return true;
         }
+
+        private Node currentNode;
+        private Node goalNode;
+        private List<Node> nodesPath = new();
+        private int nextPathIdx = 1;
 
         #region Debug functions
 

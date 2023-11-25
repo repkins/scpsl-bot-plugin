@@ -38,7 +38,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 
         public void Tick()
         {
-            var position = this.botPlayer.FpcRole.FpcModule.Position;
+            var position = botPlayer.FpcRole.FpcModule.Position;
             var nodeGraph = NavigationGraph.Instance;
 
             // Set new position leading to unexplored area (room)
@@ -46,31 +46,25 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
             // 2. Move character to selected node by following traced route.
             // 3. When characted reached selected open node, start from 1.
 
-            if (this.node is null)
+            if (Vector3.Distance(position, goalNode.Position) < 1f)
             {
-                this.node = nodeGraph.FindNearestNode(position, 5f);
+                goalNode = null;
+            }
 
-                var possibleGoalNodes = nodeGraph.NodesByRoom[this.node.Room]
-                    .Where(n => n.ForeignNodes.Any() && n == this.node)
+            if (goalNode is null)
+            {
+                var nearbyNode = nodeGraph.FindNearestNode(position, 5f);
+
+                var possibleGoalNodes = nodeGraph.NodesByRoom[nearbyNode.Room]
+                    .Where(n => n.ForeignNodes.Any() && n != nearbyNode)
                     .Select(n => n.ForeignNodes.First());
-                this.goalNode = possibleGoalNodes.First(fn => UnityEngine.Random.value > 0.5f);
-
-                this.path = nodeGraph.GetShortestPath(this.node, this.goalNode);
+                goalNode = possibleGoalNodes.First(fn => UnityEngine.Random.value > 0.5f);
             }
 
-            this.botPlayer.DesiredMoveDirection = Vector3.Normalize(this.node.Position - position);
-
-            if (Vector3.Distance(position, this.node.Position) < 1f)
-            {
-                this.node = this.path.Count > this.nextPathIdx ? this.path[this.nextPathIdx++] : null;
-            }
+            botPlayer.MoveToPosition(goalNode.Position);
         }
 
         private readonly FpcBotPlayer botPlayer;
-
-        private Node node;
         private Node goalNode;
-        private List<Node> path = new ();
-        private int nextPathIdx = 1;
     }
 }

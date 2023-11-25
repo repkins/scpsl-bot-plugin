@@ -68,7 +68,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
                 return;
             }
 
-            _botPlayer.LookTowards(itemPosition);
+            _botPlayer.LookToPosition(itemPosition);
         }
 
         private readonly FpcBotPlayer _botPlayer;
