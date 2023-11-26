@@ -23,7 +23,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Actions
         public void UpdatePlayer()
         {
             var angleDiff = Vector3.SignedAngle(TargetLookDirection, _botPlayer.FpcRole.FpcModule.transform.forward, Vector3.down);
-            _botPlayer.DesiredLookAngles = new Vector3(0, angleDiff);
+            _botPlayer.Look.DesiredAngles = new Vector3(0, angleDiff);
         }
 
         private FpcBotPlayer _botPlayer;

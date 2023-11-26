@@ -7,18 +7,25 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace SCPSLBot.AI.FirstPersonControl
+namespace SCPSLBot.AI.FirstPersonControl.Looking
 {
-    internal partial class FpcBotPlayer
+    internal class FpcLook
     {
-        public Vector3 DesiredLookAngles { get; set; } = Vector3.zero;
+        public Vector3 DesiredAngles { get; set; } = Vector3.zero;
 
-        public void LookToPosition(Vector3 targetPosition)
+        private readonly FpcBotPlayer botPlayer;
+
+        public FpcLook(FpcBotPlayer botPlayer)
         {
-            var playerTransform = FpcRole.FpcModule.transform;
-            var cameraTransform = BotHub.PlayerHub.PlayerCameraReference;
+            this.botPlayer = botPlayer;
+        }
 
-            var relativePos = targetPosition - FpcRole.CameraPosition;
+        public void ToPosition(Vector3 targetPosition)
+        {
+            var playerTransform = botPlayer.FpcRole.FpcModule.transform;
+            var cameraTransform = botPlayer.BotHub.PlayerHub.PlayerCameraReference;
+
+            var relativePos = targetPosition - cameraTransform.position;
 
             var hDirectionToTarget = Vector3.ProjectOnPlane(relativePos, Vector3.up).normalized;
             var hForward = playerTransform.forward;
@@ -35,10 +42,10 @@ namespace SCPSLBot.AI.FirstPersonControl
             var targetAngleDiff = new Vector3(vAngleDiff, hAngleDiff);
             var angleDiff = Vector3.MoveTowards(Vector3.zero, targetAngleDiff, Time.deltaTime * 120f);
 
-            DesiredLookAngles = angleDiff;
+            DesiredAngles = angleDiff;
         }
 
-        public IEnumerator<float> TurnFpcAsync(Vector3 degreesStep, Vector3 targetDegrees)
+        public IEnumerator<float> ByFpcAsync(Vector3 degreesStep, Vector3 targetDegrees)
         {
             var currentMagnitude = 0f;
 
@@ -47,7 +54,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             do
             {
-                DesiredLookAngles = degreesStep * Time.deltaTime;
+                DesiredAngles = degreesStep * Time.deltaTime;
 
                 currentMagnitude += degreesStepMagnitude * Time.deltaTime;
 
@@ -55,7 +62,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             }
             while (currentMagnitude < targetDegreesMagnitude);
 
-            DesiredLookAngles = Vector3.zero;
+            DesiredAngles = Vector3.zero;
 
             yield break;
         }

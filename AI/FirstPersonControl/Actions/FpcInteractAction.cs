@@ -15,7 +15,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Actions
 
         public void UpdatePlayer()
         {
-            if (Physics.Raycast(_botPlayer.FpcRole.FpcModule.transform.position, _botPlayer.DesiredMoveDirection, out var hit))
+            if (Physics.Raycast(_botPlayer.FpcRole.FpcModule.transform.position, _botPlayer.Move.DesiredDirection, out var hit))
             {
                 if (hit.collider.GetComponent<InteractableCollider>() is InteractableCollider interactableCollider
                     && hit.collider.GetComponentInParent<IServerInteractable>() is IServerInteractable interactable)

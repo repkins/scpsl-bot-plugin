@@ -7,21 +7,28 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace SCPSLBot.AI.FirstPersonControl
+namespace SCPSLBot.AI.FirstPersonControl.Movement
 {
-    internal partial class FpcBotPlayer
+    internal class FpcMove
     {
-        public Vector3 DesiredMoveDirection { get; set; } = Vector3.zero;
+        public Vector3 DesiredDirection { get; set; } = Vector3.zero;
 
         private Node currentNode;
         private Node goalNode;
         private List<Node> nodesPath = new();
         private int nextPathIdx = 1;
 
-        public void MoveToPosition(Vector3 targetPosition)
+        private readonly FpcBotPlayer botPlayer;
+
+        public FpcMove(FpcBotPlayer botPlayer)
+        {
+            this.botPlayer = botPlayer;
+        }
+
+        public void ToPosition(Vector3 targetPosition)
         {
             var nodeGraph = NavigationGraph.Instance;
-            var playerPosition = FpcRole.FpcModule.transform.position;
+            var playerPosition = botPlayer.FpcRole.FpcModule.transform.position;
 
             var nearbyNode = nodeGraph.FindNearestNode(playerPosition, 5f);
             var targetNode = nodeGraph.FindNearestNode(targetPosition, 5f);
@@ -33,7 +40,7 @@ namespace SCPSLBot.AI.FirstPersonControl
                 this.nodesPath = nodeGraph.GetShortestPath(this.currentNode, this.goalNode);
             }
 
-            DesiredMoveDirection = Vector3.Normalize(this.currentNode.Position - playerPosition);
+            DesiredDirection = Vector3.Normalize(this.currentNode.Position - playerPosition);
 
             if (Vector3.Distance(playerPosition, this.currentNode.Position) < 1f)
             {
@@ -41,15 +48,15 @@ namespace SCPSLBot.AI.FirstPersonControl
             }
         }
 
-        public IEnumerator<float> MoveFpcAsync(Vector3 localDirection, int timeAmount)
+        public IEnumerator<float> ToFpcAsync(Vector3 localDirection, int timeAmount)
         {
-            var transform = FpcRole.FpcModule.transform;
+            var transform = botPlayer.FpcRole.FpcModule.transform;
 
-            DesiredMoveDirection = transform.TransformDirection(localDirection);
+            DesiredDirection = transform.TransformDirection(localDirection);
 
             yield return Timing.WaitForSeconds(timeAmount);
 
-            DesiredMoveDirection = Vector3.zero;
+            DesiredDirection = Vector3.zero;
 
             yield break;
         }

@@ -3,7 +3,7 @@ using PlayerRoles.FirstPersonControl;
 using System.Reflection;
 using UnityEngine;
 
-namespace SCPSLBot.AI.FirstPersonControl
+namespace SCPSLBot.AI.FirstPersonControl.Rotation
 {
     [HarmonyPatch(typeof(FpcMouseLook))]
     internal static class FpcMouseLookPatches
@@ -17,8 +17,8 @@ namespace SCPSLBot.AI.FirstPersonControl
             if (BotManager.Instance.BotPlayers.TryGetValue(hub, out var botHub)
                 && botHub.CurrentBotPlayer is FpcBotPlayer fpcPlayer)
             {
-                float vRot = fpcPlayer.DesiredLookAngles.x;
-                float hRot = fpcPlayer.DesiredLookAngles.y;
+                float vRot = fpcPlayer.Look.DesiredAngles.x;
+                float hRot = fpcPlayer.Look.DesiredAngles.y;
 
                 __instance.CurrentVertical += vRot;
                 __instance.CurrentHorizontal += hRot;
@@ -28,7 +28,7 @@ namespace SCPSLBot.AI.FirstPersonControl
                 hub.transform.rotation = rotation;
                 hub.PlayerCameraReference.localRotation = cameraRotation;
 
-                fpcPlayer.DesiredLookAngles = Vector3.zero;
+                fpcPlayer.Look.DesiredAngles = Vector3.zero;
 
                 return false;
             }

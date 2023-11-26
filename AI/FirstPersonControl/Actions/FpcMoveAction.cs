@@ -22,12 +22,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Actions
         {
             if (Vector3.Distance(TargetPosition, _botPlayer.FpcRole.FpcModule.transform.position) < 1f)
             {
-                _botPlayer.DesiredMoveDirection = Vector3.zero;
+                _botPlayer.Move.DesiredDirection = Vector3.zero;
                 IsAtTargetPosition = true;
                 return;
             }
 
-            _botPlayer.DesiredMoveDirection = Vector3.Normalize(TargetPosition - _botPlayer.FpcRole.FpcModule.transform.position);
+            _botPlayer.Move.DesiredDirection = Vector3.Normalize(TargetPosition - _botPlayer.FpcRole.FpcModule.transform.position);
         }
 
         private FpcBotPlayer _botPlayer;

@@ -5,9 +5,11 @@ using InventorySystem.Items.Keycards;
 using InventorySystem.Items.Usables;
 using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
+using SCPSLBot.AI.FirstPersonControl.Looking;
 using SCPSLBot.AI.FirstPersonControl.Mind.Activities;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Himself;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World;
+using SCPSLBot.AI.FirstPersonControl.Movement;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -21,12 +23,17 @@ namespace SCPSLBot.AI.FirstPersonControl
         public FpcBotPerception Perception { get; }
         public FpcMindRunner MindRunner { get; }
 
+        public FpcLook Look { get; }
+        public FpcMove Move { get; }
         
         public FpcBotPlayer(BotHub botHub)
         {
             BotHub = botHub;
             Perception = new FpcBotPerception(this);
             MindRunner = new FpcMindRunner();
+
+            Look = new(this);
+            Move = new(this);
 
             MindRunner.AddBelief(new LastKnownItemLocation<KeycardItem>());
             MindRunner.AddBelief(new LastKnownItemLocation<Medkit>());
@@ -62,7 +69,7 @@ namespace SCPSLBot.AI.FirstPersonControl
         {
             if (interactableCollider == null)
             {
-                if (!Physics.Raycast(FpcRole.FpcModule.transform.position, DesiredMoveDirection, out var hit))
+                if (!Physics.Raycast(FpcRole.FpcModule.transform.position, Move.DesiredDirection, out var hit))
                 {
                     return false;
                 }

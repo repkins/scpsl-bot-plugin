@@ -3,7 +3,7 @@ using PlayerRoles.FirstPersonControl;
 using System.Reflection;
 using UnityEngine;
 
-namespace SCPSLBot.AI.FirstPersonControl
+namespace SCPSLBot.AI.FirstPersonControl.Movement
 {
     [HarmonyPatch(typeof(FpcMotor))]
     internal static class FpcMotorPatches
@@ -18,8 +18,8 @@ namespace SCPSLBot.AI.FirstPersonControl
             if (BotManager.Instance.BotPlayers.TryGetValue(hub, out var botHub)
                 && botHub.CurrentBotPlayer is FpcBotPlayer fpcPlayer)
             {
-                __result = fpcPlayer.DesiredMoveDirection;
-                fpcPlayer.DesiredMoveDirection = Vector3.zero;
+                __result = fpcPlayer.Move.DesiredDirection;
+                fpcPlayer.Move.DesiredDirection = Vector3.zero;
                 return false;
             }
 

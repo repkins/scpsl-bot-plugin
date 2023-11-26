@@ -54,7 +54,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 
             var item = _itemWithinPickupDistance.Item;
 
-            _botPlayer.DesiredMoveDirection = Vector3.zero;
+            _botPlayer.Move.DesiredDirection = Vector3.zero;
 
             if (Vector3.Dot(itemPosition - cameraPosition, cameraDirection) >= 1f - Mathf.Epsilon)
             {
@@ -68,7 +68,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
                 return;
             }
 
-            _botPlayer.LookToPosition(itemPosition);
+            _botPlayer.Look.ToPosition(itemPosition);
         }
 
         private readonly FpcBotPlayer _botPlayer;
