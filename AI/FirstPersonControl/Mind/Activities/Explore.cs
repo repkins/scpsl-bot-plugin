@@ -46,7 +46,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
             // 2. Move character to selected node by following traced route.
             // 3. When characted reached selected open node, start from 1.
 
-            if (Vector3.Distance(position, goalNode.Position) < 1f)
+            if (goalNode is not null && Vector3.Distance(position, goalNode.Position) < 1f)
             {
                 goalNode = null;
             }
