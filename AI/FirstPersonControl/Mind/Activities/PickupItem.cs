@@ -54,8 +54,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 
             var item = _itemWithinPickupDistance.Item;
 
-            _botPlayer.Move.DesiredDirection = Vector3.zero;
-
             if (Vector3.Dot(itemPosition - cameraPosition, cameraDirection) >= 1f - Mathf.Epsilon)
             {
                 Log.Debug($"Attempting to pick up item {item} by {_botPlayer}");
@@ -68,7 +66,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
                 return;
             }
 
-            _botPlayer.Look.ToPosition(itemPosition);
+            _botPlayer.LookToPosition(itemPosition);
         }
 
         private readonly FpcBotPlayer _botPlayer;

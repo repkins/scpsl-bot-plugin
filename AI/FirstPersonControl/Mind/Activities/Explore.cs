@@ -61,7 +61,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
                 goalNode = possibleGoalNodes.First(fn => UnityEngine.Random.value > 0.5f);
             }
 
-            botPlayer.Move.ToPosition(goalNode.Position);
+            botPlayer.MoveToPosition(goalNode.Position);
         }
 
         private readonly FpcBotPlayer botPlayer;

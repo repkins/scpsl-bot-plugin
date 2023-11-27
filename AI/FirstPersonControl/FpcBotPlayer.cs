@@ -65,6 +65,10 @@ namespace SCPSLBot.AI.FirstPersonControl
             Log.Info($"Bot got FPC role assigned.");
         }
 
+        public void MoveToPosition(Vector3 targetPosition) => Move.ToPosition(targetPosition);
+
+        public void LookToPosition(Vector3 targetPosition) => Look.ToPosition(targetPosition);
+
         public bool Interact(InteractableCollider interactableCollider)
         {
             if (interactableCollider == null)
@@ -97,6 +101,9 @@ namespace SCPSLBot.AI.FirstPersonControl
         }
 
         #region Debug functions
+
+        public IEnumerator<float> MoveToFpcAsync(Vector3 localDirection, int timeAmount) => Move.ToFpcAsync(localDirection, timeAmount);
+        public IEnumerator<float> LookByFpcAsync(Vector3 degreesStep, Vector3 targetDegrees) => Look.ByFpcAsync(degreesStep, targetDegrees);
 
         public IEnumerator<float> FindAndApproachFpcAsync()
         {

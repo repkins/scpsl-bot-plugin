@@ -31,7 +31,7 @@ namespace SCPSLBot.AI
         {
             if (CurrentBotPlayer is FpcBotPlayer fpcPlayer)
             {
-                return fpcPlayer.Move.ToFpcAsync(direction, timeAmount);
+                return fpcPlayer.MoveToFpcAsync(direction, timeAmount);
             }
 
             throw new InvalidOperationException("Unsupported current role on bot move.");
@@ -41,7 +41,7 @@ namespace SCPSLBot.AI
         {
             if (CurrentBotPlayer is FpcBotPlayer fpcPlayer)
             {
-                return fpcPlayer.Look.ByFpcAsync(degrees, targetDegrees);
+                return fpcPlayer.LookByFpcAsync(degrees, targetDegrees);
             }
 
             throw new InvalidOperationException("Unsupported current role on bot turn.");
