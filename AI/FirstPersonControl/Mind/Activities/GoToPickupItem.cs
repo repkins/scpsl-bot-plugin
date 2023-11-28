@@ -42,6 +42,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
             _botPlayer.Move.DesiredDirection = moveDirection;
         }
 
+        public void Reset() { }
+
         private ItemWithinSight<T> _itemWithinSight;
         private ItemWithinPickupDistance<T> _itemWithinPickupDistance;
         private readonly FpcBotPlayer _botPlayer;

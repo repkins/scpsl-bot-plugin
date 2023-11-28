@@ -64,7 +64,13 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
             botPlayer.MoveToPosition(goalNode.Position);
         }
 
+        public void Reset()
+        {
+            goalNode = null;
+        }
+
         private readonly FpcBotPlayer botPlayer;
+
         private Node goalNode;
     }
 }

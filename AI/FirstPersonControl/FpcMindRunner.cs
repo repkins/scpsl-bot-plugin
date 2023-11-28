@@ -32,10 +32,16 @@ namespace SCPSLBot.AI.FirstPersonControl
         private void OnBeliefUpdate(IBelief updatedBelief)
         {
             var enablingActivities = BeliefsEnablingActivities[updatedBelief];
+            var selectedActivity = enablingActivities.FirstOrDefault(a => a.Condition());  // TODO: cost?
 
-            var activity = enablingActivities.FirstOrDefault(a => a.Condition());  // TODO: cost?
+            var prevActivity = RunningActivity;
 
-            RunningActivity = activity ?? (RunningActivity?.Condition() ?? false ? RunningActivity : null);
+            RunningActivity = selectedActivity ?? (RunningActivity?.Condition() ?? false ? RunningActivity : null);
+
+            if (RunningActivity != prevActivity)
+            {
+                RunningActivity?.Reset();
+            }
 
             Log.Debug($"New activity for bot: {RunningActivity?.GetType().Name}");
         }

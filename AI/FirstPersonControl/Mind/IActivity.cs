@@ -14,5 +14,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
         bool Condition();
 
         void Tick();
+        void Reset();
     }
 }

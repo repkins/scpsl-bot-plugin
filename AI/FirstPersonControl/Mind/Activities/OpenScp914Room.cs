@@ -34,6 +34,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
             throw new NotImplementedException();
         }
 
+        public void Reset() { }
+
         private ItemInInventory<KeycardItem> _keycardInInventory;
         private DoorWithinSight<PryableDoor> _gateWithinSight;
     }

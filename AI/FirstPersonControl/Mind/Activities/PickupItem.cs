@@ -68,12 +68,18 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
             _botPlayer.LookToPosition(itemPosition);
         }
 
+        public void Reset()
+        {
+            isPickingUp = false;
+            pickupCooldown = 0f;
+        }
+
         private readonly FpcBotPlayer _botPlayer;
 
         private ItemWithinSight<P> _itemWithinSight;
         private ItemWithinPickupDistance<P> _itemWithinPickupDistance;
 
         private bool isPickingUp;
-        private float pickupCooldown = 0f;
+        private float pickupCooldown;
     }
 }
