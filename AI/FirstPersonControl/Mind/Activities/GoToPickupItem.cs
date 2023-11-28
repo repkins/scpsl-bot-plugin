@@ -25,9 +25,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
             fpcMind.ActivityImpacts<ItemWithinPickupDistance<T>>(this);
         }
 
-        public Func<bool> Condition => 
-            () => _itemWithinSight.Item is not null 
-                && _itemWithinPickupDistance.Item is null;
+        public bool Condition() => _itemWithinSight.Item 
+                                && !_itemWithinPickupDistance.Item;
 
         public GoToPickupItem(FpcBotPlayer botPlayer)
         {

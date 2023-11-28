@@ -29,7 +29,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 
         }
 
-        public Func<bool> Condition => () => true;
+        public bool Condition() => true;
 
         public Explore(FpcBotPlayer botPlayer)
         {

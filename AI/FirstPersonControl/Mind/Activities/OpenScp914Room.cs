@@ -13,10 +13,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 {
     internal class OpenScp914Room : IActivity
     {
-        public Func<bool> Condition =>
-            () => _keycardInInventory.Item.Permissions.HasFlag(KeycardPermissions.ContainmentLevelOne)
-                && _gateWithinSight.Door.RequiredPermissions.RequiredPermissions == KeycardPermissions.ContainmentLevelOne
-                && _gateWithinSight.Door.IsConsideredOpen();
+        public bool Condition() => _keycardInInventory.Item.Permissions.HasFlag(KeycardPermissions.ContainmentLevelOne)
+                                && _gateWithinSight.Door.RequiredPermissions.RequiredPermissions == KeycardPermissions.ContainmentLevelOne
+                                && _gateWithinSight.Door.IsConsideredOpen();
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {

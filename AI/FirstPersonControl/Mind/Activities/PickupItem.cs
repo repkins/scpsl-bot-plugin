@@ -24,9 +24,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
             _itemWithinPickupDistance = fpcMind.ActivityEnabledBy<ItemWithinPickupDistance<P>>(this);
         }
 
-        public Func<bool> Condition => 
-            () => _itemWithinSight.Item is not null
-                && _itemWithinPickupDistance.Item is not null;
+        public bool Condition() => _itemWithinSight.Item
+                                && _itemWithinPickupDistance.Item;
 
         public PickupItem(FpcBotPlayer botPlayer)
         {
