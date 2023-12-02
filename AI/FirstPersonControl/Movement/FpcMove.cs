@@ -32,15 +32,18 @@ namespace SCPSLBot.AI.FirstPersonControl.Movement
 
             var nearbyNode = nodeGraph.FindNearestNode(playerPosition, 5f);
             var targetNode = nodeGraph.FindNearestNode(targetPosition, 5f);
+
             if (targetNode != this.goalNode || nearbyNode != this.currentNode)
             {
                 this.currentNode = nearbyNode;
                 this.goalNode = targetNode;
 
                 this.nodesPath = nodeGraph.GetShortestPath(this.currentNode, this.goalNode);
+                this.nextPathIdx = 1;
             }
 
-            DesiredDirection = Vector3.Normalize(this.currentNode.Position - playerPosition);
+            var currentPosition = this.currentNode.Position;
+            DesiredDirection = Vector3.Normalize(currentPosition - playerPosition);
 
             if (Vector3.Distance(playerPosition, this.currentNode.Position) < 1f)
             {
