@@ -15,13 +15,13 @@ namespace SCPSLBot.Navigation.Mesh
 
         public Dictionary<(RoomName, RoomShape, RoomZone), List<RoomKindArea>> AreasByRoomKind { get; } = new();
         public Dictionary<FacilityRoom, List<Area>> AreasByRoom { get; } = new();
-        public Dictionary<FacilityRoom, List<int>> VerticesByRoom { get; } = new();
+        public Dictionary<FacilityRoom, List<int>> LocalVerticesByRoom { get; } = new();
         public Dictionary<FacilityRoom, List<Vector3>> VertexLocalPositionsByRoom { get; } = new();
 
         public void Init()
         { }
 
-        public Area FindNearestArea(Vector3 position)
+        public Area GetAreaWithin(Vector3 position)
         {
             var room = RoomIdUtils.RoomAtPositionRaycasts(position);
 
