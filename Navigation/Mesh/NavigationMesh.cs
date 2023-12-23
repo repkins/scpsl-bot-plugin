@@ -15,8 +15,6 @@ namespace SCPSLBot.Navigation.Mesh
 
         public Dictionary<(RoomName, RoomShape, RoomZone), List<RoomKindArea>> AreasByRoomKind { get; } = new();
         public Dictionary<FacilityRoom, List<Area>> AreasByRoom { get; } = new();
-        public Dictionary<FacilityRoom, List<int>> LocalVerticesByRoom { get; } = new();
-        public Dictionary<FacilityRoom, List<Vector3>> VertexLocalPositionsByRoom { get; } = new();
 
         public void Init()
         { }
@@ -35,16 +33,16 @@ namespace SCPSLBot.Navigation.Mesh
             return roomAreas.Find(a => IsPointWithinArea(a, localPosition));
         }
 
-        private bool IsPointWithinArea(Area area, Vector3 point)
+        private bool IsPointWithinArea(Area area, Vector3 pointLocalPosition)
         {
-            var areaLocalVertices = area.RoomKindArea.LocalVertices;
-            var vertexLocalPositionsByRoom = VertexLocalPositionsByRoom[area.Room];
+            var areaRoomKindVertices = area.RoomKindArea.Vertices;
 
-            var areaVertexPositions = areaLocalVertices.Select(vIdx => vertexLocalPositionsByRoom[vIdx]).ToList();
-
-            var edges = areaVertexPositions.Zip(areaVertexPositions.Skip(1), (p1, p2) => (p1, p2)).Append((p1: areaVertexPositions.Last(), p2: areaVertexPositions.First()));
-
-            return edges.Select(e => (dirTo2: e.p2 - e.p1, dirToPoint: point - e.p1))
+            var areaRoomKindEdges = areaRoomKindVertices.Zip(areaRoomKindVertices.Skip(1), (v1, v2) => (v1, v2))
+                .Append((v1: areaRoomKindVertices.Last(), v2: areaRoomKindVertices.First()));
+            
+            return areaRoomKindEdges.Select(e => (
+                    dirTo2: e.v2.Position - e.v1.Position, 
+                    dirToPoint: pointLocalPosition - e.v1.Position))
                 .Select(d => (edgeNormal: Vector3.Cross(d.dirTo2, Vector3.up), d.dirToPoint))
                 .Select(d2 => Vector3.Dot(d2.edgeNormal, d2.dirToPoint))
                 .All(p => p >= 0f);

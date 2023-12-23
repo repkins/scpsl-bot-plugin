@@ -6,12 +6,12 @@ namespace SCPSLBot.Navigation.Mesh
 {
     internal class Area
     {
-        public RoomKindArea RoomKindArea { get; private set; }
-        public FacilityRoom Room { get; private set; }
+        public RoomKindArea RoomKindArea { get; }
+        public FacilityRoom Room { get; }
 
-        public IEnumerable<Area> ConnectedAreas => RoomKindArea.ConnectedAreas.Select(k => k.AreasOfRoom[Room]).Concat(ForeignAreas);
+        public IEnumerable<Area> ConnectedAreas => RoomKindArea.ConnectedRoomKindAreas.Select(k => k.AreasOfRoom[Room]).Concat(ForeignConnectedAreas);
 
-        public List<Area> ForeignAreas { get; } = new();
+        public List<Area> ForeignConnectedAreas { get; } = new();
 
         public Area(RoomKindArea roomKindArea, FacilityRoom room)
         {

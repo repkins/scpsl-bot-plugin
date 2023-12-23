@@ -12,9 +12,9 @@ namespace SCPSLBot.Navigation.Mesh
     internal class RoomKindArea
     {
         public (RoomName, RoomShape, RoomZone) RoomKind { get; set; }
-        public List<int> LocalVertices { get; } = new();
+        public List<Vertex> Vertices { get; } = new();
 
-        public List<RoomKindArea> ConnectedAreas { get; } = new();
+        public List<RoomKindArea> ConnectedRoomKindAreas { get; } = new();
 
         public Dictionary<FacilityRoom, Area> AreasOfRoom { get; } = new();
     }
