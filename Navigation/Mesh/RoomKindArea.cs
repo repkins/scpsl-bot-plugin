@@ -14,6 +14,9 @@ namespace SCPSLBot.Navigation.Mesh
         public (RoomName, RoomShape, RoomZone) RoomKind { get; set; }
         public List<Vertex> Vertices { get; } = new();
 
+        public Vector3 LocalCenterPosition => Vertices.Select(v => v.Position)
+            .Aggregate(Vector3.zero, (a, u) => a + u) / Vertices.Count;
+
         public List<RoomKindArea> ConnectedRoomKindAreas { get; } = new();
 
         public Dictionary<FacilityRoom, Area> AreasOfRoom { get; } = new();

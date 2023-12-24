@@ -1,6 +1,7 @@
 ﻿using PluginAPI.Core.Zones;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace SCPSLBot.Navigation.Mesh
 {
@@ -8,6 +9,8 @@ namespace SCPSLBot.Navigation.Mesh
     {
         public RoomKindArea RoomKindArea { get; }
         public FacilityRoom Room { get; }
+
+        public Vector3 CenterPosition => Room.Transform.InverseTransformPoint(RoomKindArea.LocalCenterPosition);
 
         public IEnumerable<Area> ConnectedAreas => RoomKindArea.ConnectedRoomKindAreas.Select(k => k.AreasOfRoom[Room]).Concat(ForeignConnectedAreas);
 

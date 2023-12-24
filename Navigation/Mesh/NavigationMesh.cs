@@ -33,6 +33,64 @@ namespace SCPSLBot.Navigation.Mesh
             return roomAreas.Find(a => IsPointWithinArea(a, localPosition));
         }
 
+        public List<Area> GetShortestPath(Area startingArea, Area endArea)
+        {
+            var areasWithPriorityToEvaluate = new Dictionary<Area, float>();
+            var cameFromAreas = new Dictionary<Area, Area>();
+            var areaCosts = new Dictionary<Area, float>();
+
+            var cost = 0f;
+            var heuristic = Vector3.Magnitude(endArea.CenterPosition - startingArea.CenterPosition);
+
+            areasWithPriorityToEvaluate.Add(startingArea, cost + heuristic);
+            cameFromAreas.Add(startingArea, null);
+            areaCosts.Add(startingArea, cost);
+
+            var area = startingArea;
+
+            do
+            {
+                area = areasWithPriorityToEvaluate.OrderBy(p => p.Value).First().Key;
+                areasWithPriorityToEvaluate.Remove(area);
+
+                if (area == endArea)
+                {
+                    break;
+                }
+
+                cost = areaCosts[area];
+
+                foreach (var connectedArea in area.ConnectedAreas)
+                {
+                    var newCost = cost + Vector3.Magnitude(connectedArea.CenterPosition - area.CenterPosition);
+
+                    if (!areaCosts.ContainsKey(connectedArea) || newCost < areaCosts[connectedArea])
+                    {
+                        areaCosts[connectedArea] = newCost;
+                        heuristic = Vector3.Magnitude(endArea.CenterPosition - connectedArea.CenterPosition);
+                        areasWithPriorityToEvaluate[connectedArea] = newCost + heuristic;
+                        cameFromAreas[connectedArea] = area;
+                    }
+                }
+            }
+            while (areasWithPriorityToEvaluate.Any());
+
+            var shortestPath = new List<Area>();
+
+            if (cameFromAreas.ContainsKey(endArea))
+            {
+                area = endArea;
+                while (area != null)
+                {
+                    shortestPath.Add(area);
+                    cameFromAreas.TryGetValue(area, out area);
+                }
+                shortestPath.Reverse();
+            }
+
+            return shortestPath;
+        }
+
         private bool IsPointWithinArea(Area area, Vector3 pointLocalPosition)
         {
             var areaRoomKindVertices = area.RoomKindArea.Vertices;
