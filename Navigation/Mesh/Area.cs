@@ -10,7 +10,7 @@ namespace SCPSLBot.Navigation.Mesh
         public RoomKindArea RoomKindArea { get; }
         public FacilityRoom Room { get; }
 
-        public Vector3 CenterPosition => Room.Transform.InverseTransformPoint(RoomKindArea.LocalCenterPosition);
+        public Vector3 CenterPosition => Room.Transform.TransformPoint(RoomKindArea.LocalCenterPosition);
 
         public IEnumerable<Area> ConnectedAreas => RoomKindArea.ConnectedRoomKindAreas.Select(k => k.AreasOfRoom[Room]).Concat(ForeignConnectedAreas);
 
