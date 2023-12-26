@@ -11,6 +11,11 @@ namespace SCPSLBot.Navigation.Mesh
 {
     internal class RoomKindArea
     {
+        public RoomKindArea(IEnumerable<Vertex> vertices)
+        {
+            Vertices.AddRange(vertices);
+        }
+
         public (RoomName, RoomShape, RoomZone) RoomKind { get; set; }
         public List<Vertex> Vertices { get; } = new();
 

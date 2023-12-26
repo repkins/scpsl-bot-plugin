@@ -1,5 +1,7 @@
 ﻿using MapGeneration;
+using PluginAPI.Core;
 using PluginAPI.Core.Zones;
+using SCPSLBot.Navigation.Graph;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +14,8 @@ namespace SCPSLBot.Navigation.Mesh
     internal class NavigationMesh
     {
         public static NavigationMesh Instance { get; } = new();
+
+        public Dictionary<(RoomName, RoomShape, RoomZone), List<Vertex>> VerticesByRoomKind { get; } = new();
 
         public Dictionary<(RoomName, RoomShape, RoomZone), List<RoomKindArea>> AreasByRoomKind { get; } = new();
         public Dictionary<FacilityRoom, List<Area>> AreasByRoom { get; } = new();
@@ -89,6 +93,51 @@ namespace SCPSLBot.Navigation.Mesh
             }
 
             return shortestPath;
+        }
+
+        public RoomKindArea AddArea(List<Vector3> vertexLocalPositions, (RoomName, RoomShape, RoomZone) roomKind)
+        {
+            if (!AreasByRoomKind.TryGetValue(roomKind, out var roomKindAreas))
+            {
+                roomKindAreas = new List<RoomKindArea>();
+                AreasByRoomKind.Add(roomKind, roomKindAreas);
+            }
+
+            var newRoomKindArea = new RoomKindArea(vertexLocalPositions.Select(p => new Vertex(p)))
+            {
+                RoomKind = roomKind,
+            };
+
+            roomKindAreas.Add(newRoomKindArea);
+
+            foreach (var roomOfKind in AreasByRoom.Where(r => (r.Key.Identifier.Name, r.Key.Identifier.Shape, (RoomZone)r.Key.Identifier.Zone) == roomKind))
+            {
+                roomOfKind.Value.Add(new Area(newRoomKindArea, roomOfKind.Key));
+            }
+
+            return newRoomKindArea;
+        }
+
+        public void RemoveArea(RoomKindArea roomKindArea, (RoomName, RoomShape, RoomZone) roomKind)
+        {
+            if (!AreasByRoomKind.TryGetValue(roomKind, out var roomKindAreas))
+            {
+                Log.Warning($"No nodes at room {roomKind} to remove node from.");
+                return;
+            }
+
+            foreach (var connectedToRemovingArea in roomKindArea.ConnectedRoomKindAreas)
+            {
+                connectedToRemovingArea.ConnectedRoomKindAreas.Remove(roomKindArea);
+            }
+
+            roomKindAreas.Remove(roomKindArea);
+
+            foreach (var roomOfKind in AreasByRoom.Where(r => (r.Key.Identifier.Name, r.Key.Identifier.Shape, (RoomZone)r.Key.Identifier.Zone) == roomKind))
+            {
+                var node = roomOfKind.Value.Find(n => n.RoomKindArea == roomKindArea);
+                roomOfKind.Value.Remove(node);
+            }
         }
 
         private bool IsPointWithinArea(Area area, Vector3 pointLocalPosition)
