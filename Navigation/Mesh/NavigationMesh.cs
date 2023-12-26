@@ -15,7 +15,8 @@ namespace SCPSLBot.Navigation.Mesh
     {
         public static NavigationMesh Instance { get; } = new();
 
-        public Dictionary<(RoomName, RoomShape, RoomZone), List<Vertex>> VerticesByRoomKind { get; } = new();
+        public Dictionary<(RoomName, RoomShape, RoomZone), List<RoomKindVertex>> VerticesByRoomKind { get; } = new();
+        public Dictionary<FacilityRoom, List<RoomVertex>> VerticesByRoom { get; } = new();
 
         public Dictionary<(RoomName, RoomShape, RoomZone), List<RoomKindArea>> AreasByRoomKind { get; } = new();
         public Dictionary<FacilityRoom, List<Area>> AreasByRoom { get; } = new();
@@ -95,7 +96,7 @@ namespace SCPSLBot.Navigation.Mesh
             return shortestPath;
         }
 
-        public RoomKindArea AddArea(List<Vector3> vertexLocalPositions, (RoomName, RoomShape, RoomZone) roomKind)
+        public RoomKindArea AddArea(IEnumerable<Vector3> vertexLocalPositions, (RoomName, RoomShape, RoomZone) roomKind)
         {
             if (!AreasByRoomKind.TryGetValue(roomKind, out var roomKindAreas))
             {
@@ -103,7 +104,7 @@ namespace SCPSLBot.Navigation.Mesh
                 AreasByRoomKind.Add(roomKind, roomKindAreas);
             }
 
-            var newRoomKindArea = new RoomKindArea(vertexLocalPositions.Select(p => new Vertex(p)))
+            var newRoomKindArea = new RoomKindArea(vertexLocalPositions.Select(p => new RoomKindVertex(p)))
             {
                 RoomKind = roomKind,
             };
@@ -148,8 +149,8 @@ namespace SCPSLBot.Navigation.Mesh
                 .Append((v1: areaRoomKindVertices.Last(), v2: areaRoomKindVertices.First()));
             
             return areaRoomKindEdges.Select(e => (
-                    dirTo2: e.v2.Position - e.v1.Position, 
-                    dirToPoint: pointLocalPosition - e.v1.Position))
+                    dirTo2: e.v2.LocalPosition - e.v1.LocalPosition, 
+                    dirToPoint: pointLocalPosition - e.v1.LocalPosition))
                 .Select(d => (edgeNormal: Vector3.Cross(d.dirTo2, Vector3.up), d.dirToPoint))
                 .Select(d2 => Vector3.Dot(d2.edgeNormal, d2.dirToPoint))
                 .All(p => p >= 0f);

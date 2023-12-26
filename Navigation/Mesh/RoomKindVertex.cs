@@ -7,13 +7,13 @@ using UnityEngine;
 
 namespace SCPSLBot.Navigation.Mesh
 {
-    internal class Vertex
+    internal class RoomKindVertex
     {
-        public Vector3 Position { get; set; }
+        public Vector3 LocalPosition { get; set; }
 
-        public Vertex(Vector3 position)
+        public RoomKindVertex(Vector3 position)
         {
-            Position = position;
+            LocalPosition = position;
         }
     }
 }

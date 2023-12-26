@@ -1,5 +1,6 @@
 ﻿using MapGeneration;
 using PluginAPI.Core;
+using SCPSLBot.Navigation.Graph;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,17 +42,36 @@ namespace SCPSLBot.Navigation.Mesh
             return targetArea;
         }
 
-        //public RoomKindArea AddArea(Vector3 position)
-        //{
-        //    var room = RoomIdUtils.RoomAtPositionRaycasts(position);
+        public RoomKindArea MakeArea(Vector3 position, IEnumerable<Vector3> vertices)
+        {
+            var room = RoomIdUtils.RoomAtPositionRaycasts(position);
+            var roomKind = (room.Name, room.Shape, (RoomZone)room.Zone);
 
-        //    var areaVertices = NavigationMesh.Instance.VerticesByRoomKind
+            var newArea = NavigationMesh.AddArea(vertices, roomKind);
 
-        //    var newArea = NavigationMesh.AddArea(room.transform.InverseTransformPoint(position), (room.Name, room.Shape, (RoomZone)room.Zone));
+            Log.Info($"Area #{NavigationMesh.AreasByRoomKind[roomKind].IndexOf(newArea)} at local center position {newArea.LocalCenterPosition} added under room {roomKind}.");
 
-        //    Log.Info($"Area #{newArea.Id} at local position {newArea.LocalPosition} added under room {(room.Name, room.Shape, room.Zone)}.");
+            return newArea;
+        }
 
-        //    return newArea;
-        //}
+        public bool DissolveArea(Vector3 position)
+        {
+            var area = NavigationMesh.GetAreaWithin(position);
+            if (area == null)
+            {
+                Log.Warning($"No area found nearby to remove.");
+
+                return false;
+            }
+
+            var room = RoomIdUtils.RoomAtPositionRaycasts(position);
+            var roomKind = (room.Name, room.Shape, (RoomZone)room.Zone);
+
+            NavigationMesh.RemoveArea(area.RoomKindArea, roomKind);
+
+            Log.Info($"Area at local center position {area.CenterPosition} removed under room {roomKind}.");
+
+            return true;
+        }
     }
 }
