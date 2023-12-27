@@ -1,4 +1,5 @@
 ﻿using MapGeneration;
+using MEC;
 using PluginAPI.Core;
 using SCPSLBot.Navigation.Graph;
 using System;
@@ -24,6 +25,15 @@ namespace SCPSLBot.Navigation.Mesh
 
         private Area CachedArea { get; set; }
         private Area TracingEndingArea { get; set; }
+
+        public void Init()
+        {
+            Timing.RunCoroutine(RunEachFrame(UpdateEditing));
+            Timing.RunCoroutine(RunEachFrame(UpdateNearestArea));
+            Timing.RunCoroutine(RunEachFrame(UpdateFacingArea));
+            Timing.RunCoroutine(RunEachFrame(Visuals.UpdateAreaInfoVisuals));
+            Timing.RunCoroutine(RunEachFrame(Visuals.UpdateAreaVisuals));
+        }
 
         public RoomKindArea FindClosestAreaFacingAt((RoomName, RoomShape, RoomZone) roomKind, Vector3 localPosition, Vector3 localDirection)
         {
@@ -72,6 +82,84 @@ namespace SCPSLBot.Navigation.Mesh
             Log.Info($"Area at local center position {area.CenterPosition} removed under room {roomKind}.");
 
             return true;
+        }
+
+        public bool CacheArea(Vector3 position)
+        {
+            CachedArea = NavigationMesh.GetAreaWithin(position);
+
+            return CachedArea != null;
+        }
+
+        public bool TracePath(Vector3 position)
+        {
+            if (CachedArea == null)
+            {
+                return false;
+            }
+
+            var targetArea = NavigationMesh.GetAreaWithin(position);
+            if (targetArea == null)
+            {
+                return false;
+            }
+
+            var path = NavigationMesh.GetShortestPath(CachedArea, targetArea);
+            if (path.Count == 0)
+            {
+                Log.Warning($"No path found.");
+            }
+
+            Visuals.Path.Clear();
+            Visuals.Path.AddRange(path);
+
+            return true;
+        }
+
+        private void UpdateEditing()
+        {
+            if (PlayerEditing != LastPlayerEditing)
+            {
+                LastPlayerEditing = PlayerEditing;
+
+                Visuals.EnabledVisualsForPlayer = PlayerEditing;
+            }
+        }
+
+        private void UpdateNearestArea()
+        {
+            if (PlayerEditing != null)
+            {
+                Visuals.NearestArea = NavigationMesh.GetAreaWithin(PlayerEditing.Camera.position)?.RoomKindArea;
+            }
+        }
+
+        private void UpdateFacingArea()
+        {
+            if (PlayerEditing != null)
+            {
+                var room = RoomIdUtils.RoomAtPositionRaycasts(PlayerEditing.Position);
+
+                var localPosition = room.transform.InverseTransformPoint(PlayerEditing.Camera.position);
+                var localForward = room.transform.InverseTransformDirection(PlayerEditing.Camera.forward);
+
+                Visuals.FacingAreaTemplate = FindClosestAreaFacingAt((room.Name, room.Shape, (RoomZone)room.Zone), localPosition, localForward);
+            }
+        }
+
+        #region Private constructor
+        private NavigationMeshEditor()
+        { }
+        #endregion
+
+        private IEnumerator<float> RunEachFrame(Action action)
+        {
+            while (true)
+            {
+                action.Invoke();
+
+                yield return Timing.WaitForOneFrame;
+            }
         }
     }
 }

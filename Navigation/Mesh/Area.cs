@@ -11,6 +11,7 @@ namespace SCPSLBot.Navigation.Mesh
         public FacilityRoom Room { get; }
 
         public Vector3 CenterPosition => Room.Transform.TransformPoint(RoomKindArea.LocalCenterPosition);
+        public Vector3 LocalCenterPosition => RoomKindArea.LocalCenterPosition;
 
         public IEnumerable<Area> ConnectedAreas => RoomKindArea.ConnectedRoomKindAreas.Select(k => k.AreasOfRoom[Room]).Concat(ForeignConnectedAreas);
 
