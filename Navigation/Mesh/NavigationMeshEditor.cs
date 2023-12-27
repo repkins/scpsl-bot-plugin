@@ -59,7 +59,7 @@ namespace SCPSLBot.Navigation.Mesh
             var area = NavigationMesh.GetAreaWithin(position);
             if (area == null)
             {
-                Log.Warning($"No area found nearby to remove.");
+                Log.Warning($"No area found within to remove.");
 
                 return false;
             }
