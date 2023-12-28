@@ -17,7 +17,7 @@ namespace SCPSLBot.Navigation.Mesh
         public List<Area> Path { get; } = new List<Area>();
 
         private Dictionary<RoomVertex, PrimitiveObjectToy> VertexVisuals { get; } = new();
-        private Dictionary<(RoomVertex From, RoomVertex To), (PrimitiveObjectToy, Area)> EdgeVisuals { get; } = new();
+        private Dictionary<(RoomKindVertex From, RoomKindVertex To), (PrimitiveObjectToy, Area)> EdgeVisuals { get; } = new();
 
         private Dictionary<Area, PrimitiveObjectToy> AreaVisuals { get; } = new ();
         private Dictionary<(Area From, Area To), PrimitiveObjectToy> AreaConnectionVisuals { get; } = new ();
@@ -259,14 +259,40 @@ namespace SCPSLBot.Navigation.Mesh
         {
             if (EnabledVisualsForPlayer != null)
             {
-                foreach (var ((from, to), (visual, area)) in EdgeVisuals.Select(p => (p.Key, p.Value)))
+                foreach (var (edge, (visual, area)) in EdgeVisuals.Select(p => (p.Key, p.Value)))
                 {
                     var isAreaRemoved = !NavigationMesh.AreasByRoom[area.Room].Contains(area);
 
-                    if (isAreaRemoved || (!area.RoomKindArea.Edges.Contains((from.RoomKindVertex, to.RoomKindVertex))))
+                    if (isAreaRemoved || (!area.RoomKindArea.Edges.Contains(edge)))
                     {
                         NetworkServer.Destroy(visual.gameObject);
-                        EdgeVisuals.Remove((from, to));
+                        EdgeVisuals.Remove(edge);
+                    }
+                }
+
+                var primPrefab = NetworkClient.prefabs.Values.Select(p => p.GetComponent<PrimitiveObjectToy>()).First(p => p);
+
+                foreach (var area in NavigationMesh.AreasByRoom.Values.SelectMany(l => l))
+                {
+                    var room = area.Room.Identifier;
+
+                    foreach (var edge in area.RoomKindArea.Edges)
+                    {
+                        if (!EdgeVisuals.TryGetValue(edge, out var edgeVisualArea))
+                        {
+                            var (edgeVisual,_) = edgeVisualArea;
+
+                            edgeVisual = UnityEngine.Object.Instantiate(primPrefab);
+                            edgeVisual.NetworkPrimitiveType = PrimitiveType.Cylinder;
+                            edgeVisual.transform.position = Vector3.Lerp(room.transform.TransformPoint(edge.From.LocalPosition), room.transform.TransformPoint(edge.To.LocalPosition), 0.5f);
+                            edgeVisual.transform.LookAt(room.transform.TransformPoint(edge.To.LocalPosition));
+                            edgeVisual.transform.RotateAround(edgeVisual.transform.position, edgeVisual.transform.right, 90f);
+                            edgeVisual.transform.localScale = -Vector3.forward * 0.01f + -Vector3.right * 0.01f;
+                            edgeVisual.transform.localScale += -Vector3.up * Vector3.Distance(room.transform.TransformPoint(edge.From.LocalPosition), room.transform.TransformPoint(edge.To.LocalPosition)) * 0.5f;
+                            NetworkServer.Spawn(edgeVisual.gameObject);
+
+                            EdgeVisuals.Add(edge, (edgeVisual, area));
+                        }
                     }
                 }
             }
