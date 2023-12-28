@@ -143,14 +143,11 @@ namespace SCPSLBot.Navigation.Mesh
 
         private bool IsPointWithinArea(Area area, Vector3 pointLocalPosition)
         {
-            var areaRoomKindVertices = area.RoomKindArea.Vertices;
+            var areaRoomKindEdges = area.RoomKindArea.Edges;
 
-            var areaRoomKindEdges = areaRoomKindVertices.Zip(areaRoomKindVertices.Skip(1), (v1, v2) => (v1, v2))
-                .Append((v1: areaRoomKindVertices.Last(), v2: areaRoomKindVertices.First()));
-            
             return areaRoomKindEdges.Select(e => (
-                    dirTo2: e.v2.LocalPosition - e.v1.LocalPosition, 
-                    dirToPoint: pointLocalPosition - e.v1.LocalPosition))
+                    dirTo2: e.To.LocalPosition - e.From.LocalPosition, 
+                    dirToPoint: pointLocalPosition - e.From.LocalPosition))
                 .Select(d => (edgeNormal: Vector3.Cross(d.dirTo2, Vector3.up), d.dirToPoint))
                 .Select(d2 => Vector3.Dot(d2.edgeNormal, d2.dirToPoint))
                 .All(p => p >= 0f);

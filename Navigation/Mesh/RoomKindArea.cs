@@ -11,19 +11,22 @@ namespace SCPSLBot.Navigation.Mesh
 {
     internal class RoomKindArea
     {
-        public RoomKindArea(IEnumerable<RoomKindVertex> vertices)
-        {
-            Vertices.AddRange(vertices);
-        }
-
         public (RoomName, RoomShape, RoomZone) RoomKind { get; set; }
         public List<RoomKindVertex> Vertices { get; } = new();
 
         public Vector3 LocalCenterPosition => Vertices.Select(v => v.LocalPosition)
             .Aggregate(Vector3.zero, (a, u) => a + u) / Vertices.Count;
 
+        public IEnumerable<(RoomKindVertex From, RoomKindVertex To)> Edges => Vertices.Zip(Vertices.Skip(1), (v1, v2) => (v1, v2))
+            .Append((Vertices.Last(), Vertices.First()));
+
         public List<RoomKindArea> ConnectedRoomKindAreas { get; } = new();
 
         public Dictionary<FacilityRoom, Area> AreasOfRoom { get; } = new();
+
+        public RoomKindArea(IEnumerable<RoomKindVertex> vertices)
+        {
+            Vertices.AddRange(vertices);
+        }
     }
 }

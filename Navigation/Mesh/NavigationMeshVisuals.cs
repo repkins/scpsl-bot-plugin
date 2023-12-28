@@ -16,6 +16,9 @@ namespace SCPSLBot.Navigation.Mesh
 
         public List<Area> Path { get; } = new List<Area>();
 
+        private Dictionary<RoomVertex, PrimitiveObjectToy> VertexVisuals { get; } = new();
+        private Dictionary<(RoomVertex From, RoomVertex To), (PrimitiveObjectToy, Area)> EdgeVisuals { get; } = new();
+
         private Dictionary<Area, PrimitiveObjectToy> AreaVisuals { get; } = new ();
         private Dictionary<(Area From, Area To), PrimitiveObjectToy> AreaConnectionVisuals { get; } = new ();
         private Dictionary<(Area, Area), PrimitiveObjectToy> AreaConnectionOriginVisuals { get; } = new ();
@@ -205,6 +208,75 @@ namespace SCPSLBot.Navigation.Mesh
                     NetworkServer.Destroy(connectionOriginVisual.gameObject);
                 }
                 AreaConnectionOriginVisuals.Clear();
+            }
+        }
+
+        public void UpdateVertexVisuals()
+        {
+            if (EnabledVisualsForPlayer != null)
+            {
+                var primPrefab = NetworkClient.prefabs.Values.Select(p => p.GetComponent<PrimitiveObjectToy>()).First(p => p);
+
+                foreach (var vertexVisual in VertexVisuals.ToArray())
+                {
+                    if (!NavigationMesh.VerticesByRoom.Values.Any(l => l.Contains(vertexVisual.Key)))
+                    {
+                        NetworkServer.Destroy(vertexVisual.Value.gameObject);
+                        VertexVisuals.Remove(vertexVisual.Key);
+                    }
+                }
+
+                foreach (var vertex in NavigationMesh.VerticesByRoom.Values.SelectMany(l => l))
+                {
+                    var room = vertex.Room.Identifier;
+
+                    if (!VertexVisuals.TryGetValue(vertex, out var visual))
+                    {
+                        visual = UnityEngine.Object.Instantiate(primPrefab);
+                        NetworkServer.Spawn(visual.gameObject);
+
+                        visual.transform.position = vertex.Position;
+                        visual.transform.localScale = -Vector3.one * 0.125f;
+
+                        VertexVisuals.Add(vertex, visual);
+                    }
+
+                    //visual.NetworkMaterialColor = (vertex.RoomKindVertex == FacingVertexTemplate) ? Color.green : Color.yellow;
+
+                }
+            }
+            else
+            {
+                foreach (var vertexVisual in VertexVisuals.Values)
+                {
+                    NetworkServer.Destroy(vertexVisual.gameObject);
+                }
+                VertexVisuals.Clear();
+            }
+        }
+
+        public void UpdateEdgeVisuals()
+        {
+            if (EnabledVisualsForPlayer != null)
+            {
+                foreach (var ((from, to), (visual, area)) in EdgeVisuals.Select(p => (p.Key, p.Value)))
+                {
+                    var isAreaRemoved = !NavigationMesh.AreasByRoom[area.Room].Contains(area);
+
+                    if (isAreaRemoved || (!area.RoomKindArea.Edges.Contains((from.RoomKindVertex, to.RoomKindVertex))))
+                    {
+                        NetworkServer.Destroy(visual.gameObject);
+                        EdgeVisuals.Remove((from, to));
+                    }
+                }
+            }
+            else
+            {
+                foreach (var (edgeVisual, area) in EdgeVisuals.Values)
+                {
+                    NetworkServer.Destroy(edgeVisual.gameObject);
+                }
+                EdgeVisuals.Clear();
             }
         }
     }

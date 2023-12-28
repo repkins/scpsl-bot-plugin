@@ -33,6 +33,8 @@ namespace SCPSLBot.Navigation.Mesh
             Timing.RunCoroutine(RunEachFrame(UpdateFacingArea));
             Timing.RunCoroutine(RunEachFrame(Visuals.UpdateAreaInfoVisuals));
             Timing.RunCoroutine(RunEachFrame(Visuals.UpdateAreaVisuals));
+            Timing.RunCoroutine(RunEachFrame(Visuals.UpdateVertexVisuals));
+            Timing.RunCoroutine(RunEachFrame(Visuals.UpdateEdgeVisuals));
         }
 
         public RoomKindArea FindClosestAreaFacingAt((RoomName, RoomShape, RoomZone) roomKind, Vector3 localPosition, Vector3 localDirection)
