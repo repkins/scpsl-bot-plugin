@@ -12,7 +12,7 @@ namespace SCPSLBot.Navigation.Mesh
         public Player EnabledVisualsForPlayer { get; set; }
 
         public RoomKindArea NearestArea { get; set; }
-        public RoomKindArea FacingAreaTemplate { get; set; }
+        public RoomKindArea FacingArea { get; set; }
 
         public List<Area> Path { get; } = new List<Area>();
 
@@ -26,7 +26,7 @@ namespace SCPSLBot.Navigation.Mesh
         private NavigationMesh NavigationMesh { get; } = NavigationMesh.Instance;
 
         private RoomKindArea LastNearestArea { get; set; }
-        private RoomKindArea LastFacingAreaTemplate { get; set; }
+        private RoomKindArea LastFacingArea { get; set; }
 
         private string[] AreaVisualsMessages { get; } = new string[2];
 
@@ -52,14 +52,14 @@ namespace SCPSLBot.Navigation.Mesh
                     }
                 }
 
-                if (FacingAreaTemplate != LastFacingAreaTemplate)
+                if (FacingArea != LastFacingArea)
                 {
-                    LastFacingAreaTemplate = FacingAreaTemplate;
+                    LastFacingArea = FacingArea;
 
-                    if (FacingAreaTemplate != null)
+                    if (FacingArea != null)
                     {
-                        var facingAreaId = NavigationMesh.AreasByRoomKind[FacingAreaTemplate.RoomKind].IndexOf(FacingAreaTemplate);
-                        AreaVisualsMessages[1] = $"Facing area #{facingAreaId} in {FacingAreaTemplate.RoomKind}";
+                        var facingAreaId = NavigationMesh.AreasByRoomKind[FacingArea.RoomKind].IndexOf(FacingArea);
+                        AreaVisualsMessages[1] = $"Facing area #{facingAreaId} in {FacingArea.RoomKind}";
                     }
                     else
                     {
@@ -132,7 +132,7 @@ namespace SCPSLBot.Navigation.Mesh
                         AreaVisuals.Add(area, visual);
                     }
 
-                    visual.NetworkMaterialColor = (area.RoomKindArea == FacingAreaTemplate) ? Color.green : Color.yellow;
+                    visual.NetworkMaterialColor = (area.RoomKindArea == FacingArea) ? Color.green : Color.yellow;
 
                     foreach (var connectedArea in area.ConnectedAreas)
                     {

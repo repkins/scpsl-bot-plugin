@@ -145,7 +145,7 @@ namespace SCPSLBot.Navigation.Mesh
                 var localPosition = room.transform.InverseTransformPoint(PlayerEditing.Camera.position);
                 var localForward = room.transform.InverseTransformDirection(PlayerEditing.Camera.forward);
 
-                Visuals.FacingAreaTemplate = FindClosestAreaFacingAt((room.Name, room.Shape, (RoomZone)room.Zone), localPosition, localForward);
+                Visuals.FacingArea = FindClosestAreaFacingAt((room.Name, room.Shape, (RoomZone)room.Zone), localPosition, localForward);
             }
         }
 
