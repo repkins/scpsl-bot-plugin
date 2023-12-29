@@ -4,6 +4,7 @@ using PluginAPI.Core.Zones;
 using SCPSLBot.Navigation.Graph;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -123,7 +124,7 @@ namespace SCPSLBot.Navigation.Mesh
         {
             if (!AreasByRoomKind.TryGetValue(roomKind, out var roomKindAreas))
             {
-                Log.Warning($"No nodes at room {roomKind} to remove node from.");
+                Log.Warning($"No areas at room {roomKind} to remove area from.");
                 return;
             }
 
@@ -136,8 +137,152 @@ namespace SCPSLBot.Navigation.Mesh
 
             foreach (var roomOfKind in AreasByRoom.Where(r => (r.Key.Identifier.Name, r.Key.Identifier.Shape, (RoomZone)r.Key.Identifier.Zone) == roomKind))
             {
-                var node = roomOfKind.Value.Find(n => n.RoomKindArea == roomKindArea);
-                roomOfKind.Value.Remove(node);
+                var area = roomOfKind.Value.Find(n => n.RoomKindArea == roomKindArea);
+                roomOfKind.Value.Remove(area);
+            }
+        }
+
+        public void ReadMesh(BinaryReader binaryReader)
+        {
+            var version = binaryReader.ReadByte();
+
+            var roomCount = binaryReader.ReadInt32();
+
+            for (var i = 0; i < roomCount; i++)
+            {
+                Enum.TryParse<RoomName>(binaryReader.ReadString(), out var roomName);
+                Enum.TryParse<RoomShape>(binaryReader.ReadString(), out var roomShape);
+                Enum.TryParse<RoomZone>(binaryReader.ReadString(), out var roomZone);
+                var roomKind = (roomName, roomShape, roomZone);
+
+                ///
+                /// Vertices reading
+                /// 
+
+                if (!VerticesByRoomKind.TryGetValue(roomKind, out var roomKindVertices))
+                {
+                    roomKindVertices = new List<RoomKindVertex>();
+                    VerticesByRoomKind.Add(roomKind, roomKindVertices);
+                }
+                else
+                {
+                    roomKindVertices.Clear();
+                }
+
+                var vertexCount = binaryReader.ReadInt32();
+
+                for (var j = 0; j < vertexCount; j++)
+                {
+                    var vertexLocalPosition = new Vector3()
+                    {
+                        x = binaryReader.ReadSingle(),
+                        y = binaryReader.ReadSingle(),
+                        z = binaryReader.ReadSingle()
+                    };
+
+                    var newRoomKindVertex = new RoomKindVertex(vertexLocalPosition);
+                    roomKindVertices.Add(newRoomKindVertex);
+                }
+
+                ///
+                /// Areas reading
+                /// 
+
+                if (!AreasByRoomKind.TryGetValue(roomKind, out var roomKindAreas))
+                {
+                    roomKindAreas = new List<RoomKindArea>();
+                    AreasByRoomKind.Add(roomKind, roomKindAreas);
+                }
+                else
+                {
+                    roomKindAreas.Clear();
+                }
+
+                var areasCount = binaryReader.ReadInt32();
+
+                var areasVertices = new int[areasCount][];
+                var areasConnections = new int[areasCount][];
+
+                for (var j = 0; j < areasCount; j++)
+                {
+                    var newRoomKindArea = new RoomKindArea()
+                    {
+                        RoomKind = roomKind,
+                    };
+                    roomKindAreas.Add(newRoomKindArea);
+
+                    var areaVerticesCount = binaryReader.ReadInt32();
+                    var areaVertices = new int[areaVerticesCount];
+                    for (var k = 0; k < areaVerticesCount; k++)
+                    {
+                        areaVertices[k] = binaryReader.ReadInt32();
+                    }
+                    areasVertices[j] = areaVertices;
+
+                    var connectedAreasCount = binaryReader.ReadInt32();
+                    var connectedAreas = new int[connectedAreasCount];
+                    for (var k = 0; k < connectedAreasCount; k++)
+                    {
+                        connectedAreas[k] = binaryReader.ReadInt32();
+                    }                    
+                    areasConnections[j] = connectedAreas;
+                }
+
+                foreach (var (area, vertices) in areasVertices.Select((vertices, areaIndex) => (roomKindAreas[areaIndex], vertices)))
+                {
+                    area.Vertices.AddRange(vertices.Select(vertexIdx => roomKindVertices[vertexIdx]));
+                }
+
+                foreach (var (area, conns) in areasConnections.Select((conns, areaIndex) => (roomKindAreas[areaIndex], conns)))
+                {
+                    area.ConnectedRoomKindAreas.AddRange(conns.Select(connectedIndex => roomKindAreas[connectedIndex]));
+                }
+            }
+        }
+
+        public void WriteMesh(BinaryWriter binaryWriter)
+        {
+            byte version = 1;
+            binaryWriter.Write(version);
+
+            binaryWriter.Write(VerticesByRoomKind.Count);
+
+            foreach (var (roomKind, vertices) in VerticesByRoomKind.Select(p => (roomKind: p.Key, vertices: p.Value)))
+            {
+                var (roomName, roomShape, roomZone) = roomKind;
+
+                binaryWriter.Write(roomName.ToString());
+                binaryWriter.Write(roomShape.ToString());
+                binaryWriter.Write(roomZone.ToString());
+
+                binaryWriter.Write(vertices.Count);
+                foreach (var vertex in vertices)
+                {
+                    binaryWriter.Write(vertex.LocalPosition.x);
+                    binaryWriter.Write(vertex.LocalPosition.y);
+                    binaryWriter.Write(vertex.LocalPosition.z);
+                }
+
+                if (!AreasByRoomKind.TryGetValue(roomKind, out var areas))
+                {
+                    areas = new();
+                }
+
+                binaryWriter.Write(areas.Count);
+                foreach (var area in areas)
+                {
+                    binaryWriter.Write(area.Vertices.Count);
+                    foreach (var vertexIdx in area.Vertices.Select(areaVertex => VerticesByRoomKind[roomKind].IndexOf(areaVertex)))
+                    {
+                        binaryWriter.Write(vertexIdx);
+                    }
+
+                    binaryWriter.Write(area.ConnectedRoomKindAreas.Count);
+                    foreach (var connIdx in area.ConnectedRoomKindAreas.Select(connArea => AreasByRoomKind[roomKind].IndexOf(connArea)))
+                    {
+                        binaryWriter.Write(connIdx);
+                    }
+                }
             }
         }
 

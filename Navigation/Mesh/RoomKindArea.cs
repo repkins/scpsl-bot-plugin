@@ -24,6 +24,10 @@ namespace SCPSLBot.Navigation.Mesh
 
         public Dictionary<FacilityRoom, Area> AreasOfRoom { get; } = new();
 
+        public RoomKindArea()
+        {
+        }
+
         public RoomKindArea(IEnumerable<RoomKindVertex> vertices)
         {
             Vertices.AddRange(vertices);
