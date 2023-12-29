@@ -29,6 +29,7 @@ namespace SCPSLBot.Navigation.Mesh
         public void Init()
         {
             Timing.RunCoroutine(RunEachFrame(UpdateEditing));
+            Timing.RunCoroutine(RunEachFrame(UpdateNearestVertex));
             Timing.RunCoroutine(RunEachFrame(UpdateNearestArea));
             Timing.RunCoroutine(RunEachFrame(UpdateFacingArea));
             Timing.RunCoroutine(RunEachFrame(Visuals.UpdateAreaInfoVisuals));
@@ -54,7 +55,41 @@ namespace SCPSLBot.Navigation.Mesh
             return targetArea;
         }
 
-        public RoomKindArea MakeArea(Vector3 position, IEnumerable<Vector3> vertices)
+        public RoomKindVertex CreateVertex(Vector3 position)
+        {
+            var room = RoomIdUtils.RoomAtPositionRaycasts(position);
+            var roomKind = (room.Name, room.Shape, (RoomZone)room.Zone);
+
+            var localPosition = room.transform.InverseTransformPoint(position);
+
+            var newVertex = NavigationMesh.AddVertex(localPosition, roomKind);
+
+            Log.Info($"Vertex #{NavigationMesh.VerticesByRoomKind[roomKind].IndexOf(newVertex)} at local position {newVertex.LocalPosition} added under room {roomKind}.");
+
+            return newVertex;
+        }
+
+        public bool DeleteVertex(Vector3 position)
+        {
+            var vertex = NavigationMesh.GetNearbyVertex(position);
+            if (vertex == null)
+            {
+                Log.Warning($"No vertex found nearby to remove.");
+
+                return false;
+            }
+
+            var room = RoomIdUtils.RoomAtPositionRaycasts(position);
+            var roomKind = (room.Name, room.Shape, (RoomZone)room.Zone);
+
+            NavigationMesh.DeleteVertex(vertex.RoomKindVertex);
+
+            Log.Info($"Vertex at local position {vertex.RoomKindVertex.LocalPosition} removed under room {roomKind}.");
+
+            return true;
+        }
+
+        public RoomKindArea CreateArea(Vector3 position, IEnumerable<RoomKindVertex> vertices)
         {
             var room = RoomIdUtils.RoomAtPositionRaycasts(position);
             var roomKind = (room.Name, room.Shape, (RoomZone)room.Zone);
@@ -79,7 +114,7 @@ namespace SCPSLBot.Navigation.Mesh
             var room = RoomIdUtils.RoomAtPositionRaycasts(position);
             var roomKind = (room.Name, room.Shape, (RoomZone)room.Zone);
 
-            NavigationMesh.RemoveArea(area.RoomKindArea, roomKind);
+            NavigationMesh.RemoveArea(area.RoomKindArea);
 
             Log.Info($"Area at local center position {area.CenterPosition} removed under room {roomKind}.");
 
@@ -125,6 +160,14 @@ namespace SCPSLBot.Navigation.Mesh
                 LastPlayerEditing = PlayerEditing;
 
                 Visuals.EnabledVisualsForPlayer = PlayerEditing;
+            }
+        }
+
+        private void UpdateNearestVertex()
+        {
+            if (PlayerEditing != null)
+            {
+                Visuals.NearestVertex = NavigationMesh.GetNearbyVertex(PlayerEditing.Camera.position)?.RoomKindVertex;
             }
         }
 

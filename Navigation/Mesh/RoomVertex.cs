@@ -11,14 +11,15 @@ namespace SCPSLBot.Navigation.Mesh
 {
     internal class RoomVertex
     {
-        public FacilityRoom Room { get; }
         public RoomKindVertex RoomKindVertex { get; }
+        public FacilityRoom Room { get; }
 
         public Vector3 Position => Room.Transform.TransformPoint(RoomKindVertex.LocalPosition);
 
-        public RoomVertex(RoomKindVertex roomKindVertex)
+        public RoomVertex(RoomKindVertex roomKindVertex, FacilityRoom room)
         {
             RoomKindVertex = roomKindVertex;
+            Room = room;
         }
     }
 }

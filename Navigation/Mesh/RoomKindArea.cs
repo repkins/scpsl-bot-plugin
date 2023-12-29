@@ -28,8 +28,9 @@ namespace SCPSLBot.Navigation.Mesh
         {
         }
 
-        public RoomKindArea(IEnumerable<RoomKindVertex> vertices)
+        public RoomKindArea(IEnumerable<RoomKindVertex> vertices, (RoomName, RoomShape, RoomZone) roomKind)
         {
+            RoomKind = roomKind;
             Vertices.AddRange(vertices);
         }
     }

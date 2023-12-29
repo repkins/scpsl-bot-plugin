@@ -97,7 +97,55 @@ namespace SCPSLBot.Navigation.Mesh
             return shortestPath;
         }
 
-        public RoomKindArea AddArea(IEnumerable<Vector3> vertexLocalPositions, (RoomName, RoomShape, RoomZone) roomKind)
+        public RoomVertex GetNearbyVertex(Vector3 position)
+        {
+            throw new NotImplementedException();
+        }
+
+        public RoomKindVertex AddVertex(Vector3 localPosition, (RoomName, RoomShape, RoomZone) roomKind)
+        {
+            if (!VerticesByRoomKind.TryGetValue(roomKind, out var roomKindVertices))
+            {
+                roomKindVertices = new List<RoomKindVertex>();
+                VerticesByRoomKind.Add(roomKind, roomKindVertices);
+            }
+
+            var newRoomKindVertex = new RoomKindVertex(localPosition, roomKind);
+            roomKindVertices.Add(newRoomKindVertex);
+
+            foreach (var roomVerticesPair in VerticesByRoom.Where(r => (r.Key.Identifier.Name, r.Key.Identifier.Shape, (RoomZone)r.Key.Identifier.Zone) == roomKind))
+            {
+                roomVerticesPair.Value.Add(new RoomVertex(newRoomKindVertex, roomVerticesPair.Key));
+            }
+
+            return newRoomKindVertex;
+        }
+
+        public void DeleteVertex(RoomKindVertex roomKindVertex)
+        {
+            var roomKind = roomKindVertex.RoomKind;
+
+            if (!VerticesByRoomKind.TryGetValue(roomKind, out var roomKindVertices))
+            {
+                Log.Warning($"No vertices at room {roomKind} to remove vertex from.");
+                return;
+            }
+
+            foreach (var areaVertices in AreasByRoomKind[roomKind].Select(a => a.Vertices))
+            {
+                areaVertices.Remove(roomKindVertex);
+            }
+
+            roomKindVertices.Remove(roomKindVertex);
+
+            foreach (var roomVerticesPair in VerticesByRoom.Where(r => (r.Key.Identifier.Name, r.Key.Identifier.Shape, (RoomZone)r.Key.Identifier.Zone) == roomKind))
+            {
+                var vertex = roomVerticesPair.Value.Find(n => n.RoomKindVertex == roomKindVertex);
+                roomVerticesPair.Value.Remove(vertex);
+            }
+        }
+
+        public RoomKindArea AddArea(IEnumerable<RoomKindVertex> roomKindVertices, (RoomName, RoomShape, RoomZone) roomKind)
         {
             if (!AreasByRoomKind.TryGetValue(roomKind, out var roomKindAreas))
             {
@@ -105,23 +153,22 @@ namespace SCPSLBot.Navigation.Mesh
                 AreasByRoomKind.Add(roomKind, roomKindAreas);
             }
 
-            var newRoomKindArea = new RoomKindArea(vertexLocalPositions.Select(p => new RoomKindVertex(p)))
-            {
-                RoomKind = roomKind,
-            };
+            var newRoomKindArea = new RoomKindArea(roomKindVertices, roomKind);
 
             roomKindAreas.Add(newRoomKindArea);
 
-            foreach (var roomOfKind in AreasByRoom.Where(r => (r.Key.Identifier.Name, r.Key.Identifier.Shape, (RoomZone)r.Key.Identifier.Zone) == roomKind))
+            foreach (var roomAreasPair in AreasByRoom.Where(r => (r.Key.Identifier.Name, r.Key.Identifier.Shape, (RoomZone)r.Key.Identifier.Zone) == roomKind))
             {
-                roomOfKind.Value.Add(new Area(newRoomKindArea, roomOfKind.Key));
+                roomAreasPair.Value.Add(new Area(newRoomKindArea, roomAreasPair.Key));
             }
 
             return newRoomKindArea;
         }
 
-        public void RemoveArea(RoomKindArea roomKindArea, (RoomName, RoomShape, RoomZone) roomKind)
+        public void RemoveArea(RoomKindArea roomKindArea)
         {
+            var roomKind = roomKindArea.RoomKind;
+
             if (!AreasByRoomKind.TryGetValue(roomKind, out var roomKindAreas))
             {
                 Log.Warning($"No areas at room {roomKind} to remove area from.");
@@ -180,7 +227,7 @@ namespace SCPSLBot.Navigation.Mesh
                         z = binaryReader.ReadSingle()
                     };
 
-                    var newRoomKindVertex = new RoomKindVertex(vertexLocalPosition);
+                    var newRoomKindVertex = new RoomKindVertex(vertexLocalPosition, roomKind);
                     roomKindVertices.Add(newRoomKindVertex);
                 }
 

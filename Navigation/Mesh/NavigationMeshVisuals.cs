@@ -11,6 +11,9 @@ namespace SCPSLBot.Navigation.Mesh
     {
         public Player EnabledVisualsForPlayer { get; set; }
 
+        public RoomKindVertex NearestVertex { get; set; }
+        public RoomKindVertex FacingVertex { get; set; }
+
         public RoomKindArea NearestArea { get; set; }
         public RoomKindArea FacingArea { get; set; }
 
