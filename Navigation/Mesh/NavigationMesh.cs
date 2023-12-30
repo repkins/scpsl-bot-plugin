@@ -97,9 +97,29 @@ namespace SCPSLBot.Navigation.Mesh
             return shortestPath;
         }
 
-        public RoomVertex GetNearbyVertex(Vector3 position)
+        public RoomVertex GetNearbyVertex(Vector3 position, float radius = 1f)
         {
-            throw new NotImplementedException();
+            var room = RoomIdUtils.RoomAtPositionRaycasts(position);
+
+            if (!room || !VerticesByRoom.TryGetValue(room.ApiRoom, out var roomVertexs))
+            {
+                return null;
+            }
+
+            var radiusSqr = Mathf.Pow(radius, 2);
+            var localPosition = room.transform.InverseTransformPoint(position);
+
+            var verticesWithinRadius = roomVertexs.Select(vertex => (vertex, distSqr: Vector3.SqrMagnitude(vertex.RoomKindVertex.LocalPosition - localPosition)))
+                .Where(t => t.distSqr < radiusSqr);
+
+            if (!verticesWithinRadius.Any())
+            {
+                return null;
+            }
+
+            return verticesWithinRadius
+                .Aggregate((a, c) => c.distSqr < a.distSqr ? c : a)
+                .vertex;
         }
 
         public RoomKindVertex AddVertex(Vector3 localPosition, (RoomName, RoomShape, RoomZone) roomKind)
