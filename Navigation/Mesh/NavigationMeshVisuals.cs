@@ -9,10 +9,12 @@ namespace SCPSLBot.Navigation.Mesh
 {
     internal class NavigationMeshVisuals
     {
-        public Player EnabledVisualsForPlayer { get; set; }
+        public Player PlayerEnabledVisualsFor { get; set; }
 
         public RoomKindVertex NearestVertex { get; set; }
         public RoomKindVertex FacingVertex { get; set; }
+
+        public List<RoomKindVertex> SelectedVertices { get; set; }
 
         public RoomKindArea NearestArea { get; set; }
         public RoomKindArea FacingArea { get; set; }
@@ -28,14 +30,76 @@ namespace SCPSLBot.Navigation.Mesh
 
         private NavigationMesh NavigationMesh { get; } = NavigationMesh.Instance;
 
+        private RoomKindVertex LastNearestVertex { get; set; }
+        private RoomKindVertex LastFacingVertex { get; set; }
+
         private RoomKindArea LastNearestArea { get; set; }
         private RoomKindArea LastFacingArea { get; set; }
 
+        private string[] VertexVisualsMessages { get; } = new string[2];
         private string[] AreaVisualsMessages { get; } = new string[2];
+
+        public void UpdateVertexInfoVisuals()
+        {
+            if (PlayerEnabledVisualsFor != null)
+            {
+                if (NearestVertex != LastNearestVertex)
+                {
+                    LastNearestVertex = NearestVertex;
+
+                    if (NearestVertex != null)
+                    {
+                        var nearestVertexId = NavigationMesh.VerticesByRoomKind[NearestVertex.RoomKind].IndexOf(NearestVertex);
+                        VertexVisualsMessages[0] = $"Vertex #{nearestVertexId} in {NearestVertex.RoomKind}";
+
+                        var selectedIdx = SelectedVertices.IndexOf(NearestVertex);
+                        if (selectedIdx >= 0)
+                        {
+                            VertexVisualsMessages[0] += $" (Selected #{selectedIdx})";
+                        }
+                    }
+                    else
+                    {
+                        VertexVisualsMessages[0] = null;
+                    }
+                }
+
+                if (FacingVertex != LastFacingVertex)
+                {
+                    LastFacingVertex = FacingVertex;
+
+                    if (FacingVertex != null)
+                    {
+                        var facingVertexId = NavigationMesh.VerticesByRoomKind[FacingVertex.RoomKind].IndexOf(FacingVertex);
+                        VertexVisualsMessages[1] = $"Facing vertex #{facingVertexId} in {FacingVertex.RoomKind}";
+
+                        var selectedIdx = SelectedVertices.IndexOf(FacingVertex);
+                        if (selectedIdx >= 0)
+                        {
+                            VertexVisualsMessages[1] += $" (Selected #{selectedIdx})";
+                        }
+                    }
+                    else
+                    {
+                        VertexVisualsMessages[1] = null;
+                    }
+                }
+
+                var messageLinesToSend = VertexVisualsMessages.Where(m => m != null);
+                if (messageLinesToSend.Any())
+                {
+                    PlayerEnabledVisualsFor.SendBroadcast(string.Join("\n", messageLinesToSend), 60, shouldClearPrevious: true);
+                }
+                else
+                {
+                    PlayerEnabledVisualsFor.ClearBroadcasts();
+                }
+            }
+        }
 
         public void UpdateAreaInfoVisuals()
         {
-            if (EnabledVisualsForPlayer != null)
+            if (PlayerEnabledVisualsFor != null)
             {
                 var nearestArea = NearestArea;
 
@@ -73,18 +137,18 @@ namespace SCPSLBot.Navigation.Mesh
                 var messageLinesToSend = AreaVisualsMessages.Where(m => m != null);
                 if (messageLinesToSend.Any())
                 {
-                    EnabledVisualsForPlayer.SendBroadcast(string.Join("\n", messageLinesToSend), 60, shouldClearPrevious: true);
+                    PlayerEnabledVisualsFor.SendBroadcast(string.Join("\n", messageLinesToSend), 60, shouldClearPrevious: true);
                 }
                 else
                 {
-                    EnabledVisualsForPlayer.ClearBroadcasts();
+                    PlayerEnabledVisualsFor.ClearBroadcasts();
                 }
             }
         }
 
         public void UpdateAreaVisuals()
         {
-            if (EnabledVisualsForPlayer != null)
+            if (PlayerEnabledVisualsFor != null)
             {
                 var primPrefab = NetworkClient.prefabs.Values.Select(p => p.GetComponent<PrimitiveObjectToy>()).First(p => p);
 
@@ -216,7 +280,7 @@ namespace SCPSLBot.Navigation.Mesh
 
         public void UpdateVertexVisuals()
         {
-            if (EnabledVisualsForPlayer != null)
+            if (PlayerEnabledVisualsFor != null)
             {
                 var primPrefab = NetworkClient.prefabs.Values.Select(p => p.GetComponent<PrimitiveObjectToy>()).First(p => p);
 
@@ -260,7 +324,7 @@ namespace SCPSLBot.Navigation.Mesh
 
         public void UpdateEdgeVisuals()
         {
-            if (EnabledVisualsForPlayer != null)
+            if (PlayerEnabledVisualsFor != null)
             {
                 foreach (var (edge, (visual, area)) in EdgeVisuals.Select(p => (p.Key, p.Value)))
                 {

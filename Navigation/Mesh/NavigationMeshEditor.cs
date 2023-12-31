@@ -26,12 +26,18 @@ namespace SCPSLBot.Navigation.Mesh
         private Area CachedArea { get; set; }
         private Area TracingEndingArea { get; set; }
 
+        private List<RoomKindVertex> SeletedVertices { get; } = new();
+
         public void Init()
         {
+            Visuals.SelectedVertices = SeletedVertices;
+
             Timing.RunCoroutine(RunEachFrame(UpdateEditing));
             Timing.RunCoroutine(RunEachFrame(UpdateNearestVertex));
+            Timing.RunCoroutine(RunEachFrame(UpdateFacingVertex));
             Timing.RunCoroutine(RunEachFrame(UpdateNearestArea));
             Timing.RunCoroutine(RunEachFrame(UpdateFacingArea));
+            Timing.RunCoroutine(RunEachFrame(Visuals.UpdateVertexInfoVisuals));
             Timing.RunCoroutine(RunEachFrame(Visuals.UpdateAreaInfoVisuals));
             Timing.RunCoroutine(RunEachFrame(Visuals.UpdateAreaVisuals));
             Timing.RunCoroutine(RunEachFrame(Visuals.UpdateVertexVisuals));
@@ -87,6 +93,43 @@ namespace SCPSLBot.Navigation.Mesh
             Log.Info($"Vertex at local position {vertex.RoomKindVertex.LocalPosition} removed under room {roomKind}.");
 
             return true;
+        }
+
+        public bool AddVertexToSelection(Vector3 position)
+        {
+            var vertex = NavigationMesh.GetNearbyVertex(position);
+            if (vertex == null)
+            {
+                Log.Warning($"No vertex found nearby for selection.");
+                return false;
+            }
+
+            SeletedVertices.Add(vertex.RoomKindVertex);
+
+            Log.Info($"Vertex at local position {vertex.RoomKindVertex.LocalPosition} added to selection under room {vertex.RoomKindVertex.RoomKind}.");
+
+            return true;
+        }
+
+        public bool RemoveVertexFromSelection(Vector3 position)
+        {
+            var vertex = NavigationMesh.GetNearbyVertex(position);
+            if (vertex == null)
+            {
+                Log.Warning($"No vertex found nearby to remove from selection.");
+                return false;
+            }
+
+            SeletedVertices.Remove(vertex.RoomKindVertex);
+
+            Log.Info($"Vertex at local position {vertex.RoomKindVertex.LocalPosition} removed from selection under room {vertex.RoomKindVertex.RoomKind}.");
+
+            return true;
+        }
+
+        public void ClearVertexSelection()
+        {
+            SeletedVertices.Clear();
         }
 
         public RoomKindArea CreateArea(Vector3 position, IEnumerable<RoomKindVertex> vertices)
@@ -159,7 +202,7 @@ namespace SCPSLBot.Navigation.Mesh
             {
                 LastPlayerEditing = PlayerEditing;
 
-                Visuals.EnabledVisualsForPlayer = PlayerEditing;
+                Visuals.PlayerEnabledVisualsFor = PlayerEditing;
             }
         }
 
@@ -168,6 +211,14 @@ namespace SCPSLBot.Navigation.Mesh
             if (PlayerEditing != null)
             {
                 Visuals.NearestVertex = NavigationMesh.GetNearbyVertex(PlayerEditing.Camera.position)?.RoomKindVertex;
+            }
+        }
+
+        private void UpdateFacingVertex()
+        {
+            if (PlayerEditing != null)
+            {
+                Visuals.FacingVertex = NavigationMesh.GetNearbyVertex(PlayerEditing.Camera.position)?.RoomKindVertex;
             }
         }
 

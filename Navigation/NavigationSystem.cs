@@ -3,7 +3,7 @@ using MEC;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Events;
-using SCPSLBot.Navigation.Graph;
+using SCPSLBot.Navigation.Mesh;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,30 +21,31 @@ namespace SCPSLBot.Navigation
 
         public string BaseDir { get; set; }
 
-        private NavigationGraph NavigationGraph { get; } = NavigationGraph.Instance;
+        private NavigationMesh NavigationMesh { get; } = NavigationMesh.Instance;
 
         public void Init()
         {
             EventManager.RegisterEvents(this);
 
-            LoadNodes();
+            LoadMesh();
         }
 
         [PluginEvent(PluginAPI.Enums.ServerEventType.MapGenerated)]
         public void OnMapGenerated()
         {
-            Log.Info($"Initializing nodes from room kind nodes.");
+            Log.Info($"Initializing vertices from room kind vertices.");
 
-            InitRoomNodes();
+            InitRoomVertices();
+            InitRoomAreas();
 
-            Timing.RunCoroutine(ConnectForeignNodesAsync());
+            Timing.RunCoroutine(ConnectForeignAreasAsync());
         }
 
-        private IEnumerator<float> ConnectForeignNodesAsync()
+        private IEnumerator<float> ConnectForeignAreasAsync()
         {
             yield return Timing.WaitUntilTrue(() => SeedSynchronizer.MapGenerated);
 
-            Log.Info($"Connecting nodes between rooms.");
+            Log.Info($"Connecting areas between rooms.");
             foreach (var door in Facility.Doors)
             {
                 if (door.OriginalObject.Rooms.Length == 2)
@@ -52,61 +53,82 @@ namespace SCPSLBot.Navigation
                     var doorPosition = door.Position;
                     var doorForward = door.Transform.forward;
 
-                    var nodeInFront = NavigationGraph.FindNearestNode(doorPosition + doorForward * 1f, 3f);
-                    var nodeInBack = NavigationGraph.FindNearestNode(doorPosition - doorForward * 1f, 3f);
+                    var areaInFront = NavigationMesh.GetAreaWithin(doorPosition + doorForward * 1f);
+                    var areaInBack = NavigationMesh.GetAreaWithin(doorPosition - doorForward * 1f);
 
-                    if (nodeInFront != null && nodeInBack != null)
+                    if (areaInFront != null && areaInBack != null)
                     {
                         // Connect
-                        nodeInFront.ForeignNodes.Add(nodeInBack);
-                        nodeInBack.ForeignNodes.Add(nodeInFront);
+                        areaInFront.ForeignConnectedAreas.Add(areaInBack);
+                        areaInBack.ForeignConnectedAreas.Add(areaInFront);
                     }
                 }
             }
-            Log.Info($"Connecting nodes finished.");
+            Log.Info($"Connecting areas finished.");
         }
 
-        public void LoadNodes()
+        public void LoadMesh()
         {
-            var fileName = "navgraph.slngf";
+            var fileName = "navmesh.slnmf";
             var path = Path.Combine(BaseDir, fileName);
-            using (var fileStream = File.OpenRead(path))
-            using (var binaryReader = new BinaryReader(fileStream))
-            {
-                NavigationGraph.ReadNodes(binaryReader);
-            }
+
+            using var fileStream = File.OpenRead(path);
+            using var binaryReader = new BinaryReader(fileStream);
+
+            NavigationMesh.ReadMesh(binaryReader);
         }
 
-        public void SaveNodes()
+        public void SaveMesh()
         {
-            var fileName = "navgraph.slngf";
+            var fileName = "navmesh.slnmf";
             var path = Path.Combine(BaseDir, fileName);
-            using (var fileStream = File.OpenWrite(path))
-            using (var binaryWriter = new BinaryWriter(fileStream))
-            {
-                NavigationGraph.WriteNodes(binaryWriter);
-            }
+
+            using var fileStream = File.OpenWrite(path);
+            using var binaryWriter = new BinaryWriter(fileStream);
+
+            NavigationMesh.WriteMesh(binaryWriter);
         }
 
-        public void InitRoomNodes()
+        public void InitRoomVertices()
         {
             foreach (var room in Facility.Rooms)
             {
-                var nodes = new List<Node>();
-                NavigationGraph.NodesByRoom.Add(room, nodes);
+                var vertices = new List<RoomVertex>();
+                NavigationMesh.VerticesByRoom.Add(room, vertices);
 
-                if (!NavigationGraph.NodesByRoomKind.TryGetValue((room.Identifier.Name, room.Identifier.Shape, (RoomZone)room.Identifier.Zone), out var roomKindNodes))
+                if (!NavigationMesh.VerticesByRoomKind.TryGetValue((room.Identifier.Name, room.Identifier.Shape, (RoomZone)room.Identifier.Zone), out var roomKindVertices))
                 {
                     continue;
                 }
 
-                nodes.AddRange(roomKindNodes.Select(k => new Node(k, room)));
+                vertices.AddRange(roomKindVertices.Select(k => new RoomVertex(k, room)));
             }
         }
 
-        public void ResetNodes()
+        public void ResetVertices()
         {
-            NavigationGraph.NodesByRoom.Clear();
+            NavigationMesh.VerticesByRoom.Clear();
+        }
+
+        public void InitRoomAreas()
+        {
+            foreach (var room in Facility.Rooms)
+            {
+                var areas = new List<Area>();
+                NavigationMesh.AreasByRoom.Add(room, areas);
+
+                if (!NavigationMesh.AreasByRoomKind.TryGetValue((room.Identifier.Name, room.Identifier.Shape, (RoomZone)room.Identifier.Zone), out var roomKindAreas))
+                {
+                    continue;
+                }
+
+                areas.AddRange(roomKindAreas.Select(k => new Area(k, room)));
+            }
+        }
+
+        public void ResetAreas()
+        {
+            NavigationMesh.AreasByRoom.Clear();
         }
 
         #region Private constructor

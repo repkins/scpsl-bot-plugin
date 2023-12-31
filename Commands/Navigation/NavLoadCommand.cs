@@ -3,7 +3,6 @@ using PlayerRoles;
 using PluginAPI.Core;
 using RemoteAdmin;
 using SCPSLBot.Navigation;
-using SCPSLBot.Navigation.Graph;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,21 +18,25 @@ namespace SCPSLBot.Commands.Navigation
 
         public string[] Aliases { get; } = new string[] { };
 
-        public string Description { get; } = "Re-loads navigation graph from storage.";
+        public string Description { get; } = "Re-loads navigation mesh from storage.";
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            if (!(sender is PlayerCommandSender playerCommandSender))
+            if (sender is not PlayerCommandSender playerCommandSender)
             {
                 response = "You must be in-game to use this command!";
                 return false;
             }
 
-            NavigationSystem.Instance.ResetNodes();
-            NavigationSystem.Instance.LoadNodes();
-            NavigationSystem.Instance.InitRoomNodes();  // Assuming map is already generated.
+            NavigationSystem.Instance.ResetAreas();
+            NavigationSystem.Instance.ResetVertices();
 
-            response = $"Navigation graph re-loaded.";
+            NavigationSystem.Instance.LoadMesh();
+
+            NavigationSystem.Instance.InitRoomVertices();  // Assuming map is already generated.
+            NavigationSystem.Instance.InitRoomAreas();  // Assuming map is already generated.
+
+            response = $"Navigation mesh re-loaded.";
             return true;
         }
     }

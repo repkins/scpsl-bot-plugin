@@ -14,14 +14,15 @@ namespace SCPSLBot.Commands.Navigation
 
         public override string[] Aliases { get; } = new string [] { };
 
-        public override string Description { get; } = "Manipulates navigation graph.";
+        public override string Description { get; } = "Manipulates navigation mesh.";
 
         public override void LoadGeneratedCommands()
         {
             this.RegisterCommand(new NavEditCommand());
             this.RegisterCommand(new NavLoadCommand());
             this.RegisterCommand(new NavSaveCommand());
-            this.RegisterCommand(new NavNode());
+            this.RegisterCommand(new NavVertex());
+            //this.RegisterCommand(new NavArea());
         }
 
         protected override bool ExecuteParent(ArraySegment<string> arguments, ICommandSender sender, out string response)

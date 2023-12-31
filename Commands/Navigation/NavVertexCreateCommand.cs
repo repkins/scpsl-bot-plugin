@@ -1,5 +1,5 @@
 ﻿using CommandSystem;
-using PluginAPI.Core;
+using PlayerRoles;
 using RemoteAdmin;
 using SCPSLBot.Navigation.Mesh;
 using System;
@@ -10,14 +10,14 @@ using System.Threading.Tasks;
 
 namespace SCPSLBot.Commands.Navigation
 {
-    [CommandHandler(typeof(Nav))]
-    internal class NavEditCommand : ICommand
+    [CommandHandler(typeof(NavVertex))]
+    internal class NavVertexCreateCommand : ICommand
     {
-        public string Command { get; } = "edit";
+        public string Command { get; } = "create";
 
         public string[] Aliases { get; } = new string[] { };
 
-        public string Description { get; } = "Toggles editing of nav mesh.";
+        public string Description { get; } = "Creates navigation mesh vertex at current position.";
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
@@ -27,12 +27,15 @@ namespace SCPSLBot.Commands.Navigation
                 return false;
             }
 
-            var navMeshEditor = NavigationMeshEditor.Instance;
+            if (!playerCommandSender.ReferenceHub.IsAlive())
+            {
+                response = "Command disabled when you are not alive!";
+                return false;
+            }
 
-            navMeshEditor.IsEditing = !navMeshEditor.IsEditing;
-            navMeshEditor.PlayerEditing = navMeshEditor.IsEditing ? Player.Get(playerCommandSender) : null;
+            var vertex = NavigationMeshEditor.Instance.CreateVertex(playerCommandSender.ReferenceHub.transform.position);
 
-            response = $"Nav mesh editing is now {(navMeshEditor.IsEditing ? "enabled" : "disabled")}.";
+            response = $"Vertex at local position {vertex.LocalPosition} added.";
             return true;
         }
     }

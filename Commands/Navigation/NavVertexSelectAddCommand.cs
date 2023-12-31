@@ -1,0 +1,46 @@
+﻿using CommandSystem;
+using PlayerRoles;
+using RemoteAdmin;
+using SCPSLBot.Navigation.Mesh;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace SCPSLBot.Commands.Navigation
+{
+    [CommandHandler(typeof(NavVertex))]
+    internal class NavVertexSelectAddCommand : ICommand
+    {
+        public string Command { get; } = "select_add";
+
+        public string[] Aliases { get; } = new string[] { "nvsa" };
+
+        public string Description { get; } = "Adds navigation mesh vertex to selection nearby at current position.";
+
+        public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
+        {
+            if (sender is not PlayerCommandSender playerCommandSender)
+            {
+                response = "You must be in-game to use this command!";
+                return false;
+            }
+
+            if (!playerCommandSender.ReferenceHub.IsAlive())
+            {
+                response = "Command disabled when you are not alive!";
+                return false;
+            }
+
+            if (!NavigationMeshEditor.Instance.AddVertexToSelection(playerCommandSender.ReferenceHub.transform.position))
+            {
+                response = $"No vertex nearby to select.";
+                return false;
+            }
+
+            response = $"Vertex added to selection.";
+            return true;
+        }
+    }
+}
