@@ -3,6 +3,7 @@ using PlayerRoles;
 using PluginAPI.Core;
 using RemoteAdmin;
 using SCPSLBot.Navigation;
+using SCPSLBot.Navigation.Mesh;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,13 +29,13 @@ namespace SCPSLBot.Commands.Navigation
                 return false;
             }
 
-            NavigationSystem.Instance.ResetAreas();
-            NavigationSystem.Instance.ResetVertices();
+            NavigationMesh.Instance.ResetAreas();
+            NavigationMesh.Instance.ResetVertices();
 
             NavigationSystem.Instance.LoadMesh();
 
-            NavigationSystem.Instance.InitRoomVertices();  // Assuming map is already generated.
-            NavigationSystem.Instance.InitRoomAreas();  // Assuming map is already generated.
+            NavigationMesh.Instance.InitRoomVertices();  // Assuming map is already generated.
+            NavigationMesh.Instance.InitRoomAreas();  // Assuming map is already generated.
 
             response = $"Navigation mesh re-loaded.";
             return true;

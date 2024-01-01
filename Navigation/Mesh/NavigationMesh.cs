@@ -353,6 +353,48 @@ namespace SCPSLBot.Navigation.Mesh
             }
         }
 
+        public void InitRoomVertices()
+        {
+            foreach (var room in Facility.Rooms)
+            {
+                var vertices = new List<RoomVertex>();
+                VerticesByRoom.Add(room, vertices);
+
+                if (!VerticesByRoomKind.TryGetValue((room.Identifier.Name, room.Identifier.Shape, (RoomZone)room.Identifier.Zone), out var roomKindVertices))
+                {
+                    continue;
+                }
+
+                vertices.AddRange(roomKindVertices.Select(k => new RoomVertex(k, room)));
+            }
+        }
+
+        public void ResetVertices()
+        {
+            VerticesByRoom.Clear();
+        }
+
+        public void InitRoomAreas()
+        {
+            foreach (var room in Facility.Rooms)
+            {
+                var areas = new List<Area>();
+                AreasByRoom.Add(room, areas);
+
+                if (!AreasByRoomKind.TryGetValue((room.Identifier.Name, room.Identifier.Shape, (RoomZone)room.Identifier.Zone), out var roomKindAreas))
+                {
+                    continue;
+                }
+
+                areas.AddRange(roomKindAreas.Select(k => new Area(k, room)));
+            }
+        }
+
+        public void ResetAreas()
+        {
+            AreasByRoom.Clear();
+        }
+
         private bool IsPointWithinArea(Area area, Vector3 pointLocalPosition)
         {
             var areaRoomKindEdges = area.RoomKindArea.Edges;

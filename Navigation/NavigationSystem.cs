@@ -35,8 +35,8 @@ namespace SCPSLBot.Navigation
         {
             Log.Info($"Initializing vertices from room kind vertices.");
 
-            InitRoomVertices();
-            InitRoomAreas();
+            NavigationMesh.InitRoomVertices();
+            NavigationMesh.InitRoomAreas();
 
             Timing.RunCoroutine(ConnectForeignAreasAsync());
         }
@@ -87,49 +87,7 @@ namespace SCPSLBot.Navigation
             using var binaryWriter = new BinaryWriter(fileStream);
 
             NavigationMesh.WriteMesh(binaryWriter);
-        }
-
-        public void InitRoomVertices()
-        {
-            foreach (var room in Facility.Rooms)
-            {
-                var vertices = new List<RoomVertex>();
-                NavigationMesh.VerticesByRoom.Add(room, vertices);
-
-                if (!NavigationMesh.VerticesByRoomKind.TryGetValue((room.Identifier.Name, room.Identifier.Shape, (RoomZone)room.Identifier.Zone), out var roomKindVertices))
-                {
-                    continue;
-                }
-
-                vertices.AddRange(roomKindVertices.Select(k => new RoomVertex(k, room)));
-            }
-        }
-
-        public void ResetVertices()
-        {
-            NavigationMesh.VerticesByRoom.Clear();
-        }
-
-        public void InitRoomAreas()
-        {
-            foreach (var room in Facility.Rooms)
-            {
-                var areas = new List<Area>();
-                NavigationMesh.AreasByRoom.Add(room, areas);
-
-                if (!NavigationMesh.AreasByRoomKind.TryGetValue((room.Identifier.Name, room.Identifier.Shape, (RoomZone)room.Identifier.Zone), out var roomKindAreas))
-                {
-                    continue;
-                }
-
-                areas.AddRange(roomKindAreas.Select(k => new Area(k, room)));
-            }
-        }
-
-        public void ResetAreas()
-        {
-            NavigationMesh.AreasByRoom.Clear();
-        }
+        }        
 
         #region Private constructor
         private NavigationSystem()
