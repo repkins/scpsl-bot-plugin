@@ -189,7 +189,11 @@ namespace SCPSLBot.Navigation.Mesh
 
             foreach (var roomAreasPair in AreasByRoom.Where(r => (r.Key.Identifier.Name, r.Key.Identifier.Shape, (RoomZone)r.Key.Identifier.Zone) == roomKind))
             {
-                roomAreasPair.Value.Add(new Area(newRoomKindArea, roomAreasPair.Key));
+                var newRoomArea = new Area(newRoomKindArea, roomAreasPair.Key);
+                roomAreasPair.Value.Add(newRoomArea);
+
+                var connectedAreas = newRoomKindArea.ConnectedRoomKindAreas.Select(c => AreasByRoom[roomAreasPair.Key].Find(a => a.RoomKindArea == c));
+                //newRoomArea.ConnectedAreas.AddRange(connectedAreas);
             }
 
             return newRoomKindArea;
@@ -216,6 +220,12 @@ namespace SCPSLBot.Navigation.Mesh
             {
                 var area = roomOfKind.Value.Find(n => n.RoomKindArea == roomKindArea);
                 roomOfKind.Value.Remove(area);
+
+                foreach (var connectedArea in area.ConnectedAreas)
+                {
+                    var connectedConnectedArea = connectedArea.ConnectedAreas as List<Area>;
+                    //connectedConnectedArea.Remove(area);
+                }
             }
         }
 
@@ -397,6 +407,12 @@ namespace SCPSLBot.Navigation.Mesh
                 }
 
                 areas.AddRange(roomKindAreas.Select(k => new Area(k, room)));
+
+                foreach (var roomArea in areas)
+                {
+                    var connectedAreas = roomArea.RoomKindArea.ConnectedRoomKindAreas.Select(c => AreasByRoom[room].Find(a => a.RoomKindArea == c));
+                    //roomArea.ConnectedAreas.AddRange(connectedAreas);
+                }
             }
         }
 
