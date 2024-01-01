@@ -33,7 +33,7 @@ namespace SCPSLBot.Navigation
         [PluginEvent(PluginAPI.Enums.ServerEventType.MapGenerated)]
         public void OnMapGenerated()
         {
-            Log.Info($"Initializing vertices from room kind vertices.");
+            Log.Info($"Initializing vertices and areas from room kind counterparts.");
 
             NavigationMesh.InitRoomVertices();
             NavigationMesh.InitRoomAreas();
