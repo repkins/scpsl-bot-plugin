@@ -132,14 +132,22 @@ namespace SCPSLBot.Navigation.Mesh
             SeletedVertices.Clear();
         }
 
-        public RoomKindArea CreateArea(Vector3 position, IEnumerable<RoomKindVertex> vertices)
+        public RoomKindArea MakeArea(Vector3 position)
         {
+            if (SeletedVertices.Count < 3)
+            {
+                Log.Warning($"Not enough vertices (min 3) selected.");
+                return null;
+            }
+
             var room = RoomIdUtils.RoomAtPositionRaycasts(position);
             var roomKind = (room.Name, room.Shape, (RoomZone)room.Zone);
 
-            var newArea = NavigationMesh.AddArea(vertices, roomKind);
+            var newArea = NavigationMesh.AddArea(SeletedVertices, roomKind);
 
             Log.Info($"Area #{NavigationMesh.AreasByRoomKind[roomKind].IndexOf(newArea)} at local center position {newArea.LocalCenterPosition} added under room {roomKind}.");
+
+            SeletedVertices.Clear();
 
             return newArea;
         }
