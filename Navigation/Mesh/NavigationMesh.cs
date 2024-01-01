@@ -174,8 +174,18 @@ namespace SCPSLBot.Navigation.Mesh
             }
 
             var newRoomKindArea = new RoomKindArea(roomKindVertices, roomKind);
-
             roomKindAreas.Add(newRoomKindArea);
+
+            foreach (var edge in newRoomKindArea.Edges)
+            {
+                var inversedEdge = (edge.To, edge.From);
+                var connectedArea = roomKindAreas.Find(a => a.Edges.Contains(inversedEdge));
+                if (connectedArea != null)
+                {
+                    newRoomKindArea.ConnectedRoomKindAreas.Add(connectedArea);
+                    connectedArea.ConnectedRoomKindAreas.Add(newRoomKindArea);
+                }
+            }
 
             foreach (var roomAreasPair in AreasByRoom.Where(r => (r.Key.Identifier.Name, r.Key.Identifier.Shape, (RoomZone)r.Key.Identifier.Zone) == roomKind))
             {
