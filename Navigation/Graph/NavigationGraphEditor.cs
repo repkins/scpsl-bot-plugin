@@ -6,6 +6,7 @@ using PluginAPI.Core;
 using PluginAPI.Events;
 using PluginAPI.Loader;
 using RemoteAdmin;
+using SCPSLBot.MapGeneration;
 using System;
 using System.Collections.Generic;
 using System.IO;

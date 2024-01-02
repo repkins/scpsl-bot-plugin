@@ -72,6 +72,11 @@ namespace SCPSLBot.Navigation
             var fileName = "navmesh.slnmf";
             var path = Path.Combine(BaseDir, fileName);
 
+            if (!File.Exists(path))
+            {
+                return;
+            }
+
             using var fileStream = File.OpenRead(path);
             using var binaryReader = new BinaryReader(fileStream);
 

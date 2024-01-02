@@ -3,6 +3,7 @@ using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Core.Zones;
 using PluginAPI.Events;
+using SCPSLBot.MapGeneration;
 using System;
 using System.Collections.Generic;
 using System.IO;

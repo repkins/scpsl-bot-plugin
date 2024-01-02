@@ -1,6 +1,7 @@
 ﻿using MapGeneration;
 using PluginAPI.Core;
 using PluginAPI.Core.Zones;
+using SCPSLBot.MapGeneration;
 using SCPSLBot.Navigation.Graph;
 using System;
 using System.Collections.Generic;
@@ -135,37 +136,49 @@ namespace SCPSLBot.Navigation.Mesh
 
             foreach (var roomVerticesPair in VerticesByRoom.Where(r => (r.Key.Identifier.Name, r.Key.Identifier.Shape, (RoomZone)r.Key.Identifier.Zone) == roomKind))
             {
+                Log.Debug($"Room vertex added.");
                 roomVerticesPair.Value.Add(new RoomVertex(newRoomKindVertex, roomVerticesPair.Key));
             }
 
             return newRoomKindVertex;
         }
 
-        public void DeleteVertex(RoomKindVertex roomKindVertex)
+        public bool DeleteVertex(RoomKindVertex roomKindVertex)
         {
             var roomKind = roomKindVertex.RoomKind;
 
             if (!VerticesByRoomKind.TryGetValue(roomKind, out var roomKindVertices))
             {
                 Log.Warning($"No vertices at room {roomKind} to remove vertex from.");
-                return;
+                return false;
             }
 
-            foreach (var areaVertices in AreasByRoomKind[roomKind].Select(a => a.Vertices))
+            if (AreasByRoomKind.TryGetValue(roomKind, out var roomKindAreas))
             {
-                areaVertices.Remove(roomKindVertex);
+                foreach (var areaVertices in roomKindAreas.Select(a => a.Vertices))
+                {
+                    if (areaVertices.Count == 3)
+                    {
+                        Log.Warning($"Can't remove vertex from triangle area.");
+                        return false;
+                    }
+                    areaVertices.Remove(roomKindVertex);
+                }
             }
 
             roomKindVertices.Remove(roomKindVertex);
 
             foreach (var roomVerticesPair in VerticesByRoom.Where(r => (r.Key.Identifier.Name, r.Key.Identifier.Shape, (RoomZone)r.Key.Identifier.Zone) == roomKind))
             {
+                Log.Debug($"Room vertex removed.");
                 var vertex = roomVerticesPair.Value.Find(n => n.RoomKindVertex == roomKindVertex);
                 roomVerticesPair.Value.Remove(vertex);
             }
+
+            return true;
         }
 
-        public RoomKindArea AddArea(IEnumerable<RoomKindVertex> roomKindVertices, (RoomName, RoomShape, RoomZone) roomKind)
+        public RoomKindArea MakeArea(IEnumerable<RoomKindVertex> roomKindVertices, (RoomName, RoomShape, RoomZone) roomKind)
         {
             if (!AreasByRoomKind.TryGetValue(roomKind, out var roomKindAreas))
             {
@@ -331,7 +344,7 @@ namespace SCPSLBot.Navigation.Mesh
         {
             byte version = 1;
             binaryWriter.Write(version);
-
+            
             binaryWriter.Write(VerticesByRoomKind.Count);
 
             foreach (var (roomKind, vertices) in VerticesByRoomKind.Select(p => (roomKind: p.Key, vertices: p.Value)))

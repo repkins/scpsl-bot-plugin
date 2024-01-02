@@ -36,10 +36,11 @@ namespace SCPSLBot.Navigation.Mesh
         private RoomKindArea LastNearestArea { get; set; }
         private RoomKindArea LastFacingArea { get; set; }
 
-        private string[] VertexVisualsMessages { get; } = new string[2];
-        private string[] AreaVisualsMessages { get; } = new string[2];
+        private string[] VisualsMessages { get; } = new string[2];
 
-        public void UpdateVertexInfoVisuals()
+        private string SentBroadcastMessage;
+
+        public void UpdateVertexInfo()
         {
             if (PlayerEnabledVisualsFor != null)
             {
@@ -50,17 +51,17 @@ namespace SCPSLBot.Navigation.Mesh
                     if (NearestVertex != null)
                     {
                         var nearestVertexId = NavigationMesh.VerticesByRoomKind[NearestVertex.RoomKind].IndexOf(NearestVertex);
-                        VertexVisualsMessages[0] = $"Vertex #{nearestVertexId} in {NearestVertex.RoomKind}";
+                        VisualsMessages[0] = $"Vertex #{nearestVertexId} in {NearestVertex.RoomKind}";
 
                         var selectedIdx = SelectedVertices.IndexOf(NearestVertex);
                         if (selectedIdx >= 0)
                         {
-                            VertexVisualsMessages[0] += $" (Selected #{selectedIdx})";
+                            VisualsMessages[0] += $" (Selected #{selectedIdx})";
                         }
                     }
                     else
                     {
-                        VertexVisualsMessages[0] = null;
+                        VisualsMessages[0] = null;
                     }
                 }
 
@@ -71,33 +72,23 @@ namespace SCPSLBot.Navigation.Mesh
                     if (FacingVertex != null)
                     {
                         var facingVertexId = NavigationMesh.VerticesByRoomKind[FacingVertex.RoomKind].IndexOf(FacingVertex);
-                        VertexVisualsMessages[1] = $"Facing vertex #{facingVertexId} in {FacingVertex.RoomKind}";
+                        VisualsMessages[1] = $"Facing vertex #{facingVertexId} in {FacingVertex.RoomKind}";
 
                         var selectedIdx = SelectedVertices.IndexOf(FacingVertex);
                         if (selectedIdx >= 0)
                         {
-                            VertexVisualsMessages[1] += $" (Selected #{selectedIdx})";
+                            VisualsMessages[1] += $" (Selected #{selectedIdx})";
                         }
                     }
                     else
                     {
-                        VertexVisualsMessages[1] = null;
+                        VisualsMessages[1] = null;
                     }
-                }
-
-                var messageLinesToSend = VertexVisualsMessages.Where(m => m != null);
-                if (messageLinesToSend.Any())
-                {
-                    PlayerEnabledVisualsFor.SendBroadcast(string.Join("\n", messageLinesToSend), 60, shouldClearPrevious: true);
-                }
-                else
-                {
-                    PlayerEnabledVisualsFor.ClearBroadcasts();
                 }
             }
         }
 
-        public void UpdateAreaInfoVisuals()
+        public void UpdateAreaInfo()
         {
             if (PlayerEnabledVisualsFor != null)
             {
@@ -111,11 +102,11 @@ namespace SCPSLBot.Navigation.Mesh
                     {
                         //var connectedIdsStr = string.Join(", ", nearestArea.ConnectedAreas.Select(c => $"#{c.Id}"));
                         var nearestAreaId = NavigationMesh.AreasByRoomKind[nearestArea.RoomKind].IndexOf(nearestArea);
-                        AreaVisualsMessages[0] = $"Area #{nearestAreaId} in {nearestArea.RoomKind}";
+                        VisualsMessages[0] = $"Area #{nearestAreaId} in {nearestArea.RoomKind}";
                     }
                     else
                     {
-                        AreaVisualsMessages[0] = null;
+                        VisualsMessages[0] = null;
                     }
                 }
 
@@ -126,22 +117,31 @@ namespace SCPSLBot.Navigation.Mesh
                     if (FacingArea != null)
                     {
                         var facingAreaId = NavigationMesh.AreasByRoomKind[FacingArea.RoomKind].IndexOf(FacingArea);
-                        AreaVisualsMessages[1] = $"Facing area #{facingAreaId} in {FacingArea.RoomKind}";
+                        VisualsMessages[1] = $"Facing area #{facingAreaId} in {FacingArea.RoomKind}";
                     }
                     else
                     {
-                        AreaVisualsMessages[1] = null;
+                        VisualsMessages[1] = null;
                     }
                 }
+            }
+        }
 
-                var messageLinesToSend = AreaVisualsMessages.Where(m => m != null);
-                if (messageLinesToSend.Any())
-                {
-                    PlayerEnabledVisualsFor.SendBroadcast(string.Join("\n", messageLinesToSend), 60, shouldClearPrevious: true);
-                }
-                else
+        public void UpdateBroadcastMessage()
+        {
+            var messageLinesToSend = VisualsMessages.Where(m => m != null);
+            if (messageLinesToSend.Any())
+            {
+                var broadcastMessage = string.Join("\n", messageLinesToSend);
+                PlayerEnabledVisualsFor.SendBroadcast($"<size=40>{broadcastMessage}", 60, shouldClearPrevious: true);
+                SentBroadcastMessage = broadcastMessage;
+            }
+            else
+            {
+                if (SentBroadcastMessage != null)
                 {
                     PlayerEnabledVisualsFor.ClearBroadcasts();
+                    SentBroadcastMessage = null;
                 }
             }
         }

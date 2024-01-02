@@ -1,5 +1,6 @@
 ﻿using MapGeneration;
 using PluginAPI.Core.Zones;
+using SCPSLBot.MapGeneration;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -3,7 +3,7 @@ using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using SCPSLBot.AI;
 using SCPSLBot.Navigation;
-using SCPSLBot.Navigation.Graph;
+using SCPSLBot.Navigation.Mesh;
 using System;
 using System.Reflection;
 
@@ -30,9 +30,9 @@ namespace SCPSLBot
 
             NavigationSystem.Instance.BaseDir = PluginHandler.Get(this).PluginDirectoryPath;
 
-            NavigationGraph.Instance.Init();
+            NavigationMesh.Instance.Init();
             NavigationSystem.Instance.Init();
-            NavigationGraphEditor.Instance.Init();
+            NavigationMeshEditor.Instance.Init();
 
             BotManager.Instance.Init();
         }
