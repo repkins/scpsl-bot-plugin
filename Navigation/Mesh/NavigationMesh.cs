@@ -157,11 +157,6 @@ namespace SCPSLBot.Navigation.Mesh
             {
                 foreach (var areaVertices in roomKindAreas.Select(a => a.Vertices))
                 {
-                    if (areaVertices.Count == 3)
-                    {
-                        Log.Warning($"Can't remove vertex from triangle area.");
-                        return false;
-                    }
                     areaVertices.Remove(roomKindVertex);
                 }
             }
@@ -438,11 +433,44 @@ namespace SCPSLBot.Navigation.Mesh
         {
             var areaRoomKindEdges = area.RoomKindArea.Edges;
 
-            return areaRoomKindEdges.Select(e => (
+            return areaRoomKindEdges
+                .Select(e =>
+                {
+                    //Log.Debug($"From: #{VerticesByRoomKind[e.From.RoomKind].IndexOf(e.From)} {e.From.LocalPosition}, " +
+                    //    $"To: #{VerticesByRoomKind[e.To.RoomKind].IndexOf(e.To)} {e.To.LocalPosition}");
+                    //Log.Debug($"pointLocalPosition: {pointLocalPosition}");
+
+                    return e;
+                })
+
+                .Select(e => (
                     dirTo2: e.To.LocalPosition - e.From.LocalPosition, 
                     dirToPoint: pointLocalPosition - e.From.LocalPosition))
-                .Select(d => (edgeNormal: Vector3.Cross(d.dirTo2, Vector3.up), d.dirToPoint))
+                .Select(t =>
+                {
+                    //Log.Debug($"dirTo2: {t.dirTo2}");
+                    //Log.Debug($"dirToPoint: {t.dirToPoint}");
+
+                    return t;
+                })
+
+                .Select(d => (edgeNormal: Vector3.Cross(d.dirTo2, Vector3.down), d.dirToPoint))
+                .Select(t =>
+                {
+                    //Log.Debug($"edgeNormal: {t.edgeNormal}");
+                    //Log.Debug($"dirToPoint: {t.dirToPoint}");
+
+                    return t;
+                })
+
                 .Select(d2 => Vector3.Dot(d2.edgeNormal, d2.dirToPoint))
+                .Select(p =>
+                {
+                    //Log.Debug($"p: {p}");
+
+                    return p;
+                })
+
                 .All(p => p >= 0f);
         }
 

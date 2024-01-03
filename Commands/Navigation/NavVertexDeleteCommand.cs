@@ -35,7 +35,7 @@ namespace SCPSLBot.Commands.Navigation
 
             if (!NavigationMeshEditor.Instance.DeleteVertex(playerCommandSender.ReferenceHub.transform.position))
             {
-                response = $"No vertex to be removed.";
+                response = $"No vertex valid to be removed.";
                 return false;
             }
 

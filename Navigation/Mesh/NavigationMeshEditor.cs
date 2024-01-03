@@ -34,10 +34,13 @@ namespace SCPSLBot.Navigation.Mesh
             Visuals.SelectedVertices = SeletedVertices;
 
             Timing.RunCoroutine(RunEachFrame(UpdateEditing));
+
             Timing.RunCoroutine(RunEachFrame(UpdateNearestVertex));
             Timing.RunCoroutine(RunEachFrame(UpdateFacingVertex));
+
             Timing.RunCoroutine(RunEachFrame(UpdateNearestArea));
             Timing.RunCoroutine(RunEachFrame(UpdateFacingArea));
+
             Timing.RunCoroutine(RunEachFrame(Visuals.UpdateVertexInfo));
             Timing.RunCoroutine(RunEachFrame(Visuals.UpdateAreaInfo));
             Timing.RunCoroutine(RunEachFrame(Visuals.UpdateBroadcastMessage));
@@ -110,7 +113,10 @@ namespace SCPSLBot.Navigation.Mesh
 
             SeletedVertices.Remove(vertex.RoomKindVertex);
 
-            NavigationMesh.DeleteVertex(vertex.RoomKindVertex);
+            if (!NavigationMesh.DeleteVertex(vertex.RoomKindVertex))
+            {
+                return false;
+            }
 
             Log.Info($"Vertex at local position {vertex.RoomKindVertex.LocalPosition} removed under room {roomKind}.");
 
@@ -242,7 +248,7 @@ namespace SCPSLBot.Navigation.Mesh
         {
             if (PlayerEditing != null)
             {
-                Visuals.NearestVertex = NavigationMesh.GetNearbyVertex(PlayerEditing.Camera.position)?.RoomKindVertex;
+                Visuals.NearestVertex = NavigationMesh.GetNearbyVertex(PlayerEditing.Position, .25f)?.RoomKindVertex;
             }
         }
 
@@ -292,6 +298,16 @@ namespace SCPSLBot.Navigation.Mesh
                 action.Invoke();
 
                 yield return Timing.WaitForOneFrame;
+            }
+        }
+
+        private IEnumerator<float> RunOncePerSecond(Action action)
+        {
+            while (true)
+            {
+                action.Invoke();
+
+                yield return Timing.WaitForSeconds(1f);
             }
         }
     }
