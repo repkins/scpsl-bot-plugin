@@ -187,7 +187,6 @@ namespace SCPSLBot.Navigation.Mesh
                         visual = UnityEngine.Object.Instantiate(primPrefab);
                         visual.NetworkPrimitiveType = PrimitiveType.Quad;
 
-                        visual.transform.position = room.transform.TransformPoint(area.LocalCenterPosition);
                         visual.transform.RotateAround(visual.transform.position, visual.transform.right, -90f);
                         visual.transform.localScale = -Vector3.one * .25f;
 
@@ -198,7 +197,20 @@ namespace SCPSLBot.Navigation.Mesh
                         AreaVisuals.Add(area, visual);
                     }
 
-                    visual.NetworkMaterialColor = (NearestArea == area.RoomKindArea) ? Color.yellow : Color.white;
+                    visual.transform.position = room.transform.TransformPoint(area.LocalCenterPosition);
+
+                    if (NearestArea == area.RoomKindArea)
+                    {
+                        visual.NetworkMaterialColor = Color.yellow;
+                    }
+                    else if (NearestArea?.ConnectedRoomKindAreas.Contains(area.RoomKindArea) ?? false)
+                    {
+                        visual.NetworkMaterialColor = Color.yellow;
+                    }
+                    else
+                    {
+                        visual.NetworkMaterialColor = Color.white;
+                    }
 
                 }
 

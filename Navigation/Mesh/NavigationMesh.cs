@@ -155,9 +155,15 @@ namespace SCPSLBot.Navigation.Mesh
 
             if (AreasByRoomKind.TryGetValue(roomKind, out var roomKindAreas))
             {
-                foreach (var areaVertices in roomKindAreas.Select(a => a.Vertices))
+                foreach (var area in roomKindAreas.ToArray())
                 {
-                    areaVertices.Remove(roomKindVertex);
+                    area.Vertices.Remove(roomKindVertex);
+                    if (area.Vertices.Count < 3)
+                    {
+                        RemoveArea(area);
+
+                        Log.Warning($"Area at local center position {area.LocalCenterPosition} removed under room {roomKind}.");
+                    }
                 }
             }
 
