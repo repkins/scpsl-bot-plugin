@@ -195,7 +195,40 @@ namespace SCPSLBot.Navigation.Mesh
 
             NavigationMesh.RemoveArea(area.RoomKindArea);
 
-            Log.Info($"Area at local center position {area.CenterPosition} removed under room {roomKind}.");
+            Log.Info($"Area at local center position {area.LocalCenterPosition} removed under room {roomKind}.");
+
+            return true;
+        }
+
+        public bool CreateVertexOnClosestEdge(Vector3 position)
+        {
+            var room = RoomIdUtils.RoomAtPositionRaycasts(position);
+            var roomKind = (room.Name, room.Shape, (RoomZone)room.Zone);
+
+            var localPosition = room.transform.InverseTransformPoint(position);
+
+            var (newVertexPos, area) = NavigationMesh.AreasByRoomKind[roomKind]
+                .SelectMany(a => a.Edges.Select(e => (edge: (from: e.From.LocalPosition, to: e.To.LocalPosition), area: a)))
+                .Select(t => (
+                    t.edge,
+                    dirTo2: (t.edge.to - t.edge.from),
+                    dirToPoint: (localPosition - t.edge.from),
+                    t.area))
+                .Select(t => (t.edge, t.dirTo2, dirToProj: (Vector3.Project(t.dirToPoint, t.dirTo2)), t.area))
+                .Where(t => Vector3.Dot(t.dirToProj, t.dirTo2) > 0f && t.dirToProj.sqrMagnitude < t.dirTo2.sqrMagnitude)
+                .Select(t => (projected: (t.dirToProj + t.edge.from), t.area))
+
+                .OrderBy(t => Vector3.SqrMagnitude(t.projected - localPosition))
+                .FirstOrDefault();
+
+            if (area == null)
+            {
+                return false;
+            }
+
+            var vertex = NavigationMesh.AddVertex(newVertexPos, roomKind);
+
+            Log.Info($"Vertex #{NavigationMesh.VerticesByRoomKind[roomKind].IndexOf(vertex)} created on edge of area #{NavigationMesh.AreasByRoomKind[roomKind].IndexOf(area)}");
 
             return true;
         }
