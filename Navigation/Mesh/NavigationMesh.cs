@@ -201,14 +201,7 @@ namespace SCPSLBot.Navigation.Mesh
                 }
             }
 
-            foreach (var roomAreasPair in AreasByRoom.Where(r => (r.Key.Identifier.Name, r.Key.Identifier.Shape, (RoomZone)r.Key.Identifier.Zone) == roomKind))
-            {
-                var newRoomArea = new Area(newRoomKindArea, roomAreasPair.Key);
-                roomAreasPair.Value.Add(newRoomArea);
-
-                var connectedAreas = newRoomKindArea.ConnectedRoomKindAreas.Select(c => AreasByRoom[roomAreasPair.Key].Find(a => a.RoomKindArea == c));
-                //newRoomArea.ConnectedAreas.AddRange(connectedAreas);
-            }
+            AddRoomAreas(newRoomKindArea);
 
             return newRoomKindArea;
         }
@@ -435,6 +428,13 @@ namespace SCPSLBot.Navigation.Mesh
             AreasByRoom.Clear();
         }
 
+        public void AddVertexToArea(RoomKindArea area, RoomKindVertex vertex, RoomKindVertex beforeVertex)
+        {
+            var atIdx = area.Vertices.IndexOf(beforeVertex);
+
+            area.Vertices.Insert(atIdx, vertex);
+        }
+
         private bool IsPointWithinArea(Area area, Vector3 pointLocalPosition)
         {
             var areaRoomKindEdges = area.RoomKindArea.Edges;
@@ -478,6 +478,21 @@ namespace SCPSLBot.Navigation.Mesh
                 })
 
                 .All(p => p >= 0f);
+        }
+
+        private void AddRoomAreas(RoomKindArea roomKindArea)
+        {
+            var roomsAreasOfRoomKind = AreasByRoom.Select(r => (room: r.Key, areas: r.Value))
+                .Where(t => (t.room.Identifier.Name, t.room.Identifier.Shape, (RoomZone)t.room.Identifier.Zone) == roomKindArea.RoomKind);
+
+            foreach (var (room, areas) in roomsAreasOfRoomKind)
+            {
+                var newRoomArea = new Area(roomKindArea, room);
+                areas.Add(newRoomArea);
+
+                var connectedAreas = roomKindArea.ConnectedRoomKindAreas.Select(c => AreasByRoom[room].Find(a => a.RoomKindArea == c));
+                //newRoomArea.ConnectedAreas.AddRange(connectedAreas);
+            }
         }
 
         #region Private constructor

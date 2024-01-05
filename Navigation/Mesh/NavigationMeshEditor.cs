@@ -28,6 +28,7 @@ namespace SCPSLBot.Navigation.Mesh
         private Area TracingEndingArea { get; set; }
 
         private List<RoomKindVertex> SeletedVertices { get; } = new();
+        private bool AutoSelectModeEnabled = false;
 
         public void Init()
         {
@@ -37,17 +38,17 @@ namespace SCPSLBot.Navigation.Mesh
 
             Timing.RunCoroutine(RunEachFrame(UpdateNearestVertex));
             Timing.RunCoroutine(RunEachFrame(UpdateFacingVertex));
+            Timing.RunCoroutine(RunEachFrame(UpdateVertexAutoSelect));
 
             Timing.RunCoroutine(RunEachFrame(UpdateNearestArea));
             Timing.RunCoroutine(RunEachFrame(UpdateFacingArea));
 
-            Timing.RunCoroutine(RunEachFrame(Visuals.UpdateVertexInfo));
-            Timing.RunCoroutine(RunEachFrame(Visuals.UpdateAreaInfo));
             Timing.RunCoroutine(RunEachFrame(Visuals.UpdateBroadcastMessage));
 
             Timing.RunCoroutine(RunEachFrame(Visuals.UpdateVertexVisuals));
             Timing.RunCoroutine(RunEachFrame(Visuals.UpdateAreaVisuals));
             Timing.RunCoroutine(RunEachFrame(Visuals.UpdateEdgeVisuals));
+
         }
 
         public RoomKindVertex FindClosestVertexFacingAt((RoomName, RoomShape, RoomZone) roomKind, Vector3 localPosition, Vector3 localDirection)
@@ -90,6 +91,18 @@ namespace SCPSLBot.Navigation.Mesh
             var roomKind = (room.Name, room.Shape, (RoomZone)room.Zone);
 
             var localPosition = room.transform.InverseTransformPoint(position);
+
+            if (SeletedVertices.Count == 2)
+            {
+                var lineSegment = (from: SeletedVertices.First(), to: SeletedVertices.Last());
+                
+                var dirTo2 = (lineSegment.to.LocalPosition - lineSegment.from.LocalPosition);
+                var dirToPoint = (localPosition - lineSegment.from.LocalPosition);
+                var dirToProj = (Vector3.Project(dirToPoint, dirTo2));
+                var projected = (dirToProj + lineSegment.from.LocalPosition);
+
+                localPosition = projected;
+            }
 
             var newVertex = NavigationMesh.AddVertex(localPosition, roomKind);
 
@@ -160,6 +173,11 @@ namespace SCPSLBot.Navigation.Mesh
             SeletedVertices.Clear();
         }
 
+        public void ToggleAutoSelectingVertices(bool isEnabled)
+        {
+            AutoSelectModeEnabled = isEnabled;
+        }
+
         public RoomKindArea MakeArea(Vector3 position)
         {
             if (SeletedVertices.Count < 3)
@@ -176,6 +194,8 @@ namespace SCPSLBot.Navigation.Mesh
             Log.Info($"Area #{NavigationMesh.AreasByRoomKind[roomKind].IndexOf(newArea)} at local center position {newArea.LocalCenterPosition} added under room {roomKind}.");
 
             SeletedVertices.Clear();
+            AutoSelectModeEnabled = false;
+            PlayerEditing.ReceiveHint($"<size=30>Vertex auto-selection is stopped on area creation.", 3f);
 
             return newArea;
         }
@@ -207,16 +227,21 @@ namespace SCPSLBot.Navigation.Mesh
 
             var localPosition = room.transform.InverseTransformPoint(position);
 
-            var (newVertexPos, area) = NavigationMesh.AreasByRoomKind[roomKind]
-                .SelectMany(a => a.Edges.Select(e => (edge: (from: e.From.LocalPosition, to: e.To.LocalPosition), area: a)))
+            if (!NavigationMesh.AreasByRoomKind.ContainsKey(roomKind))
+            {
+                return false;
+            }
+
+            var (newVertexPos, area, edge) = NavigationMesh.AreasByRoomKind[roomKind]
+                .SelectMany(a => a.Edges.Select(e => (edge: (from: e.From, to: e.To), area: a)))
                 .Select(t => (
                     t.edge,
-                    dirTo2: (t.edge.to - t.edge.from),
-                    dirToPoint: (localPosition - t.edge.from),
+                    dirTo2: (t.edge.to.LocalPosition - t.edge.from.LocalPosition),
+                    dirToPoint: (localPosition - t.edge.from.LocalPosition),
                     t.area))
                 .Select(t => (t.edge, t.dirTo2, dirToProj: (Vector3.Project(t.dirToPoint, t.dirTo2)), t.area))
                 .Where(t => Vector3.Dot(t.dirToProj, t.dirTo2) > 0f && t.dirToProj.sqrMagnitude < t.dirTo2.sqrMagnitude)
-                .Select(t => (projected: (t.dirToProj + t.edge.from), t.area))
+                .Select(t => (projected: (t.dirToProj + t.edge.from.LocalPosition), t.area, t.edge))
 
                 .OrderBy(t => Vector3.SqrMagnitude(t.projected - localPosition))
                 .FirstOrDefault();
@@ -227,6 +252,8 @@ namespace SCPSLBot.Navigation.Mesh
             }
 
             var vertex = NavigationMesh.AddVertex(newVertexPos, roomKind);
+
+            NavigationMesh.AddVertexToArea(area, vertex, edge.to);
 
             Log.Info($"Vertex #{NavigationMesh.VerticesByRoomKind[roomKind].IndexOf(vertex)} created on edge of area #{NavigationMesh.AreasByRoomKind[roomKind].IndexOf(area)}");
 
@@ -316,6 +343,24 @@ namespace SCPSLBot.Navigation.Mesh
                 var localForward = room.transform.InverseTransformDirection(PlayerEditing.Camera.forward);
 
                 Visuals.FacingArea = FindClosestAreaFacingAt((room.Name, room.Shape, (RoomZone)room.Zone), localPosition, localForward);
+            }
+        }
+
+        private void UpdateVertexAutoSelect()
+        {
+            if (PlayerEditing != null && AutoSelectModeEnabled && Visuals.NearestVertex != null)
+            {
+                if (!SeletedVertices.Contains(Visuals.NearestVertex))
+                {
+                    SeletedVertices.Add(Visuals.NearestVertex);
+                }
+                else if (SeletedVertices.Count > 1 && SeletedVertices.FirstOrDefault() == Visuals.NearestVertex)
+                {
+                    AutoSelectModeEnabled = false;
+                    PlayerEditing.ReceiveHint($"<size=30>Vertex auto-selection is stopped on first vertex selected.", 3f);
+
+                    Log.Info($"Vertex auto-selection stopped on first vertex selected.");
+                }
             }
         }
 

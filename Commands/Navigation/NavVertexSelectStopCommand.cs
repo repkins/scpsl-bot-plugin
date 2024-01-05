@@ -10,14 +10,14 @@ using System.Threading.Tasks;
 
 namespace SCPSLBot.Commands.Navigation
 {
-    [CommandHandler(typeof(NavArea))]
-    internal class NavAreaVertexCreateCommand : ICommand
+    [CommandHandler(typeof(NavVertex))]
+    internal class NavVertexSelectStopCommand : ICommand
     {
-        public string Command { get; } = "vertex_create";
+        public string Command { get; } = "select_stop";
 
-        public string[] Aliases { get; } = new string[] { };
+        public string[] Aliases { get; } = new string[] { "nvsst" };
 
-        public string Description { get; } = "Creates vertex on navigation mesh area nearest edge.";
+        public string Description { get; } = "Stops navigation mesh vertex auto-selection.";
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
@@ -33,13 +33,9 @@ namespace SCPSLBot.Commands.Navigation
                 return false;
             }
 
-            if (!NavigationMeshEditor.Instance.CreateVertexOnClosestEdge(playerCommandSender.ReferenceHub.transform.position))
-            {
-                response = $"No nearby area.";
-                return false;
-            }
+            NavigationMeshEditor.Instance.ToggleAutoSelectingVertices(false);
 
-            response = $"Vertex on area edge created and added to area.";
+            response = $"Vertex auto-selection stopped.";
             return true;
         }
     }
