@@ -16,6 +16,7 @@ namespace SCPSLBot.Navigation.Mesh
         public IEnumerable<Area> ConnectedAreas => RoomKindArea.ConnectedRoomKindAreas.Select(k => k.AreasOfRoom[Room]).Concat(ForeignConnectedAreas);
 
         public List<Area> ForeignConnectedAreas { get; } = new();
+        public List<(RoomVertex From, RoomVertex To)> ForeignConnectionEdges { get; } = new();
 
         public Area(RoomKindArea roomKindArea, FacilityRoom room)
         {

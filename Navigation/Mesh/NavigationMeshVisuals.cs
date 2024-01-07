@@ -25,6 +25,7 @@ namespace SCPSLBot.Navigation.Mesh
 
         private Dictionary<RoomVertex, PrimitiveObjectToy> VertexVisuals { get; } = new();
         private Dictionary<((RoomKindVertex From, RoomKindVertex To), FacilityRoom Room), (PrimitiveObjectToy, Area)> EdgeVisuals { get; } = new();
+        private Dictionary<(Area From, Area To), PrimitiveObjectToy> ConnectionVisuals { get; } = new();
 
         private Dictionary<Area, PrimitiveObjectToy> AreaVisuals { get; } = new ();
 
@@ -311,6 +312,71 @@ namespace SCPSLBot.Navigation.Mesh
                     NetworkServer.Destroy(edgeVisual.gameObject);
                 }
                 EdgeVisuals.Clear();
+            }
+        }
+
+        public void UpdateConnectionVisuals()
+        {
+            if (PlayerEnabledVisualsFor != null)
+            {
+                foreach (var ((areaFrom, areaTo), visual) in ConnectionVisuals.Select(p => (p.Key, p.Value)).ToArray())
+                {
+                    var isAreaFromRemoved = !NavigationMesh.AreasByRoom[areaFrom.Room].Contains(areaFrom);
+
+                    if (isAreaFromRemoved || (!areaFrom.ForeignConnectedAreas.Contains(areaTo)))
+                    {
+                        NetworkServer.Destroy(visual.gameObject);
+                        ConnectionVisuals.Remove((areaFrom, areaTo));
+                    }
+                }
+
+                var primPrefab = NetworkClient.prefabs.Values.Select(p => p.GetComponent<PrimitiveObjectToy>()).First(p => p);
+
+                foreach (var areaFrom in NavigationMesh.AreasByRoom.Values.SelectMany(l => l))
+                {
+                    var roomFrom = areaFrom.Room;
+
+                    foreach (var (areaTo, i) in areaFrom.ForeignConnectedAreas.Select((a, i) => (a, i)))
+                    {
+                        var roomTo = areaTo.Room;
+
+                        if (!ConnectionVisuals.TryGetValue((areaFrom, areaTo), out var connectionVisual))
+                        {
+                            var fromAreaEdge = areaFrom.ForeignConnectionEdges[i];
+                            var fromAreaEdgeLocalPos = Vector3.Lerp(fromAreaEdge.From.LocalPosition, fromAreaEdge.To.LocalPosition, .5f);
+
+                            var toAreaEdge = areaTo.ForeignConnectionEdges[areaTo.ForeignConnectedAreas.IndexOf(areaFrom)];
+                            var toAreaEdgeLocalPos = Vector3.Lerp(toAreaEdge.From.LocalPosition, toAreaEdge.To.LocalPosition, .5f);
+
+                            var newConnectionVisual = UnityEngine.Object.Instantiate(primPrefab);
+
+                            newConnectionVisual.NetworkPrimitiveType = PrimitiveType.Cylinder;
+                            newConnectionVisual.transform.position = Vector3.Lerp(roomFrom.Transform.TransformPoint(fromAreaEdgeLocalPos), roomTo.Transform.TransformPoint(toAreaEdgeLocalPos), 0.5f);
+                            newConnectionVisual.transform.LookAt(roomTo.Transform.TransformPoint(toAreaEdgeLocalPos));
+                            newConnectionVisual.transform.RotateAround(newConnectionVisual.transform.position, newConnectionVisual.transform.right, 90f);
+                            newConnectionVisual.transform.localScale = -Vector3.forward * 0.01f + -Vector3.right * 0.01f;
+                            newConnectionVisual.transform.localScale += -Vector3.up * Vector3.Distance(roomFrom.Transform.TransformPoint(fromAreaEdgeLocalPos), roomTo.Transform.TransformPoint(toAreaEdgeLocalPos)) * 0.5f;
+
+                            newConnectionVisual.transform.position += Vector3.up * verticalOffset;
+
+                            NetworkServer.Spawn(newConnectionVisual.gameObject);
+
+                            connectionVisual = newConnectionVisual;
+                            ConnectionVisuals.Add((areaFrom, areaTo), connectionVisual);
+                        }
+
+                        //connectionVisual.NetworkMaterialColor = (NearestArea?.Edges.Contains(edge) ?? false) ? Color.yellow : Color.white;
+
+                    }
+                }
+            }
+            else
+            {
+                foreach (var connectionVisual in ConnectionVisuals.Values)
+                {
+                    NetworkServer.Destroy(connectionVisual.gameObject);
+                }
+                ConnectionVisuals.Clear();
             }
         }
     }

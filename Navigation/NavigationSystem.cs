@@ -53,14 +53,23 @@ namespace SCPSLBot.Navigation
                     var doorPosition = door.Position;
                     var doorForward = door.Transform.forward;
 
-                    var areaInFront = NavigationMesh.GetAreaWithin(doorPosition + doorForward * 1f);
-                    var areaInBack = NavigationMesh.GetAreaWithin(doorPosition - doorForward * 1f);
+                    var edgeInFront = NavigationMesh.GetNearestEdge(doorPosition + doorForward * .75f);
+                    var edgeInBack = NavigationMesh.GetNearestEdge(doorPosition - doorForward * .75f);
 
-                    if (areaInFront != null && areaInBack != null)
+                    if (edgeInFront != null && edgeInBack != null)
                     {
                         // Connect
+                        var areaInFront = NavigationMesh.AreasByRoom[edgeInFront.Value.From.Room]
+                            .Find(a => a.RoomKindArea.Edges.Any(e => e == (edgeInFront.Value.From.RoomKindVertex, edgeInFront.Value.To.RoomKindVertex)));
+
+                        var areaInBack = NavigationMesh.AreasByRoom[edgeInBack.Value.From.Room]
+                            .Find(a => a.RoomKindArea.Edges.Any(e => e == (edgeInBack.Value.From.RoomKindVertex, edgeInBack.Value.To.RoomKindVertex)));
+
                         areaInFront.ForeignConnectedAreas.Add(areaInBack);
                         areaInBack.ForeignConnectedAreas.Add(areaInFront);
+
+                        areaInFront.ForeignConnectionEdges.Add(edgeInFront.Value);
+                        areaInBack.ForeignConnectionEdges.Add(edgeInBack.Value);
                     }
                 }
             }

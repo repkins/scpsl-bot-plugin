@@ -40,6 +40,37 @@ namespace SCPSLBot.Navigation.Mesh
             return roomAreas.Find(a => IsPointWithinArea(a, localPosition));
         }
 
+        public (RoomVertex From, RoomVertex To)? GetNearestEdge(Vector3 position)
+        {
+            var room = RoomIdUtils.RoomAtPositionRaycasts(position);
+
+            if (!room || !AreasByRoom.TryGetValue(room.ApiRoom, out var roomAreas))
+            {
+                return null;
+            }
+
+            var localPosition = room.transform.InverseTransformPoint(position);
+
+            var roomKindEdge = roomAreas.SelectMany(a => a.RoomKindArea.Edges)
+                .Select(e => (edge: e, dist: GetPointDistToEdge(e, localPosition)))
+                .Where(t => t.dist > 0f)
+                .Where(t => IsWithinEdge(t.edge, localPosition))
+                .OrderBy(t => t.dist)
+                .Select(t => new (RoomKindVertex From, RoomKindVertex To)?(t.edge))
+                .DefaultIfEmpty(null)
+                .First();
+
+            if (roomKindEdge == null)
+            {
+                return null;
+            }
+
+            RoomVertex roomEdgeFrom = VerticesByRoom[room.ApiRoom].Find(v => v.RoomKindVertex == roomKindEdge.Value.From),
+                       roomEdgeTo = VerticesByRoom[room.ApiRoom].Find(v => v.RoomKindVertex == roomKindEdge.Value.To);
+
+            return (roomEdgeFrom, roomEdgeTo);
+        }
+
         public List<Area> GetShortestPath(Area startingArea, Area endArea)
         {
             var areasWithPriorityToEvaluate = new Dictionary<Area, float>();
@@ -117,7 +148,7 @@ namespace SCPSLBot.Navigation.Mesh
             {
                 return null;
             }
-
+            
             return verticesWithinRadius
                 .Aggregate((a, c) => c.distSqr < a.distSqr ? c : a)
                 .vertex;
@@ -440,44 +471,30 @@ namespace SCPSLBot.Navigation.Mesh
             var areaRoomKindEdges = area.RoomKindArea.Edges;
 
             return areaRoomKindEdges
-                .Select(e =>
-                {
-                    //Log.Debug($"From: #{VerticesByRoomKind[e.From.RoomKind].IndexOf(e.From)} {e.From.LocalPosition}, " +
-                    //    $"To: #{VerticesByRoomKind[e.To.RoomKind].IndexOf(e.To)} {e.To.LocalPosition}");
-                    //Log.Debug($"pointLocalPosition: {pointLocalPosition}");
+                .Select(e => GetPointDistToEdge(e, pointLocalPosition))
+                .All(p => p > 0f);
+        }
 
-                    return e;
-                })
+        private float GetPointDistToEdge((RoomKindVertex From, RoomKindVertex To) edge, Vector3 localPoint)
+        {
+            var dirTo2 = edge.To.LocalPosition - edge.From.LocalPosition;
+            var dirToPoint = localPoint - edge.From.LocalPosition;
 
-                .Select(e => (
-                    dirTo2: e.To.LocalPosition - e.From.LocalPosition, 
-                    dirToPoint: pointLocalPosition - e.From.LocalPosition))
-                .Select(t =>
-                {
-                    //Log.Debug($"dirTo2: {t.dirTo2}");
-                    //Log.Debug($"dirToPoint: {t.dirToPoint}");
+            var edgeNormal = Vector3.Cross(dirTo2.normalized, Vector3.down);
 
-                    return t;
-                })
+            var p = Vector3.Dot(edgeNormal, dirToPoint);
+            return p;
+        }
 
-                .Select(d => (edgeNormal: Vector3.Cross(d.dirTo2, Vector3.down), d.dirToPoint))
-                .Select(t =>
-                {
-                    //Log.Debug($"edgeNormal: {t.edgeNormal}");
-                    //Log.Debug($"dirToPoint: {t.dirToPoint}");
+        private bool IsWithinEdge((RoomKindVertex From, RoomKindVertex To) edge, Vector3 localPoint)
+        {
+            var dir1To2 = edge.To.LocalPosition - edge.From.LocalPosition;
+            var dir1ToPoint = localPoint - edge.From.LocalPosition;
 
-                    return t;
-                })
+            var dir2To1 = edge.From.LocalPosition - edge.To.LocalPosition;
+            var dir2ToPoint = localPoint - edge.To.LocalPosition;
 
-                .Select(d2 => Vector3.Dot(d2.edgeNormal, d2.dirToPoint))
-                .Select(p =>
-                {
-                    //Log.Debug($"p: {p}");
-
-                    return p;
-                })
-
-                .All(p => p >= 0f);
+            return Vector3.Dot(dir1ToPoint, dir1To2) > 0f && Vector3.Dot(dir2ToPoint, dir2To1) > 0f;
         }
 
         private void AddRoomAreas(RoomKindArea roomKindArea)

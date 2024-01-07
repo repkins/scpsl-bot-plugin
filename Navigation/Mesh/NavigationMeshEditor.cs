@@ -48,6 +48,7 @@ namespace SCPSLBot.Navigation.Mesh
             Timing.RunCoroutine(RunEachFrame(Visuals.UpdateVertexVisuals));
             Timing.RunCoroutine(RunEachFrame(Visuals.UpdateAreaVisuals));
             Timing.RunCoroutine(RunEachFrame(Visuals.UpdateEdgeVisuals));
+            Timing.RunCoroutine(RunEachFrame(Visuals.UpdateConnectionVisuals));
 
         }
 

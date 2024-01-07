@@ -16,6 +16,8 @@ namespace SCPSLBot.Navigation.Mesh
 
         public Vector3 Position => Room.Transform.TransformPoint(RoomKindVertex.LocalPosition);
 
+        public Vector3 LocalPosition => RoomKindVertex.LocalPosition;
+
         public RoomVertex(RoomKindVertex roomKindVertex, FacilityRoom room)
         {
             RoomKindVertex = roomKindVertex;
