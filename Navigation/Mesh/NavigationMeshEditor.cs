@@ -1,6 +1,7 @@
 ﻿using MapGeneration;
 using MEC;
 using PluginAPI.Core;
+using SCPSLBot.Commands.Navigation;
 using SCPSLBot.MapGeneration;
 using SCPSLBot.Navigation.Graph;
 using System;
@@ -133,6 +134,37 @@ namespace SCPSLBot.Navigation.Mesh
             }
 
             Log.Info($"Vertex at local position {vertex.RoomKindVertex.LocalPosition} removed under room {roomKind}.");
+
+            return true;
+        }
+
+        public bool MoveVertex(Vector3 position)
+        {
+            var vertex = NavigationMesh.GetNearbyVertex(position)?.RoomKindVertex;
+            if (vertex == null)
+            {
+                Log.Info($"No vertex found nearby to move. Checking for selection.");
+
+                if (!SeletedVertices.Any())
+                {
+                    Log.Warning($"No vertices selected to move.");
+                    return false;
+                }
+
+                vertex = SeletedVertices.First();
+            }
+
+            var room = RoomIdUtils.RoomAtPositionRaycasts(position);
+            var roomKind = (room.Name, room.Shape, (RoomZone)room.Zone);
+
+            var localPosition = room.transform.InverseTransformPoint(position);
+
+            if (!NavigationMesh.MoveVertex(vertex, localPosition))
+            {
+                return false;
+            }
+
+            Log.Info($"Vertex #{NavigationMesh.VerticesByRoomKind[roomKind].IndexOf(vertex)} of room kind {roomKind} moved to new local position {vertex.LocalPosition}.");
 
             return true;
         }

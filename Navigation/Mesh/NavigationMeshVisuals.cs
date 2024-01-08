@@ -41,8 +41,6 @@ namespace SCPSLBot.Navigation.Mesh
 
         private string SentBroadcastMessage;
 
-        private float verticalOffset = 0f;
-
         public void UpdateBroadcastMessage()
         {
             VisualsMessages[0] = null;
@@ -160,8 +158,6 @@ namespace SCPSLBot.Navigation.Mesh
                         visual.transform.RotateAround(visual.transform.position, visual.transform.right, -90f);
                         visual.transform.localScale = -Vector3.one * .25f;
 
-                        visual.transform.position += Vector3.up * verticalOffset;
-
                         NetworkServer.Spawn(visual.gameObject);
 
                         AreaVisuals.Add(area, visual);
@@ -227,9 +223,14 @@ namespace SCPSLBot.Navigation.Mesh
                         visual.transform.position = vertex.Position;
                         visual.transform.localScale = -Vector3.one * 0.125f;
 
-                        visual.transform.position += Vector3.up * verticalOffset;
-
                         VertexVisuals.Add(vertex, visual);
+                    }
+                    else
+                    {
+                        if (visual.transform.position != vertex.Position)
+                        {
+                            visual.transform.position = vertex.Position;
+                        }
                     }
 
                     if (NearestArea?.Vertices.Contains(vertex.RoomKindVertex) ?? false)
@@ -263,8 +264,11 @@ namespace SCPSLBot.Navigation.Mesh
                 foreach (var ((edge, room), (visual, area)) in EdgeVisuals.Select(p => (p.Key, p.Value)).ToArray())
                 {
                     var isAreaRemoved = !NavigationMesh.AreasByRoom[area.Room].Contains(area);
+                    
+                    var currentEdgeCenter = () => Vector3.Lerp(room.Transform.TransformPoint(edge.From.LocalPosition), room.Transform.TransformPoint(edge.To.LocalPosition), 0.5f);
+                    var isEdgeCenterChanged = () => currentEdgeCenter() != visual.transform.position;
 
-                    if (isAreaRemoved || (!area.RoomKindArea.Edges.Contains(edge)))
+                    if (isAreaRemoved || (!area.RoomKindArea.Edges.Contains(edge)) || isEdgeCenterChanged())
                     {
                         NetworkServer.Destroy(visual.gameObject);
                         EdgeVisuals.Remove((edge, room));
@@ -289,8 +293,6 @@ namespace SCPSLBot.Navigation.Mesh
                             newEdgeVisual.transform.RotateAround(newEdgeVisual.transform.position, newEdgeVisual.transform.right, 90f);
                             newEdgeVisual.transform.localScale = -Vector3.forward * 0.01f + -Vector3.right * 0.01f;
                             newEdgeVisual.transform.localScale += -Vector3.up * Vector3.Distance(room.Transform.TransformPoint(edge.From.LocalPosition), room.Transform.TransformPoint(edge.To.LocalPosition)) * 0.5f;
-
-                            newEdgeVisual.transform.position += Vector3.up * verticalOffset;
 
                             NetworkServer.Spawn(newEdgeVisual.gameObject);
 
@@ -356,8 +358,6 @@ namespace SCPSLBot.Navigation.Mesh
                             newConnectionVisual.transform.RotateAround(newConnectionVisual.transform.position, newConnectionVisual.transform.right, 90f);
                             newConnectionVisual.transform.localScale = -Vector3.forward * 0.01f + -Vector3.right * 0.01f;
                             newConnectionVisual.transform.localScale += -Vector3.up * Vector3.Distance(roomFrom.Transform.TransformPoint(fromAreaEdgeLocalPos), roomTo.Transform.TransformPoint(toAreaEdgeLocalPos)) * 0.5f;
-
-                            newConnectionVisual.transform.position += Vector3.up * verticalOffset;
 
                             NetworkServer.Spawn(newConnectionVisual.gameObject);
 

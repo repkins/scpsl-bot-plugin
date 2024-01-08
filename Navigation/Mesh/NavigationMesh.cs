@@ -210,6 +210,13 @@ namespace SCPSLBot.Navigation.Mesh
             return true;
         }
 
+        public bool MoveVertex(RoomKindVertex roomKindVertex, Vector3 newLocalPosition)
+        {
+            roomKindVertex.LocalPosition = newLocalPosition;
+
+            return true;
+        }
+
         public RoomKindArea MakeArea(IEnumerable<RoomKindVertex> roomKindVertices, (RoomName, RoomShape, RoomZone) roomKind)
         {
             if (!AreasByRoomKind.TryGetValue(roomKind, out var roomKindAreas))
