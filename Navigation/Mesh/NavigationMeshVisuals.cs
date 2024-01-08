@@ -43,25 +43,28 @@ namespace SCPSLBot.Navigation.Mesh
 
         public void UpdateBroadcastMessage()
         {
-            VisualsMessages[0] = null;
-            VisualsMessages[1] = null;
-
-            UpdateVertexInfo();
-            UpdateAreaInfo();
-
-            var messageLinesToSend = VisualsMessages.Where(m => m != null);
-            if (messageLinesToSend.Any())
+            if (PlayerEnabledVisualsFor != null)
             {
-                var broadcastMessage = string.Join("\n", messageLinesToSend);
-                PlayerEnabledVisualsFor.SendBroadcast($"<size=30>{broadcastMessage}", 60, shouldClearPrevious: true);
-                SentBroadcastMessage = broadcastMessage;
-            }
-            else
-            {
-                if (SentBroadcastMessage != null)
+                VisualsMessages[0] = null;
+                VisualsMessages[1] = null;
+
+                UpdateVertexInfo();
+                UpdateAreaInfo();
+
+                var messageLinesToSend = VisualsMessages.Where(m => m != null);
+                if (messageLinesToSend.Any())
                 {
-                    PlayerEnabledVisualsFor.ClearBroadcasts();
-                    SentBroadcastMessage = null;
+                    var broadcastMessage = string.Join("\n", messageLinesToSend);
+                    PlayerEnabledVisualsFor.SendBroadcast($"<size=30>{broadcastMessage}", 60, shouldClearPrevious: true);
+                    SentBroadcastMessage = broadcastMessage;
+                }
+                else
+                {
+                    if (SentBroadcastMessage != null)
+                    {
+                        PlayerEnabledVisualsFor.ClearBroadcasts();
+                        SentBroadcastMessage = null;
+                    }
                 }
             }
         }

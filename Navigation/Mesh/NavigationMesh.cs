@@ -477,9 +477,23 @@ namespace SCPSLBot.Navigation.Mesh
         {
             var areaRoomKindEdges = area.RoomKindArea.Edges;
 
-            return areaRoomKindEdges
-                .Select(e => GetPointDistToEdge(e, pointLocalPosition))
-                .All(p => p > 0f);
+            var isAnyVertexWithinVerticalRange = true;
+            foreach (var e in areaRoomKindEdges)
+            {
+                if (GetPointDistToEdge(e, pointLocalPosition) <= 0f)
+                {
+                    return false;
+                }
+
+                if (!isAnyVertexWithinVerticalRange)
+                {
+                    isAnyVertexWithinVerticalRange = 
+                        e.From.LocalPosition.y > pointLocalPosition.y - 1f
+                        && e.From.LocalPosition.y < pointLocalPosition.y + 1f;
+                }
+            }
+
+            return isAnyVertexWithinVerticalRange;
         }
 
         private float GetPointDistToEdge((RoomKindVertex From, RoomKindVertex To) edge, Vector3 localPoint)

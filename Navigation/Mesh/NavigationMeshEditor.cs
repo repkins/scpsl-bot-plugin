@@ -293,6 +293,71 @@ namespace SCPSLBot.Navigation.Mesh
             return true;
         }
 
+        public bool SliceClosestAreaEdge(Vector3 position, Vector3 direction)
+        {
+            var room = RoomIdUtils.RoomAtPositionRaycasts(position);
+            var roomKind = (room.Name, room.Shape, (RoomZone)room.Zone);
+
+            var localPosition = room.transform.InverseTransformPoint(position);
+            var localDirection = room.transform.InverseTransformDirection(direction);
+
+            if (!NavigationMesh.AreasByRoomKind.ContainsKey(roomKind))
+            {
+                return false;
+            }
+
+            var lookPlane = new Plane(Vector3.Cross(localDirection, Vector3.up), localPosition);
+
+            var (newVertexPos, area, edge) = NavigationMesh.AreasByRoomKind[roomKind]
+                .SelectMany(a => a.Edges.Select(e => (edge: (from: e.From, to: e.To), area: a)))
+                .Select(t => (
+                    t.edge,
+                    dirTo2: (t.edge.to.LocalPosition - t.edge.from.LocalPosition),
+                    t.area))
+                .Select(t => (
+                    t.edge, 
+                    t.dirTo2, 
+                    rayTo2: new Ray(t.edge.from.LocalPosition, t.dirTo2), 
+                    t.area))
+                .Select(t => (
+                    t.edge, 
+                    t.dirTo2, 
+                    t.rayTo2,
+                    isHit: lookPlane.Raycast(t.rayTo2, out var distToHit),
+                    distToHit,
+                    t.area))
+                .Where(t => t.isHit)
+                .Select(t => (
+                    t.edge, 
+                    t.dirTo2,
+                    hitPoint: t.rayTo2.GetPoint(t.distToHit),
+                    t.area))
+                .Select(t => (
+                    t.edge, 
+                    t.dirTo2,
+                    t.hitPoint,
+                    dirToHit: t.hitPoint - t.edge.from.LocalPosition,
+                    t.area))
+                .Where(t => Vector3.Dot(t.dirToHit, t.dirTo2) > 0f && t.dirToHit.sqrMagnitude < t.dirTo2.sqrMagnitude)
+
+                .OrderBy(t => Vector3.SqrMagnitude(t.hitPoint - localPosition))
+                .Select(t => (t.hitPoint, t.area, t.edge))
+                .FirstOrDefault();
+
+            if (area == null)
+            {
+                return false;
+            }
+
+            var vertex = NavigationMesh.AddVertex(newVertexPos, roomKind);
+
+            NavigationMesh.AddVertexToArea(area, vertex, edge.to);
+
+            Log.Info($"Vertex #{NavigationMesh.VerticesByRoomKind[roomKind].IndexOf(vertex)} created on edge of area #{NavigationMesh.AreasByRoomKind[roomKind].IndexOf(area)}");
+
+            return true;
+        }
+
         public bool CacheArea(Vector3 position)
         {
             CachedArea = NavigationMesh.GetAreaWithin(position);
