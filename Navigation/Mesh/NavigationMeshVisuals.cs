@@ -42,8 +42,6 @@ namespace SCPSLBot.Navigation.Mesh
 
         private string SentBroadcastMessage;
 
-        private Vector3? LastPlayerPosition;
-
         private PrimitiveObjectToy primPrefab;
 
         public void Init()
@@ -188,7 +186,7 @@ namespace SCPSLBot.Navigation.Mesh
                         visual.gameObject.SetActive(true);
                         NetworkServer.Spawn(visual.gameObject);
                     }
-                    
+
                     if (!isWithinRange && visual.gameObject.activeInHierarchy)
                     {
                         visual.gameObject.SetActive(false);
