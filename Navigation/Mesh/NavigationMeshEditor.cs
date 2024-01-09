@@ -34,6 +34,7 @@ namespace SCPSLBot.Navigation.Mesh
         public void Init()
         {
             Visuals.SelectedVertices = SeletedVertices;
+            Visuals.Init();
 
             Timing.RunCoroutine(RunEachFrame(UpdateEditing));
 
