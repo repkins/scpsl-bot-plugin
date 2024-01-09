@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using static UnityEngine.RectTransform;
 
 namespace SCPSLBot.Navigation.Mesh
 {
@@ -54,7 +55,8 @@ namespace SCPSLBot.Navigation.Mesh
             var roomKindEdge = roomAreas.SelectMany(a => a.RoomKindArea.Edges)
                 .Select(e => (edge: e, dist: GetPointDistToEdge(e, localPosition)))
                 .Where(t => t.dist > 0f)
-                .Where(t => IsWithinEdge(t.edge, localPosition))
+                .Where(t => IsAlongEdge(t.edge, localPosition))
+                .Where(t => IsEdgeCenterWithinVertically(t.edge, localPosition))
                 .OrderBy(t => t.dist)
                 .Select(t => new (RoomKindVertex From, RoomKindVertex To)?(t.edge))
                 .DefaultIfEmpty(null)
@@ -477,7 +479,7 @@ namespace SCPSLBot.Navigation.Mesh
         {
             var areaRoomKindEdges = area.RoomKindArea.Edges;
 
-            var isAnyVertexWithinVerticalRange = true;
+            var isAnyVertexWithinVerticalRange = false;
             foreach (var e in areaRoomKindEdges)
             {
                 if (GetPointDistToEdge(e, pointLocalPosition) <= 0f)
@@ -507,7 +509,7 @@ namespace SCPSLBot.Navigation.Mesh
             return p;
         }
 
-        private bool IsWithinEdge((RoomKindVertex From, RoomKindVertex To) edge, Vector3 localPoint)
+        private bool IsAlongEdge((RoomKindVertex From, RoomKindVertex To) edge, Vector3 localPoint)
         {
             var dir1To2 = edge.To.LocalPosition - edge.From.LocalPosition;
             var dir1ToPoint = localPoint - edge.From.LocalPosition;
@@ -516,6 +518,16 @@ namespace SCPSLBot.Navigation.Mesh
             var dir2ToPoint = localPoint - edge.To.LocalPosition;
 
             return Vector3.Dot(dir1ToPoint, dir1To2) > 0f && Vector3.Dot(dir2ToPoint, dir2To1) > 0f;
+        }
+
+        private bool IsEdgeCenterWithinVertically((RoomKindVertex From, RoomKindVertex To) edge, Vector3 localPoint)
+        {
+            var localPointYLowest = localPoint.y - 1f;
+            var localPointYHighest = localPoint.y + 1f;
+            var edgeCenter = Vector3.Lerp(edge.From.LocalPosition, edge.To.LocalPosition, 0.5f);
+
+            return edgeCenter.y > localPointYLowest
+                && edgeCenter.y < localPointYHighest;
         }
 
         private void AddRoomAreas(RoomKindArea roomKindArea)
