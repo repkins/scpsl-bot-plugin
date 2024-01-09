@@ -42,6 +42,8 @@ namespace SCPSLBot.Navigation.Mesh
 
         private string SentBroadcastMessage;
 
+        private Vector3? LastPlayerPosition;
+
         private PrimitiveObjectToy primPrefab;
 
         public void Init()
@@ -152,7 +154,7 @@ namespace SCPSLBot.Navigation.Mesh
         {
             if (PlayerEnabledVisualsFor != null)
             {
-                foreach (var vertexVisual in VertexVisuals.ToArray())
+                foreach (var vertexVisual in VertexVisuals.Where(p => p.Value.gameObject.activeInHierarchy).ToArray())
                 {
                     var vertexPosChanged = vertexVisual.Value.transform.position != vertexVisual.Key.Position;
 
@@ -170,7 +172,9 @@ namespace SCPSLBot.Navigation.Mesh
                     if (!VertexVisuals.TryGetValue(vertex, out var visual))
                     {
                         visual = UnityEngine.Object.Instantiate(this.primPrefab);
-                        NetworkServer.Spawn(visual.gameObject);
+                        visual.gameObject.SetActive(false);
+
+                        // NetworkServer.Spawn(visual.gameObject);
 
                         visual.transform.position = vertex.Position;
                         visual.transform.localScale = -Vector3.one * 0.125f;
@@ -179,13 +183,16 @@ namespace SCPSLBot.Navigation.Mesh
                     }
 
                     var isWithinRange = Vector3.SqrMagnitude(PlayerEnabledVisualsFor.Position - visual.transform.position) < Mathf.Pow(20f, 2);
-                    if (isWithinRange)
+                    if (isWithinRange && !visual.gameObject.activeInHierarchy)
                     {
                         visual.gameObject.SetActive(true);
+                        NetworkServer.Spawn(visual.gameObject);
                     }
-                    else
+                    
+                    if (!isWithinRange && visual.gameObject.activeInHierarchy)
                     {
                         visual.gameObject.SetActive(false);
+                        NetworkServer.UnSpawn(visual.gameObject);
                     }
 
                     if (visual.gameObject.activeSelf)
@@ -219,7 +226,7 @@ namespace SCPSLBot.Navigation.Mesh
         {
             if (PlayerEnabledVisualsFor != null)
             {
-                foreach (var areaVisual in AreaVisuals.ToArray())
+                foreach (var areaVisual in AreaVisuals.Where(p => p.Value.gameObject.activeInHierarchy).ToArray())
                 {
                     if (!NavigationMesh.AreasByRoom.Values.Any(l => l.Contains(areaVisual.Key)))
                     {
@@ -235,12 +242,14 @@ namespace SCPSLBot.Navigation.Mesh
                     if (!AreaVisuals.TryGetValue(area, out var visual))
                     {
                         visual = UnityEngine.Object.Instantiate(this.primPrefab);
+                        visual.gameObject.SetActive(false);
+
                         visual.NetworkPrimitiveType = PrimitiveType.Quad;
 
                         visual.transform.RotateAround(visual.transform.position, visual.transform.right, -90f);
                         visual.transform.localScale = -Vector3.one * .25f;
 
-                        NetworkServer.Spawn(visual.gameObject);
+                        // NetworkServer.Spawn(visual.gameObject);
 
                         AreaVisuals.Add(area, visual);
                     }
@@ -248,13 +257,16 @@ namespace SCPSLBot.Navigation.Mesh
                     visual.transform.position = room.transform.TransformPoint(area.LocalCenterPosition);
 
                     var isWithinRange = Vector3.SqrMagnitude(PlayerEnabledVisualsFor.Position - visual.transform.position) < Mathf.Pow(20f, 2);
-                    if (isWithinRange)
+                    if (isWithinRange && !visual.gameObject.activeInHierarchy)
                     {
                         visual.gameObject.SetActive(true);
+                        NetworkServer.Spawn(visual.gameObject);
                     }
-                    else
+                    
+                    if (!isWithinRange && visual.gameObject.activeInHierarchy)
                     {
                         visual.gameObject.SetActive(false);
+                        NetworkServer.UnSpawn(visual.gameObject);
                     }
 
                     if (visual.gameObject.activeSelf)
@@ -294,7 +306,7 @@ namespace SCPSLBot.Navigation.Mesh
         {
             if (PlayerEnabledVisualsFor != null)
             {
-                foreach (var ((edge, room), (visual, area)) in EdgeVisuals.Select(p => (p.Key, p.Value)).ToArray())
+                foreach (var ((edge, room), (visual, area)) in EdgeVisuals.Where(p => p.Value.Item1.gameObject.activeInHierarchy).Select(p => (p.Key, p.Value)).ToArray())
                 {
                     var isAreaRemoved = !NavigationMesh.AreasByRoom[area.Room].Contains(area);
                     
@@ -317,6 +329,7 @@ namespace SCPSLBot.Navigation.Mesh
                         if (!EdgeVisuals.TryGetValue((edge, room), out var edgeVisualArea))
                         {
                             var newEdgeVisual = UnityEngine.Object.Instantiate(this.primPrefab);
+                            newEdgeVisual.gameObject.SetActive(false);
 
                             newEdgeVisual.NetworkPrimitiveType = PrimitiveType.Cylinder;
                             newEdgeVisual.transform.position = Vector3.Lerp(room.Transform.TransformPoint(edge.From.LocalPosition), room.Transform.TransformPoint(edge.To.LocalPosition), 0.5f);
@@ -325,7 +338,7 @@ namespace SCPSLBot.Navigation.Mesh
                             newEdgeVisual.transform.localScale = -Vector3.forward * 0.01f + -Vector3.right * 0.01f;
                             newEdgeVisual.transform.localScale += -Vector3.up * Vector3.Distance(room.Transform.TransformPoint(edge.From.LocalPosition), room.Transform.TransformPoint(edge.To.LocalPosition)) * 0.5f;
 
-                            NetworkServer.Spawn(newEdgeVisual.gameObject);
+                            // NetworkServer.Spawn(newEdgeVisual.gameObject);
 
                             edgeVisualArea = (newEdgeVisual, area);
                             EdgeVisuals.Add((edge, room), edgeVisualArea);
@@ -334,13 +347,16 @@ namespace SCPSLBot.Navigation.Mesh
                         var (edgeVisual, _) = edgeVisualArea;
 
                         var isWithinRange = Vector3.SqrMagnitude(PlayerEnabledVisualsFor.Position - edgeVisual.transform.position) < Mathf.Pow(20f, 2);
-                        if (isWithinRange)
+                        if (isWithinRange && !edgeVisual.gameObject.activeInHierarchy)
                         {
                             edgeVisual.gameObject.SetActive(true);
+                            NetworkServer.Spawn(edgeVisual.gameObject);
                         }
-                        else
+
+                        if (!isWithinRange && edgeVisual.gameObject.activeInHierarchy)
                         {
                             edgeVisual.gameObject.SetActive(false);
+                            NetworkServer.UnSpawn(edgeVisual.gameObject);
                         }
 
                         if (edgeVisual.gameObject.activeSelf)
