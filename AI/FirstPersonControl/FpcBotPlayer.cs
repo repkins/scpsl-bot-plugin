@@ -63,6 +63,8 @@ namespace SCPSLBot.AI.FirstPersonControl
         public void OnRoleChanged()
         {
             Log.Info($"Bot got FPC role assigned.");
+
+            MindRunner.EvaluateAllActivities();
         }
 
         public void MoveToPosition(Vector3 targetPosition) => Move.ToPosition(targetPosition);

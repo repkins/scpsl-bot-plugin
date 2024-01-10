@@ -24,6 +24,12 @@ namespace SCPSLBot.AI.FirstPersonControl
             }
         }
 
+        public void EvaluateAllActivities()
+        {
+            var activities = ActivitiesImpactingBeliefs.Keys;
+            EvaluateActivities(activities);
+        }
+
         public void Tick()
         {
             RunningActivity?.Tick();
@@ -32,7 +38,12 @@ namespace SCPSLBot.AI.FirstPersonControl
         private void OnBeliefUpdate(IBelief updatedBelief)
         {
             var enablingActivities = BeliefsEnablingActivities[updatedBelief];
-            var selectedActivity = enablingActivities.FirstOrDefault(a => a.Condition());  // TODO: cost?
+            EvaluateActivities(enablingActivities);
+        }
+
+        private void EvaluateActivities(IEnumerable<IActivity> activities)
+        {
+            var selectedActivity = activities.FirstOrDefault(a => a.Condition());  // TODO: cost?
 
             var prevActivity = RunningActivity;
 

@@ -3,6 +3,7 @@ using InventorySystem.Items.Firearms;
 using InventorySystem.Items.Keycards;
 using InventorySystem.Items.Pickups;
 using InventorySystem.Items.Usables;
+using PluginAPI.Core;
 using PluginAPI.Core.Zones;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World;
 using SCPSLBot.Navigation.Mesh;
@@ -25,9 +26,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
         }
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
-        {
-
-        }
+        { }
 
         public bool Condition() => true;
 
@@ -55,10 +54,18 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
             {
                 var nearbyArea = navMesh.GetAreaWithin(position);
 
+                if (nearbyArea == null)
+                {
+                    Log.Warning($"Explore: No nearby area found");
+                    return;
+                }
+
                 var possibleGoalAreas = navMesh.AreasByRoom[nearbyArea.Room]
                     .Where(n => n.ForeignConnectedAreas.Any() && n != nearbyArea)
-                    .Select(n => n.ForeignConnectedAreas.First());
-                goalArea = possibleGoalAreas.First(fn => UnityEngine.Random.value > 0.5f);
+                    .Select(n => n.ForeignConnectedAreas.First())
+                    .ToArray();
+                var goalIdx = UnityEngine.Random.Range(0, possibleGoalAreas.Length);
+                goalArea = possibleGoalAreas[goalIdx];
             }
 
             botPlayer.MoveToPosition(goalArea.CenterPosition);
