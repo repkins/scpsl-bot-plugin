@@ -1,5 +1,5 @@
 ﻿using MEC;
-using SCPSLBot.Navigation.Graph;
+using SCPSLBot.Navigation.Mesh;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,9 +13,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Movement
     {
         public Vector3 DesiredDirection { get; set; } = Vector3.zero;
 
-        private Node currentNode;
-        private Node goalNode;
-        private List<Node> nodesPath = new();
+        private Area currentArea;
+        private Area goalArea;
+        private List<Area> areasPath = new();
         private int nextPathIdx = 1;
 
         private readonly FpcBotPlayer botPlayer;
@@ -27,27 +27,27 @@ namespace SCPSLBot.AI.FirstPersonControl.Movement
 
         public void ToPosition(Vector3 targetPosition)
         {
-            var nodeGraph = NavigationGraph.Instance;
+            var navMesh = NavigationMesh.Instance;
             var playerPosition = botPlayer.FpcRole.FpcModule.transform.position;
 
-            var nearbyNode = nodeGraph.FindNearestNode(playerPosition, 5f);
-            var targetNode = nodeGraph.FindNearestNode(targetPosition, 5f);
+            var nearbyArea = navMesh.GetAreaWithin(playerPosition);
+            var targetArea = navMesh.GetAreaWithin(targetPosition);
 
-            if (targetNode != this.goalNode || nearbyNode != this.currentNode)
+            if (targetArea != this.goalArea || nearbyArea != this.currentArea)
             {
-                this.currentNode = nearbyNode;
-                this.goalNode = targetNode;
+                this.currentArea = nearbyArea;
+                this.goalArea = targetArea;
 
-                this.nodesPath = nodeGraph.GetShortestPath(this.currentNode, this.goalNode);
+                this.areasPath = navMesh.GetShortestPath(this.currentArea, this.goalArea);
                 this.nextPathIdx = 1;
             }
 
-            var currentPosition = this.currentNode.Position;
+            var currentPosition = this.currentArea.CenterPosition;
             DesiredDirection = Vector3.Normalize(currentPosition - playerPosition);
 
-            if (Vector3.Distance(playerPosition, this.currentNode.Position) < 1f)
+            if (Vector3.Distance(playerPosition, this.currentArea.CenterPosition) < 1f)
             {
-                this.currentNode = this.nodesPath.Count > this.nextPathIdx ? this.nodesPath[this.nextPathIdx++] : null;
+                this.currentArea = this.areasPath.Count > this.nextPathIdx ? this.areasPath[this.nextPathIdx++] : null;
             }
         }
 

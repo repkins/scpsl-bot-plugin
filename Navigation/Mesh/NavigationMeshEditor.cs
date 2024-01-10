@@ -3,7 +3,6 @@ using MEC;
 using PluginAPI.Core;
 using SCPSLBot.Commands.Navigation;
 using SCPSLBot.MapGeneration;
-using SCPSLBot.Navigation.Graph;
 using System;
 using System.Collections.Generic;
 using System.Linq;

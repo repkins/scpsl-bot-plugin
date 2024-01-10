@@ -2,7 +2,6 @@
 using PluginAPI.Core;
 using PluginAPI.Core.Zones;
 using SCPSLBot.MapGeneration;
-using SCPSLBot.Navigation.Graph;
 using System;
 using System.Collections.Generic;
 using System.IO;

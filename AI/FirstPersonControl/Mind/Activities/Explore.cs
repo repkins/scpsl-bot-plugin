@@ -5,7 +5,7 @@ using InventorySystem.Items.Pickups;
 using InventorySystem.Items.Usables;
 using PluginAPI.Core.Zones;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World;
-using SCPSLBot.Navigation.Graph;
+using SCPSLBot.Navigation.Mesh;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,38 +39,38 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
         public void Tick()
         {
             var position = botPlayer.FpcRole.FpcModule.Position;
-            var nodeGraph = NavigationGraph.Instance;
+            var navMesh = NavigationMesh.Instance;
 
             // Set new position leading to unexplored area (room)
-            // 1. Select (any) open node within front in adjacent rooms and trace route.
-            // 2. Move character to selected node by following traced route.
-            // 3. When characted reached selected open node, start from 1.
+            // 1. Select (any) open area within front in adjacent rooms and trace route.
+            // 2. Move character to selected area by following traced route.
+            // 3. When characted reached selected open area, start from 1.
 
-            if (goalNode is not null && Vector3.Distance(position, goalNode.Position) < 1f)
+            if (goalArea is not null && Vector3.Distance(position, goalArea.CenterPosition) < 1f)
             {
-                goalNode = null;
+                goalArea = null;
             }
 
-            if (goalNode is null)
+            if (goalArea is null)
             {
-                var nearbyNode = nodeGraph.FindNearestNode(position, 5f);
+                var nearbyArea = navMesh.GetAreaWithin(position);
 
-                var possibleGoalNodes = nodeGraph.NodesByRoom[nearbyNode.Room]
-                    .Where(n => n.ForeignNodes.Any() && n != nearbyNode)
-                    .Select(n => n.ForeignNodes.First());
-                goalNode = possibleGoalNodes.First(fn => UnityEngine.Random.value > 0.5f);
+                var possibleGoalAreas = navMesh.AreasByRoom[nearbyArea.Room]
+                    .Where(n => n.ForeignConnectedAreas.Any() && n != nearbyArea)
+                    .Select(n => n.ForeignConnectedAreas.First());
+                goalArea = possibleGoalAreas.First(fn => UnityEngine.Random.value > 0.5f);
             }
 
-            botPlayer.MoveToPosition(goalNode.Position);
+            botPlayer.MoveToPosition(goalArea.CenterPosition);
         }
 
         public void Reset()
         {
-            goalNode = null;
+            goalArea = null;
         }
 
         private readonly FpcBotPlayer botPlayer;
 
-        private Node goalNode;
+        private Area goalArea;
     }
 }
