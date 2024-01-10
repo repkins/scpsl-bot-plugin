@@ -76,20 +76,24 @@ namespace SCPSLBot.Navigation.Mesh
         {
             var areasWithPriorityToEvaluate = new Dictionary<Area, float>();
             var cameFromAreas = new Dictionary<Area, Area>();
-            var areaCosts = new Dictionary<Area, float>();
+            var costsTill = new Dictionary<Area, float>();
 
             var cost = 0f;
             var heuristic = Vector3.Magnitude(endArea.CenterPosition - startingArea.CenterPosition);
 
             areasWithPriorityToEvaluate.Add(startingArea, cost + heuristic);
             cameFromAreas.Add(startingArea, null);
-            areaCosts.Add(startingArea, cost);
+            costsTill.Add(startingArea, cost);
 
             var area = startingArea;
 
             do
             {
                 area = areasWithPriorityToEvaluate.OrderBy(p => p.Value).First().Key;
+
+                //var areaIdx = AreasByRoom[area.Room].IndexOf(area);
+                //Log.Debug($"Evaluating connections for area #{areaIdx} with priority value {areasWithPriorityToEvaluate[area]} {area.RoomKindArea.RoomKind}");
+
                 areasWithPriorityToEvaluate.Remove(area);
 
                 if (area == endArea)
@@ -97,18 +101,25 @@ namespace SCPSLBot.Navigation.Mesh
                     break;
                 }
 
-                cost = areaCosts[area];
+                cost = costsTill[area];
+
+                //Log.Debug($"Area evaluating connections #{areaIdx} cost so far {cost}");
 
                 foreach (var connectedArea in area.ConnectedAreas)
                 {
-                    var newCost = cost + Vector3.Magnitude(connectedArea.CenterPosition - area.CenterPosition);
+                    var connectedCost = cost + Vector3.Magnitude(connectedArea.CenterPosition - area.CenterPosition);
 
-                    if (!areaCosts.ContainsKey(connectedArea) || newCost < areaCosts[connectedArea])
+                    //var connAreaIdx = AreasByRoom[connectedArea.Room].IndexOf(connectedArea);
+                    //Log.Debug($"Connected area #{connAreaIdx} cost so far {connectedCost} {connectedArea.RoomKindArea.RoomKind}");
+
+                    if (!costsTill.ContainsKey(connectedArea) || connectedCost < costsTill[connectedArea])
                     {
-                        areaCosts[connectedArea] = newCost;
+                        costsTill[connectedArea] = connectedCost;
                         heuristic = Vector3.Magnitude(endArea.CenterPosition - connectedArea.CenterPosition);
-                        areasWithPriorityToEvaluate[connectedArea] = newCost + heuristic;
+                        areasWithPriorityToEvaluate[connectedArea] = connectedCost + heuristic;
                         cameFromAreas[connectedArea] = area;
+
+                        //Log.Debug($"Connected area #{connAreaIdx} adding for evaluation with heuristic {heuristic} {connectedArea.RoomKindArea.RoomKind}");
                     }
                 }
             }
