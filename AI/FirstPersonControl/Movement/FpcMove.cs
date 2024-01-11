@@ -17,7 +17,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Movement
         private Area currentArea;
         private Area goalArea;
         private List<Area> areasPath = new();
-        private int currentPathIdx = 1;
+        private int currentPathIdx = -1;
 
         private readonly FpcBotPlayer botPlayer;
 
@@ -31,22 +31,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Movement
             var navMesh = NavigationMesh.Instance;
             var playerPosition = botPlayer.FpcRole.FpcModule.transform.position;
 
-            var nearbyArea = navMesh.GetAreaWithin(playerPosition);
-            var targetArea = navMesh.GetAreaWithin(targetPosition);
-
-            if (targetArea != this.goalArea || nearbyArea != this.currentArea)
-            {
-                this.currentArea = nearbyArea;
-                this.goalArea = targetArea;
-                Log.Debug($"New start area {nearbyArea}.");
-                Log.Debug($"New goal area {targetArea}.");
-
-                this.areasPath = navMesh.GetShortestPath(this.currentArea, this.goalArea);
-                this.currentPathIdx = 0;
-
-                Log.Debug($"New path of {this.areasPath.Count} areas.");
-            }
-
             if (this.currentPathIdx < this.areasPath.Count - 1)
             {
                 var nextTargetArea = this.areasPath[this.currentPathIdx + 1];
@@ -55,16 +39,39 @@ namespace SCPSLBot.AI.FirstPersonControl.Movement
 
                 DesiredDirection = Vector3.Normalize(nextTargetPosition - playerPosition);
 
-                //var dist = Vector3.Distance(playerPosition, nextTargetPosition);
-                //Log.Debug($"Remaining dist to next target position {dist}.");
+                //Log.Debug($"Next target area edge {nextTargetAreaEdge}.");
 
                 if (navMesh.IsAtPositiveEdgeSide(playerPosition, nextTargetAreaEdge))
                 {
-                    this.currentArea = this.areasPath[this.currentPathIdx++];
+                    this.currentArea = this.areasPath[++this.currentPathIdx];
                     Log.Debug($"New current area {this.currentArea}.");
                 }
             }
-            else
+
+            var withinArea = navMesh.GetAreaWithin(playerPosition);
+            var targetArea = navMesh.GetAreaWithin(targetPosition);
+
+            //Log.Debug($"Within area {withinArea}.");
+
+            //if (targetArea != this.goalArea || (withinArea != null && withinArea != this.currentArea))
+            if ((targetArea != this.goalArea && withinArea != null))
+            {
+                this.currentArea = withinArea;
+                this.goalArea = targetArea;
+                Log.Debug($"New start area {withinArea}.");
+                Log.Debug($"New goal area {targetArea}.");
+
+                this.areasPath = navMesh.GetShortestPath(this.currentArea, this.goalArea);
+                this.currentPathIdx = 0;
+
+                Log.Debug($"New path of {this.areasPath.Count} areas:");
+                foreach (var areaInPath in areasPath)
+                {
+                    Log.Debug($"Area {areaInPath}.");
+                }
+            }
+
+            if (this.currentPathIdx >= this.areasPath.Count - 1)
             {
                 // Target position should be on current area.
                 DesiredDirection = Vector3.Normalize(targetPosition - playerPosition);
