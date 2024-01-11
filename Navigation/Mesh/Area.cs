@@ -14,6 +14,7 @@ namespace SCPSLBot.Navigation.Mesh
         public Vector3 LocalCenterPosition => RoomKindArea.LocalCenterPosition;
 
         public IEnumerable<Area> ConnectedAreas => RoomKindArea.ConnectedRoomKindAreas.Select(k => k.AreasOfRoom[Room]).Concat(ForeignConnectedAreas);
+        public Dictionary<Area, (RoomVertex From, RoomVertex To)> ConnectedAreaEdges { get; } = new();
 
         public List<Area> ForeignConnectedAreas { get; } = new();
         public List<(RoomVertex From, RoomVertex To)> ForeignConnectionEdges { get; } = new();
@@ -29,6 +30,11 @@ namespace SCPSLBot.Navigation.Mesh
         ~Area()
         {
             RoomKindArea.AreasOfRoom.Remove(Room);
+        }
+
+        public override string ToString()
+        {
+            return $"#{NavigationMesh.Instance.AreasByRoom[Room].IndexOf(this)} {RoomKindArea.RoomKind}";
         }
     }
 }

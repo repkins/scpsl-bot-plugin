@@ -19,5 +19,11 @@ namespace SCPSLBot.Navigation.Mesh
             LocalPosition = position;
             RoomKind = roomKind;
         }
+
+        public override string ToString()
+        {
+            var idx = NavigationMesh.Instance.VerticesByRoomKind[RoomKind].IndexOf(this);
+            return $"#{idx} {RoomKind}";
+        }
     }
 }

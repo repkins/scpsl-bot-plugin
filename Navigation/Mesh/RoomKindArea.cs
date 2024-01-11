@@ -22,17 +22,22 @@ namespace SCPSLBot.Navigation.Mesh
             .Append((Vertices.Last(), Vertices.First()));
 
         public List<RoomKindArea> ConnectedRoomKindAreas { get; } = new();
+        public List<(RoomKindVertex From, RoomKindVertex To)> ConnectedRoomKindAreaEdges = new();
 
         public Dictionary<FacilityRoom, Area> AreasOfRoom { get; } = new();
 
         public RoomKindArea()
-        {
-        }
+        { }
 
         public RoomKindArea(IEnumerable<RoomKindVertex> vertices, (RoomName, RoomShape, RoomZone) roomKind)
         {
             RoomKind = roomKind;
             Vertices.AddRange(vertices);
+        }
+
+        public override string ToString()
+        {
+            return $"#{NavigationMesh.Instance.AreasByRoomKind[RoomKind].IndexOf(this)} {RoomKind}";
         }
     }
 }

@@ -17,7 +17,7 @@ namespace SCPSLBot.Navigation.Mesh
         public static NavigationMesh Instance { get; } = new();
 
         public Dictionary<(RoomName, RoomShape, RoomZone), List<RoomKindVertex>> VerticesByRoomKind { get; } = new();
-        public Dictionary<FacilityRoom, List<RoomVertex>> VerticesByRoom { get; } = new();
+        public Dictionary<FacilityRoom, List<RoomVertex>> VerticesByRoom { get; } = new();  // maybe dictionary from kind to room vertex
 
         public Dictionary<(RoomName, RoomShape, RoomZone), List<RoomKindArea>> AreasByRoomKind { get; } = new();
         public Dictionary<FacilityRoom, List<Area>> AreasByRoom { get; } = new();
@@ -37,6 +37,15 @@ namespace SCPSLBot.Navigation.Mesh
             var localPosition = room.transform.InverseTransformPoint(position);
 
             return roomAreas.Find(a => IsPointWithinArea(a, localPosition));
+        }
+
+        public bool IsAtPositiveEdgeSide(Vector3 position, (RoomVertex From, RoomVertex To) edge)
+        {
+            var room = RoomIdUtils.RoomAtPositionRaycasts(position);
+
+            var localPosition = room.transform.InverseTransformPoint(position);
+
+            return GetPointDistToEdge((edge.From.RoomKindVertex, edge.To.RoomKindVertex), localPosition) > 0f;
         }
 
         public (RoomVertex From, RoomVertex To)? GetNearestEdge(Vector3 position)
@@ -468,6 +477,20 @@ namespace SCPSLBot.Navigation.Mesh
                 {
                     var connectedAreas = roomArea.RoomKindArea.ConnectedRoomKindAreas.Select(c => AreasByRoom[room].Find(a => a.RoomKindArea == c));
                     //roomArea.ConnectedAreas.AddRange(connectedAreas);
+
+                    var connectedEdges = roomArea.RoomKindArea.ConnectedRoomKindAreas
+                        .Select(cka => (cka, cke: cka.Edges.First(ce => roomArea.RoomKindArea.Edges.Any(e => ce == (e.To, e.From)))))
+                        .Select(t => (roomArea.ConnectedAreas.First(ca => ca.RoomKindArea == t.cka), VerticesByRoom[room]
+                            .Aggregate((from: default(RoomVertex), to: default(RoomVertex)), (ce, v) => (
+                                v.RoomKindVertex == t.cke.From ? v : ce.from,
+                                v.RoomKindVertex == t.cke.To ? v : ce.to)
+                            )
+                        ));
+
+                    foreach (var (connectedArea, connectedEdge) in connectedEdges)
+                    {
+                        roomArea.ConnectedAreaEdges.Add(connectedArea, connectedEdge);
+                    }
                 }
             }
         }

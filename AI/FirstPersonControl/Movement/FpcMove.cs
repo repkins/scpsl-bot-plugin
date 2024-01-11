@@ -1,4 +1,5 @@
 ﻿using MEC;
+using PluginAPI.Core;
 using SCPSLBot.Navigation.Mesh;
 using System;
 using System.Collections.Generic;
@@ -16,7 +17,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Movement
         private Area currentArea;
         private Area goalArea;
         private List<Area> areasPath = new();
-        private int nextPathIdx = 1;
+        private int currentPathIdx = 1;
 
         private readonly FpcBotPlayer botPlayer;
 
@@ -37,17 +38,36 @@ namespace SCPSLBot.AI.FirstPersonControl.Movement
             {
                 this.currentArea = nearbyArea;
                 this.goalArea = targetArea;
+                Log.Debug($"New start area {nearbyArea}.");
+                Log.Debug($"New goal area {targetArea}.");
 
                 this.areasPath = navMesh.GetShortestPath(this.currentArea, this.goalArea);
-                this.nextPathIdx = 1;
+                this.currentPathIdx = 0;
+
+                Log.Debug($"New path of {this.areasPath.Count} areas.");
             }
 
-            var currentPosition = this.currentArea.CenterPosition;
-            DesiredDirection = Vector3.Normalize(currentPosition - playerPosition);
-
-            if (Vector3.Distance(playerPosition, this.currentArea.CenterPosition) < 1f)
+            if (this.currentPathIdx < this.areasPath.Count - 1)
             {
-                this.currentArea = this.areasPath.Count > this.nextPathIdx ? this.areasPath[this.nextPathIdx++] : null;
+                var nextTargetArea = this.areasPath[this.currentPathIdx + 1];
+                var nextTargetAreaEdge = currentArea.ConnectedAreaEdges[nextTargetArea];
+                var nextTargetPosition = Vector3.Lerp(nextTargetAreaEdge.From.Position, nextTargetAreaEdge.To.Position, 0.5f);
+
+                DesiredDirection = Vector3.Normalize(nextTargetPosition - playerPosition);
+
+                //var dist = Vector3.Distance(playerPosition, nextTargetPosition);
+                //Log.Debug($"Remaining dist to next target position {dist}.");
+
+                if (navMesh.IsAtPositiveEdgeSide(playerPosition, nextTargetAreaEdge))
+                {
+                    this.currentArea = this.areasPath[this.currentPathIdx++];
+                    Log.Debug($"New current area {this.currentArea}.");
+                }
+            }
+            else
+            {
+                // Target position should be on current area.
+                DesiredDirection = Vector3.Normalize(targetPosition - playerPosition);
             }
         }
 
