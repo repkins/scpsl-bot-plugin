@@ -10,9 +10,17 @@
 	  <Nullable>warnings</Nullable>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
 	
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-		<Exec Command="echo Copying output file $(TargetName)&#xD;&#xA;copy $(TargetPath) &quot;C:\Users\repkins\AppData\Roaming\SCP Secret Laboratory\PluginAPI\plugins\global\$(TargetFileName)&quot;&#xD;&#xA;&#xD;&#xA;echo Copying output file symbols $(TargetName).pdb&#xD;&#xA;copy $(TargetDir)$(TargetName).pdb &quot;C:\Users\repkins\AppData\Roaming\SCP Secret Laboratory\PluginAPI\plugins\global\$(TargetName).pdb&quot;" />
+		<Exec Command="echo Copying output file $(TargetName)&#xD;&#xA;copy $(TargetPath) &quot;C:\Users\repkins\AppData\Roaming\SCP Secret Laboratory\PluginAPI\plugins\global\$(TargetFileName)&quot;" />
 	</Target>
 
 	<ItemGroup>
