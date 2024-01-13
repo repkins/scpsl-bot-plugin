@@ -31,20 +31,29 @@ namespace SCPSLBot.AI.FirstPersonControl.Movement
             var navMesh = NavigationMesh.Instance;
             var playerPosition = botPlayer.FpcRole.FpcModule.transform.position;
 
-            if (this.currentPathIdx < this.areasPath.Count - 1)
+            bool isAtLastArea() => this.currentPathIdx >= this.areasPath.Count - 1;
+            if (!isAtLastArea())
+            {
+                bool isEdgeReached;
+                do
+                {
+                    var nextTargetArea = this.areasPath[this.currentPathIdx + 1];
+                    var nextTargetAreaEdge = currentArea.ConnectedAreaEdges[nextTargetArea];
+
+                    isEdgeReached = navMesh.IsAtPositiveEdgeSide(playerPosition, nextTargetAreaEdge);
+                    if (isEdgeReached)
+                    {
+                        this.currentArea = this.areasPath[++this.currentPathIdx];
+                        Log.Debug($"New current area {this.currentArea}.");
+                    }
+                }
+                while (isEdgeReached && !isAtLastArea());
+            }
+
+            if (!isAtLastArea())
             {
                 var nextTargetArea = this.areasPath[this.currentPathIdx + 1];
                 var nextTargetAreaEdge = currentArea.ConnectedAreaEdges[nextTargetArea];
-
-                if (navMesh.IsAtPositiveEdgeSide(playerPosition, nextTargetAreaEdge))
-                {
-                    this.currentArea = this.areasPath[++this.currentPathIdx];
-                    Log.Debug($"New current area {this.currentArea}.");
-
-                    nextTargetArea = this.areasPath[this.currentPathIdx + 1];
-                    nextTargetAreaEdge = currentArea.ConnectedAreaEdges[nextTargetArea];
-                }
-
                 var nextTargetPosition = Vector3.Lerp(nextTargetAreaEdge.From.Position, nextTargetAreaEdge.To.Position, 0.5f);
 
                 DesiredDirection = Vector3.Normalize(nextTargetPosition - playerPosition);
@@ -74,7 +83,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Movement
                 }
             }
 
-            if (this.currentPathIdx >= this.areasPath.Count - 1)
+            if (isAtLastArea())
             {
                 // Target position should be on current area.
                 DesiredDirection = Vector3.Normalize(targetPosition - playerPosition);

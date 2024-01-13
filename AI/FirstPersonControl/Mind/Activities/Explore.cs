@@ -45,30 +45,28 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
             // 2. Move character to selected area by following traced route.
             // 3. When characted reached selected open area, start from 1.
 
-            if (goalArea is not null && Vector3.Distance(position, goalArea.CenterPosition) < 1f)
+            var withinArea = navMesh.GetAreaWithin(position);
+
+            if (goalArea is not null && goalArea == withinArea)
             {
                 goalArea = null;
             }
 
-            if (goalArea is null)
+            if (goalArea is null && withinArea is not null)
             {
-                var nearbyArea = navMesh.GetAreaWithin(position);
-
-                if (nearbyArea == null)
-                {
-                    Log.Warning($"Explore: No nearby area found");
-                    return;
-                }
-
-                var possibleGoalAreas = navMesh.AreasByRoom[nearbyArea.Room]
-                    .Where(n => n.ForeignConnectedAreas.Any() && n != nearbyArea)
+                var possibleGoalAreas = navMesh.AreasByRoom[withinArea.Room]
+                    .Where(n => n.ForeignConnectedAreas.Any() && n != withinArea)
                     .Select(n => n.ForeignConnectedAreas.First())
                     .ToArray();
                 var goalIdx = UnityEngine.Random.Range(0, possibleGoalAreas.Length);
                 goalArea = possibleGoalAreas[goalIdx];
             }
 
-            botPlayer.MoveToPosition(goalArea.CenterPosition);
+            if (goalArea is not null)
+            {
+                botPlayer.MoveToPosition(goalArea.CenterPosition);
+                botPlayer.LookToMoveDirection();
+            }
         }
 
         public void Reset()

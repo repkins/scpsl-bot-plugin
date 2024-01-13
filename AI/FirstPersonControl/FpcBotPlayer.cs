@@ -10,6 +10,7 @@ using SCPSLBot.AI.FirstPersonControl.Mind.Activities;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Himself;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World;
 using SCPSLBot.AI.FirstPersonControl.Movement;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -70,6 +71,11 @@ namespace SCPSLBot.AI.FirstPersonControl
         public void MoveToPosition(Vector3 targetPosition) => Move.ToPosition(targetPosition);
 
         public void LookToPosition(Vector3 targetPosition) => Look.ToPosition(targetPosition);
+
+        public void LookToMoveDirection()
+        {
+            Look.ToPosition(FpcRole.CameraPosition + Move.DesiredDirection);
+        }
 
         public bool Interact(InteractableCollider interactableCollider)
         {

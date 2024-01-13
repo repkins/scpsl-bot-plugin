@@ -5,8 +5,10 @@ using PluginAPI.Core.Attributes;
 using PluginAPI.Core.Zones;
 using PluginAPI.Events;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEngine;
+using static UnityEngine.RectTransform;
 
 namespace SCPSLBot.Navigation.Mesh
 {
@@ -22,7 +24,7 @@ namespace SCPSLBot.Navigation.Mesh
         public RoomKindArea NearestArea { get; set; }
         public RoomKindArea FacingArea { get; set; }
 
-        public List<Area> Path { get; } = new List<Area>();
+        public List<Area> Path { get; } = new ();
 
         private Dictionary<RoomVertex, PrimitiveObjectToy> VertexVisuals { get; } = new();
         private Dictionary<(RoomKindEdge, FacilityRoom Room), (PrimitiveObjectToy, Area)> EdgeVisuals { get; } = new();
@@ -284,9 +286,9 @@ namespace SCPSLBot.Navigation.Mesh
                     }
                 }
 
-                foreach (var areaInPath in Path)
+                foreach (var area in Path)
                 {
-                    var areaVisual = AreaVisuals[areaInPath];
+                    var areaVisual = AreaVisuals[area];
                     areaVisual.NetworkMaterialColor = Color.blue;
                 }
             }
@@ -362,6 +364,26 @@ namespace SCPSLBot.Navigation.Mesh
                         {
                             edgeVisual.NetworkMaterialColor = (NearestArea?.Edges.Contains(edge) ?? false) ? Color.yellow : Color.white;
                         }
+                    }
+                }
+
+                if (Path.Count >= 2)
+                {
+                    var pathEnumerator = Path.GetEnumerator();
+
+                    pathEnumerator.MoveNext();
+                    var nextArea = pathEnumerator.Current;
+
+                    while (pathEnumerator.MoveNext())
+                    {
+                        var area = nextArea;
+                        nextArea = pathEnumerator.Current;
+
+                        var connectedEdge = area.ConnectedAreaEdges[nextArea];
+
+                        var roomKindEdge = new RoomKindEdge(connectedEdge.From.RoomKindVertex, connectedEdge.To.RoomKindVertex);
+                        var (edgeVisual, _) = EdgeVisuals[(roomKindEdge, nextArea.Room)];
+                        edgeVisual.NetworkMaterialColor = Color.blue;
                     }
                 }
             }

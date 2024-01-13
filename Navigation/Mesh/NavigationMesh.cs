@@ -41,7 +41,7 @@ namespace SCPSLBot.Navigation.Mesh
 
         public bool IsAtPositiveEdgeSide(Vector3 position, (RoomVertex From, RoomVertex To) edge)
         {
-            var room = RoomIdUtils.RoomAtPositionRaycasts(position);
+            var room = edge.From.Room.Identifier;
 
             var localPosition = room.transform.InverseTransformPoint(position);
 
