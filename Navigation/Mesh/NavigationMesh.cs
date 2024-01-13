@@ -48,9 +48,9 @@ namespace SCPSLBot.Navigation.Mesh
             return GetPointDistToEdge((edge.From.RoomKindVertex, edge.To.RoomKindVertex), localPosition) > 0f;
         }
 
-        public (RoomVertex From, RoomVertex To)? GetNearestEdge(Vector3 position)
+        public (RoomVertex From, RoomVertex To)? GetNearestEdge(Vector3 position, RoomIdentifier room = null)
         {
-            var room = RoomIdUtils.RoomAtPositionRaycasts(position);
+            room ??= RoomIdUtils.RoomAtPositionRaycasts(position);
 
             if (!room || !AreasByRoom.TryGetValue(room.ApiRoom, out var roomAreas))
             {
@@ -61,10 +61,10 @@ namespace SCPSLBot.Navigation.Mesh
 
             var roomKindEdge = roomAreas.SelectMany(a => a.RoomKindArea.Edges)
                 .Select(e => (edge: e, dist: GetPointDistToEdge(e, localPosition)))
-                .Where(t => t.dist > 0f)
+                .Where(t => t.dist <= 0f)
                 .Where(t => IsAlongEdge(t.edge, localPosition))
                 .Where(t => IsEdgeCenterWithinVertically(t.edge, localPosition))
-                .OrderBy(t => t.dist)
+                .OrderByDescending(t => t.dist)
                 .Select(t => new (RoomKindVertex From, RoomKindVertex To)?(t.edge))
                 .DefaultIfEmpty(null)
                 .First();

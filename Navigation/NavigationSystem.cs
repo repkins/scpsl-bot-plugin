@@ -53,8 +53,8 @@ namespace SCPSLBot.Navigation
                     var doorPosition = door.Position;
                     var doorForward = door.Transform.forward;
 
-                    var edgeInFront = NavigationMesh.GetNearestEdge(doorPosition + doorForward * .75f);
-                    var edgeInBack = NavigationMesh.GetNearestEdge(doorPosition - doorForward * .75f);
+                    var edgeInFront = NavigationMesh.GetNearestEdge(doorPosition, door.OriginalObject.Rooms[0]);
+                    var edgeInBack = NavigationMesh.GetNearestEdge(doorPosition, door.OriginalObject.Rooms[1]);
 
                     if (edgeInFront != null && edgeInBack != null)
                     {
