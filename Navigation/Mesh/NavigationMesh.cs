@@ -251,7 +251,7 @@ namespace SCPSLBot.Navigation.Mesh
             foreach (var edge in newRoomKindArea.Edges)
             {
                 var inversedEdge = (edge.To, edge.From);
-                var connectedArea = roomKindAreas.Find(a => a.Edges.Contains(inversedEdge));
+                var connectedArea = roomKindAreas.Find(a => a != newRoomKindArea && a.Edges.Contains(inversedEdge));
                 if (connectedArea != null)
                 {
                     newRoomKindArea.ConnectedRoomKindAreas.Add(connectedArea);
@@ -479,7 +479,7 @@ namespace SCPSLBot.Navigation.Mesh
                     //roomArea.ConnectedAreas.AddRange(connectedAreas);
 
                     var connectedEdges = roomArea.RoomKindArea.ConnectedRoomKindAreas
-                        .Select(cka => (cka, cke: cka.Edges.First(ce => roomArea.RoomKindArea.Edges.Any(e => ce == (e.To, e.From)))))
+                        .Select(cka => (cka, cke: cka.Edges.First(cke => roomArea.RoomKindArea.Edges.Any(e => cke == (e.To, e.From)))))
                         .Select(t => (roomArea.ConnectedAreas.First(ca => ca.RoomKindArea == t.cka), VerticesByRoom[room]
                             .Aggregate((from: default(RoomVertex), to: default(RoomVertex)), (ce, v) => (
                                 v.RoomKindVertex == t.cke.From ? v : ce.from,

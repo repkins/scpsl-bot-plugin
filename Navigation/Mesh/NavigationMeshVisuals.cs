@@ -399,10 +399,10 @@ namespace SCPSLBot.Navigation.Mesh
 
                         if (!ConnectionVisuals.TryGetValue((areaFrom, areaTo), out var connectionVisual))
                         {
-                            var fromAreaEdge = areaFrom.ForeignConnectionEdges[i];
+                            var fromAreaEdge = areaFrom.ConnectedAreaEdges[areaTo];
                             var fromAreaEdgeLocalPos = Vector3.Lerp(fromAreaEdge.From.LocalPosition, fromAreaEdge.To.LocalPosition, .5f);
 
-                            var toAreaEdge = areaTo.ForeignConnectionEdges[areaTo.ForeignConnectedAreas.IndexOf(areaFrom)];
+                            var toAreaEdge = areaTo.ConnectedAreaEdges[areaFrom];
                             var toAreaEdgeLocalPos = Vector3.Lerp(toAreaEdge.From.LocalPosition, toAreaEdge.To.LocalPosition, .5f);
 
                             var newConnectionVisual = UnityEngine.Object.Instantiate(this.primPrefab);

@@ -35,17 +35,21 @@ namespace SCPSLBot.AI.FirstPersonControl.Movement
             {
                 var nextTargetArea = this.areasPath[this.currentPathIdx + 1];
                 var nextTargetAreaEdge = currentArea.ConnectedAreaEdges[nextTargetArea];
-                var nextTargetPosition = Vector3.Lerp(nextTargetAreaEdge.From.Position, nextTargetAreaEdge.To.Position, 0.5f);
-
-                DesiredDirection = Vector3.Normalize(nextTargetPosition - playerPosition);
-
-                //Log.Debug($"Next target area edge {nextTargetAreaEdge}.");
 
                 if (navMesh.IsAtPositiveEdgeSide(playerPosition, nextTargetAreaEdge))
                 {
                     this.currentArea = this.areasPath[++this.currentPathIdx];
                     Log.Debug($"New current area {this.currentArea}.");
+
+                    nextTargetArea = this.areasPath[this.currentPathIdx + 1];
+                    nextTargetAreaEdge = currentArea.ConnectedAreaEdges[nextTargetArea];
                 }
+
+                var nextTargetPosition = Vector3.Lerp(nextTargetAreaEdge.From.Position, nextTargetAreaEdge.To.Position, 0.5f);
+
+                DesiredDirection = Vector3.Normalize(nextTargetPosition - playerPosition);
+
+                //Log.Debug($"Next target area edge {nextTargetAreaEdge}.");
             }
 
             var withinArea = navMesh.GetAreaWithin(playerPosition);
@@ -53,8 +57,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Movement
 
             //Log.Debug($"Within area {withinArea}.");
 
-            //if (targetArea != this.goalArea || (withinArea != null && withinArea != this.currentArea))
-            if ((targetArea != this.goalArea && withinArea != null))
+            if (withinArea != null && (targetArea != this.goalArea || withinArea != this.currentArea))
             {
                 this.currentArea = withinArea;
                 this.goalArea = targetArea;

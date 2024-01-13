@@ -70,6 +70,31 @@ namespace SCPSLBot.Navigation.Mesh
             return targetVertex;
         }
 
+        public RoomKindArea FindClosestAreaByCenter(Vector3 position, float radius = 1f)
+        {
+            var room = RoomIdUtils.RoomAtPositionRaycasts(position);
+
+            if (!room || !NavigationMesh.AreasByRoomKind.TryGetValue((room.Name, room.Shape, (RoomZone)room.Zone), out var roomAreas))
+            {
+                return null;
+            }
+
+            var radiusSqr = Mathf.Pow(radius, 2);
+            var localPosition = room.transform.InverseTransformPoint(position);
+
+            var areasWithinRadius = roomAreas.Select(area => (area, distSqr: Vector3.SqrMagnitude(area.LocalCenterPosition - localPosition)))
+                .Where(t => t.distSqr < radiusSqr);
+
+            if (!areasWithinRadius.Any())
+            {
+                return null;
+            }
+
+            return areasWithinRadius
+                .Aggregate((a, c) => c.distSqr < a.distSqr ? c : a)
+                .area;
+        }
+
         public RoomKindArea FindClosestAreaFacingAt((RoomName, RoomShape, RoomZone) roomKind, Vector3 localPosition, Vector3 localDirection)
         {
             if (!NavigationMesh.Instance.AreasByRoomKind.TryGetValue(roomKind, out var roomKindAreas))
@@ -213,9 +238,9 @@ namespace SCPSLBot.Navigation.Mesh
 
         public RoomKindArea MakeArea(Vector3 position)
         {
-            if (SeletedVertices.Count < 3)
+            if (SeletedVertices.Count < 2)
             {
-                Log.Warning($"Not enough vertices (min 3) selected.");
+                Log.Warning($"Not enough vertices (min 2) selected.");
                 return null;
             }
 
@@ -235,7 +260,7 @@ namespace SCPSLBot.Navigation.Mesh
 
         public bool DissolveArea(Vector3 position)
         {
-            var area = NavigationMesh.GetAreaWithin(position);
+            var area = Visuals.NearestArea;
             if (area == null)
             {
                 Log.Warning($"No area found within to remove.");
@@ -246,7 +271,7 @@ namespace SCPSLBot.Navigation.Mesh
             var room = RoomIdUtils.RoomAtPositionRaycasts(position);
             var roomKind = (room.Name, room.Shape, (RoomZone)room.Zone);
 
-            NavigationMesh.RemoveArea(area.RoomKindArea);
+            NavigationMesh.RemoveArea(area);
 
             Log.Info($"Area at local center position {area.LocalCenterPosition} removed under room {roomKind}.");
 
@@ -406,7 +431,7 @@ namespace SCPSLBot.Navigation.Mesh
         {
             if (PlayerEditing != null)
             {
-                Visuals.NearestVertex = NavigationMesh.GetNearbyVertex(PlayerEditing.Position, .25f)?.RoomKindVertex;
+                Visuals.NearestVertex = NavigationMesh.GetNearbyVertex(PlayerEditing.Position, .125f)?.RoomKindVertex;
             }
         }
 
@@ -427,7 +452,8 @@ namespace SCPSLBot.Navigation.Mesh
         {
             if (PlayerEditing != null)
             {
-                Visuals.NearestArea = NavigationMesh.GetAreaWithin(PlayerEditing.Camera.position)?.RoomKindArea;
+                var playerPosition = PlayerEditing.Position;
+                Visuals.NearestArea = NavigationMesh.GetAreaWithin(playerPosition)?.RoomKindArea ?? FindClosestAreaByCenter(playerPosition, .25f);
             }
         }
 

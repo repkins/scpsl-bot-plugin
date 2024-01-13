@@ -17,7 +17,6 @@ namespace SCPSLBot.Navigation.Mesh
         public Dictionary<Area, (RoomVertex From, RoomVertex To)> ConnectedAreaEdges { get; } = new();
 
         public List<Area> ForeignConnectedAreas { get; } = new();
-        public List<(RoomVertex From, RoomVertex To)> ForeignConnectionEdges { get; } = new();
 
         public Area(RoomKindArea roomKindArea, FacilityRoom room)
         {

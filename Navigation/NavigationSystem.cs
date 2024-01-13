@@ -68,8 +68,8 @@ namespace SCPSLBot.Navigation
                         areaInFront.ForeignConnectedAreas.Add(areaInBack);
                         areaInBack.ForeignConnectedAreas.Add(areaInFront);
 
-                        areaInFront.ForeignConnectionEdges.Add(edgeInFront.Value);
-                        areaInBack.ForeignConnectionEdges.Add(edgeInBack.Value);
+                        areaInFront.ConnectedAreaEdges.Add(areaInBack, edgeInFront.Value);
+                        areaInBack.ConnectedAreaEdges.Add(areaInFront, edgeInBack.Value);
                     }
                 }
             }
