@@ -18,11 +18,11 @@ namespace SCPSLBot.Navigation.Mesh
         public Vector3 LocalCenterPosition => Vertices.Select(v => v.LocalPosition)
             .Aggregate(Vector3.zero, (a, u) => a + u) / Vertices.Count;
 
-        public IEnumerable<(RoomKindVertex From, RoomKindVertex To)> Edges => Vertices.Zip(Vertices.Skip(1), (v1, v2) => (v1, v2))
-            .Append((Vertices.Last(), Vertices.First()));
+        public IEnumerable<RoomKindEdge> Edges => Vertices.Zip(Vertices.Skip(1), (v1, v2) => new RoomKindEdge(v1, v2))
+            .Append(new RoomKindEdge(Vertices.Last(), Vertices.First()));
 
         public List<RoomKindArea> ConnectedRoomKindAreas { get; } = new();
-        public List<(RoomKindVertex From, RoomKindVertex To)> ConnectedRoomKindAreaEdges = new();
+        public List<RoomKindEdge> ConnectedRoomKindAreaEdges = new();
 
         public Dictionary<FacilityRoom, Area> AreasOfRoom { get; } = new();
 

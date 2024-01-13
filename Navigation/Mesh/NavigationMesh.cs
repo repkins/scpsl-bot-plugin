@@ -45,7 +45,7 @@ namespace SCPSLBot.Navigation.Mesh
 
             var localPosition = room.transform.InverseTransformPoint(position);
 
-            return GetPointDistToEdge((edge.From.RoomKindVertex, edge.To.RoomKindVertex), localPosition) > 0f;
+            return GetPointDistToEdge(new RoomKindEdge(edge.From.RoomKindVertex, edge.To.RoomKindVertex), localPosition) > 0f;
         }
 
         public (RoomVertex From, RoomVertex To)? GetNearestEdge(Vector3 position, RoomIdentifier room = null)
@@ -65,7 +65,7 @@ namespace SCPSLBot.Navigation.Mesh
                 .Where(t => IsAlongEdge(t.edge, localPosition))
                 .Where(t => IsEdgeCenterWithinVertically(t.edge, localPosition))
                 .OrderByDescending(t => t.dist)
-                .Select(t => new (RoomKindVertex From, RoomKindVertex To)?(t.edge))
+                .Select(t => new RoomKindEdge?(t.edge))
                 .DefaultIfEmpty(null)
                 .First();
 
@@ -250,7 +250,7 @@ namespace SCPSLBot.Navigation.Mesh
 
             foreach (var edge in newRoomKindArea.Edges)
             {
-                var inversedEdge = (edge.To, edge.From);
+                var inversedEdge = new RoomKindEdge(edge.To, edge.From);
                 var connectedArea = roomKindAreas.Find(a => a != newRoomKindArea && a.Edges.Contains(inversedEdge));
                 if (connectedArea != null)
                 {
@@ -479,7 +479,7 @@ namespace SCPSLBot.Navigation.Mesh
                     //roomArea.ConnectedAreas.AddRange(connectedAreas);
 
                     var connectedEdges = roomArea.RoomKindArea.ConnectedRoomKindAreas
-                        .Select(cka => (cka, cke: cka.Edges.First(cke => roomArea.RoomKindArea.Edges.Any(e => cke == (e.To, e.From)))))
+                        .Select(cka => (cka, cke: cka.Edges.First(cke => roomArea.RoomKindArea.Edges.Any(e => cke == new RoomKindEdge(e.To, e.From)))))
                         .Select(t => (roomArea.ConnectedAreas.First(ca => ca.RoomKindArea == t.cka), VerticesByRoom[room]
                             .Aggregate((from: default(RoomVertex), to: default(RoomVertex)), (ce, v) => (
                                 v.RoomKindVertex == t.cke.From ? v : ce.from,
@@ -530,7 +530,7 @@ namespace SCPSLBot.Navigation.Mesh
             return isAnyVertexWithinVerticalRange;
         }
 
-        private float GetPointDistToEdge((RoomKindVertex From, RoomKindVertex To) edge, Vector3 localPoint)
+        private float GetPointDistToEdge(RoomKindEdge edge, Vector3 localPoint)
         {
             var dirTo2 = edge.To.LocalPosition - edge.From.LocalPosition;
             var dirToPoint = localPoint - edge.From.LocalPosition;
@@ -541,7 +541,7 @@ namespace SCPSLBot.Navigation.Mesh
             return p;
         }
 
-        private bool IsAlongEdge((RoomKindVertex From, RoomKindVertex To) edge, Vector3 localPoint)
+        private bool IsAlongEdge(RoomKindEdge edge, Vector3 localPoint)
         {
             var dir1To2 = edge.To.LocalPosition - edge.From.LocalPosition;
             var dir1ToPoint = localPoint - edge.From.LocalPosition;
@@ -552,7 +552,7 @@ namespace SCPSLBot.Navigation.Mesh
             return Vector3.Dot(dir1ToPoint, dir1To2) > 0f && Vector3.Dot(dir2ToPoint, dir2To1) > 0f;
         }
 
-        private bool IsEdgeCenterWithinVertically((RoomKindVertex From, RoomKindVertex To) edge, Vector3 localPoint)
+        private bool IsEdgeCenterWithinVertically(RoomKindEdge edge, Vector3 localPoint)
         {
             var localPointYLowest = localPoint.y - 1f;
             var localPointYHighest = localPoint.y + 1f;

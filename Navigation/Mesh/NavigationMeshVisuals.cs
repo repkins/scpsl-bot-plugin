@@ -25,7 +25,7 @@ namespace SCPSLBot.Navigation.Mesh
         public List<Area> Path { get; } = new List<Area>();
 
         private Dictionary<RoomVertex, PrimitiveObjectToy> VertexVisuals { get; } = new();
-        private Dictionary<((RoomKindVertex From, RoomKindVertex To), FacilityRoom Room), (PrimitiveObjectToy, Area)> EdgeVisuals { get; } = new();
+        private Dictionary<(RoomKindEdge, FacilityRoom Room), (PrimitiveObjectToy, Area)> EdgeVisuals { get; } = new();
         private Dictionary<(Area From, Area To), PrimitiveObjectToy> ConnectionVisuals { get; } = new();
 
         private Dictionary<Area, PrimitiveObjectToy> AreaVisuals { get; } = new ();
@@ -304,7 +304,8 @@ namespace SCPSLBot.Navigation.Mesh
         {
             if (PlayerEnabledVisualsFor != null)
             {
-                foreach (var ((edge, room), (visual, area)) in EdgeVisuals.Where(p => p.Value.Item1.gameObject.activeInHierarchy).Select(p => (p.Key, p.Value)).ToArray())
+                var enabledEdgeVisuals = EdgeVisuals.Where(p => p.Value.Item1.gameObject.activeInHierarchy);
+                foreach (var ((edge, room), (visual, area)) in enabledEdgeVisuals.Select(p => (p.Key, p.Value)).ToArray())
                 {
                     var isAreaRemoved = !NavigationMesh.AreasByRoom[area.Room].Contains(area);
                     
@@ -399,10 +400,10 @@ namespace SCPSLBot.Navigation.Mesh
 
                         if (!ConnectionVisuals.TryGetValue((areaFrom, areaTo), out var connectionVisual))
                         {
-                            var fromAreaEdge = areaFrom.ConnectedAreaEdges[areaTo];
+                            var fromAreaEdge = areaTo.ConnectedAreaEdges[areaFrom];
                             var fromAreaEdgeLocalPos = Vector3.Lerp(fromAreaEdge.From.LocalPosition, fromAreaEdge.To.LocalPosition, .5f);
 
-                            var toAreaEdge = areaTo.ConnectedAreaEdges[areaFrom];
+                            var toAreaEdge = areaFrom.ConnectedAreaEdges[areaTo];
                             var toAreaEdgeLocalPos = Vector3.Lerp(toAreaEdge.From.LocalPosition, toAreaEdge.To.LocalPosition, .5f);
 
                             var newConnectionVisual = UnityEngine.Object.Instantiate(this.primPrefab);

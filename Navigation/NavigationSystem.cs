@@ -55,15 +55,15 @@ namespace SCPSLBot.Navigation
 
                     var edgeInFront = NavigationMesh.GetNearestEdge(doorPosition, door.OriginalObject.Rooms[0]);
                     var edgeInBack = NavigationMesh.GetNearestEdge(doorPosition, door.OriginalObject.Rooms[1]);
-
+                    
                     if (edgeInFront != null && edgeInBack != null)
                     {
                         // Connect
                         var areaInFront = NavigationMesh.AreasByRoom[edgeInFront.Value.From.Room]
-                            .Find(a => a.RoomKindArea.Edges.Any(e => e == (edgeInFront.Value.From.RoomKindVertex, edgeInFront.Value.To.RoomKindVertex)));
+                            .Find(a => a.RoomKindArea.Edges.Any(e => e == new RoomKindEdge(edgeInFront.Value.From.RoomKindVertex, edgeInFront.Value.To.RoomKindVertex)));
 
                         var areaInBack = NavigationMesh.AreasByRoom[edgeInBack.Value.From.Room]
-                            .Find(a => a.RoomKindArea.Edges.Any(e => e == (edgeInBack.Value.From.RoomKindVertex, edgeInBack.Value.To.RoomKindVertex)));
+                            .Find(a => a.RoomKindArea.Edges.Any(e => e == new RoomKindEdge(edgeInBack.Value.From.RoomKindVertex, edgeInBack.Value.To.RoomKindVertex)));
 
                         areaInFront.ForeignConnectedAreas.Add(areaInBack);
                         areaInFront.ConnectedAreaEdges.Add(areaInBack, edgeInBack.Value);
