@@ -11,6 +11,7 @@ using PluginAPI.Core.Doors;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Himself;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -79,9 +80,9 @@ namespace SCPSLBot.AI.FirstPersonControl
                 if (collider.GetComponentInParent<ItemPickupBase>() is ItemPickupBase item
                     && !ItemsWithinSight.Contains(item))
                 {
-                    var directionToItem = Vector3.Normalize(item.transform.position - cameraTransform.position);
+                    var directionToItem = Vector3.Normalize(collider.transform.position - cameraTransform.position);
                     if (IsWithinFov(cameraTransform, collider.transform)
-                        && Physics.Raycast(cameraTransform.position + directionToItem, directionToItem, out var hit)
+                        && Physics.Raycast(cameraTransform.position, directionToItem, out var hit)
                         && hit.collider.GetComponentInParent<ItemPickupBase>() is ItemPickupBase hitItem
                         && hitItem == item)
                     {
@@ -97,12 +98,26 @@ namespace SCPSLBot.AI.FirstPersonControl
                 if (collider.GetComponentInParent<DoorVariant>() is DoorVariant door
                     && !DoorsWithinSight.Contains(door))
                 {
-                    if (IsWithinFov(cameraTransform, collider.transform)
-                        && Physics.Raycast(cameraTransform.position, door.transform.position - cameraTransform.position, out var hit)
-                        && hit.collider.GetComponentInParent<DoorVariant>() is DoorVariant hitDoor
-                        && hitDoor == door)
+                    if (IsWithinFov(cameraTransform, collider.transform))
                     {
-                        DoorsWithinSight.Add(door);
+                        var hits = Physics.RaycastAll(cameraTransform.position, collider.bounds.center - cameraTransform.position);
+
+                        //Log.Debug($"Overlapping within fov door {door}");
+
+                        if (hits.Any())
+                        {
+                            Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+                            var hit = hits.First();
+                            if (hit.collider.GetComponentInParent<DoorVariant>() is DoorVariant hitDoor
+                                && hitDoor == door)
+                            {
+                                DoorsWithinSight.Add(door);
+                            }
+
+                            //Log.Debug($"collider hit {hit.collider}");
+                        }
+
                     }
                 }
             }

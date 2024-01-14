@@ -56,10 +56,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 
             if (goalArea is null && withinArea is not null)
             {
-                var possibleGoalAreas = navMesh.AreasByRoom[withinArea.Room]
-                    .Where(n => n.ForeignConnectedAreas.Any() && (n.ForeignConnectedAreas.Count < 2 || n != withinArea))
-                    .Select(n => n.ForeignConnectedAreas.First())
+                var areasWithForeign = navMesh.AreasByRoom[withinArea.Room]
+                    .Where(a => a.ForeignConnectedAreas.Any());
+
+                var selectedAreas = areasWithForeign.Take(2).Count() < 2 ? areasWithForeign : areasWithForeign.Where(awf => awf != withinArea);
+                var possibleGoalAreas = selectedAreas
+                    .SelectMany(a => a.ForeignConnectedAreas)
                     .ToArray();
+
                 var goalIdx = UnityEngine.Random.Range(0, possibleGoalAreas.Length);
                 goalArea = possibleGoalAreas[goalIdx];
             }
