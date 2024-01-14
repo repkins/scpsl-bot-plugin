@@ -16,7 +16,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Movement
 
         private Area currentArea;
         private Area goalArea;
-        private List<Area> areasPath = new();
+        public List<Area> AreasPath = new();
         private int currentPathIdx = -1;
 
         private readonly FpcBotPlayer botPlayer;
@@ -31,19 +31,19 @@ namespace SCPSLBot.AI.FirstPersonControl.Movement
             var navMesh = NavigationMesh.Instance;
             var playerPosition = botPlayer.FpcRole.FpcModule.transform.position;
 
-            bool isAtLastArea() => this.currentPathIdx >= this.areasPath.Count - 1;
+            bool isAtLastArea() => this.currentPathIdx >= this.AreasPath.Count - 1;
             if (!isAtLastArea())
             {
                 bool isEdgeReached;
                 do
                 {
-                    var nextTargetArea = this.areasPath[this.currentPathIdx + 1];
+                    var nextTargetArea = this.AreasPath[this.currentPathIdx + 1];
                     var nextTargetAreaEdge = currentArea.ConnectedAreaEdges[nextTargetArea];
 
                     isEdgeReached = navMesh.IsAtPositiveEdgeSide(playerPosition, nextTargetAreaEdge);
                     if (isEdgeReached)
                     {
-                        this.currentArea = this.areasPath[++this.currentPathIdx];
+                        this.currentArea = this.AreasPath[++this.currentPathIdx];
                         Log.Debug($"New current area {this.currentArea}.");
                     }
                 }
@@ -52,7 +52,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Movement
 
             if (!isAtLastArea())
             {
-                var nextTargetArea = this.areasPath[this.currentPathIdx + 1];
+                var nextTargetArea = this.AreasPath[this.currentPathIdx + 1];
                 var nextTargetAreaEdge = currentArea.ConnectedAreaEdges[nextTargetArea];
                 var nextTargetPosition = Vector3.Lerp(nextTargetAreaEdge.From.Position, nextTargetAreaEdge.To.Position, 0.5f);
 
@@ -73,11 +73,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Movement
                 Log.Debug($"New start area {withinArea}.");
                 Log.Debug($"New goal area {targetArea}.");
 
-                this.areasPath = navMesh.GetShortestPath(this.currentArea, this.goalArea);
+                this.AreasPath = navMesh.GetShortestPath(this.currentArea, this.goalArea);
                 this.currentPathIdx = 0;
 
-                Log.Debug($"New path of {this.areasPath.Count} areas:");
-                foreach (var areaInPath in areasPath)
+                Log.Debug($"New path of {this.AreasPath.Count} areas:");
+                foreach (var areaInPath in AreasPath)
                 {
                     Log.Debug($"Area {areaInPath}.");
                 }

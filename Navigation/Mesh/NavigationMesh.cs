@@ -36,7 +36,7 @@ namespace SCPSLBot.Navigation.Mesh
 
             var localPosition = room.transform.InverseTransformPoint(position);
 
-            return roomAreas.Find(a => IsPointWithinArea(a, localPosition));
+            return roomAreas.Find(a => IsLocalPointWithinArea(a, localPosition));
         }
 
         public bool IsAtPositiveEdgeSide(Vector3 position, (RoomVertex From, RoomVertex To) edge)
@@ -45,7 +45,7 @@ namespace SCPSLBot.Navigation.Mesh
 
             var localPosition = room.transform.InverseTransformPoint(position);
 
-            return GetPointDistToEdge(new RoomKindEdge(edge.From.RoomKindVertex, edge.To.RoomKindVertex), localPosition) > 0f;
+            return GetPointDistToEdgePlane(new RoomKindEdge(edge.From.RoomKindVertex, edge.To.RoomKindVertex), localPosition) > 0f;
         }
 
         public (RoomVertex From, RoomVertex To)? GetNearestEdge(Vector3 position, RoomIdentifier room = null)
@@ -60,7 +60,7 @@ namespace SCPSLBot.Navigation.Mesh
             var localPosition = room.transform.InverseTransformPoint(position);
 
             var roomKindEdge = roomAreas.SelectMany(a => a.RoomKindArea.Edges)
-                .Select(e => (edge: e, dist: GetPointDistToEdge(e, localPosition)))
+                .Select(e => (edge: e, dist: GetPointDistToEdgePlane(e, localPosition)))
                 .Where(t => t.dist <= 0f)
                 .Where(t => IsAlongEdge(t.edge, localPosition))
                 .Where(t => IsEdgeCenterWithinVertically(t.edge, localPosition))
@@ -507,14 +507,22 @@ namespace SCPSLBot.Navigation.Mesh
             area.Vertices.Insert(atIdx, vertex);
         }
 
-        private bool IsPointWithinArea(Area area, Vector3 pointLocalPosition)
+        public bool IsPointWithinArea(Area area, Vector3 pointPosition)
+        {
+            var room = area.Room;
+            var pointLocalPosition = room.Transform.InverseTransformPoint(pointPosition);
+
+            return IsLocalPointWithinArea(area, pointLocalPosition);
+        }
+
+        private bool IsLocalPointWithinArea(Area area, Vector3 pointLocalPosition)
         {
             var areaRoomKindEdges = area.RoomKindArea.Edges;
 
             var isAnyVertexWithinVerticalRange = false;
             foreach (var e in areaRoomKindEdges)
             {
-                if (GetPointDistToEdge(e, pointLocalPosition) <= 0f)
+                if (GetPointDistToEdgePlane(e, pointLocalPosition) <= 0f)
                 {
                     return false;
                 }
@@ -530,7 +538,7 @@ namespace SCPSLBot.Navigation.Mesh
             return isAnyVertexWithinVerticalRange;
         }
 
-        private float GetPointDistToEdge(RoomKindEdge edge, Vector3 localPoint)
+        private float GetPointDistToEdgePlane(RoomKindEdge edge, Vector3 localPoint)
         {
             var dirTo2 = edge.To.LocalPosition - edge.From.LocalPosition;
             var dirToPoint = localPoint - edge.From.LocalPosition;
