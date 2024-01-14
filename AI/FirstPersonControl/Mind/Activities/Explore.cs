@@ -97,29 +97,40 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
                             .Any(collider => collider.Raycast(ray, out _, 1f))))
                     .Where(d => d != null);
 
-                foreach (var door in doorsOnPath)
-                {
-                    Log.Debug($"Door on path {door} with state: {door.TargetState}");
-                }
+                //foreach (var door in doorsOnPath)
+                //{
+                //    var dist = Vector3.Distance(firstDoorOnPath.transform.position, playerPosition);
+                //    Log.Debug($"Door on path {door} with state {door.TargetState} and dist {dist}");
+                //}
 
                 var firstDoorOnPath = doorsOnPath.FirstOrDefault();
-                if (firstDoorOnPath && Vector3.Distance(firstDoorOnPath.transform.position, playerPosition) <= 1f)
+                if (firstDoorOnPath)
                 {
-                    var hub = botPlayer.BotHub.PlayerHub;
+                    var dist = Vector3.Distance(firstDoorOnPath.transform.position + Vector3.up, playerPosition);
+                    Log.Debug($"First door on path {firstDoorOnPath} with state {firstDoorOnPath.TargetState} and dist {dist}");
 
-                    //if (firstDoorOnPath.GetComponentsInChildren<Collider>()
-                    //        .Any(collider => collider.Raycast(new Ray(playerPosition, hub.PlayerCameraReference.forward), out var hit, 1f)))
-                    if (Physics.Raycast(playerPosition, hub.PlayerCameraReference.forward, out var hit)
-                        && hit.collider.GetComponent<InteractableCollider>() is InteractableCollider interactableCollider
-                        && hit.collider.GetComponentInParent<IServerInteractable>() is IServerInteractable interactable)
+                    if (dist <= 1f)
                     {
-                        var colliderId = interactableCollider.ColliderId;
+                        Log.Debug($"{firstDoorOnPath} is within interactable distance");
 
-                        interactable.ServerInteract(hub, colliderId);
-                    }
-                    else
-                    {
-                        botPlayer.LookToPosition(firstDoorOnPath.transform.position);
+                        var hub = botPlayer.BotHub.PlayerHub;
+
+                        //if (firstDoorOnPath.GetComponentsInChildren<Collider>()
+                        //        .Any(collider => collider.Raycast(new Ray(playerPosition, hub.PlayerCameraReference.forward), out var hit, 1f))
+                        if (Physics.Raycast(playerPosition, hub.PlayerCameraReference.forward, out var hit, 1f, LayerMask.GetMask("Door"))
+                            && hit.collider.GetComponent<InteractableCollider>() is InteractableCollider interactableCollider
+                            && hit.collider.GetComponentInParent<IServerInteractable>() is IServerInteractable interactable)
+                        {
+                            var colliderId = interactableCollider.ColliderId;
+
+                            interactable.ServerInteract(hub, colliderId);
+                            Log.Debug($"ServerInteract(...) called on {interactable}");
+                        }
+                        else
+                        {
+                            botPlayer.LookToPosition(firstDoorOnPath.transform.position);
+                            Log.Debug($"Looking towards door interactable");
+                        }
                     }
                 }
             }
