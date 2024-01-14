@@ -75,18 +75,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 
                 var doorsWithinSight = this.botPlayer.Perception.DoorsWithinSight;
 
-                //Log.Debug($"Doors within sight: {doorsWithinSight.Count}");
-                //foreach (var door in doorsWithinSight)
-                //{
-                //    var collidingBoundingBox = door.GetComponentInChildren<Collider>().bounds;
-                //    foreach (var collinder in door.GetComponentsInChildren<Collider>())
-                //    {
-                //        collidingBoundingBox.Encapsulate(collinder.bounds);
-                //    }
-
-                //    //Log.Debug($"Door {door} {door.transform.position}, bounding box center {collidingBoundingBox.center} with state: {door.TargetState}");
-                //}
-
                 var points = botPlayer.Move.AreasPath.Zip(botPlayer.Move.AreasPath.Skip(1), (area, nextArea) => (area, nextArea))
                     .Select(t => t.area.ConnectedAreaEdges[t.nextArea])
                     .Select(e => Vector3.Lerp(e.From.Position, e.To.Position, .5f))
@@ -101,17 +89,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
                             .Any(collider => collider.Raycast(ray, out _, 1f))))
                     .Where(d => d != null);
 
-                //foreach (var door in doorsOnPath)
-                //{
-                //    var dist = Vector3.Distance(firstDoorOnPath.transform.position, playerPosition);
-                //    Log.Debug($"Door on path {door} with state {door.TargetState} and dist {dist}");
-                //}
-
                 var firstDoorOnPath = doorsOnPath.FirstOrDefault();
                 if (firstDoorOnPath)
                 {
                     var dist = Vector3.Distance(firstDoorOnPath.transform.position + Vector3.up, playerPosition);
-                    Log.Debug($"First door on path {firstDoorOnPath} with state {firstDoorOnPath.TargetState} and dist {dist}");
+                    //Log.Debug($"First door on path {firstDoorOnPath} with state {firstDoorOnPath.TargetState} and dist {dist}");
 
                     if (dist <= 1f)
                     {
@@ -128,12 +110,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
                             var colliderId = interactableCollider.ColliderId;
 
                             interactable.ServerInteract(hub, colliderId);
-                            Log.Debug($"ServerInteract(...) called on {interactable}");
+                            //Log.Debug($"ServerInteract(...) called on {interactable}");
                         }
                         else
                         {
                             botPlayer.LookToPosition(firstDoorOnPath.transform.position);
-                            Log.Debug($"Looking towards door interactable");
+                            //Log.Debug($"Looking towards door interactable");
                         }
                     }
                 }
