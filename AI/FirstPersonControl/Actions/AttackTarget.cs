@@ -60,7 +60,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Actions
 
             var directionToTarget = Vector3.Normalize(TargetToAttack.transform.position - fpcTransform.position);
 
-            _lookAction.TargetLookDirection = directionToTarget;
+            _lookAction.TargetLookLocalDirection = directionToTarget;
             _lookAction.UpdatePlayer();
 
             // Fire.

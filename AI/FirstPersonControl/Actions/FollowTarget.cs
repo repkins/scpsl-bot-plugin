@@ -71,7 +71,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Actions
 
             if (!_moveAction.IsAtTargetPosition)
             {
-                _lookAction.TargetLookDirection = _botPlayer.Move.DesiredDirection;
+                _lookAction.TargetLookLocalDirection = _botPlayer.Move.DesiredLocalDirection;
                 _lookAction.UpdatePlayer();
             }
 

@@ -10,7 +10,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Actions
 {
     internal class FpcLookAction : IFpcAction
     {
-        public Vector3 TargetLookDirection { private get; set; }
+        public Vector3 TargetLookLocalDirection { private get; set; }
 
         public FpcLookAction(FpcBotPlayer botPlayer)
         {
@@ -22,7 +22,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Actions
 
         public void UpdatePlayer()
         {
-            var angleDiff = Vector3.SignedAngle(TargetLookDirection, _botPlayer.FpcRole.FpcModule.transform.forward, Vector3.down);
+            var angleDiff = Vector3.SignedAngle(TargetLookLocalDirection, _botPlayer.FpcRole.FpcModule.transform.forward, Vector3.down);
             _botPlayer.Look.DesiredAngles = new Vector3(0, angleDiff);
         }
 

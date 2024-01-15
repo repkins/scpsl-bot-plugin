@@ -39,7 +39,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 
             var relativePos = _itemWithinSight.Item.transform.position - _botPlayer.FpcRole.CameraPosition;
             var moveDirection = Vector3.ProjectOnPlane(relativePos, Vector3.up).normalized;
-            _botPlayer.Move.DesiredDirection = moveDirection;
+            _botPlayer.Move.DesiredLocalDirection = _botPlayer.FpcRole.FpcModule.transform.InverseTransformDirection(moveDirection);
         }
 
         public void Reset() { }

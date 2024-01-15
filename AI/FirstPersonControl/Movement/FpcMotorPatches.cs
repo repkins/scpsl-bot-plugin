@@ -18,8 +18,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Movement
             if (BotManager.Instance.BotPlayers.TryGetValue(hub, out var botHub)
                 && botHub.CurrentBotPlayer is FpcBotPlayer fpcPlayer)
             {
-                __result = fpcPlayer.Move.DesiredDirection;
-                fpcPlayer.Move.DesiredDirection = Vector3.zero;
+                __result = fpcModule.transform.TransformDirection(fpcPlayer.Move.DesiredLocalDirection);
+                fpcPlayer.Move.DesiredLocalDirection = Vector3.zero;
+
+                //__result = fpcPlayer.Move.DesiredDirection;
+                //fpcPlayer.Move.DesiredDirection = Vector3.zero;
                 return false;
             }
 

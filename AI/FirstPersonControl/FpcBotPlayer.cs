@@ -68,20 +68,16 @@ namespace SCPSLBot.AI.FirstPersonControl
             MindRunner.EvaluateAllActivities();
         }
 
-        public void MoveToPosition(Vector3 targetPosition) => Move.ToPosition(targetPosition);
+        public void MoveForwardToPosition(Vector3 targetPosition) => Move.ForwardToPosition(targetPosition);
 
         public void LookToPosition(Vector3 targetPosition) => Look.ToPosition(targetPosition);
-
-        public void LookToMoveDirection()
-        {
-            Look.ToPosition(FpcRole.CameraPosition + Move.DesiredDirection);
-        }
 
         public bool Interact(InteractableCollider interactableCollider)
         {
             if (interactableCollider == null)
             {
-                if (!Physics.Raycast(FpcRole.FpcModule.transform.position, Move.DesiredDirection, out var hit))
+                var direction = FpcRole.FpcModule.transform.TransformDirection(Move.DesiredLocalDirection);
+                if (!Physics.Raycast(FpcRole.FpcModule.transform.position, direction, out var hit))
                 {
                     return false;
                 }

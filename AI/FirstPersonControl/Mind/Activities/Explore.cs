@@ -37,6 +37,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
             this.botPlayer = botPlayer;
         }
 
+        private const float interactDistance = 2f;
+
         public void Tick()
         {
             var playerPosition = botPlayer.FpcRole.FpcModule.Position;
@@ -70,8 +72,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 
             if (goalArea is not null)
             {
-                botPlayer.MoveToPosition(goalArea.CenterPosition);
-                botPlayer.LookToMoveDirection();
+                botPlayer.MoveForwardToPosition(goalArea.CenterPosition);
 
                 var doorsWithinSight = this.botPlayer.Perception.DoorsWithinSight;
 
@@ -95,7 +96,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
                     var dist = Vector3.Distance(firstDoorOnPath.transform.position + Vector3.up, playerPosition);
                     //Log.Debug($"First door on path {firstDoorOnPath} with state {firstDoorOnPath.TargetState} and dist {dist}");
 
-                    if (dist <= 1f)
+                    if (dist <= interactDistance)
                     {
                         Log.Debug($"{firstDoorOnPath} is within interactable distance");
 
@@ -103,7 +104,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 
                         //if (firstDoorOnPath.GetComponentsInChildren<Collider>()
                         //        .Any(collider => collider.Raycast(new Ray(playerPosition, hub.PlayerCameraReference.forward), out var hit, 1f))
-                        if (Physics.Raycast(playerPosition, hub.PlayerCameraReference.forward, out var hit, 1f, LayerMask.GetMask("Door"))
+                        if (Physics.Raycast(playerPosition, hub.PlayerCameraReference.forward, out var hit, interactDistance, LayerMask.GetMask("Door"))
                             && hit.collider.GetComponent<InteractableCollider>() is InteractableCollider interactableCollider
                             && hit.collider.GetComponentInParent<IServerInteractable>() is IServerInteractable interactable)
                         {

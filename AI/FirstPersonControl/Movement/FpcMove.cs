@@ -1,5 +1,6 @@
 ﻿using MEC;
 using PluginAPI.Core;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World;
 using SCPSLBot.Navigation.Mesh;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Movement
 {
     internal class FpcMove
     {
-        public Vector3 DesiredDirection { get; set; } = Vector3.zero;
+        //public Vector3 DesiredDirection { get; set; } = Vector3.zero;
+        public Vector3 DesiredLocalDirection { get; set; } = Vector3.zero;
 
         private Area currentArea;
         private Area goalArea;
@@ -26,7 +28,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Movement
             this.botPlayer = botPlayer;
         }
 
-        public void ToPosition(Vector3 targetPosition)
+        public void ForwardToPosition(Vector3 targetPosition)
         {
             var navMesh = NavigationMesh.Instance;
             var playerPosition = botPlayer.FpcRole.FpcModule.transform.position;
@@ -56,9 +58,13 @@ namespace SCPSLBot.AI.FirstPersonControl.Movement
                 var nextTargetAreaEdge = currentArea.ConnectedAreaEdges[nextTargetArea];
                 var nextTargetPosition = Vector3.Lerp(nextTargetAreaEdge.From.Position, nextTargetAreaEdge.To.Position, 0.5f);
 
-                DesiredDirection = Vector3.Normalize(nextTargetPosition - playerPosition);
+                var relativePos = nextTargetPosition - botPlayer.FpcRole.CameraPosition;
+                var relativeProjected = Vector3.ProjectOnPlane(relativePos, Vector3.up);
+                var nextTargetLookPosition = relativeProjected + botPlayer.FpcRole.CameraPosition;
 
-                //Log.Debug($"Next target area edge {nextTargetAreaEdge}.");
+                botPlayer.Look.ToPosition(nextTargetLookPosition);
+
+                DesiredLocalDirection = Vector3.forward;
             }
 
             var withinArea = navMesh.GetAreaWithin(playerPosition);
@@ -86,19 +92,23 @@ namespace SCPSLBot.AI.FirstPersonControl.Movement
             if (isAtLastArea())
             {
                 // Target position should be on current area.
-                DesiredDirection = Vector3.Normalize(targetPosition - playerPosition);
+                var relativePos = targetPosition - botPlayer.FpcRole.CameraPosition;
+                var relativeProjected = Vector3.ProjectOnPlane(relativePos, Vector3.up);
+                var targetLookPosition = relativeProjected + botPlayer.FpcRole.CameraPosition;
+
+                botPlayer.Look.ToPosition(targetLookPosition);
+
+                DesiredLocalDirection = Vector3.forward;
             }
         }
 
         public IEnumerator<float> ToFpcAsync(Vector3 localDirection, int timeAmount)
         {
-            var transform = botPlayer.FpcRole.FpcModule.transform;
-
-            DesiredDirection = transform.TransformDirection(localDirection);
+            DesiredLocalDirection = localDirection;
 
             yield return Timing.WaitForSeconds(timeAmount);
 
-            DesiredDirection = Vector3.zero;
+            DesiredLocalDirection = Vector3.zero;
 
             yield break;
         }
