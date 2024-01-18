@@ -56,13 +56,71 @@ namespace SCPSLBot.AI.FirstPersonControl.Movement
             {
                 var nextTargetArea = this.AreasPath[this.currentPathIdx + 1];
                 var nextTargetAreaEdge = currentArea.ConnectedAreaEdges[nextTargetArea];
-                var nextTargetPosition = Vector3.Lerp(nextTargetAreaEdge.From.Position, nextTargetAreaEdge.To.Position, 0.5f);
+                var nextTargetEdgeMiddlePosition = Vector3.Lerp(nextTargetAreaEdge.From.Position, nextTargetAreaEdge.To.Position, 0.5f);
+
+                var nextTargetPosition = nextTargetEdgeMiddlePosition;
+
+                var aheadPathIdx = this.currentPathIdx + 1;
+
+                while (nextTargetEdgeMiddlePosition == nextTargetPosition && aheadPathIdx < this.AreasPath.Count - 1)
+                {
+                    aheadPathIdx++;
+
+                    var relNextTargetEdgePos = (
+                        from: nextTargetAreaEdge.From.Position - playerPosition, 
+                        to: nextTargetAreaEdge.To.Position - playerPosition);
+
+                    var aheadTargetArea = this.AreasPath[aheadPathIdx];
+                    var aheadTargetAreaEdge = currentArea.ConnectedAreaEdges[aheadTargetArea];
+
+                    var relAheadTargetEdgePos = (
+                        from: aheadTargetAreaEdge.From.Position - playerPosition,
+                        to: aheadTargetAreaEdge.To.Position - playerPosition);
+
+                    var dirToAheadTargetEdgeNormals = (
+                        from: Vector3.Cross(relAheadTargetEdgePos.from, Vector3.up),
+                        to: Vector3.Cross(relAheadTargetEdgePos.to, Vector3.up));
+
+                    if (Vector3.Dot(relNextTargetEdgePos.from, dirToAheadTargetEdgeNormals.from) > 0)
+                    {
+                        nextTargetPosition = nextTargetAreaEdge.From.Position;
+                    }
+
+                    if (Vector3.Dot(relNextTargetEdgePos.to, dirToAheadTargetEdgeNormals.to) < 0)
+                    {
+                        nextTargetPosition = nextTargetAreaEdge.To.Position;
+                    }
+
+                    nextTargetAreaEdge = aheadTargetAreaEdge;
+                }
+
+                if (nextTargetPosition == nextTargetEdgeMiddlePosition)
+                {
+                    nextTargetPosition = targetPosition;
+
+                    var relNextTargetEdgePos = (
+                        from: nextTargetAreaEdge.From.Position - playerPosition,
+                        to: nextTargetAreaEdge.To.Position - playerPosition);
+
+                    var relGoalPos = targetPosition - playerPosition;
+                    var dirToGoalNormal = Vector3.Cross(relGoalPos, Vector3.up);
+
+                    if (Vector3.Dot(relNextTargetEdgePos.from, dirToGoalNormal) > 0)
+                    {
+                        nextTargetPosition = nextTargetAreaEdge.From.Position;
+                    }
+
+                    if (Vector3.Dot(relNextTargetEdgePos.to, dirToGoalNormal) < 0)
+                    {
+                        nextTargetPosition = nextTargetAreaEdge.To.Position;
+                    }
+                }
 
                 var relativePos = nextTargetPosition - botPlayer.FpcRole.CameraPosition;
-                var relativeProjected = Vector3.ProjectOnPlane(relativePos, Vector3.up);
-                var nextTargetLookPosition = relativeProjected + botPlayer.FpcRole.CameraPosition;
+                var relativeHorizontalPos = Vector3.ProjectOnPlane(relativePos, Vector3.up);
+                var nextTargetTurnPosition = relativeHorizontalPos + botPlayer.FpcRole.CameraPosition;
 
-                botPlayer.Look.ToPosition(nextTargetLookPosition);
+                botPlayer.Look.ToPosition(nextTargetTurnPosition);
 
                 DesiredLocalDirection = Vector3.forward;
             }
