@@ -71,7 +71,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Movement
                         to: nextTargetAreaEdge.To.Position - playerPosition);
 
                     var aheadTargetArea = this.AreasPath[aheadPathIdx];
-                    var aheadTargetAreaEdge = currentArea.ConnectedAreaEdges[aheadTargetArea];
+                    var aheadTargetAreaEdge = nextTargetArea.ConnectedAreaEdges[aheadTargetArea];
 
                     var relAheadTargetEdgePos = (
                         from: aheadTargetAreaEdge.From.Position - playerPosition,
@@ -91,6 +91,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Movement
                         nextTargetPosition = nextTargetAreaEdge.To.Position;
                     }
 
+                    nextTargetArea = aheadTargetArea;
                     nextTargetAreaEdge = aheadTargetAreaEdge;
                 }
 
