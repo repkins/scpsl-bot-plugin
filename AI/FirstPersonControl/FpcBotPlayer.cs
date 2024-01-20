@@ -24,6 +24,8 @@ namespace SCPSLBot.AI.FirstPersonControl
         public FpcBotPerception Perception { get; }
         public FpcMindRunner MindRunner { get; }
 
+        public FpcBotNavigator Navigator { get; }
+
         public FpcLook Look { get; }
         public FpcMove Move { get; }
         
@@ -33,6 +35,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             Perception = new FpcBotPerception(this);
             MindRunner = new FpcMindRunner();
 
+            Navigator = new(this);
             Look = new(this);
             Move = new(this);
 
@@ -68,7 +71,18 @@ namespace SCPSLBot.AI.FirstPersonControl
             MindRunner.EvaluateAllActivities();
         }
 
-        public void MoveForwardToPosition(Vector3 targetPosition) => Move.ForwardToPosition(targetPosition);
+        public void MoveToPosition(Vector3 targetPosition)
+        {
+            var positionTowardsTarget = Navigator.GetPositionTowards(targetPosition);
+
+            var relativePos = positionTowardsTarget - this.FpcRole.CameraPosition;
+            var relativeHorizontalPos = Vector3.ProjectOnPlane(relativePos, Vector3.up);
+            var lookPositionTowardsTarget = relativeHorizontalPos + this.FpcRole.CameraPosition;
+
+            this.Look.ToPosition(lookPositionTowardsTarget);
+
+            this.Move.DesiredLocalDirection = Vector3.forward;
+        } 
 
         public void LookToPosition(Vector3 targetPosition) => Look.ToPosition(targetPosition);
 

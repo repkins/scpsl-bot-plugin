@@ -77,10 +77,13 @@ dotnet_style_parentheses_in_arithmetic_binary_operators = always_for_clarity:sil
 dotnet_style_parentheses_in_other_binary_operators = always_for_clarity:silent
 dotnet_style_parentheses_in_relational_binary_operators = always_for_clarity:silent
 dotnet_style_parentheses_in_other_operators = never_if_unnecessary:silent
-dotnet_style_qualification_for_field = true:silent
-dotnet_style_qualification_for_property = false:silent
-dotnet_style_qualification_for_method = false:silent
-dotnet_style_qualification_for_event = true:silent
+dotnet_style_qualification_for_field = true:none
+dotnet_style_qualification_for_property = false:none
+dotnet_style_qualification_for_method = false:none
+dotnet_style_qualification_for_event = true:none
+
+# IDE0003: Remove qualification
+dotnet_diagnostic.IDE0003.severity = none
 
 [*.cs]
 csharp_using_directive_placement = outside_namespace:silent

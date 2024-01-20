@@ -72,11 +72,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 
             if (goalArea is not null)
             {
-                botPlayer.MoveForwardToPosition(goalArea.CenterPosition);
+                botPlayer.MoveToPosition(goalArea.CenterPosition);
 
                 var doorsWithinSight = this.botPlayer.Perception.DoorsWithinSight;
 
-                var points = botPlayer.Move.AreasPath.Zip(botPlayer.Move.AreasPath.Skip(1), (area, nextArea) => (area, nextArea))
+                var points = botPlayer.Navigator.AreasPath.Zip(botPlayer.Navigator.AreasPath.Skip(1), (area, nextArea) => (area, nextArea))
                     .Select(t => t.area.ConnectedAreaEdges[t.nextArea])
                     .Select(e => Vector3.Lerp(e.From.Position, e.To.Position, .5f))
                     .Prepend(playerPosition)
