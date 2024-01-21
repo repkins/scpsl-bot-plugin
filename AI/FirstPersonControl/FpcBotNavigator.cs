@@ -112,6 +112,7 @@ namespace SCPSLBot.AI.FirstPersonControl
                     }
                 }
 
+                return nextTargetPosition;
             }
 
             var withinArea = navMesh.GetAreaWithin(playerPosition);
@@ -139,11 +140,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             if (isAtLastArea())
             {
                 // Target position should be on current area.
-                var relativePos = goalPosition - botPlayer.FpcRole.CameraPosition;
-                var relativeProjected = Vector3.ProjectOnPlane(relativePos, Vector3.up);
-                var targetLookPosition = relativeProjected + botPlayer.FpcRole.CameraPosition;
-
-                return targetLookPosition;
+                return goalPosition;
             }
 
             Log.Warning($"Could not able to resolve target position.");
