@@ -1,5 +1,6 @@
 ﻿using Interactables;
 using Interactables.Interobjects;
+using Interactables.Interobjects.DoorUtils;
 using InventorySystem.Items.Firearms;
 using InventorySystem.Items.Keycards;
 using InventorySystem.Items.Usables;
@@ -86,36 +87,26 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         public void LookToPosition(Vector3 targetPosition) => Look.ToPosition(targetPosition);
 
-        public bool Interact(InteractableCollider interactableCollider)
+        public bool OpenDoor(DoorVariant targetDoor, float maxInteractDistance)
         {
-            if (interactableCollider == null)
-            {
-                var direction = FpcRole.FpcModule.transform.TransformDirection(Move.DesiredLocalDirection);
-                if (!Physics.Raycast(FpcRole.FpcModule.transform.position, direction, out var hit))
-                {
-                    return false;
-                }
-
-                interactableCollider = hit.collider.GetComponent<InteractableCollider>();
-            }
-
-            if (!interactableCollider)
-            {
-                return false;
-            }
-
-            var interactable = interactableCollider.GetComponentInParent<IServerInteractable>();
-            if (interactable == null)
-            {
-                return false;
-            }
-
             var hub = BotHub.PlayerHub;
-            var colliderId = interactableCollider.ColliderId;
+            var playerCamera = hub.PlayerCameraReference;
 
-            interactable.ServerInteract(hub, colliderId);
+            //if (firstDoorOnPath.GetComponentsInChildren<Collider>()
+            //        .Any(collider => collider.Raycast(new Ray(playerPosition, hub.PlayerCameraReference.forward), out var hit, 2f))
+            if (Physics.Raycast(playerCamera.position, playerCamera.forward, out var hit, maxInteractDistance, LayerMask.GetMask("Door"))
+                && hit.collider.GetComponent<InteractableCollider>() is InteractableCollider interactableCollider
+                && hit.collider.GetComponentInParent<IServerInteractable>() is IServerInteractable interactable)
+            {
+                var colliderId = interactableCollider.ColliderId;
 
-            return true;
+                interactable.ServerInteract(hub, colliderId);
+                //Log.Debug($"ServerInteract(...) called on {interactable}");
+
+                return true;
+            }
+
+            return false;
         }
 
         #region Debug functions

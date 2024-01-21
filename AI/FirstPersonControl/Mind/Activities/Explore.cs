@@ -61,7 +61,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
                 var areasWithForeign = navMesh.AreasByRoom[withinArea.Room]
                     .Where(a => a.ForeignConnectedAreas.Any());
 
-                var selectedAreas = areasWithForeign.Take(2).Count() < 2 ? areasWithForeign : areasWithForeign.Where(awf => awf != withinArea);
+                var selectedAreas = areasWithForeign.Take(2)
+                    .Count() < 2
+                        ? areasWithForeign
+                        : areasWithForeign.Where(awf => awf != withinArea);
+
                 var possibleGoalAreas = selectedAreas
                     .SelectMany(a => a.ForeignConnectedAreas)
                     .ToArray();
@@ -72,53 +76,25 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 
             if (goalArea is not null)
             {
-                botPlayer.MoveToPosition(goalArea.CenterPosition);
-
-                var doorsWithinSight = this.botPlayer.Perception.DoorsWithinSight;
-
-                var points = botPlayer.Navigator.AreasPath.Zip(botPlayer.Navigator.AreasPath.Skip(1), (area, nextArea) => (area, nextArea))
-                    .Select(t => t.area.ConnectedAreaEdges[t.nextArea])
-                    .Select(e => Vector3.Lerp(e.From.Position, e.To.Position, .5f))
-                    .Prepend(playerPosition)
-                    .Append(goalArea.CenterPosition);
-
-                var rays = points.Zip(points.Skip(1), (point, nextPoint) => new Ray(point, nextPoint - point));
-
-                var doorsOnPath = rays
-                    .Select(ray => doorsWithinSight
-                        .FirstOrDefault(door => door.GetComponentsInChildren<Collider>()
-                            .Any(collider => collider.Raycast(ray, out _, 1f))))
-                    .Where(d => d != null);
+                var points = botPlayer.Navigator.GetPathTowards(goalArea.CenterPosition);
+                var doorsOnPath = botPlayer.Perception.GetDoorsOnPath(points);
 
                 var firstDoorOnPath = doorsOnPath.FirstOrDefault();
-                if (firstDoorOnPath)
+                if (firstDoorOnPath && Vector3.Distance(firstDoorOnPath.transform.position + Vector3.up, playerPosition) <= interactDistance)
                 {
-                    var dist = Vector3.Distance(firstDoorOnPath.transform.position + Vector3.up, playerPosition);
-                    //Log.Debug($"First door on path {firstDoorOnPath} with state {firstDoorOnPath.TargetState} and dist {dist}");
+                    Log.Debug($"{firstDoorOnPath} is within interactable distance");
 
-                    if (dist <= interactDistance)
+                    var hub = botPlayer.BotHub.PlayerHub;
+
+                    if (!firstDoorOnPath.TargetState && !botPlayer.OpenDoor(firstDoorOnPath, interactDistance))
                     {
-                        Log.Debug($"{firstDoorOnPath} is within interactable distance");
-
-                        var hub = botPlayer.BotHub.PlayerHub;
-
-                        //if (firstDoorOnPath.GetComponentsInChildren<Collider>()
-                        //        .Any(collider => collider.Raycast(new Ray(playerPosition, hub.PlayerCameraReference.forward), out var hit, 1f))
-                        if (Physics.Raycast(playerPosition, hub.PlayerCameraReference.forward, out var hit, interactDistance, LayerMask.GetMask("Door"))
-                            && hit.collider.GetComponent<InteractableCollider>() is InteractableCollider interactableCollider
-                            && hit.collider.GetComponentInParent<IServerInteractable>() is IServerInteractable interactable)
-                        {
-                            var colliderId = interactableCollider.ColliderId;
-
-                            interactable.ServerInteract(hub, colliderId);
-                            //Log.Debug($"ServerInteract(...) called on {interactable}");
-                        }
-                        else
-                        {
-                            botPlayer.LookToPosition(firstDoorOnPath.transform.position);
-                            //Log.Debug($"Looking towards door interactable");
-                        }
+                        botPlayer.LookToPosition(firstDoorOnPath.transform.position);
+                        //Log.Debug($"Looking towards door interactable");
                     }
+                }
+                else
+                {
+                    botPlayer.MoveToPosition(goalArea.CenterPosition);
                 }
             }
         }

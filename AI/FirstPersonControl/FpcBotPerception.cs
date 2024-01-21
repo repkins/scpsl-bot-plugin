@@ -266,6 +266,19 @@ namespace SCPSLBot.AI.FirstPersonControl
             return true;
         }
 
+        public IEnumerable<DoorVariant> GetDoorsOnPath(IEnumerable<Vector3> pathOfPoints)
+        {
+            var rays = pathOfPoints.Zip(pathOfPoints.Skip(1), (point, nextPoint) => new Ray(point, nextPoint - point));
+
+            var doorsOnPath = rays
+                .Select(ray => DoorsWithinSight
+                    .FirstOrDefault(door => door.GetComponentsInChildren<Collider>()
+                        .Any(collider => collider.Raycast(ray, out _, 1f))))
+                .Where(d => d != null);
+
+            return doorsOnPath;
+        }
+
         private const int OverlappingCollidersBufferSize = 1000;
 
         private static int _numOverlappingColliders;
