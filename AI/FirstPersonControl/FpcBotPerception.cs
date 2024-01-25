@@ -62,6 +62,8 @@ namespace SCPSLBot.AI.FirstPersonControl
             DoorsWithinSight.Clear();
             ItemsWithinPickupDistance.Clear();
 
+            RaycastHit[] hits;
+
             foreach (var collider in overlappingColliders)
             {
                 if (collider.GetComponentInParent<ReferenceHub>() is ReferenceHub otherPlayer
@@ -80,17 +82,25 @@ namespace SCPSLBot.AI.FirstPersonControl
                 if (collider.GetComponentInParent<ItemPickupBase>() is ItemPickupBase item
                     && !ItemsWithinSight.Contains(item))
                 {
-                    var directionToItem = Vector3.Normalize(collider.transform.position - cameraTransform.position);
-                    if (IsWithinFov(cameraTransform, collider.transform)
-                        && Physics.Raycast(cameraTransform.position, directionToItem, out var hit)
-                        && hit.collider.GetComponentInParent<ItemPickupBase>() is ItemPickupBase hitItem
-                        && hitItem == item)
+                    if (IsWithinFov(cameraTransform, collider.transform))
                     {
-                        ItemsWithinSight.Add(item);
-
-                        if (Vector3.Distance(item.transform.position, cameraTransform.position) <= 1.75f) // TODO: constant
+                        var relPosToItem = collider.bounds.center - cameraTransform.position;
+                        hits = Physics.RaycastAll(cameraTransform.position, relPosToItem, relPosToItem.magnitude);
+                        if (hits.Any())
                         {
-                            ItemsWithinPickupDistance.Add(item);
+                            Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+                            var hit = hits.First();
+                            if (hit.collider.GetComponentInParent<ItemPickupBase>() is ItemPickupBase hitItem
+                                && hitItem == item)
+                            {
+                                ItemsWithinSight.Add(item);
+
+                                if (Vector3.Distance(item.transform.position, cameraTransform.position) <= 1.75f) // TODO: constant
+                                {
+                                    ItemsWithinPickupDistance.Add(item);
+                                }
+                            }
                         }
                     }
                 }
@@ -100,7 +110,7 @@ namespace SCPSLBot.AI.FirstPersonControl
                 {
                     if (IsWithinFov(cameraTransform, collider.transform))
                     {
-                        var hits = Physics.RaycastAll(cameraTransform.position, collider.bounds.center - cameraTransform.position);
+                        hits = Physics.RaycastAll(cameraTransform.position, collider.bounds.center - cameraTransform.position);
 
                         //Log.Debug($"Overlapping within fov door {door}");
 
