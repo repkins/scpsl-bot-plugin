@@ -1,4 +1,5 @@
 ﻿using SCPSLBot.AI.FirstPersonControl.Attributes;
+using SCPSLBot.AI.FirstPersonControl.Mind.Desires;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -8,9 +9,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
     internal class FpcMind
     {
         public Dictionary<IActivity, List<IBelief>> ActivitiesImpactingBeliefs { get; } = new Dictionary<IActivity, List<IBelief>>();
+        public Dictionary<IActivity, List<IBelief>> ActivitiesEnabledByBeliefs { get; } = new Dictionary<IActivity, List<IBelief>>();
+        public Dictionary<IDesire, List<IBelief>> DesiresEnabledByBeliefs { get; } = new Dictionary<IDesire, List<IBelief>>();
         public Dictionary<IActivity, Predicate<IBelief>> ActivityEnablingConditions { get; } = new Dictionary<IActivity, Predicate<IBelief>>();
         public Dictionary<Type, IBelief> Beliefs { get; } = new Dictionary<Type, IBelief>();
         public Dictionary<IBelief, List<IActivity>> BeliefsEnablingActivities { get; } = new Dictionary<IBelief, List<IActivity>>();
+        public Dictionary<IBelief, List<IDesire>> BeliefsEnablingDesires { get; } = new Dictionary<IBelief, List<IDesire>>();
 
         public B ActivityEnabledBy<B>(IActivity activity) where B : class, IBelief
         {
@@ -30,9 +34,19 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
             return belief as B;
         }
 
+        public B DesireEnabledBy<B>(IDesire desire) where B : class, IBelief
+        {
+            var belief = Beliefs[typeof(B)];
+
+            DesireEnabledBy(desire, belief);
+
+            return belief as B;
+        }
+
         public FpcMind AddActivity(IActivity activity)
         {
             ActivitiesImpactingBeliefs.Add(activity, new List<IBelief>());
+            ActivitiesEnabledByBeliefs.Add(activity, new List<IBelief>());
 
             var impactsAttributes = activity.GetType().GetCustomAttributes<ActivityImpacts>();
             foreach (var attr in impactsAttributes)
@@ -63,7 +77,17 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
             var enablesActivities = new List<IActivity>();
             BeliefsEnablingActivities.Add(belief, enablesActivities);
 
+            var enablingDesires = new List<IDesire>();
+            BeliefsEnablingDesires.Add(belief, enablingDesires);
+
             return this;
+        }
+
+        public void AddDesire(IDesire desire)
+        {
+            DesiresEnabledByBeliefs.Add(desire, new List<IBelief>());
+
+            desire.SetEnabledByBeliefs(this);
         }
 
         public B GetBelief<B>() where B : IBelief
@@ -75,8 +99,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
         private void ActivityEnabledBy(IActivity activity, IBelief belief)
         {
             var enablesActivities = BeliefsEnablingActivities[belief];
-
             enablesActivities.Add(activity);
+
+            var enabledBy = ActivitiesEnabledByBeliefs[activity];
+            enabledBy.Add(belief);
         }
 
         private void ActivityImpacts(IActivity activity, IBelief belief)
@@ -88,6 +114,15 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
             }
 
             impactingBeliefs.Add(belief);
+        }
+
+        private void DesireEnabledBy(IDesire desire, IBelief belief)
+        {
+            var enablesDesires = BeliefsEnablingDesires[belief];
+            enablesDesires.Add(desire);
+
+            var enabledBy = DesiresEnabledByBeliefs[desire];
+            enabledBy.Add(belief);
         }
     }
 }

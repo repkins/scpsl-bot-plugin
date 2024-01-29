@@ -10,6 +10,7 @@ using SCPSLBot.AI.FirstPersonControl.Looking;
 using SCPSLBot.AI.FirstPersonControl.Mind.Activities;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Himself;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World;
+using SCPSLBot.AI.FirstPersonControl.Mind.Desires;
 using SCPSLBot.AI.FirstPersonControl.Movement;
 using System;
 using System.Collections.Generic;
@@ -55,6 +56,8 @@ namespace SCPSLBot.AI.FirstPersonControl
             MindRunner.AddActivity(new PickupItem<KeycardPickup, KeycardItem>(this));
 
             MindRunner.AddActivity(new Explore(this));
+
+            MindRunner.AddDesire(new GetO5Keycard());
 
             MindRunner.SubscribeToBeliefUpdates();
         }

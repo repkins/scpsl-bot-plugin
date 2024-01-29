@@ -3,6 +3,7 @@ using InventorySystem.Items.Keycards;
 using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Attributes;
 using SCPSLBot.AI.FirstPersonControl.Mind;
+using SCPSLBot.AI.FirstPersonControl.Mind.Desires;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,6 +31,46 @@ namespace SCPSLBot.AI.FirstPersonControl
             EvaluateActivities(activities);
         }
 
+        public void EvaluateDesiresToActivities()
+        {
+            var allDesires = DesiresEnabledByBeliefs.Keys;
+            var enabledActivities = allDesires.Where(d => !d.Condition())
+                .SelectMany(d => SelectEnabledActivities(DesiresEnabledByBeliefs[d]));
+
+            var selectedActivity = enabledActivities.FirstOrDefault();  // TODO: cost?
+
+            var prevActivity = RunningActivity;
+
+            RunningActivity = selectedActivity ?? null;
+
+            if (RunningActivity != prevActivity)
+            {
+                RunningActivity?.Reset();
+            }
+
+            Log.Debug($"New activity for bot: {RunningActivity?.GetType().Name}");
+
+        }
+
+        private IEnumerable<IActivity> SelectEnabledActivities(IEnumerable<IBelief> beliefs)
+        {
+            var activities = beliefs
+                .SelectMany(b => BeliefsEnablingActivities[b]);
+
+            if (activities.Any())
+            {
+                var enabledActivities = activities.Where(a => a.Condition());
+                if (!enabledActivities.Any())
+                {
+                    enabledActivities = SelectEnabledActivities(enabledActivities.SelectMany(a => ActivitiesEnabledByBeliefs[a]));
+                }
+
+                return enabledActivities;
+            }
+
+            return activities;
+        }
+
         public void Tick()
         {
             RunningActivity?.Tick();
@@ -37,6 +78,8 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         private void OnBeliefUpdate(IBelief updatedBelief)
         {
+            var enablingBeliefs = BeliefsEnablingDesires[updatedBelief];
+
             var enablingActivities = BeliefsEnablingActivities[updatedBelief];
             EvaluateActivities(enablingActivities);
         }
