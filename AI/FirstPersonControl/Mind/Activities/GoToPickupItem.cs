@@ -17,7 +17,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
             _itemWithinSight = fpcMind.ActivityEnabledBy<ItemWithinSight<T>>(this);
-            _itemWithinPickupDistance = fpcMind.ActivityEnabledBy<ItemWithinPickupDistance<T>>(this);
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
@@ -25,8 +24,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
             fpcMind.ActivityImpacts<ItemWithinPickupDistance<T>>(this);
         }
 
-        public bool Condition() => _itemWithinSight.Item 
-                                && !_itemWithinPickupDistance.Item;
+        public bool Condition() => _itemWithinSight.Item;
 
         public GoToPickupItem(FpcBotPlayer botPlayer)
         {
@@ -45,7 +43,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
         public void Reset() { }
 
         private ItemWithinSight<T> _itemWithinSight;
-        private ItemWithinPickupDistance<T> _itemWithinPickupDistance;
         private readonly FpcBotPlayer _botPlayer;
     }
 }

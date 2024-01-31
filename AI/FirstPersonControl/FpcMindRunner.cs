@@ -26,9 +26,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         public void EvaluateDesiresToActivities()
         {
-            var allDesires = DesiresEnabledByBeliefs.Keys;
-            var enabledActivities = allDesires.Where(d => !d.Condition())
-                .SelectMany(d => GetClosestActivitiesEnabling(DesiresEnabledByBeliefs[d]));
+            IEnumerable<IActivity> enabledActivities = GetEnabledActivitiesTowardsDesires();
 
             SelectActivityAndRun(enabledActivities);
         }
@@ -40,24 +38,66 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         private void OnBeliefUpdate(IBelief updatedBelief)
         {
-            var allDesires = DesiresEnabledByBeliefs.Keys;
-            var enabledActivities = allDesires.Where(d => !d.Condition())
-                .SelectMany(d => GetClosestActivitiesEnabling(DesiresEnabledByBeliefs[d]));
+            IEnumerable<IActivity> enabledActivities = GetEnabledActivitiesTowardsDesires();
 
             SelectActivityAndRun(enabledActivities);
         }
 
-        private IEnumerable<IActivity> GetClosestActivitiesEnabling(IEnumerable<IBelief> beliefs)
+        private IEnumerable<IActivity> GetEnabledActivitiesTowardsDesires()
+        {
+            Log.Debug($"Getting enabled activities towards desires.");
+
+            var allDesires = DesiresEnabledByBeliefs.Keys;
+            var enabledActivities = allDesires
+                .Select(d => { 
+                    Log.Debug($"Evaluating desire {d.GetType().Name}"); 
+                    return d;
+                })
+                .Where(d => !d.Condition())
+                .Select(d => {
+                    Log.Debug($"Desire {d.GetType().Name} not fulfilled");
+                    return d;
+                })
+                .SelectMany(d => GetClosestActivitiesEnabledBy(DesiresEnabledByBeliefs[d]));
+
+            return enabledActivities;
+        }
+
+        private IEnumerable<IActivity> GetClosestActivitiesEnabledBy(IEnumerable<IBelief> beliefs)
         {
             var activities = beliefs
-                .SelectMany(b => BeliefsEnablingActivities[b]);
+                .Select(b => {
+                    Log.Debug($"Getting activities enabled by {b.GetType().Name}");
+                    return b;
+                })
+                .SelectMany(b => BeliefsImpactedByActivities[b]);
 
             if (activities.Any())
             {
-                var enabledActivities = activities.Where(a => a.Condition());
+                var enabledActivities = activities
+                    .Select(a =>
+                    {
+                        Log.Debug($"Evaluating activity {a.GetType().Name}");
+                        return a;
+                    })
+                    .Where(a => a.Condition())
+                    .Select(a =>
+                    {
+                        Log.Debug($"Activity {a.GetType().Name} conditions fulfilled.");
+                        return a;
+                    });
+
                 if (!enabledActivities.Any())
                 {
-                    enabledActivities = GetClosestActivitiesEnabling(enabledActivities.SelectMany(a => ActivitiesEnabledByBeliefs[a]));
+                    var enabledByBeliefs = activities
+                        .Select(a =>
+                        {
+                            Log.Debug($"Activity {a.GetType().Name} needs to be enabled.");
+                            return a;
+                        })
+                        .SelectMany(a => ActivitiesEnabledByBeliefs[a]);
+
+                    enabledActivities = GetClosestActivitiesEnabledBy(enabledByBeliefs);
                 }
 
                 return enabledActivities;

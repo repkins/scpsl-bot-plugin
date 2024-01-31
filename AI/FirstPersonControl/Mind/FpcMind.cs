@@ -14,6 +14,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
         public Dictionary<IActivity, Predicate<IBelief>> ActivityEnablingConditions { get; } = new Dictionary<IActivity, Predicate<IBelief>>();
         public Dictionary<Type, IBelief> Beliefs { get; } = new Dictionary<Type, IBelief>();
         public Dictionary<IBelief, List<IActivity>> BeliefsEnablingActivities { get; } = new Dictionary<IBelief, List<IActivity>>();
+        public Dictionary<IBelief, List<IActivity>> BeliefsImpactedByActivities { get; } = new Dictionary<IBelief, List<IActivity>>();
         public Dictionary<IBelief, List<IDesire>> BeliefsEnablingDesires { get; } = new Dictionary<IBelief, List<IDesire>>();
 
         public B ActivityEnabledBy<B>(IActivity activity) where B : class, IBelief
@@ -77,6 +78,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
             var enablesActivities = new List<IActivity>();
             BeliefsEnablingActivities.Add(belief, enablesActivities);
 
+            var impactedByActivities = new List<IActivity>();
+            BeliefsImpactedByActivities.Add(belief, impactedByActivities);
+
             var enablingDesires = new List<IDesire>();
             BeliefsEnablingDesires.Add(belief, enablingDesires);
 
@@ -107,13 +111,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
 
         private void ActivityImpacts(IActivity activity, IBelief belief)
         {
-            if (!ActivitiesImpactingBeliefs.TryGetValue(activity, out var impactingBeliefs))
-            {
-                impactingBeliefs = new List<IBelief>();
-                ActivitiesImpactingBeliefs.Add(activity, impactingBeliefs);
-            }
+            ActivitiesImpactingBeliefs[activity].Add(belief);
 
-            impactingBeliefs.Add(belief);
+            BeliefsImpactedByActivities[belief].Add(activity);
         }
 
         private void DesireEnabledBy(IDesire desire, IBelief belief)

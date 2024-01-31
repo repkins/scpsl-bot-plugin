@@ -20,12 +20,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            _itemWithinSight = fpcMind.ActivityEnabledBy<ItemWithinSight<P>>(this);
             _itemWithinPickupDistance = fpcMind.ActivityEnabledBy<ItemWithinPickupDistance<P>>(this);
         }
 
-        public bool Condition() => _itemWithinSight.Item
-                                && _itemWithinPickupDistance.Item;
+        public bool Condition() => _itemWithinPickupDistance.Item;
 
         public PickupItem(FpcBotPlayer botPlayer)
         {
@@ -76,7 +74,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 
         private readonly FpcBotPlayer _botPlayer;
 
-        private ItemWithinSight<P> _itemWithinSight;
         private ItemWithinPickupDistance<P> _itemWithinPickupDistance;
 
         private bool isPickingUp;
