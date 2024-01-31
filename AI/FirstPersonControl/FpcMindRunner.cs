@@ -7,7 +7,6 @@ using SCPSLBot.AI.FirstPersonControl.Mind.Desires;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -25,50 +24,13 @@ namespace SCPSLBot.AI.FirstPersonControl
             }
         }
 
-        public void EvaluateAllActivities()
-        {
-            var activities = ActivitiesImpactingBeliefs.Keys;
-            EvaluateActivities(activities);
-        }
-
         public void EvaluateDesiresToActivities()
         {
             var allDesires = DesiresEnabledByBeliefs.Keys;
             var enabledActivities = allDesires.Where(d => !d.Condition())
-                .SelectMany(d => SelectEnabledActivities(DesiresEnabledByBeliefs[d]));
+                .SelectMany(d => GetClosestActivitiesEnabling(DesiresEnabledByBeliefs[d]));
 
-            var selectedActivity = enabledActivities.FirstOrDefault();  // TODO: cost?
-
-            var prevActivity = RunningActivity;
-
-            RunningActivity = selectedActivity ?? null;
-
-            if (RunningActivity != prevActivity)
-            {
-                RunningActivity?.Reset();
-            }
-
-            Log.Debug($"New activity for bot: {RunningActivity?.GetType().Name}");
-
-        }
-
-        private IEnumerable<IActivity> SelectEnabledActivities(IEnumerable<IBelief> beliefs)
-        {
-            var activities = beliefs
-                .SelectMany(b => BeliefsEnablingActivities[b]);
-
-            if (activities.Any())
-            {
-                var enabledActivities = activities.Where(a => a.Condition());
-                if (!enabledActivities.Any())
-                {
-                    enabledActivities = SelectEnabledActivities(enabledActivities.SelectMany(a => ActivitiesEnabledByBeliefs[a]));
-                }
-
-                return enabledActivities;
-            }
-
-            return activities;
+            SelectActivityAndRun(enabledActivities);
         }
 
         public void Tick()
@@ -78,26 +40,45 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         private void OnBeliefUpdate(IBelief updatedBelief)
         {
-            var enablingBeliefs = BeliefsEnablingDesires[updatedBelief];
+            var allDesires = DesiresEnabledByBeliefs.Keys;
+            var enabledActivities = allDesires.Where(d => !d.Condition())
+                .SelectMany(d => GetClosestActivitiesEnabling(DesiresEnabledByBeliefs[d]));
 
-            var enablingActivities = BeliefsEnablingActivities[updatedBelief];
-            EvaluateActivities(enablingActivities);
+            SelectActivityAndRun(enabledActivities);
         }
 
-        private void EvaluateActivities(IEnumerable<IActivity> activities)
+        private IEnumerable<IActivity> GetClosestActivitiesEnabling(IEnumerable<IBelief> beliefs)
         {
-            var selectedActivity = activities.FirstOrDefault(a => a.Condition());  // TODO: cost?
+            var activities = beliefs
+                .SelectMany(b => BeliefsEnablingActivities[b]);
+
+            if (activities.Any())
+            {
+                var enabledActivities = activities.Where(a => a.Condition());
+                if (!enabledActivities.Any())
+                {
+                    enabledActivities = GetClosestActivitiesEnabling(enabledActivities.SelectMany(a => ActivitiesEnabledByBeliefs[a]));
+                }
+
+                return enabledActivities;
+            }
+
+            return activities;
+        }
+
+        private void SelectActivityAndRun(IEnumerable<IActivity> enabledActivities)
+        {
+            var selectedActivity = enabledActivities.FirstOrDefault();  // TODO: cost?
 
             var prevActivity = RunningActivity;
 
-            RunningActivity = selectedActivity ?? (RunningActivity?.Condition() ?? false ? RunningActivity : null);
+            RunningActivity = selectedActivity ?? null;
 
             if (RunningActivity != prevActivity)
             {
                 RunningActivity?.Reset();
+                Log.Debug($"New activity for bot: {RunningActivity?.GetType().Name}");
             }
-
-            Log.Debug($"New activity for bot: {RunningActivity?.GetType().Name}");
         }
     }
 }
