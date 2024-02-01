@@ -45,6 +45,7 @@ namespace SCPSLBot.AI.FirstPersonControl
         public void Tick(IFpcRole fpcRole)
         {
             //var fpcTransform = fpcRole.FpcModule.transform;
+            var playerHub = _fpcBotPlayer.BotHub.PlayerHub;
             var cameraTransform = _fpcBotPlayer.BotHub.PlayerHub.PlayerCameraReference;
 
             var prevNumOverlappingColliders = _numOverlappingColliders;
@@ -85,12 +86,14 @@ namespace SCPSLBot.AI.FirstPersonControl
                     if (IsWithinFov(cameraTransform, collider.transform))
                     {
                         var relPosToItem = collider.bounds.center - cameraTransform.position;
-                        hits = Physics.RaycastAll(cameraTransform.position, relPosToItem, relPosToItem.magnitude);
+                        hits = Physics.RaycastAll(cameraTransform.position, relPosToItem, relPosToItem.magnitude + 1f);
                         if (hits.Any())
                         {
                             Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+                            
+                            //var hit = hits.First(h => (h.collider.gameObject.layer & LayerMask.GetMask("Hitbox")) <= 0);
+                            var hit = hits.First(h => h.collider.GetComponentInParent<ReferenceHub>() is not ReferenceHub otherHub || otherHub != playerHub);
 
-                            var hit = hits.First();
                             if (hit.collider.GetComponentInParent<ItemPickupBase>() is ItemPickupBase hitItem
                                 && hitItem == item)
                             {

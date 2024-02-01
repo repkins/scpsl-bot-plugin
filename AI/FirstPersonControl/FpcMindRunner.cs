@@ -63,47 +63,44 @@ namespace SCPSLBot.AI.FirstPersonControl
             return enabledActivities;
         }
 
-        private IEnumerable<IActivity> GetClosestActivitiesEnabledBy(IEnumerable<IBelief> beliefs)
+        private IEnumerable<IActivity> GetClosestActivitiesEnabledBy(List<IBelief> beliefs)
         {
-            var activities = beliefs
+            var beliefActivities = beliefs
                 .Select(b => {
                     Log.Debug($"Getting activities enabled by {b.GetType().Name}");
                     return b;
                 })
-                .SelectMany(b => BeliefsImpactedByActivities[b]);
+                .Select(b => BeliefsImpactedByActivities[b]);
 
-            if (activities.Any())
+            foreach (var activities in beliefActivities)
             {
                 var enabledActivities = activities
-                    .Select(a =>
-                    {
-                        Log.Debug($"Evaluating activity {a.GetType().Name}");
-                        return a;
-                    })
-                    .Where(a => a.Condition())
-                    .Select(a =>
-                    {
-                        Log.Debug($"Activity {a.GetType().Name} conditions fulfilled.");
-                        return a;
-                    });
+                    .Where(a => a.Condition());
 
                 if (!enabledActivities.Any())
                 {
-                    var enabledByBeliefs = activities
+                    enabledActivities = activities
                         .Select(a =>
                         {
                             Log.Debug($"Activity {a.GetType().Name} needs to be enabled.");
                             return a;
                         })
-                        .SelectMany(a => ActivitiesEnabledByBeliefs[a]);
-
-                    enabledActivities = GetClosestActivitiesEnabledBy(enabledByBeliefs);
+                        .SelectMany(a => GetClosestActivitiesEnabledBy(ActivitiesEnabledByBeliefs[a]));
+                }
+                else
+                {
+                    enabledActivities = enabledActivities
+                        .Select(a =>
+                        {
+                            Log.Debug($"Activity {a.GetType().Name} conditions fulfilled.");
+                            return a;
+                        });
                 }
 
                 return enabledActivities;
             }
 
-            return activities;
+            return Enumerable.Empty<IActivity>();
         }
 
         private void SelectActivityAndRun(IEnumerable<IActivity> enabledActivities)

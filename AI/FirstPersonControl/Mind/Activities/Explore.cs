@@ -80,13 +80,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
                 var doorsOnPath = botPlayer.Perception.GetDoorsOnPath(points);
 
                 var firstDoorOnPath = doorsOnPath.FirstOrDefault();
-                if (firstDoorOnPath && Vector3.Distance(firstDoorOnPath.transform.position + Vector3.up, playerPosition) <= interactDistance)
+                if (firstDoorOnPath && !firstDoorOnPath.TargetState && Vector3.Distance(firstDoorOnPath.transform.position + Vector3.up, playerPosition) <= interactDistance)
                 {
                     Log.Debug($"{firstDoorOnPath} is within interactable distance");
 
-                    var hub = botPlayer.BotHub.PlayerHub;
-
-                    if (!firstDoorOnPath.TargetState && !botPlayer.OpenDoor(firstDoorOnPath, interactDistance))
+                    if (!botPlayer.OpenDoor(firstDoorOnPath, interactDistance))
                     {
                         botPlayer.LookToPosition(firstDoorOnPath.transform.position);
                         //Log.Debug($"Looking towards door interactable");
