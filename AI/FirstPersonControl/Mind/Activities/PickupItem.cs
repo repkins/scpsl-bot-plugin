@@ -13,12 +13,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
     internal class PickupItem<P, I> : IActivity where P : ItemPickupBase 
                                                 where I : ItemBase
     {
-        public void SetImpactsBeliefs(FpcMind fpcMind)
+        public virtual void SetImpactsBeliefs(FpcMind fpcMind)
         {
             fpcMind.ActivityImpacts<ItemInInventory<I>>(this);
         }
 
-        public void SetEnabledByBeliefs(FpcMind fpcMind)
+        public virtual void SetEnabledByBeliefs(FpcMind fpcMind)
         {
             _itemWithinPickupDistance = fpcMind.ActivityEnabledBy<ItemWithinPickupDistance<P>>(this);
         }
@@ -74,7 +74,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 
         private readonly FpcBotPlayer _botPlayer;
 
-        private ItemWithinPickupDistance<P> _itemWithinPickupDistance;
+        protected ItemWithinPickupDistance<P> _itemWithinPickupDistance;
 
         private bool isPickingUp;
         private float pickupCooldown;

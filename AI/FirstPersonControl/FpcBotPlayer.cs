@@ -45,15 +45,22 @@ namespace SCPSLBot.AI.FirstPersonControl
             MindRunner.AddBelief(new LastKnownItemLocation<Medkit>());
             MindRunner.AddBelief(new LastKnownItemLocation<Firearm>());
 
+            MindRunner.AddBelief(new ItemWithinSightKeycardO5());
+            MindRunner.AddBelief(new ItemWithinPickupDistanceKeycardO5());
+            MindRunner.AddBelief(new ItemInInventoryKeycardO5());
+
+            MindRunner.AddActivity(new GoToPickupItemKeycardO5(this));
+            MindRunner.AddActivity(new PickupItemKeycardO5(this));
+
             MindRunner.AddBelief(new ItemWithinSight<KeycardPickup>());
             MindRunner.AddBelief(new ItemWithinSightMedkit());
             MindRunner.AddBelief(new ItemWithinPickupDistance<KeycardPickup>());
             MindRunner.AddBelief(new ItemInInventory<KeycardItem>());
 
-            MindRunner.AddBelief(new DoorWithinSight<PryableDoor>());
-
             MindRunner.AddActivity(new GoToPickupItem<KeycardPickup>(this));
             MindRunner.AddActivity(new PickupItem<KeycardPickup, KeycardItem>(this));
+
+            MindRunner.AddBelief(new DoorWithinSight<PryableDoor>());
 
             MindRunner.AddActivity(new Explore(this));
 

@@ -23,6 +23,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
             fpcMind.ActivityImpacts<ItemWithinSight<KeycardPickup>>(this);
+            fpcMind.ActivityImpacts<ItemWithinSightKeycardO5>(this);
             //fpcMind.ActivityImpacts<ItemWithinSightMedkit>(this);
             //fpcMind.ActivityImpacts<ItemWithinSight<FirearmPickup>>(this);
         }
@@ -64,10 +65,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
                 var selectedAreas = areasWithForeign.Take(2)
                     .Count() < 2
                         ? areasWithForeign
-                        : areasWithForeign.Where(awf => awf != withinArea);
+                        : areasWithForeign.Where(awf => Vector3.Dot(awf.CenterPosition - playerPosition, botPlayer.FpcRole.FpcModule.transform.forward) > 0f);
 
                 var possibleGoalAreas = selectedAreas
                     .SelectMany(a => a.ForeignConnectedAreas)
+                    //.Select(fa => fa.ConnectedAreas.First(ca => !fa.ForeignConnectedAreas.Contains(ca)))
+                    .Select(fa => fa.ConnectedAreas.First())
                     .ToArray();
 
                 var goalIdx = UnityEngine.Random.Range(0, possibleGoalAreas.Length);

@@ -149,9 +149,11 @@ namespace SCPSLBot.AI.FirstPersonControl
         private void ProcessItemsWithinSight()
         {
             var numKeycards = 0u;
+            var numKeycardO5s = 0u;
             var numMedkits = 0u;
 
             var keycardItemBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemWithinSight<KeycardPickup>>();
+            var keycardO5ItemBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemWithinSightKeycardO5>();
             var medkitItemBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemWithinSightMedkit>();
             foreach (var itemWithinSight in ItemsWithinSight)
             {
@@ -162,6 +164,15 @@ namespace SCPSLBot.AI.FirstPersonControl
                         UpdateItemBelief(keycardItemBelief, keycard);
                     }
                     numKeycards++;
+
+                    if (keycard.Info.ItemId == ItemType.KeycardO5)
+                    {
+                        if (keycardO5ItemBelief.Item is null)
+                        {
+                            UpdateItemBelief(keycardO5ItemBelief, keycard);
+                        }
+                        numKeycardO5s++;
+                    }
                 }
                 if (itemWithinSight.Info.ItemId == ItemType.Medkit)
                 {
@@ -176,6 +187,10 @@ namespace SCPSLBot.AI.FirstPersonControl
             {
                 UpdateItemBelief(keycardItemBelief, null as KeycardPickup);
             }
+            if (numKeycardO5s <= 0 && keycardO5ItemBelief.Item is not null)
+            {
+                UpdateItemBelief(keycardO5ItemBelief, null as KeycardPickup);
+            }
             if (numMedkits <= 0 && medkitItemBelief.Item is not null)
             {
                 UpdateItemBelief(medkitItemBelief, null as ItemPickupBase);
@@ -185,8 +200,10 @@ namespace SCPSLBot.AI.FirstPersonControl
         private void ProcessItemsWithinDistance()
         {
             var numKeycards = 0u;
+            var numKeycardO5s = 0u;
 
             var keycardPickupBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemWithinPickupDistance<KeycardPickup>>();
+            var keycardO5ItemBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemWithinPickupDistanceKeycardO5>();
             foreach (var itemWithinPickup in ItemsWithinPickupDistance)
             {
                 if (itemWithinPickup is KeycardPickup keycard)
@@ -196,29 +213,57 @@ namespace SCPSLBot.AI.FirstPersonControl
                         UpdateItemBelief(keycardPickupBelief, keycard);
                     }
                     numKeycards++;
+
+                    if (keycard.Info.ItemId == ItemType.KeycardO5)
+                    {
+                        if (keycardO5ItemBelief.Item is null)
+                        {
+                            UpdateItemBelief(keycardO5ItemBelief, keycard);
+                        }
+                        numKeycardO5s++;
+                    }
                 }
             }
             if (numKeycards <= 0 && keycardPickupBelief.Item is not null)
             {
                 UpdateItemBelief(keycardPickupBelief, null as KeycardPickup);
             }
+            if (numKeycardO5s <= 0 && keycardO5ItemBelief.Item is not null)
+            {
+                UpdateItemBelief(keycardO5ItemBelief, null as KeycardPickup);
+            }
         }
 
         private void ProcessItemsInInventory()
         {
             var keycardInventoryBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemInInventory<KeycardItem>>();
-            foreach (var item in _fpcBotPlayer.BotHub.PlayerHub.inventory.UserInventory.Items.Values)
+            var keycardO5InventoryBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemInInventoryKeycardO5>();
+
+            var userInventory = _fpcBotPlayer.BotHub.PlayerHub.inventory.UserInventory;
+
+            foreach (var item in userInventory.Items.Values)
             {
-                if (item is KeycardItem keycard && keycardInventoryBelief.Item is null)
+                if (item is KeycardItem keycard)
                 {
-                    UpdateItemInInventoryBelief(keycardInventoryBelief, keycard);
+                    if (keycardInventoryBelief.Item is null)
+                    {
+                        UpdateItemInInventoryBelief(keycardInventoryBelief, keycard);
+                    }
+                    if (keycard.ItemTypeId == ItemType.KeycardO5 && keycardO5InventoryBelief.Item is null)
+                    {
+                        UpdateItemInInventoryBelief(keycardO5InventoryBelief, keycard);
+                    }
                 }
 
                 HasFirearmInInventory = item is Firearm;
             }
-            if (keycardInventoryBelief.Item is not null && !_fpcBotPlayer.BotHub.PlayerHub.inventory.UserInventory.Items.ContainsKey(keycardInventoryBelief.Item.ItemSerial))
+            if (keycardInventoryBelief.Item is not null && !userInventory.Items.ContainsKey(keycardInventoryBelief.Item.ItemSerial))
             {
                 UpdateItemInInventoryBelief(keycardInventoryBelief, null);
+            }
+            if (keycardO5InventoryBelief.Item is not null && !userInventory.Items.ContainsKey(keycardO5InventoryBelief.Item.ItemSerial))
+            {
+                UpdateItemInInventoryBelief(keycardO5InventoryBelief, null);
             }
         }
 

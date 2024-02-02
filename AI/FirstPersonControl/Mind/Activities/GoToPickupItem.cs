@@ -14,12 +14,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 {
     internal class GoToPickupItem<T> : IActivity where T : ItemPickupBase
     {
-        public void SetEnabledByBeliefs(FpcMind fpcMind)
+        public virtual void SetEnabledByBeliefs(FpcMind fpcMind)
         {
             _itemWithinSight = fpcMind.ActivityEnabledBy<ItemWithinSight<T>>(this);
         }
 
-        public void SetImpactsBeliefs(FpcMind fpcMind)
+        public virtual void SetImpactsBeliefs(FpcMind fpcMind)
         {
             fpcMind.ActivityImpacts<ItemWithinPickupDistance<T>>(this);
         }
@@ -42,7 +42,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 
         public void Reset() { }
 
-        private ItemWithinSight<T> _itemWithinSight;
+        protected ItemWithinSight<T> _itemWithinSight;
         private readonly FpcBotPlayer _botPlayer;
     }
 }

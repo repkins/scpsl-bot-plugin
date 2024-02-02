@@ -1,20 +1,15 @@
-﻿using InventorySystem.Items;
-using InventorySystem.Items.Keycards;
-using PluginAPI.Core;
-using SCPSLBot.AI.FirstPersonControl.Attributes;
+﻿using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Mind;
-using SCPSLBot.AI.FirstPersonControl.Mind.Desires;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SCPSLBot.AI.FirstPersonControl
 {
     internal class FpcMindRunner : FpcMind
     {
         public IActivity RunningActivity { get; private set; }
+
+        private bool isBeliefsUpdated = false;
 
         public void SubscribeToBeliefUpdates()
         {
@@ -33,14 +28,20 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         public void Tick()
         {
+            if (isBeliefsUpdated)
+            {
+                isBeliefsUpdated = false;
+
+                IEnumerable<IActivity> enabledActivities = GetEnabledActivitiesTowardsDesires();
+                SelectActivityAndRun(enabledActivities);
+            }
+
             RunningActivity?.Tick();
         }
 
         private void OnBeliefUpdate(IBelief updatedBelief)
         {
-            IEnumerable<IActivity> enabledActivities = GetEnabledActivitiesTowardsDesires();
-
-            SelectActivityAndRun(enabledActivities);
+            isBeliefsUpdated = true;
         }
 
         private IEnumerable<IActivity> GetEnabledActivitiesTowardsDesires()

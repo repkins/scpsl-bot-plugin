@@ -1,5 +1,4 @@
-﻿using Interactables.Interobjects.DoorUtils;
-using InventorySystem.Items.Keycards;
+﻿using InventorySystem.Items.Keycards;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Himself;
 using System;
 using System.Collections.Generic;
@@ -11,16 +10,16 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Desires
 {
     internal class GetO5Keycard : IDesire
     {
-        private ItemInInventory<KeycardItem> _keycardInInventory;
+        private ItemInInventory<KeycardItem> _keycardO5InInventory;
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            _keycardInInventory = fpcMind.DesireEnabledBy<ItemInInventory<KeycardItem>>(this);
+            _keycardO5InInventory = fpcMind.DesireEnabledBy<ItemInInventoryKeycardO5>(this);
         }
 
         public bool Condition()
         {
-            return _keycardInInventory.Item?.ItemTypeId == ItemType.KeycardO5;
+            return _keycardO5InInventory.Item != null;
         }
 
     }
