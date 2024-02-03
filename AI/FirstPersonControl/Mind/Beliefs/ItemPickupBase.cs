@@ -3,7 +3,7 @@ using System;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs
 {
-    internal class ItemBase<T> : IBelief where T : ItemPickupBase
+    internal class ItemPickupBase<T> : IBelief where T : ItemPickupBase
     {
         public T Item { get; private set; }
 

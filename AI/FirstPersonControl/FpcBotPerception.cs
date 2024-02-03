@@ -11,6 +11,7 @@ using PluginAPI.Core.Doors;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Himself;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World;
+using SCPSLBot.AI.FirstPersonControl.Perception;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,6 +31,8 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         public bool HasFirearmInInventory { get; private set; }
 
+        public List<ISense> Senses { get; } = new();
+
         #region Debugging
         public Dictionary<Collider, (int, string)> Layers { get; } = new Dictionary<Collider, (int, string)>();
         #endregion
@@ -40,6 +43,8 @@ namespace SCPSLBot.AI.FirstPersonControl
             EnemiesWithinSight = PlayersWithinSight.Where(o => o.GetFaction() != fpcBotPlayer.BotHub.PlayerHub.GetFaction())
                                                     .Where(o => o.GetFaction() != Faction.Unclassified);
             FriendiesWithinSight = PlayersWithinSight.Where(o => o.GetFaction() == fpcBotPlayer.BotHub.PlayerHub.GetFaction());
+
+            Senses.Add(new ItemWithinSightSense(fpcBotPlayer));
         }
 
         public void Tick(IFpcRole fpcRole)
@@ -80,32 +85,9 @@ namespace SCPSLBot.AI.FirstPersonControl
                     }
                 }
 
-                if (collider.GetComponentInParent<ItemPickupBase>() is ItemPickupBase item
-                    && !ItemsWithinSight.Contains(item))
+                foreach (var sense in Senses)
                 {
-                    if (IsWithinFov(cameraTransform, collider.transform))
-                    {
-                        var relPosToItem = collider.bounds.center - cameraTransform.position;
-                        hits = Physics.RaycastAll(cameraTransform.position, relPosToItem, relPosToItem.magnitude + 1f);
-                        if (hits.Any())
-                        {
-                            Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
-                            
-                            //var hit = hits.First(h => (h.collider.gameObject.layer & LayerMask.GetMask("Hitbox")) <= 0);
-                            var hit = hits.First(h => h.collider.GetComponentInParent<ReferenceHub>() is not ReferenceHub otherHub || otherHub != playerHub);
-
-                            if (hit.collider.GetComponentInParent<ItemPickupBase>() is ItemPickupBase hitItem
-                                && hitItem == item)
-                            {
-                                ItemsWithinSight.Add(item);
-
-                                if (Vector3.Distance(item.transform.position, cameraTransform.position) <= 1.75f) // TODO: constant
-                                {
-                                    ItemsWithinPickupDistance.Add(item);
-                                }
-                            }
-                        }
-                    }
+                    sense.ProcessSensibility(collider);
                 }
 
                 if (collider.GetComponentInParent<DoorVariant>() is DoorVariant door
@@ -140,98 +122,13 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         private void ProcessBeliefs()
         {
-            ProcessItemsWithinSight();
-            ProcessItemsWithinDistance();
+            foreach (var sense in Senses)
+            {
+                sense.UpdateBeliefs();
+            }
+
             ProcessDoorsWithinSight();
             ProcessItemsInInventory();
-        }
-
-        private void ProcessItemsWithinSight()
-        {
-            var numKeycards = 0u;
-            var numKeycardO5s = 0u;
-            var numMedkits = 0u;
-
-            var keycardItemBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemWithinSight<KeycardPickup>>();
-            var keycardO5ItemBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemWithinSightKeycardO5>();
-            var medkitItemBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemWithinSightMedkit>();
-            foreach (var itemWithinSight in ItemsWithinSight)
-            {
-                if (itemWithinSight is KeycardPickup keycard)
-                {
-                    if (keycardItemBelief.Item is null)
-                    {
-                        UpdateItemBelief(keycardItemBelief, keycard);
-                    }
-                    numKeycards++;
-
-                    if (keycard.Info.ItemId == ItemType.KeycardO5)
-                    {
-                        if (keycardO5ItemBelief.Item is null)
-                        {
-                            UpdateItemBelief(keycardO5ItemBelief, keycard);
-                        }
-                        numKeycardO5s++;
-                    }
-                }
-                if (itemWithinSight.Info.ItemId == ItemType.Medkit)
-                {
-                    if (medkitItemBelief.Item is null)
-                    {
-                        UpdateItemBelief(medkitItemBelief, itemWithinSight);
-                    }
-                    numMedkits++;
-                }
-            }
-            if (numKeycards <= 0 && keycardItemBelief.Item is not null)
-            {
-                UpdateItemBelief(keycardItemBelief, null as KeycardPickup);
-            }
-            if (numKeycardO5s <= 0 && keycardO5ItemBelief.Item is not null)
-            {
-                UpdateItemBelief(keycardO5ItemBelief, null as KeycardPickup);
-            }
-            if (numMedkits <= 0 && medkitItemBelief.Item is not null)
-            {
-                UpdateItemBelief(medkitItemBelief, null as ItemPickupBase);
-            }
-        }
-
-        private void ProcessItemsWithinDistance()
-        {
-            var numKeycards = 0u;
-            var numKeycardO5s = 0u;
-
-            var keycardPickupBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemWithinPickupDistance<KeycardPickup>>();
-            var keycardO5ItemBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemWithinPickupDistanceKeycardO5>();
-            foreach (var itemWithinPickup in ItemsWithinPickupDistance)
-            {
-                if (itemWithinPickup is KeycardPickup keycard)
-                {
-                    if (keycardPickupBelief.Item is null)
-                    {
-                        UpdateItemBelief(keycardPickupBelief, keycard);
-                    }
-                    numKeycards++;
-
-                    if (keycard.Info.ItemId == ItemType.KeycardO5)
-                    {
-                        if (keycardO5ItemBelief.Item is null)
-                        {
-                            UpdateItemBelief(keycardO5ItemBelief, keycard);
-                        }
-                        numKeycardO5s++;
-                    }
-                }
-            }
-            if (numKeycards <= 0 && keycardPickupBelief.Item is not null)
-            {
-                UpdateItemBelief(keycardPickupBelief, null as KeycardPickup);
-            }
-            if (numKeycardO5s <= 0 && keycardO5ItemBelief.Item is not null)
-            {
-                UpdateItemBelief(keycardO5ItemBelief, null as KeycardPickup);
-            }
         }
 
         private void ProcessItemsInInventory()
@@ -286,12 +183,6 @@ namespace SCPSLBot.AI.FirstPersonControl
             {
                 UpdateDoorBelief(pryableWithinSightBelief, null as PryableDoor);
             }
-        }
-
-        private static void UpdateItemBelief<T, I>(T itemBelief, I pickup) where T : ItemBase<I> where I : ItemPickupBase
-        {
-            itemBelief.Update(pickup);
-            Log.Debug($"{itemBelief.GetType().Name} updated: {pickup}");
         }
 
         private static void UpdateItemInInventoryBelief<I>(ItemInInventory<I> itemBelief, I pickup) where I : ItemBase
