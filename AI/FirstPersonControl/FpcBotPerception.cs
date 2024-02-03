@@ -22,14 +22,11 @@ namespace SCPSLBot.AI.FirstPersonControl
 {
     internal class FpcBotPerception
     {
-        public HashSet<ReferenceHub> PlayersWithinSight { get; } = new HashSet<ReferenceHub>();
-        public IEnumerable<ReferenceHub> EnemiesWithinSight { get; }
-        public IEnumerable<ReferenceHub> FriendiesWithinSight { get; }
-
         public bool HasFirearmInInventory { get; private set; }
 
         public List<ISense> Senses { get; } = new();
         public DoorsWithinSightSense DoorsSense { get; private set; }
+        public PlayersWithinSightSense PlayersSense { get; private set; }
 
         #region Debugging
         public Dictionary<Collider, (int, string)> Layers { get; } = new Dictionary<Collider, (int, string)>();
@@ -38,20 +35,18 @@ namespace SCPSLBot.AI.FirstPersonControl
         public FpcBotPerception(FpcBotPlayer fpcBotPlayer)
         {
             _fpcBotPlayer = fpcBotPlayer;
-            EnemiesWithinSight = PlayersWithinSight.Where(o => o.GetFaction() != fpcBotPlayer.BotHub.PlayerHub.GetFaction())
-                                                    .Where(o => o.GetFaction() != Faction.Unclassified);
-            FriendiesWithinSight = PlayersWithinSight.Where(o => o.GetFaction() == fpcBotPlayer.BotHub.PlayerHub.GetFaction());
 
             Senses.Add(new ItemWithinSightSense(fpcBotPlayer));
 
             DoorsSense = new DoorsWithinSightSense(fpcBotPlayer);
             Senses.Add(DoorsSense);
+            PlayersSense = new PlayersWithinSightSense(fpcBotPlayer);
+            Senses.Add(PlayersSense);
         }
 
         public void Tick(IFpcRole fpcRole)
         {
             //var fpcTransform = fpcRole.FpcModule.transform;
-            var playerHub = _fpcBotPlayer.BotHub.PlayerHub;
             var cameraTransform = _fpcBotPlayer.BotHub.PlayerHub.PlayerCameraReference;
 
             var prevNumOverlappingColliders = _numOverlappingColliders;
@@ -64,25 +59,13 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             var overlappingColliders = _overlappingCollidersBuffer.Take(_numOverlappingColliders);
 
-            PlayersWithinSight.Clear();
-
-            RaycastHit[] hits;
+            foreach (var sense in Senses)
+            {
+                sense.Reset();
+            }
 
             foreach (var collider in overlappingColliders)
             {
-                if (collider.GetComponentInParent<ReferenceHub>() is ReferenceHub otherPlayer
-                    && otherPlayer != _fpcBotPlayer.BotHub.PlayerHub
-                    && !PlayersWithinSight.Contains(otherPlayer))
-                {
-                    if (IsWithinFov(cameraTransform, collider.transform)
-                        && Physics.Raycast(cameraTransform.position, otherPlayer.transform.position - cameraTransform.position, out var hit)
-                        && hit.collider.GetComponentInParent<ReferenceHub>() is ReferenceHub hitHub
-                        && hitHub == otherPlayer)
-                    {
-                        PlayersWithinSight.Add(otherPlayer);
-                    }
-                }
-
                 foreach (var sense in Senses)
                 {
                     sense.ProcessSensibility(collider);
@@ -139,24 +122,6 @@ namespace SCPSLBot.AI.FirstPersonControl
         {
             itemBelief.Update(pickup);
             Log.Debug($"{itemBelief.GetType().Name} updated: {pickup}");
-        }
-
-        private bool IsWithinFov(Transform transform, Transform targetTransform)
-        {
-            var facingDir = transform.forward;
-            var diff = Vector3.Normalize(targetTransform.position - transform.position);
-
-            if (Vector3.Dot(facingDir, diff) < 0)
-            {
-                return false;
-            }
-
-            if (Vector3.Angle(facingDir, diff) > 90)
-            {
-                return false;
-            }
-
-            return true;
         }
 
         public IEnumerable<DoorVariant> GetDoorsOnPath(IEnumerable<Vector3> pathOfPoints)

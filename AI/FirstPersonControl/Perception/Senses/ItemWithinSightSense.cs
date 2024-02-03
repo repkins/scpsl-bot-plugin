@@ -25,17 +25,20 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             _fpcBotPlayer = botPlayer;
         }
 
+        public void Reset()
+        {
+            ItemsWithinSight.Clear();
+            ItemsWithinPickupDistance.Clear();
+        }
+
         public void ProcessSensibility(Collider collider)
         {
             var cameraTransform = _fpcBotPlayer.BotHub.PlayerHub.PlayerCameraReference;
 
-            ItemsWithinSight.Clear();
-            ItemsWithinPickupDistance.Clear();
-
             if (collider.GetComponentInParent<ItemPickupBase>() is ItemPickupBase item
                    && !ItemsWithinSight.Contains(item))
             {
-                if (IsSensible(collider, item))
+                if (IsWithinSight(collider, item))
                 {
                     ItemsWithinSight.Add(item);
 

@@ -54,7 +54,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Actions
 
             var directionToTarget = (TargetToFollow.transform.position - fpcRole.FpcModule.transform.position).normalized;
 
-            if (_botPlayer.Perception.FriendiesWithinSight.Any(p => p == TargetToFollow))
+            if (_botPlayer.Perception.PlayersSense.FriendiesWithinSight.Any(p => p == TargetToFollow))
             {
                 TargetLastKnownLocation = TargetToFollow.transform.position;
                 TargetLastTimeSeen = Time.time;

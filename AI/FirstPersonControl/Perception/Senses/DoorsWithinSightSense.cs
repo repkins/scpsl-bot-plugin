@@ -20,12 +20,17 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             _fpcBotPlayer = botPlayer;
         }
 
+        public void Reset()
+        {
+            DoorsWithinSight.Clear();
+        }
+
         public void ProcessSensibility(Collider collider)
         {
             if (collider.GetComponentInParent<DoorVariant>() is DoorVariant door
                 && !DoorsWithinSight.Contains(door))
             {
-                if (IsSensible(collider, door))
+                if (IsWithinSight(collider, door))
                 {
                     DoorsWithinSight.Add(door);
                 }

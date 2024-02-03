@@ -24,7 +24,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Actions
 
         public void UpdatePlayer()
         {
-            if (_fpcBotPlayer.Perception.FriendiesWithinSight.FirstOrDefault() is ReferenceHub otherPlayer)
+            if (_fpcBotPlayer.Perception.PlayersSense.FriendiesWithinSight.FirstOrDefault() is ReferenceHub otherPlayer)
             {
                 var selfHub = _fpcBotPlayer.FpcRole.FpcModule.GetComponentInParent<ReferenceHub>();
                 if (otherPlayer != selfHub)

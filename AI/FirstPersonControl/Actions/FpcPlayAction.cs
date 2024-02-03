@@ -38,14 +38,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Actions
                 _followAction.UpdatePlayer();
             }
 
-            if (_botPlayer.Perception.EnemiesWithinSight.Any() && _botPlayer.Perception.HasFirearmInInventory)
+            if (_botPlayer.Perception.PlayersSense.EnemiesWithinSight.Any() && _botPlayer.Perception.HasFirearmInInventory)
             {
                 if (!_attackAction.TargetToAttack)
                 {
                     var fpcTransform = _botPlayer.FpcRole.FpcModule.transform;
                     var hub = fpcTransform.GetComponentInParent<ReferenceHub>();
 
-                    var closestTarget = _botPlayer.Perception.EnemiesWithinSight
+                    var closestTarget = _botPlayer.Perception.PlayersSense.EnemiesWithinSight
                         .Select(o => new { hub = o, distSqr = Vector3.SqrMagnitude(o.transform.position - fpcTransform.position) })
                         .Aggregate((a, c) => c.distSqr < a.distSqr ? c : a)
                         .hub;
