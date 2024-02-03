@@ -12,6 +12,7 @@ using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Himself;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World;
 using SCPSLBot.AI.FirstPersonControl.Perception;
+using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,13 +26,10 @@ namespace SCPSLBot.AI.FirstPersonControl
         public IEnumerable<ReferenceHub> EnemiesWithinSight { get; }
         public IEnumerable<ReferenceHub> FriendiesWithinSight { get; }
 
-        public HashSet<ItemPickupBase> ItemsWithinSight { get; } = new ();
-        public HashSet<ItemPickupBase> ItemsWithinPickupDistance { get; } = new ();
-        public HashSet<DoorVariant> DoorsWithinSight { get; } = new ();
-
         public bool HasFirearmInInventory { get; private set; }
 
         public List<ISense> Senses { get; } = new();
+        public DoorsWithinSightSense DoorsSense { get; private set; }
 
         #region Debugging
         public Dictionary<Collider, (int, string)> Layers { get; } = new Dictionary<Collider, (int, string)>();
@@ -45,6 +43,9 @@ namespace SCPSLBot.AI.FirstPersonControl
             FriendiesWithinSight = PlayersWithinSight.Where(o => o.GetFaction() == fpcBotPlayer.BotHub.PlayerHub.GetFaction());
 
             Senses.Add(new ItemWithinSightSense(fpcBotPlayer));
+
+            DoorsSense = new DoorsWithinSightSense(fpcBotPlayer);
+            Senses.Add(DoorsSense);
         }
 
         public void Tick(IFpcRole fpcRole)
@@ -64,9 +65,6 @@ namespace SCPSLBot.AI.FirstPersonControl
             var overlappingColliders = _overlappingCollidersBuffer.Take(_numOverlappingColliders);
 
             PlayersWithinSight.Clear();
-            ItemsWithinSight.Clear();
-            DoorsWithinSight.Clear();
-            ItemsWithinPickupDistance.Clear();
 
             RaycastHit[] hits;
 
@@ -89,32 +87,6 @@ namespace SCPSLBot.AI.FirstPersonControl
                 {
                     sense.ProcessSensibility(collider);
                 }
-
-                if (collider.GetComponentInParent<DoorVariant>() is DoorVariant door
-                    && !DoorsWithinSight.Contains(door))
-                {
-                    if (IsWithinFov(cameraTransform, collider.transform))
-                    {
-                        hits = Physics.RaycastAll(cameraTransform.position, collider.bounds.center - cameraTransform.position);
-
-                        //Log.Debug($"Overlapping within fov door {door}");
-
-                        if (hits.Any())
-                        {
-                            Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
-
-                            var hit = hits.First();
-                            if (hit.collider.GetComponentInParent<DoorVariant>() is DoorVariant hitDoor
-                                && hitDoor == door)
-                            {
-                                DoorsWithinSight.Add(door);
-                            }
-
-                            //Log.Debug($"collider hit {hit.collider}");
-                        }
-
-                    }
-                }
             }
 
             ProcessBeliefs();
@@ -127,7 +99,6 @@ namespace SCPSLBot.AI.FirstPersonControl
                 sense.UpdateBeliefs();
             }
 
-            ProcessDoorsWithinSight();
             ProcessItemsInInventory();
         }
 
@@ -164,37 +135,10 @@ namespace SCPSLBot.AI.FirstPersonControl
             }
         }
 
-        private void ProcessDoorsWithinSight()
-        {
-            var numPryableDoors = 0u;
-            var pryableWithinSightBelief = _fpcBotPlayer.MindRunner.GetBelief<DoorWithinSight<PryableDoor>>();
-            foreach (var doorWithinSight in DoorsWithinSight)
-            {
-                if (doorWithinSight is PryableDoor gate)
-                {
-                    if (pryableWithinSightBelief.Door is null)
-                    {
-                        UpdateDoorBelief(pryableWithinSightBelief, gate);
-                    }
-                    numPryableDoors++;
-                }
-            }
-            if (numPryableDoors <= 0 && pryableWithinSightBelief.Door is not null)
-            {
-                UpdateDoorBelief(pryableWithinSightBelief, null as PryableDoor);
-            }
-        }
-
         private static void UpdateItemInInventoryBelief<I>(ItemInInventory<I> itemBelief, I pickup) where I : ItemBase
         {
             itemBelief.Update(pickup);
             Log.Debug($"{itemBelief.GetType().Name} updated: {pickup}");
-        }
-
-        private static void UpdateDoorBelief<T, I>(T doorBelief, I door) where T : DoorBase<I> where I : DoorVariant
-        {
-            doorBelief.Update(door);
-            Log.Debug($"{doorBelief.GetType().Name} updated: {door}");
         }
 
         private bool IsWithinFov(Transform transform, Transform targetTransform)
@@ -220,7 +164,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             var rays = pathOfPoints.Zip(pathOfPoints.Skip(1), (point, nextPoint) => new Ray(point, nextPoint - point));
 
             var doorsOnPath = rays
-                .Select(ray => DoorsWithinSight
+                .Select(ray => DoorsSense.DoorsWithinSight
                     .FirstOrDefault(door => door.GetComponentsInChildren<Collider>()
                         .Any(collider => collider.Raycast(ray, out _, 1f))))
                 .Where(d => d != null);
