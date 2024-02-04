@@ -38,7 +38,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Actions
                 _followAction.UpdatePlayer();
             }
 
-            if (_botPlayer.Perception.PlayersSense.EnemiesWithinSight.Any() && _botPlayer.Perception.HasFirearmInInventory)
+            if (_botPlayer.Perception.PlayersSense.EnemiesWithinSight.Any() && _botPlayer.Perception.InventorySense.HasFirearmInInventory)
             {
                 if (!_attackAction.TargetToAttack)
                 {
