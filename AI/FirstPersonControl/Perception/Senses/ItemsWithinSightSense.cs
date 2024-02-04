@@ -1,16 +1,11 @@
-﻿using InventorySystem.Items;
-using InventorySystem.Items.Keycards;
+﻿using InventorySystem.Items.Keycards;
 using InventorySystem.Items.Pickups;
 using PluginAPI.Core;
-using SCPSLBot.AI.FirstPersonControl.Mind;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Himself;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
@@ -23,6 +18,17 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         public ItemsWithinSightSense(FpcBotPlayer botPlayer) : base(botPlayer)
         {
             _fpcBotPlayer = botPlayer;
+
+            keycardPredicateBeliefs = new (Predicate<ItemPickupBase>, ItemWithinSight<KeycardPickup>, ItemWithinPickupDistance<KeycardPickup>)[] {
+                (item => item is KeycardPickup,
+                    botPlayer.MindRunner.GetBelief<ItemWithinSight<KeycardPickup>>(),
+                    botPlayer.MindRunner.GetBelief<ItemWithinPickupDistance<KeycardPickup>>()
+                ),
+                (item => item.Info.ItemId == ItemType.KeycardO5,
+                    botPlayer.MindRunner.GetBelief<ItemWithinSightKeycardO5>(),
+                    botPlayer.MindRunner.GetBelief<ItemWithinPickupDistanceKeycardO5>()
+                ),
+            };
         }
 
         public void Reset()
@@ -54,18 +60,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         {
             var mind = _fpcBotPlayer.MindRunner;
 
-            var keycardSet = new (Predicate<ItemPickupBase>, ItemWithinSight<KeycardPickup>, ItemWithinPickupDistance<KeycardPickup>)[] {
-                (item => item is KeycardPickup,
-                    mind.GetBelief<ItemWithinSight<KeycardPickup>>(),
-                    mind.GetBelief<ItemWithinPickupDistance<KeycardPickup>>()
-                ),
-                (item => item.Info.ItemId == ItemType.KeycardO5,
-                    mind.GetBelief<ItemWithinSightKeycardO5>(),
-                    mind.GetBelief<ItemWithinPickupDistanceKeycardO5>()
-                ),
-            };
-
-            foreach (var (predicate, withinSight, withinPickupDistance) in keycardSet)
+            foreach (var (predicate, withinSight, withinPickupDistance) in keycardPredicateBeliefs)
             {
                 ProcessItemBeliefs((withinSight, withinPickupDistance), predicate);
             }
@@ -117,5 +112,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         }
 
         private readonly FpcBotPlayer _fpcBotPlayer;
+
+        private readonly (Predicate<ItemPickupBase>, ItemWithinSight<KeycardPickup>, ItemWithinPickupDistance<KeycardPickup>)[] keycardPredicateBeliefs;
     }
 }

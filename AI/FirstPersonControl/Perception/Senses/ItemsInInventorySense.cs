@@ -4,6 +4,7 @@ using InventorySystem.Items.Keycards;
 using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Himself;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
@@ -18,43 +19,48 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         }
 
         public void ProcessSensibility(Collider collider)
-        {
-        }
+        { }
 
         public void Reset()
-        {
-        }
+        { }
 
         public void UpdateBeliefs()
         {
             var keycardInventoryBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemInInventory<KeycardItem>>();
             var keycardO5InventoryBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemInInventoryKeycardO5>();
 
+            ProcessItemBeliefs(keycardInventoryBelief, item => item is KeycardItem);
+            ProcessItemBeliefs(keycardO5InventoryBelief, item => item.ItemTypeId == ItemType.KeycardO5);
+        }
+
+        private void ProcessItemBeliefs<P>(ItemInInventory<P> beliefs, Predicate<ItemBase> predicate) where P : ItemBase
+        {
+            var withinSight = beliefs;
+
             var userInventory = _fpcBotPlayer.BotHub.PlayerHub.inventory.UserInventory;
 
-            foreach (var item in userInventory.Items.Values)
+            ProcessItemBelief(withinSight, predicate, userInventory.Items);
+        }
+
+        private void ProcessItemBelief<P>(ItemInInventory<P> belief, Predicate<ItemBase> predicate, IDictionary<ushort, ItemBase> items) where P : ItemBase
+        {
+            var itemBelief = belief;
+            foreach (var item in items.Values)
             {
-                if (item is KeycardItem keycard)
+                if (predicate(item))
                 {
-                    if (keycardInventoryBelief.Item is null)
+                    if (itemBelief.Item is null)
                     {
-                        UpdateItemInInventoryBelief(keycardInventoryBelief, keycard);
-                    }
-                    if (keycard.ItemTypeId == ItemType.KeycardO5 && keycardO5InventoryBelief.Item is null)
-                    {
-                        UpdateItemInInventoryBelief(keycardO5InventoryBelief, keycard);
+                        UpdateItemInInventoryBelief(itemBelief, item as P);
                     }
                 }
 
                 HasFirearmInInventory = item is Firearm;
             }
-            if (keycardInventoryBelief.Item is not null && !userInventory.Items.ContainsKey(keycardInventoryBelief.Item.ItemSerial))
+
+            if (itemBelief.Item is not null && !items.ContainsKey(itemBelief.Item.ItemSerial))
             {
-                UpdateItemInInventoryBelief(keycardInventoryBelief, null);
-            }
-            if (keycardO5InventoryBelief.Item is not null && !userInventory.Items.ContainsKey(keycardO5InventoryBelief.Item.ItemSerial))
-            {
-                UpdateItemInInventoryBelief(keycardO5InventoryBelief, null);
+                UpdateItemInInventoryBelief(itemBelief, null as P);
             }
         }
 

@@ -1,13 +1,6 @@
-﻿using Interactables.Interobjects;
-using Interactables.Interobjects.DoorUtils;
-using PlayerRoles;
-using PluginAPI.Core;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World;
-using System;
+﻿using PlayerRoles;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
