@@ -19,7 +19,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             if (IsWithinFov(cameraTransform, collider.transform))
             {
                 var relPosToItem = collider.bounds.center - cameraTransform.position;
-                _numHits = Physics.RaycastNonAlloc(cameraTransform.position, relPosToItem, _hitsBuffer, relPosToItem.magnitude + 1f);
+                _numHits = Physics.RaycastNonAlloc(cameraTransform.position, relPosToItem, _hitsBuffer, relPosToItem.magnitude);
 
                 if (_numHits == HitsBufferSize)
                 {
@@ -65,7 +65,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 
         private readonly FpcBotPlayer _fpcBotPlayer;
 
-        private const int HitsBufferSize = 10;
+        private const int HitsBufferSize = 20;
         private RaycastHit[] _hitsBuffer = new RaycastHit[HitsBufferSize];
         private int _numHits;
     }

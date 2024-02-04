@@ -18,17 +18,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         public ItemsWithinSightSense(FpcBotPlayer botPlayer) : base(botPlayer)
         {
             _fpcBotPlayer = botPlayer;
-
-            keycardPredicateBeliefs = new (Predicate<ItemPickupBase>, ItemWithinSight<KeycardPickup>, ItemWithinPickupDistance<KeycardPickup>)[] {
-                (item => item is KeycardPickup,
-                    botPlayer.MindRunner.GetBelief<ItemWithinSight<KeycardPickup>>(),
-                    botPlayer.MindRunner.GetBelief<ItemWithinPickupDistance<KeycardPickup>>()
-                ),
-                (item => item.Info.ItemId == ItemType.KeycardO5,
-                    botPlayer.MindRunner.GetBelief<ItemWithinSightKeycardO5>(),
-                    botPlayer.MindRunner.GetBelief<ItemWithinPickupDistanceKeycardO5>()
-                ),
-            };
         }
 
         public void Reset()
@@ -59,6 +48,17 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         public void UpdateBeliefs()
         {
             var mind = _fpcBotPlayer.MindRunner;
+
+            keycardPredicateBeliefs ??= new (Predicate<ItemPickupBase>, ItemWithinSight<KeycardPickup>, ItemWithinPickupDistance<KeycardPickup>)[] {
+                (item => item is KeycardPickup,
+                    mind.GetBelief<ItemWithinSight<KeycardPickup>>(),
+                    mind.GetBelief<ItemWithinPickupDistance<KeycardPickup>>()
+                ),
+                (item => item.Info.ItemId == ItemType.KeycardO5,
+                    mind.GetBelief<ItemWithinSightKeycardO5>(),
+                    mind.GetBelief<ItemWithinPickupDistanceKeycardO5>()
+                ),
+            };
 
             foreach (var (predicate, withinSight, withinPickupDistance) in keycardPredicateBeliefs)
             {
@@ -113,6 +113,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 
         private readonly FpcBotPlayer _fpcBotPlayer;
 
-        private readonly (Predicate<ItemPickupBase>, ItemWithinSight<KeycardPickup>, ItemWithinPickupDistance<KeycardPickup>)[] keycardPredicateBeliefs;
+        private (Predicate<ItemPickupBase>, ItemWithinSight<KeycardPickup>, ItemWithinPickupDistance<KeycardPickup>)[] keycardPredicateBeliefs;
     }
 }
