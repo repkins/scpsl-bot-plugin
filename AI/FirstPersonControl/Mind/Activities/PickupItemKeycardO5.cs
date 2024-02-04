@@ -1,24 +1,11 @@
-﻿using InventorySystem.Items.Keycards;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Himself;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Himself;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 {
-    internal class PickupItemKeycardO5 : PickupItem<KeycardPickup, KeycardItem>
+    internal class PickupItemKeycardO5 : PickupItem
     {
-        public override void SetImpactsBeliefs(FpcMind fpcMind)
-        {
-            fpcMind.ActivityImpacts<ItemInInventoryKeycardO5>(this);
-        }
-
-        public override void SetEnabledByBeliefs(FpcMind fpcMind)
-        {
-            _itemWithinPickupDistance = fpcMind.ActivityEnabledBy<ItemWithinPickupDistanceKeycardO5>(this);
-        }
+        protected override ItemWithinPickupDistance ItemWithinPickupDistance => _botPlayer.MindRunner.GetBelief<ItemWithinPickupDistanceKeycardO5>();
+        protected override ItemInInventory ItemInInventory => _botPlayer.MindRunner.GetBelief<ItemInInventoryKeycardO5>();
 
         public PickupItemKeycardO5(FpcBotPlayer botPlayer) : base(botPlayer)
         {

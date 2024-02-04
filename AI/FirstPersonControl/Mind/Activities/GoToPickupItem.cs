@@ -1,27 +1,33 @@
-﻿using InventorySystem.Items;
-using InventorySystem.Items.Pickups;
-using PluginAPI.Core;
+﻿using InventorySystem.Items.Pickups;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Himself;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 {
-    internal class GoToPickupItem<T> : IActivity where T : ItemPickupBase
+    internal class GoToPickupItem<T> : GoToPickupItem where T : ItemPickupBase
     {
-        public virtual void SetEnabledByBeliefs(FpcMind fpcMind)
+        protected override ItemWithinSight ItemWithinSight => _botPlayer.MindRunner.GetBelief<ItemWithinSight<T>>();
+        protected override ItemWithinPickupDistance ItemWithinPickupDistance => _botPlayer.MindRunner.GetBelief<ItemWithinPickupDistance<T>>();
+
+        public GoToPickupItem(FpcBotPlayer botPlayer) : base(botPlayer)
         {
-            _itemWithinSight = fpcMind.ActivityEnabledBy<ItemWithinSight<T>>(this);
+        }
+    }
+
+    internal abstract class GoToPickupItem : IActivity
+    {
+        protected abstract ItemWithinSight ItemWithinSight { get; }
+        protected abstract ItemWithinPickupDistance ItemWithinPickupDistance { get; }
+
+        public void SetEnabledByBeliefs(FpcMind fpcMind)
+        {
+            _itemWithinSight = fpcMind.ActivityEnabledBy(this, ItemWithinSight);
         }
 
-        public virtual void SetImpactsBeliefs(FpcMind fpcMind)
+        public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityImpacts<ItemWithinPickupDistance<T>>(this);
+            fpcMind.ActivityImpacts(this, ItemWithinPickupDistance);
         }
 
         public bool Condition() => _itemWithinSight.Item;
@@ -42,7 +48,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 
         public void Reset() { }
 
-        protected ItemWithinSight<T> _itemWithinSight;
-        private readonly FpcBotPlayer _botPlayer;
+        private ItemWithinSight _itemWithinSight;
+        protected readonly FpcBotPlayer _botPlayer;
     }
 }

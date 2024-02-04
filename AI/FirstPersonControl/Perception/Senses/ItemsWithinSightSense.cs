@@ -68,7 +68,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             ProcessItemPickupBelief<ItemPickupBase, ItemWithinSightMedkit>(item => item.Info.ItemId == ItemType.Medkit, ItemsWithinSight);
         }
 
-        private void ProcessItemBeliefs<P>((ItemPickup<P>, ItemPickup<P>) beliefs, Predicate<ItemPickupBase> predicate) where P : ItemPickupBase
+        private void ProcessItemBeliefs<P>((ItemWithinSight<P>, ItemWithinPickupDistance<P>) beliefs, Predicate<ItemPickupBase> predicate) where P : ItemPickupBase
         {
             var (withinSight, withinPickupDistance) = beliefs;
 

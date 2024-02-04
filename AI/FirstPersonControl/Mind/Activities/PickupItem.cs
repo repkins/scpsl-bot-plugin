@@ -10,17 +10,31 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 {
-    internal class PickupItem<P, I> : IActivity where P : ItemPickupBase 
+    internal class PickupItem<P, I> : PickupItem where P : ItemPickupBase 
                                                 where I : ItemBase
     {
-        public virtual void SetImpactsBeliefs(FpcMind fpcMind)
+        protected override ItemWithinPickupDistance ItemWithinPickupDistance => _botPlayer.MindRunner.GetBelief<ItemWithinPickupDistance<P>>();
+        protected override ItemInInventory ItemInInventory => _botPlayer.MindRunner.GetBelief<ItemInInventory<I>>();
+
+        public PickupItem(FpcBotPlayer botPlayer) : base(botPlayer)
         {
-            fpcMind.ActivityImpacts<ItemInInventory<I>>(this);
+        }
+    }
+
+
+    internal abstract class PickupItem : IActivity
+    {
+        protected abstract ItemWithinPickupDistance ItemWithinPickupDistance { get; }
+        protected abstract ItemInInventory ItemInInventory { get; }
+
+        public void SetEnabledByBeliefs(FpcMind fpcMind)
+        {
+            _itemWithinPickupDistance = fpcMind.ActivityEnabledBy(this, ItemWithinPickupDistance);
         }
 
-        public virtual void SetEnabledByBeliefs(FpcMind fpcMind)
+        public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            _itemWithinPickupDistance = fpcMind.ActivityEnabledBy<ItemWithinPickupDistance<P>>(this);
+            fpcMind.ActivityImpacts(this, ItemInInventory);
         }
 
         public bool Condition() => _itemWithinPickupDistance.Item;
@@ -72,9 +86,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
             pickupCooldown = 0f;
         }
 
-        private readonly FpcBotPlayer _botPlayer;
+        protected readonly FpcBotPlayer _botPlayer;
 
-        protected ItemWithinPickupDistance<P> _itemWithinPickupDistance;
+        private ItemWithinPickupDistance _itemWithinPickupDistance;
 
         private bool isPickingUp;
         private float pickupCooldown;

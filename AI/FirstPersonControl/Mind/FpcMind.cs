@@ -19,11 +19,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
 
         public B ActivityEnabledBy<B>(IActivity activity) where B : class, IBelief
         {
-            var belief = Beliefs[typeof(B)];
+            var belief = Beliefs[typeof(B)] as B;
 
-            ActivityEnabledBy(activity, belief);
-
-            return belief as B;
+            return ActivityEnabledBy(activity, belief);
         }
 
         public B ActivityImpacts<B>(IActivity activity) where B : class, IBelief
@@ -100,16 +98,18 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
             return (B)belief;
         }
 
-        private void ActivityEnabledBy(IActivity activity, IBelief belief)
+        public B ActivityEnabledBy<B>(IActivity activity, B belief) where B : IBelief
         {
             var enablesActivities = BeliefsEnablingActivities[belief];
             enablesActivities.Add(activity);
 
             var enabledBy = ActivitiesEnabledByBeliefs[activity];
             enabledBy.Add(belief);
+
+            return belief;
         }
 
-        private void ActivityImpacts(IActivity activity, IBelief belief)
+        public void ActivityImpacts(IActivity activity, IBelief belief)
         {
             ActivitiesImpactingBeliefs[activity].Add(belief);
 
