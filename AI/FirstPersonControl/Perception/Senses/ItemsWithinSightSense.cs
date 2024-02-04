@@ -68,7 +68,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             ProcessItemPickupBelief<ItemPickupBase, ItemWithinSightMedkit>(item => item.Info.ItemId == ItemType.Medkit, ItemsWithinSight);
         }
 
-        private void ProcessItemBeliefs<P>((ItemPickupBase<P>, ItemPickupBase<P>) beliefs, Predicate<ItemPickupBase> predicate) where P : ItemPickupBase
+        private void ProcessItemBeliefs<P>((ItemPickup<P>, ItemPickup<P>) beliefs, Predicate<ItemPickupBase> predicate) where P : ItemPickupBase
         {
             var (withinSight, withinPickupDistance) = beliefs;
 
@@ -76,13 +76,13 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             ProcessItemBelief(withinPickupDistance, predicate, ItemsWithinPickupDistance);
         }
 
-        private void ProcessItemPickupBelief<I, B>(Predicate<ItemPickupBase> predicate, IEnumerable<ItemPickupBase> items) where I : ItemPickupBase where B : ItemPickupBase<I>
+        private void ProcessItemPickupBelief<I, B>(Predicate<ItemPickupBase> predicate, IEnumerable<ItemPickupBase> items) where I : ItemPickupBase where B : ItemPickup<I>
         {
             var belief = _fpcBotPlayer.MindRunner.GetBelief<B>();
             ProcessItemBelief(belief, predicate, items);
         }
 
-        private void ProcessItemBelief<P>(ItemPickupBase<P> belief, Predicate<ItemPickupBase> predicate, IEnumerable<ItemPickupBase> items) where P : ItemPickupBase
+        private void ProcessItemBelief<P>(ItemPickup<P> belief, Predicate<ItemPickupBase> predicate, IEnumerable<ItemPickupBase> items) where P : ItemPickupBase
         {
             var numItems = 0u;
 
@@ -105,7 +105,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             }
         }
 
-        private static void UpdateItemBelief<B, I>(B itemBelief, I pickup) where B : ItemPickupBase<I> where I : ItemPickupBase
+        private static void UpdateItemBelief<B, I>(B itemBelief, I pickup) where B : ItemPickup<I> where I : ItemPickupBase
         {
             itemBelief.Update(pickup);
             Log.Debug($"{itemBelief.GetType().Name} updated: {pickup}");
