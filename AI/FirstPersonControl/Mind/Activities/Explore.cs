@@ -5,10 +5,14 @@ using InventorySystem.Items.Firearms;
 using InventorySystem.Items.Keycards;
 using InventorySystem.Items.Pickups;
 using InventorySystem.Items.Usables;
+using MapGeneration;
 using PluginAPI.Core;
 using PluginAPI.Core.Zones;
+using PluginAPI.Core.Zones.Entrance;
+using PluginAPI.Roles;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.KeycardO5;
+using SCPSLBot.MapGeneration;
 using SCPSLBot.Navigation.Mesh;
 using System;
 using System.Collections.Generic;
@@ -46,19 +50,45 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
             var playerPosition = botPlayer.FpcRole.FpcModule.Position;
             var navMesh = NavigationMesh.Instance;
 
+            var withinArea = navMesh.GetAreaWithin(playerPosition);
+
+            if (withinArea != null && goalPoi.HasValue && Vector3.Distance(goalPoi.Value.pos, playerPosition) < 1f)
+            {
+                var idx = goalPoi.Value.idx;
+
+                Log.Debug($"Reached goal poi, adding to visited pois with {(withinArea.RoomKindArea.RoomKind, idx)}");
+
+                visitedPointsOfInterestIndices.Add((withinArea.RoomKindArea.RoomKind, idx));
+
+                goalPoi = null;
+            }
+
+            if (withinArea != null && pointsOfInterests.TryGetValue(withinArea.RoomKindArea.RoomKind, out var roomPois))
+            {
+                var nextLocalPoi = roomPois
+                    .Select((p, i) => (p, i))
+                    .Where(t => !visitedPointsOfInterestIndices.Contains((withinArea.RoomKindArea.RoomKind, t.i)))
+                    .Select(t => new (Vector3 p, int i)?(t))
+                    .DefaultIfEmpty(null)
+                    .First();
+
+                if (nextLocalPoi.HasValue)
+                {
+                    goalPoi = (withinArea.Room.Transform.TransformPoint(nextLocalPoi.Value.p), nextLocalPoi.Value.i);
+                }
+            }
+
             // Set new position leading to unexplored area (room)
             // 1. Select (any) open area within front in adjacent rooms and trace route.
             // 2. Move character to selected area by following traced route.
             // 3. When characted reached selected open area, start from 1.
-
-            var withinArea = navMesh.GetAreaWithin(playerPosition);
 
             if (goalArea is not null && goalArea == withinArea)
             {
                 goalArea = null;
             }
 
-            if (goalArea is null && withinArea is not null)
+            if (!goalPoi.HasValue && goalArea is null && withinArea is not null)
             {
                 var areasWithForeign = navMesh.AreasByRoom[withinArea.Room]
                     .Where(a => a.ForeignConnectedAreas.Any());
@@ -78,9 +108,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
                 goalArea = possibleGoalAreas[goalIdx];
             }
 
-            if (goalArea is not null)
+            var goalPos = goalPoi?.pos ?? goalArea?.CenterPosition;
+
+            if (goalPos.HasValue)
             {
-                var points = botPlayer.Navigator.GetPathTowards(goalArea.CenterPosition);
+                var points = botPlayer.Navigator.GetPathTowards(goalPos.Value);
                 var doorsOnPath = botPlayer.Perception.GetDoorsOnPath(points);
 
                 var firstDoorOnPath = doorsOnPath.FirstOrDefault();
@@ -90,24 +122,44 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 
                     if (!botPlayer.OpenDoor(firstDoorOnPath, interactDistance))
                     {
-                        botPlayer.LookToPosition(firstDoorOnPath.transform.position);
+                        botPlayer.LookToPosition(firstDoorOnPath.transform.position + Vector3.up);
                         //Log.Debug($"Looking towards door interactable");
                     }
                 }
-                else
-                {
-                    botPlayer.MoveToPosition(goalArea.CenterPosition);
-                }
+                //else
+                //{
+                    botPlayer.MoveToPosition(goalPos.Value);
+                //}
             }
         }
 
         public void Reset()
         {
             goalArea = null;
+            goalPoi = null;
         }
 
         private readonly FpcBotPlayer botPlayer;
 
         private Area goalArea;
+        private (Vector3 pos, int idx)? goalPoi;
+
+        private static Dictionary<(RoomName, RoomShape, RoomZone), List<Vector3>> pointsOfInterests = new()
+        {
+            { (RoomName.Lcz173, RoomShape.Endroom, RoomZone.LightContainment), new(){ new Vector3(8.02f, 12.43f, 6.94f) } },
+            { (RoomName.LczGreenhouse, RoomShape.Straight, RoomZone.LightContainment), new(){ new Vector3(-0.07f, 0.96f, -4.62f) } },
+            { (RoomName.LczGlassroom, RoomShape.Endroom, RoomZone.LightContainment), new(){ new Vector3(-0.51f, 0.96f, -1.51f) } },
+            { (RoomName.LczToilets, RoomShape.Straight, RoomZone.LightContainment), new(){
+                new Vector3(4.33f, 0.96f, -4.58f),
+                new Vector3(-3.77f, 0.96f, -6.15f)
+            } },
+            { (RoomName.LczComputerRoom, RoomShape.Endroom, RoomZone.LightContainment), new(){
+                new Vector3(-5.45f, 0.96f, 1.64f),
+                new Vector3(5.50f, 0.96f, 0.13f)
+            } },
+            { (RoomName.Lcz330, RoomShape.Endroom, RoomZone.LightContainment), new(){ new Vector3(-5.99f, 0.96f, -1.35f) } },
+        };
+
+        private HashSet<((RoomName, RoomShape, RoomZone), int)> visitedPointsOfInterestIndices = new();
     }
 }
