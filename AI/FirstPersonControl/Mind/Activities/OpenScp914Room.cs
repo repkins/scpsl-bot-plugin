@@ -1,8 +1,8 @@
 ﻿using Interactables.Interobjects;
 using Interactables.Interobjects.DoorUtils;
 using InventorySystem.Items.Keycards;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Himself;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Door;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
 using System;
 using System.Collections.Generic;
 using System.Linq;

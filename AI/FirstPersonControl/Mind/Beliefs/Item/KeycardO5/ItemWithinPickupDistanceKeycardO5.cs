@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Himself
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.KeycardO5
 {
     internal class ItemWithinPickupDistanceKeycardO5 : ItemWithinPickupDistance<KeycardPickup>
     {

@@ -1,11 +1,8 @@
-﻿using Interactables;
-using InventorySystem.Items;
+﻿using InventorySystem.Items;
 using InventorySystem.Items.Pickups;
 using InventorySystem.Searching;
 using PluginAPI.Core;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Himself;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World;
-using System;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities

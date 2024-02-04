@@ -1,7 +1,7 @@
 ﻿using InventorySystem.Items;
 using System;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Himself
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item
 {
     internal class ItemInInventory<T> : ItemInInventory where T : ItemBase
     {

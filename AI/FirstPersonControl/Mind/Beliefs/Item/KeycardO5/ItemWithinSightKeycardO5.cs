@@ -1,16 +1,15 @@
 ﻿using InventorySystem.Items;
 using InventorySystem.Items.Keycards;
-using InventorySystem.Items.Pickups;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using UnityEngine.PlayerLoop;
+using UnityEngine;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Himself
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.KeycardO5
 {
-    internal class ItemInInventoryKeycardO5 : ItemInInventory<KeycardItem>
+    internal class ItemWithinSightKeycardO5 : ItemWithinSight<KeycardPickup>
     {
 
     }

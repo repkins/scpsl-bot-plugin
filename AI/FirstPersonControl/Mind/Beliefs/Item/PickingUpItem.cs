@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item
 {
-    internal class LczCheckpointLocation
+    internal class PickingUpItem
     {
     }
 }

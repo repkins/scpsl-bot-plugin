@@ -1,7 +1,7 @@
 ﻿using Interactables.Interobjects;
 using Interactables.Interobjects.DoorUtils;
 using PluginAPI.Core;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Door;
 using System.Collections.Generic;
 using UnityEngine;
 

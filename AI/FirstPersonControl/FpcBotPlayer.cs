@@ -8,11 +8,14 @@ using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Looking;
 using SCPSLBot.AI.FirstPersonControl.Mind.Activities;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Himself;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World;
+using SCPSLBot.AI.FirstPersonControl.Mind.Activities.KeycardO5;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Door;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.KeycardO5;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.Medkit;
 using SCPSLBot.AI.FirstPersonControl.Mind.Desires;
 using SCPSLBot.AI.FirstPersonControl.Movement;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs
 {
-    internal class AccessToSurfaceLocation
+    internal class LczCheckpointLocation
     {
     }
 }

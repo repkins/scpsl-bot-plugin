@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item
 {
     internal class LastKnownItemLocation<T> : IBelief where T : ItemBase
     {

@@ -1,6 +1,7 @@
-﻿using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Himself;
+﻿using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.KeycardO5;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.KeycardO5
 {
     internal class PickupItemKeycardO5 : PickupItem
     {

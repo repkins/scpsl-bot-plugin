@@ -1,9 +1,9 @@
 ﻿using InventorySystem.Items.Keycards;
 using InventorySystem.Items.Pickups;
 using PluginAPI.Core;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Himself;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.KeycardO5;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.Medkit;
 using System;
 using System.Collections.Generic;
 using UnityEngine;

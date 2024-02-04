@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Himself
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs
 {
-    internal class PickingUpItem
+    internal class AccessToSurfaceLocation
     {
     }
 }

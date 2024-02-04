@@ -1,7 +1,7 @@
 ﻿using Interactables.Interobjects.DoorUtils;
 using System;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.World
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Door
 {
     internal class DoorBase<T> : IBelief where T : DoorVariant
     {
