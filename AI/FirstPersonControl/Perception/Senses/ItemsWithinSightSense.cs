@@ -15,12 +15,12 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 {
-    internal class ItemWithinSightSense : SightSense, ISense
+    internal class ItemsWithinSightSense : SightSense, ISense
     {
         public HashSet<ItemPickupBase> ItemsWithinSight { get; } = new();
         public HashSet<ItemPickupBase> ItemsWithinPickupDistance { get; } = new();
 
-        public ItemWithinSightSense(FpcBotPlayer botPlayer) : base(botPlayer)
+        public ItemsWithinSightSense(FpcBotPlayer botPlayer) : base(botPlayer)
         {
             _fpcBotPlayer = botPlayer;
         }

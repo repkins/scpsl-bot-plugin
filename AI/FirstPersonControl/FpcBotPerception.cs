@@ -36,7 +36,7 @@ namespace SCPSLBot.AI.FirstPersonControl
         {
             _fpcBotPlayer = fpcBotPlayer;
 
-            Senses.Add(new ItemWithinSightSense(fpcBotPlayer));
+            Senses.Add(new ItemsWithinSightSense(fpcBotPlayer));
 
             DoorsSense = new DoorsWithinSightSense(fpcBotPlayer);
             Senses.Add(DoorsSense);
