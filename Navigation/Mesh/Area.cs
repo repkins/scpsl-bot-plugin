@@ -13,6 +13,8 @@ namespace SCPSLBot.Navigation.Mesh
         public Vector3 CenterPosition => Room.Transform.TransformPoint(RoomKindArea.LocalCenterPosition);
         public Vector3 LocalCenterPosition => RoomKindArea.LocalCenterPosition;
 
+        //public IEnumerable<(RoomVertex From, RoomVertex To)> Edges => RoomKindArea.Edges.Select(e => (e.From.))
+
         public IEnumerable<Area> ConnectedAreas => RoomKindArea.ConnectedRoomKindAreas.Select(k => k.AreasOfRoom[Room]).Concat(ForeignConnectedAreas);
         public Dictionary<Area, (RoomVertex From, RoomVertex To)> ConnectedAreaEdges { get; } = new();
 

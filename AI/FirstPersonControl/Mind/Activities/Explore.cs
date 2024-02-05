@@ -6,16 +6,19 @@ using InventorySystem.Items.Keycards;
 using InventorySystem.Items.Pickups;
 using InventorySystem.Items.Usables;
 using MapGeneration;
+using MapGeneration.Distributors;
 using PluginAPI.Core;
 using PluginAPI.Core.Zones;
 using PluginAPI.Core.Zones.Entrance;
 using PluginAPI.Roles;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.KeycardO5;
+using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using SCPSLBot.MapGeneration;
 using SCPSLBot.Navigation.Mesh;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -49,6 +52,50 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
         {
             var playerPosition = botPlayer.FpcRole.FpcModule.Position;
             var navMesh = NavigationMesh.Instance;
+            var lockersWithinSightSense = botPlayer.Perception.GetSense<LockersWithinSightSense>();
+
+            if (lockersWithinSightSense.LockersWithinSight.Any())
+            {
+                var lockerWithinSight = lockersWithinSightSense.LockersWithinSight.FirstOrDefault(l => l.StructureType == StructureType.StandardLocker);
+                if (lockerWithinSight)
+                {
+                    var lockerPos = lockerWithinSight.transform.position;
+                    var targetPlayerPosAtLocker = Vector3.ProjectOnPlane(lockerPos + lockerWithinSight.transform.forward * 2, Vector3.up);
+                    targetPlayerPosAtLocker.y = playerPosition.y;
+
+                    var closedChamber = lockerWithinSight.Chambers.FirstOrDefault(ch => !ch.IsOpen);
+                    if (closedChamber)
+                    {
+                        if (Vector3.Distance(targetPlayerPosAtLocker, playerPosition) < 0.1f)
+                        {
+                            if (!botPlayer.OpenLockerDoor(closedChamber, interactDistance))
+                            {
+                                var posToChamber = closedChamber.GetComponentInChildren<InteractableCollider>().GetComponent<Collider>().bounds.center;
+
+                                botPlayer.LookToPosition(posToChamber);
+                                //Log.Debug($"Looking towards door interactable");
+                            }
+                            else
+                            {
+                                stopwatch.Restart();
+                            }
+                        }
+                        else
+                        {
+                            botPlayer.MoveToPosition(targetPlayerPosAtLocker);
+                        }
+
+                        return;
+                    }
+
+                    if (stopwatch.Elapsed.TotalSeconds < 1f)
+                    {
+                        return;
+                    }
+
+                    stopwatch.Stop();
+                }
+            }
 
             var withinArea = navMesh.GetAreaWithin(playerPosition);
 
@@ -144,8 +191,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
         private Area goalArea;
         private (Vector3 pos, int idx)? goalPoi;
 
+        private Stopwatch stopwatch = new();
+
         private static Dictionary<(RoomName, RoomShape, RoomZone), List<Vector3>> pointsOfInterests = new()
         {
+            // TODO: Could not find edge at the top of 173 chamber room
             { (RoomName.Lcz173, RoomShape.Endroom, RoomZone.LightContainment), new(){ new Vector3(8.02f, 12.43f, 6.94f) } },
             { (RoomName.LczGreenhouse, RoomShape.Straight, RoomZone.LightContainment), new(){ new Vector3(-0.07f, 0.96f, -4.62f) } },
             { (RoomName.LczGlassroom, RoomShape.Endroom, RoomZone.LightContainment), new(){ new Vector3(-0.51f, 0.96f, -1.51f) } },

@@ -1,9 +1,11 @@
-﻿using Interactables;
+﻿using Hints;
+using Interactables;
 using Interactables.Interobjects;
 using Interactables.Interobjects.DoorUtils;
 using InventorySystem.Items.Firearms;
 using InventorySystem.Items.Keycards;
 using InventorySystem.Items.Usables;
+using MapGeneration.Distributors;
 using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Looking;
@@ -17,6 +19,7 @@ using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.Medkit;
 using SCPSLBot.AI.FirstPersonControl.Mind.Desires;
 using SCPSLBot.AI.FirstPersonControl.Movement;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl
@@ -110,6 +113,35 @@ namespace SCPSLBot.AI.FirstPersonControl
             if (Physics.Raycast(playerCamera.position, playerCamera.forward, out var hit, maxInteractDistance, LayerMask.GetMask("Door"))
                 && hit.collider.GetComponent<InteractableCollider>() is InteractableCollider interactableCollider
                 && hit.collider.GetComponentInParent<IServerInteractable>() is IServerInteractable interactable)
+            {
+                var colliderId = interactableCollider.ColliderId;
+
+                interactable.ServerInteract(hub, colliderId);
+                //Log.Debug($"ServerInteract(...) called on {interactable}");
+
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool OpenLockerDoor(LockerChamber targetDoor, float maxInteractDistance)
+        {
+            var hub = BotHub.PlayerHub;
+            var playerCamera = hub.PlayerCameraReference;
+
+            var (isHit, hit) = targetDoor.GetComponentsInChildren<InteractableCollider>()
+                    .Select(interactableCollider => interactableCollider.GetComponent<Collider>())
+                    .Select(collider => (isHit: collider.Raycast(new Ray(playerCamera.position, hub.PlayerCameraReference.forward), out var hit, maxInteractDistance), hit))
+                    .FirstOrDefault(t => t.isHit);
+
+            if (isHit
+                && hit.collider.GetComponent<InteractableCollider>() is InteractableCollider interactableCollider
+                && hit.collider.GetComponentInParent<IServerInteractable>() is IServerInteractable interactable)
+
+            //if (Physics.Raycast(playerCamera.position, playerCamera.forward, out var hit, maxInteractDistance)
+            //    && hit.collider.GetComponent<InteractableCollider>() is InteractableCollider interactableCollider
+            //    && hit.collider.GetComponentInParent<IServerInteractable>() is IServerInteractable interactable)
             {
                 var colliderId = interactableCollider.ColliderId;
 

@@ -3,6 +3,7 @@ using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Perception;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -34,6 +35,8 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             InventorySense = new ItemsInInventorySense(fpcBotPlayer);
             Senses.Add(InventorySense);
+
+            Senses.Add(new LockersWithinSightSense(fpcBotPlayer));
         }
 
         public void Tick(IFpcRole fpcRole)
@@ -86,6 +89,11 @@ namespace SCPSLBot.AI.FirstPersonControl
                 .Where(d => d != null);
 
             return doorsOnPath;
+        }
+
+        public T GetSense<T>() where T : class
+        {
+            return Senses.Find(s => s is T) as T;
         }
 
         private const int OverlappingCollidersBufferSize = 1000;

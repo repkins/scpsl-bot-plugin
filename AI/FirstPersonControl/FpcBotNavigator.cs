@@ -1,4 +1,5 @@
-﻿using PluginAPI.Core;
+﻿using MapGeneration;
+using PluginAPI.Core;
 using SCPSLBot.Navigation.Mesh;
 using System;
 using System.Collections.Generic;
@@ -80,6 +81,22 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             var withinArea = navMesh.GetAreaWithin(playerPosition);
             var targetArea = navMesh.GetAreaWithin(goalPosition);
+
+            if (targetArea == null)
+            {
+                var goalRoom = RoomIdUtils.RoomAtPositionRaycasts(goalPosition);
+
+                var nearestEdge = navMesh.GetNearestEdge(goalPosition);
+                if (nearestEdge.HasValue)
+                {
+                    var nearestRoomKindEdge = new RoomKindEdge(nearestEdge.Value.From.RoomKindVertex, nearestEdge.Value.To.RoomKindVertex);
+                    targetArea = navMesh.AreasByRoom[goalRoom.ApiRoom].Find(a => a.RoomKindArea.Edges.Any(e => e == nearestRoomKindEdge));
+                }
+                else
+                {
+                    Log.Warning($"Could not find path to goal position.");
+                }
+            }
 
             if (withinArea != null && (targetArea != this.goalArea || withinArea != this.currentArea))
             {
