@@ -121,8 +121,8 @@ namespace SCPSLBot.AI.FirstPersonControl
             var playerPosition = botPlayer.FpcRole.FpcModule.transform.position;
 
             var nextTargetArea = this.AreasPath[this.currentPathIdx + 1];
-            var nextTargetAreaEdge = currentArea.ConnectedAreaEdges[nextTargetArea];
-            var nextTargetEdgeMiddlePosition = Vector3.Lerp(nextTargetAreaEdge.From.Position, nextTargetAreaEdge.To.Position, 0.5f);
+            var targetAreaEdge = currentArea.ConnectedAreaEdges[nextTargetArea];
+            var nextTargetEdgeMiddlePosition = Vector3.Lerp(targetAreaEdge.From.Position, targetAreaEdge.To.Position, 0.5f);
 
             var nextTargetPosition = nextTargetEdgeMiddlePosition;
 
@@ -132,9 +132,9 @@ namespace SCPSLBot.AI.FirstPersonControl
             {
                 aheadPathIdx++;
 
-                var relNextTargetEdgePos = (
-                    from: nextTargetAreaEdge.From.Position - playerPosition,
-                    to: nextTargetAreaEdge.To.Position - playerPosition);
+                var relTargetEdgePos = (
+                    from: targetAreaEdge.From.Position - playerPosition,
+                    to: targetAreaEdge.To.Position - playerPosition);
 
                 var aheadTargetArea = this.AreasPath[aheadPathIdx];
                 var aheadTargetAreaEdge = nextTargetArea.ConnectedAreaEdges[aheadTargetArea];
@@ -147,18 +147,28 @@ namespace SCPSLBot.AI.FirstPersonControl
                     from: Vector3.Cross(relAheadTargetEdgePos.from, Vector3.up),
                     to: Vector3.Cross(relAheadTargetEdgePos.to, Vector3.up));
 
-                if (Vector3.Dot(relNextTargetEdgePos.from, dirToAheadTargetEdgeNormals.from) > 0)
+                if (Vector3.Dot(relTargetEdgePos.from, dirToAheadTargetEdgeNormals.from) < 0)
                 {
-                    nextTargetPosition = nextTargetAreaEdge.From.Position;
+                    targetAreaEdge.From = aheadTargetAreaEdge.From;
                 }
 
-                if (Vector3.Dot(relNextTargetEdgePos.to, dirToAheadTargetEdgeNormals.to) < 0)
+                if (Vector3.Dot(relTargetEdgePos.to, dirToAheadTargetEdgeNormals.to) > 0)
                 {
-                    nextTargetPosition = nextTargetAreaEdge.To.Position;
+                    targetAreaEdge.To = aheadTargetAreaEdge.To;
+                }
+
+
+                if (Vector3.Dot(relTargetEdgePos.from, dirToAheadTargetEdgeNormals.to) > 0)
+                {
+                    nextTargetPosition = targetAreaEdge.From.Position;
+                }
+
+                if (Vector3.Dot(relTargetEdgePos.to, dirToAheadTargetEdgeNormals.from) < 0)
+                {
+                    nextTargetPosition = targetAreaEdge.To.Position;
                 }
 
                 nextTargetArea = aheadTargetArea;
-                nextTargetAreaEdge = aheadTargetAreaEdge;
             }
 
             if (nextTargetPosition == nextTargetEdgeMiddlePosition)
@@ -166,20 +176,20 @@ namespace SCPSLBot.AI.FirstPersonControl
                 nextTargetPosition = goalPosition;
 
                 var relNextTargetEdgePos = (
-                    from: nextTargetAreaEdge.From.Position - playerPosition,
-                    to: nextTargetAreaEdge.To.Position - playerPosition);
+                    from: targetAreaEdge.From.Position - playerPosition,
+                    to: targetAreaEdge.To.Position - playerPosition);
 
                 var relGoalPos = goalPosition - playerPosition;
                 var dirToGoalNormal = Vector3.Cross(relGoalPos, Vector3.up);
 
                 if (Vector3.Dot(relNextTargetEdgePos.from, dirToGoalNormal) > 0)
                 {
-                    nextTargetPosition = nextTargetAreaEdge.From.Position;
+                    nextTargetPosition = targetAreaEdge.From.Position;
                 }
 
                 if (Vector3.Dot(relNextTargetEdgePos.to, dirToGoalNormal) < 0)
                 {
-                    nextTargetPosition = nextTargetAreaEdge.To.Position;
+                    nextTargetPosition = targetAreaEdge.To.Position;
                 }
             }
 

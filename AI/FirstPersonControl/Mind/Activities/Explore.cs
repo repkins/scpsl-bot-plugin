@@ -195,7 +195,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 
         private static Dictionary<(RoomName, RoomShape, RoomZone), List<Vector3>> pointsOfInterests = new()
         {
-            // TODO: Could not find edge at the top of 173 chamber room
+            // Could not find edge at the top of 173 chamber room (probably raycast for room gives null)
             { (RoomName.Lcz173, RoomShape.Endroom, RoomZone.LightContainment), new(){ new Vector3(8.02f, 12.43f, 6.94f) } },
             { (RoomName.LczGreenhouse, RoomShape.Straight, RoomZone.LightContainment), new(){ new Vector3(-0.07f, 0.96f, -4.62f) } },
             { (RoomName.LczGlassroom, RoomShape.Endroom, RoomZone.LightContainment), new(){ new Vector3(-0.51f, 0.96f, -1.51f) } },
