@@ -15,7 +15,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Desires
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            _keycardO5InInventory = fpcMind.DesireEnabledBy<ItemInInventoryKeycardO5>(this);
+            _keycardO5InInventory = fpcMind.DesireEnabledBy<KeycardContainmentOneInInventory>(this);
+            //_keycardO5InInventory = fpcMind.DesireEnabledBy<ItemInInventoryKeycardO5>(this);
         }
 
         public bool Condition()

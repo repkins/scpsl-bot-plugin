@@ -1,4 +1,6 @@
-﻿using InventorySystem.Items.Keycards;
+﻿using Interactables.Interobjects.DoorUtils;
+using InventorySystem;
+using InventorySystem.Items.Keycards;
 using InventorySystem.Items.Pickups;
 using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
@@ -57,6 +59,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
                 (item => item.Info.ItemId == ItemType.KeycardO5,
                     mind.GetBelief<ItemWithinSightKeycardO5>(),
                     mind.GetBelief<ItemWithinPickupDistanceKeycardO5>()
+                ),
+                (item => InventoryItemLoader.TryGetItem<KeycardItem>(item.Info.ItemId, out var keycard) && keycard.Permissions.HasFlag(KeycardPermissions.ContainmentLevelOne),
+                    mind.GetBelief<KeycardContainmentOneWithinSight>(),
+                    mind.GetBelief<KeycardContainmentOneWithinPickupDistance>()
                 ),
             };
 

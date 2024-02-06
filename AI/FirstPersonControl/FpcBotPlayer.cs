@@ -10,6 +10,7 @@ using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Looking;
 using SCPSLBot.AI.FirstPersonControl.Mind.Activities;
+using SCPSLBot.AI.FirstPersonControl.Mind.Activities.Keycard;
 using SCPSLBot.AI.FirstPersonControl.Mind.Activities.KeycardO5;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Door;
@@ -51,12 +52,23 @@ namespace SCPSLBot.AI.FirstPersonControl
             MindRunner.AddBelief(new LastKnownItemLocation<Medkit>());
             MindRunner.AddBelief(new LastKnownItemLocation<Firearm>());
 
+
             MindRunner.AddBelief(new ItemWithinSightKeycardO5());
             MindRunner.AddBelief(new ItemWithinPickupDistanceKeycardO5());
             MindRunner.AddBelief(new ItemInInventoryKeycardO5());
 
             MindRunner.AddActivity(new GoToPickupItemKeycardO5(this));
             MindRunner.AddActivity(new PickupItemKeycardO5(this));
+
+
+            MindRunner.AddBelief(new KeycardContainmentOneWithinSight());
+            MindRunner.AddBelief(new KeycardContainmentOneWithinPickupDistance());
+            MindRunner.AddBelief(new KeycardContainmentOneInInventory());
+
+            MindRunner.AddActivity(new FindKeycardContainmentOne(this));
+            MindRunner.AddActivity(new GoToPickupKeycardContainmentOne(this));
+            MindRunner.AddActivity(new PickupKeycardContainmentOne(this));
+
 
             MindRunner.AddBelief(new ItemWithinSight<KeycardPickup>());
             MindRunner.AddBelief(new ItemWithinSightMedkit());

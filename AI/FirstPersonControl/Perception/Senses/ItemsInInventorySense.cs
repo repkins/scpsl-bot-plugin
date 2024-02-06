@@ -1,4 +1,5 @@
-﻿using InventorySystem.Items;
+﻿using Interactables.Interobjects.DoorUtils;
+using InventorySystem.Items;
 using InventorySystem.Items.Firearms;
 using InventorySystem.Items.Keycards;
 using PluginAPI.Core;
@@ -29,12 +30,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         {
             var keycardInventoryBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemInInventory<KeycardItem>>();
             var keycardO5InventoryBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemInInventoryKeycardO5>();
+            var KeycardContainmentOneInInventoryBelief = _fpcBotPlayer.MindRunner.GetBelief<KeycardContainmentOneInInventory>();
 
             ProcessItemBeliefs(keycardInventoryBelief, item => item is KeycardItem);
             ProcessItemBeliefs(keycardO5InventoryBelief, item => item.ItemTypeId == ItemType.KeycardO5);
+            ProcessItemBeliefs(KeycardContainmentOneInInventoryBelief, item => item.Permissions.HasFlag(KeycardPermissions.ContainmentLevelOne));
         }
 
-        private void ProcessItemBeliefs<P>(ItemInInventory<P> beliefs, Predicate<ItemBase> predicate) where P : ItemBase
+        private void ProcessItemBeliefs<P>(ItemInInventory<P> beliefs, Predicate<P> predicate) where P : ItemBase
         {
             var withinSight = beliefs;
 
@@ -43,12 +46,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             ProcessItemBelief(withinSight, predicate, userInventory.Items);
         }
 
-        private void ProcessItemBelief<P>(ItemInInventory<P> belief, Predicate<ItemBase> predicate, IDictionary<ushort, ItemBase> items) where P : ItemBase
+        private void ProcessItemBelief<P>(ItemInInventory<P> belief, Predicate<P> predicate, IDictionary<ushort, ItemBase> items) where P : ItemBase
         {
             var itemBelief = belief;
             foreach (var item in items.Values)
             {
-                if (predicate(item))
+                if (predicate(item as P))
                 {
                     if (itemBelief.Item is null)
                     {
