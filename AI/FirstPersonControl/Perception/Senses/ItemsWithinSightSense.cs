@@ -2,7 +2,7 @@
 using InventorySystem.Items.Pickups;
 using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.KeycardO5;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.Keycard;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.Medkit;
 using System;
 using System.Collections.Generic;

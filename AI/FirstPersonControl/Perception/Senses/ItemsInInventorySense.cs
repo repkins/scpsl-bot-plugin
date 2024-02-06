@@ -3,7 +3,7 @@ using InventorySystem.Items.Firearms;
 using InventorySystem.Items.Keycards;
 using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.KeycardO5;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.Keycard;
 using System;
 using System.Collections.Generic;
 using UnityEngine;

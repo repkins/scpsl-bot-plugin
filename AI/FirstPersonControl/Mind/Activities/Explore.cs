@@ -12,7 +12,7 @@ using PluginAPI.Core.Zones;
 using PluginAPI.Core.Zones.Entrance;
 using PluginAPI.Roles;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.KeycardO5;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.Keycard;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using SCPSLBot.MapGeneration;
 using SCPSLBot.Navigation.Mesh;

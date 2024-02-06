@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine.PlayerLoop;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.KeycardO5
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.Keycard
 {
     internal class ItemInInventoryKeycardO5 : ItemInInventory<KeycardItem>
     {
