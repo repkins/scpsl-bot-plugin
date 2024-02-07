@@ -53,12 +53,12 @@ namespace SCPSLBot.AI.FirstPersonControl
             MindRunner.AddBelief(new LastKnownItemLocation<Firearm>());
 
 
-            MindRunner.AddBelief(new ItemWithinSightKeycardO5());
-            MindRunner.AddBelief(new ItemWithinPickupDistanceKeycardO5());
-            MindRunner.AddBelief(new ItemInInventoryKeycardO5());
+            MindRunner.AddBelief(new KeycardO5WithinSight());
+            MindRunner.AddBelief(new KeycardO5WithinPickupDistance());
+            MindRunner.AddBelief(new KeycardO5InInventory());
 
-            MindRunner.AddActivity(new GoToPickupItemKeycardO5(this));
-            MindRunner.AddActivity(new PickupItemKeycardO5(this));
+            MindRunner.AddActivity(new GoToPickupKeycardO5(this));
+            MindRunner.AddActivity(new PickupKeycardO5(this));
 
 
             MindRunner.AddBelief(new KeycardContainmentOneWithinSight());

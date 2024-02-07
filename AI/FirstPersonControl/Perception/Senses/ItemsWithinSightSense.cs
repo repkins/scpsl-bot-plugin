@@ -57,8 +57,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
                     mind.GetBelief<ItemWithinPickupDistance<KeycardPickup>>()
                 ),
                 (item => item.Info.ItemId == ItemType.KeycardO5,
-                    mind.GetBelief<ItemWithinSightKeycardO5>(),
-                    mind.GetBelief<ItemWithinPickupDistanceKeycardO5>()
+                    mind.GetBelief<KeycardO5WithinSight>(),
+                    mind.GetBelief<KeycardO5WithinPickupDistance>()
                 ),
                 (item => InventoryItemLoader.TryGetItem<KeycardItem>(item.Info.ItemId, out var keycard) && keycard.Permissions.HasFlag(KeycardPermissions.ContainmentLevelOne),
                     mind.GetBelief<KeycardContainmentOneWithinSight>(),

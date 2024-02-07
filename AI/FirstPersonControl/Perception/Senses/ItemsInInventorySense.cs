@@ -30,7 +30,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         public void UpdateBeliefs()
         {
             var keycardInventoryBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemInInventory<KeycardItem>>();
-            var keycardO5InventoryBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemInInventoryKeycardO5>();
+            var keycardO5InventoryBelief = _fpcBotPlayer.MindRunner.GetBelief<KeycardO5InInventory>();
             var KeycardContainmentOneInInventoryBelief = _fpcBotPlayer.MindRunner.GetBelief<KeycardContainmentOneInInventory>();
 
             ProcessItemBeliefs(keycardInventoryBelief, item => item is KeycardItem);
