@@ -3,6 +3,7 @@ using InventorySystem.Items;
 using InventorySystem.Items.Firearms;
 using InventorySystem.Items.Keycards;
 using PluginAPI.Core;
+using PluginAPI.Core.Items;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.Keycard;
 using System;
@@ -37,34 +38,34 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             ProcessItemBeliefs(KeycardContainmentOneInInventoryBelief, item => item.Permissions.HasFlag(KeycardPermissions.ContainmentLevelOne));
         }
 
-        private void ProcessItemBeliefs<P>(ItemInInventory<P> beliefs, Predicate<P> predicate) where P : ItemBase
+        private void ProcessItemBeliefs<I>(ItemInInventory<I> beliefs, Predicate<I> predicate) where I : ItemBase
         {
-            var withinSight = beliefs;
+            var inInventoryBelief = beliefs;
 
             var userInventory = _fpcBotPlayer.BotHub.PlayerHub.inventory.UserInventory;
 
-            ProcessItemBelief(withinSight, predicate, userInventory.Items);
+            ProcessItemBelief(inInventoryBelief, predicate, userInventory.Items);
         }
 
-        private void ProcessItemBelief<P>(ItemInInventory<P> belief, Predicate<P> predicate, IDictionary<ushort, ItemBase> items) where P : ItemBase
+        private void ProcessItemBelief<I>(ItemInInventory<I> belief, Predicate<I> predicate, IDictionary<ushort, ItemBase> sensedItems) where I : ItemBase
         {
             var itemBelief = belief;
-            foreach (var item in items.Values)
+            foreach (var sensedItem in sensedItems.Values)
             {
-                if (predicate(item as P))
+                if (sensedItem is I itemOf && predicate(itemOf))
                 {
                     if (itemBelief.Item is null)
                     {
-                        UpdateItemInInventoryBelief(itemBelief, item as P);
+                        UpdateItemInInventoryBelief(itemBelief, sensedItem as I);
                     }
                 }
 
-                HasFirearmInInventory = item is Firearm;
+                HasFirearmInInventory = sensedItem is Firearm;
             }
 
-            if (itemBelief.Item is not null && !items.ContainsKey(itemBelief.Item.ItemSerial))
+            if (itemBelief.Item is not null && !sensedItems.ContainsKey(itemBelief.Item.ItemSerial))
             {
-                UpdateItemInInventoryBelief(itemBelief, null as P);
+                UpdateItemInInventoryBelief(itemBelief, null as I);
             }
         }
 
