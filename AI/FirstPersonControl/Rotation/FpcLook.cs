@@ -15,7 +15,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Looking
 
         public Vector3 TargetPosition { get; private set; } = Vector3.zero;
 
-        private const float MaxSteeringForceDegrees = 360f;
+        private const float MaxSteeringForceDegrees = 640f;
 
         private readonly FpcBotPlayer botPlayer;
 
@@ -48,7 +48,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Looking
             // total angles
             var targetAngleDiff = new Vector3(vAngleDiff, hAngleDiff);
 
-            var angleDiff = targetAngleDiff * .1f;
+            var angleDiff = targetAngleDiff * .075f;
             angleDiff = Vector3.MoveTowards(Vector3.zero, angleDiff, Time.deltaTime * MaxSteeringForceDegrees);
 
             DesiredAngles = angleDiff;
