@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using PlayerRoles.FirstPersonControl;
+using PluginAPI.Core;
 using System.Reflection;
 using UnityEngine;
 
@@ -20,13 +21,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Rotation
                 float vRot = fpcPlayer.Look.DesiredAngles.x;
                 float hRot = fpcPlayer.Look.DesiredAngles.y;
 
-                __instance.CurrentVertical += vRot;
-                __instance.CurrentHorizontal += hRot;
-                Quaternion rotation = Quaternion.Euler(Vector3.up * __instance.CurrentHorizontal);
-                Quaternion cameraRotation = Quaternion.Euler(Vector3.left * __instance.CurrentVertical);
+                hub.transform.rotation *= Quaternion.Euler(Vector3.up * hRot);
+                hub.PlayerCameraReference.localRotation *= Quaternion.Euler(Vector3.left * vRot);
 
-                hub.transform.rotation = rotation;
-                hub.PlayerCameraReference.localRotation = cameraRotation;
+                __instance.CurrentHorizontal = hub.transform.eulerAngles.y;
+                __instance.CurrentVertical = -hub.PlayerCameraReference.localEulerAngles.x;
 
                 fpcPlayer.Look.DesiredAngles = Vector3.zero;
 

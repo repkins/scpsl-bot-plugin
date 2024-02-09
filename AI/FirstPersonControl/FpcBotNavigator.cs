@@ -16,7 +16,8 @@ namespace SCPSLBot.AI.FirstPersonControl
         private Area goalArea;
         public List<Area> AreasPath = new();
         private int currentPathIdx = -1;
-
+        private bool isGoalOutside;
+        private Vector3 targetAreaClosestPositionToGoal;
         private readonly NavigationMesh navMesh = NavigationMesh.Instance;
 
         private readonly FpcBotPlayer botPlayer;
@@ -37,7 +38,11 @@ namespace SCPSLBot.AI.FirstPersonControl
             }
             else 
             {
-                // Target position should be on current area.
+                if (goalArea != null && isGoalOutside)
+                {
+                    return targetAreaClosestPositionToGoal;
+                }
+
                 return goalPosition;
             }
         }
@@ -86,16 +91,23 @@ namespace SCPSLBot.AI.FirstPersonControl
             {
                 var goalRoom = RoomIdUtils.RoomAtPositionRaycasts(goalPosition);
 
-                var nearestEdge = navMesh.GetNearestEdge(goalPosition);
+                var nearestEdge = navMesh.GetNearestEdge(goalPosition, out var closestPoint, goalRoom);
                 if (nearestEdge.HasValue)
                 {
                     var nearestRoomKindEdge = new RoomKindEdge(nearestEdge.Value.From.RoomKindVertex, nearestEdge.Value.To.RoomKindVertex);
                     targetArea = navMesh.AreasByRoom[goalRoom.ApiRoom].Find(a => a.RoomKindArea.Edges.Any(e => e == nearestRoomKindEdge));
+                    targetAreaClosestPositionToGoal = closestPoint;
                 }
                 else
                 {
                     Log.Warning($"Could not find path to goal position.");
                 }
+
+                isGoalOutside = true;
+            }
+            else
+            {
+                isGoalOutside = false;
             }
 
             if (withinArea != null && (targetArea != this.goalArea || withinArea != this.currentArea))

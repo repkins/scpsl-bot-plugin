@@ -174,9 +174,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
         {
             goalArea = null;
             goalPoi = null;
+            lastEntryArea = null;
         }
 
         protected readonly FpcBotPlayer botPlayer;
+
         private Area lastEntryArea;
         private Area goalArea;
         private (Vector3 pos, int idx)? goalPoi;

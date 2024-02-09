@@ -38,11 +38,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 
         public void Tick()
         {
-            _botPlayer.LookToPosition(_itemWithinSight.Item.transform.position);
+            var targetItemPosition = _itemWithinSight.Item.transform.position;
 
-            var relativePos = _itemWithinSight.Item.transform.position - _botPlayer.FpcRole.CameraPosition;
-            var moveDirection = Vector3.ProjectOnPlane(relativePos, Vector3.up).normalized;
-            _botPlayer.Move.DesiredLocalDirection = _botPlayer.FpcRole.FpcModule.transform.InverseTransformDirection(moveDirection);
+            _botPlayer.MoveToPosition(targetItemPosition);
         }
 
         public void Reset() { }

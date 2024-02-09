@@ -48,8 +48,12 @@ namespace SCPSLBot.Navigation.Mesh
             return GetPointDistToEdgePlane(new RoomKindEdge(edge.From.RoomKindVertex, edge.To.RoomKindVertex), localPosition) > 0f;
         }
 
-        public (RoomVertex From, RoomVertex To)? GetNearestEdge(Vector3 position, RoomIdentifier room = null)
+        public (RoomVertex From, RoomVertex To)? GetNearestEdge(Vector3 position, RoomIdentifier room = null) => GetNearestEdge(position, out _, room);
+
+        public (RoomVertex From, RoomVertex To)? GetNearestEdge(Vector3 position, out Vector3 closestPoint, RoomIdentifier room = null)
         {
+            closestPoint = Vector3.zero;
+
             room ??= RoomIdUtils.RoomAtPositionRaycasts(position);
 
             if (!room || !AreasByRoom.TryGetValue(room.ApiRoom, out var roomAreas))
@@ -59,23 +63,27 @@ namespace SCPSLBot.Navigation.Mesh
 
             var localPosition = room.transform.InverseTransformPoint(position);
 
-            var roomKindEdge = roomAreas.SelectMany(a => a.RoomKindArea.Edges)
-                .Select(e => (edge: e, dist: GetPointDistToEdgePlane(e, localPosition)))
+            var hit = roomAreas.SelectMany(a => a.RoomKindArea.Edges)
+                .Select(e => (edge: e, dist: GetPointDistToEdgePlane(e, localPosition, out var closest), closest))
                 .Where(t => t.dist <= 0f)
                 .Where(t => IsAlongEdge(t.edge, localPosition))
                 .Where(t => IsEdgeCenterWithinVertically(t.edge, localPosition))
                 .OrderByDescending(t => t.dist)
-                .Select(t => new RoomKindEdge?(t.edge))
+                .Select(t => new (RoomKindEdge, float, Vector3)?(t))
                 .DefaultIfEmpty(null)
                 .First();
 
-            if (roomKindEdge == null)
+            if (!hit.HasValue)
             {
                 return null;
             }
 
-            RoomVertex roomEdgeFrom = VerticesByRoom[room.ApiRoom].Find(v => v.RoomKindVertex == roomKindEdge.Value.From),
-                       roomEdgeTo = VerticesByRoom[room.ApiRoom].Find(v => v.RoomKindVertex == roomKindEdge.Value.To);
+            var (roomKindEdge, dist, closestLocalPoint) = hit.Value;
+                
+            RoomVertex roomEdgeFrom = VerticesByRoom[room.ApiRoom].Find(v => v.RoomKindVertex == roomKindEdge.From),
+                       roomEdgeTo = VerticesByRoom[room.ApiRoom].Find(v => v.RoomKindVertex == roomKindEdge.To);
+
+            closestPoint = room.transform.TransformPoint(closestLocalPoint);
 
             return (roomEdgeFrom, roomEdgeTo);
         }
@@ -538,15 +546,20 @@ namespace SCPSLBot.Navigation.Mesh
             return isAnyVertexWithinVerticalRange;
         }
 
-        private float GetPointDistToEdgePlane(RoomKindEdge edge, Vector3 localPoint)
+        private float GetPointDistToEdgePlane(RoomKindEdge edge, Vector3 localPoint) => GetPointDistToEdgePlane(edge, localPoint, out _);
+
+        private float GetPointDistToEdgePlane(RoomKindEdge edge, Vector3 localPoint, out Vector3 closestLocalPoint)
         {
             var dirTo2 = edge.To.LocalPosition - edge.From.LocalPosition;
             var dirToPoint = localPoint - edge.From.LocalPosition;
 
             var edgeNormal = Vector3.Cross(dirTo2.normalized, Vector3.down);
 
-            var p = Vector3.Dot(edgeNormal, dirToPoint);
-            return p;
+            var dist = Vector3.Dot(edgeNormal, dirToPoint);
+
+            closestLocalPoint = localPoint - edgeNormal * dist;
+
+            return dist;
         }
 
         private bool IsAlongEdge(RoomKindEdge edge, Vector3 localPoint)
