@@ -116,9 +116,13 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
             // 2. Move character to selected area by following traced route.
             // 3. When characted reached selected open area, start from 1.
 
+            if (withinArea is not null && withinArea.ConnectedAreas.Contains(goalArea))
+            {
+                lastEntryArea = withinArea;
+            }
+
             if (goalArea is not null && goalArea == withinArea)
             {
-                lastGoalArea = goalArea;
                 goalArea = null;
             }
 
@@ -130,11 +134,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
                 var selectedAreas = areasWithForeign.Take(2)
                     .Count() < 2
                         ? areasWithForeign
-                        : areasWithForeign.Where(awf => Vector3.Dot(awf.CenterPosition - playerPosition, botPlayer.FpcRole.FpcModule.transform.forward) > 0f);
+                        : areasWithForeign.Where(awf => awf != lastEntryArea);
 
                 var possibleGoalAreas = selectedAreas
                     .SelectMany(a => a.ForeignConnectedAreas)
-                    .Select(fa => fa.ConnectedAreas.First(ca => ca != lastGoalArea))
+                    .Select(fa => fa.ConnectedAreas.First())
                     .ToArray();
 
                 var goalIdx = UnityEngine.Random.Range(0, possibleGoalAreas.Length);
@@ -173,7 +177,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
         }
 
         protected readonly FpcBotPlayer botPlayer;
-        private Area lastGoalArea;
+        private Area lastEntryArea;
         private Area goalArea;
         private (Vector3 pos, int idx)? goalPoi;
 

@@ -13,6 +13,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Looking
     {
         public Vector3 DesiredAngles { get; set; } = Vector3.zero;
 
+        public Vector3 TargetPosition { get; private set; } = Vector3.zero;
+
         private const float MaxSteeringForceDegrees = 360f;
 
         private readonly FpcBotPlayer botPlayer;
@@ -24,6 +26,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Looking
 
         public void ToPosition(Vector3 targetPosition)
         {
+            TargetPosition = targetPosition;
+
             var playerTransform = botPlayer.FpcRole.FpcModule.transform;
             var cameraTransform = botPlayer.BotHub.PlayerHub.PlayerCameraReference;
 
