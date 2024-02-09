@@ -32,7 +32,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         {
             var cameraTransform = _fpcBotPlayer.BotHub.PlayerHub.PlayerCameraReference;
 
-            if (collider.GetComponentInParent<ItemPickupBase>() is ItemPickupBase item
+            if (collider.GetComponentInParent<ItemPickupBase>() is ItemPickupBase item && item
                    && !ItemsWithinSight.Contains(item))
             {
                 if (IsWithinSight(collider, item))
