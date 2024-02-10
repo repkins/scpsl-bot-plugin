@@ -24,7 +24,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Rotation
                 hub.transform.rotation *= hRotation;
                 hub.PlayerCameraReference.localRotation *= vRotation;
 
-                __instance.CurrentHorizontal = hub.transform.eulerAngles.y;
+                __instance.CurrentHorizontal = Mathf.DeltaAngle(0f, hub.transform.eulerAngles.y);
                 __instance.CurrentVertical = -Mathf.DeltaAngle(0f, hub.PlayerCameraReference.localEulerAngles.x);
 
                 fpcPlayer.Look.DesiredHorizontalRotation = Quaternion.identity;

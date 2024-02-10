@@ -2,6 +2,7 @@
 using MapGeneration;
 using MapGeneration.Distributors;
 using PluginAPI.Core;
+using PluginAPI.Core.Zones;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using SCPSLBot.MapGeneration;
@@ -39,6 +40,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
             var playerPosition = botPlayer.FpcRole.FpcModule.Position;
             var navMesh = NavigationMesh.Instance;
             var lockersWithinSightSense = botPlayer.Perception.GetSense<LockersWithinSightSense>();
+
+            var goalPoiReached = false;
 
             if (lockersWithinSightSense.LockersWithinSight.Any())
             {
@@ -80,12 +83,37 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
                     }
 
                     stopwatch.Stop();
+
+                    if (goalPoi.HasValue && !goalPoiReached)
+                    {
+                        goalPoiReached = true;
+                    }
                 }
             }
 
-            var withinArea = navMesh.GetAreaWithin(playerPosition);
+            if (goalPoi.HasValue && !goalPoiReached && Vector3.Distance(goalPoi.Value.pos, playerPosition) < 1f)
+            {
+                goalPoiReached = true;
+            }
 
-            if (withinArea != null && goalPoi.HasValue && Vector3.Distance(goalPoi.Value.pos, playerPosition) < 1f)
+            var withinArea = navMesh.GetAreaWithin(playerPosition);
+            if (withinArea is null && goalArea == null && !goalPoi.HasValue)
+            {
+                Log.Debug($"No within area found, trying to get to closest area.");
+
+                if (navMesh.GetNearestEdge(playerPosition, out var closestPoint).HasValue)
+                {
+                    botPlayer.MoveToPosition(closestPoint);
+                }
+                else
+                {
+                    Log.Warning($"Could not find way to nearest area.");
+                }
+
+                return;
+            }
+
+            if (withinArea != null && goalPoi.HasValue && goalPoiReached)
             {
                 var idx = goalPoi.Value.idx;
 
@@ -96,11 +124,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
                 goalPoi = null;
             }
 
-            if (withinArea != null && pointsOfInterests.TryGetValue(withinArea.RoomKindArea.RoomKind, out var roomPois))
+            if (withinArea != null && !goalPoi.HasValue && pointsOfInterests.TryGetValue(withinArea.RoomKindArea.RoomKind, out var roomPois))
             {
                 var nextLocalPoi = roomPois
                     .Select((p, i) => (p, i))
                     .Where(t => !visitedPointsOfInterestIndices.Contains((withinArea.RoomKindArea.RoomKind, t.i)))
+                    .OrderBy(t => Vector3.SqrMagnitude(t.p - playerPosition))
                     .Select(t => new (Vector3 p, int i)?(t))
                     .DefaultIfEmpty(null)
                     .First();
@@ -108,6 +137,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
                 if (nextLocalPoi.HasValue)
                 {
                     goalPoi = (withinArea.Room.Transform.TransformPoint(nextLocalPoi.Value.p), nextLocalPoi.Value.i);
+                    Log.Debug($"Assigned goal poi");
                 }
             }
 
@@ -116,9 +146,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
             // 2. Move character to selected area by following traced route.
             // 3. When characted reached selected open area, start from 1.
 
-            if (withinArea is not null && withinArea.ConnectedAreas.Contains(goalArea))
+            if (withinArea != null && withinArea.ConnectedAreas.Contains(goalArea))
             {
                 lastEntryArea = withinArea;
+                roomsLastVisitTime[withinArea.Room] = Time.time;
             }
 
             if (goalArea is not null && goalArea == withinArea)
@@ -126,7 +157,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
                 goalArea = null;
             }
 
-            if (!goalPoi.HasValue && goalArea is null && withinArea is not null)
+            if (!goalPoi.HasValue && goalArea is null && withinArea != null)
             {
                 var areasWithForeign = navMesh.AreasByRoom[withinArea.Room]
                     .Where(a => a.ForeignConnectedAreas.Any());
@@ -139,10 +170,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
                 var possibleGoalAreas = selectedAreas
                     .SelectMany(a => a.ForeignConnectedAreas)
                     .Select(fa => fa.ConnectedAreas.First())
+                    .OrderBy(fa => roomsLastVisitTime.TryGetValue(fa.Room, out var time) ? time : 0f)
                     .ToArray();
 
-                var goalIdx = UnityEngine.Random.Range(0, possibleGoalAreas.Length);
-                goalArea = possibleGoalAreas[goalIdx];
+                goalArea = possibleGoalAreas.First();
+
+                Log.Debug($"Moving to next room");
             }
 
             var goalPos = goalPoi?.pos ?? goalArea?.CenterPosition;
@@ -184,6 +217,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
         private (Vector3 pos, int idx)? goalPoi;
 
         private Stopwatch stopwatch = new();
+
+        private Dictionary<FacilityRoom, float> roomsLastVisitTime = new();
 
         private static Dictionary<(RoomName, RoomShape, RoomZone), List<Vector3>> pointsOfInterests = new()
         {

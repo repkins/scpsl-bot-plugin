@@ -78,7 +78,7 @@ namespace SCPSLBot.AI.FirstPersonControl
                     if (isEdgeReached)
                     {
                         this.currentArea = this.AreasPath[++this.currentPathIdx];
-                        Log.Debug($"New current area {this.currentArea}.");
+                        //Log.Debug($"New current area {this.currentArea}.");
                     }
                 }
                 while (isEdgeReached && !IsAtLastArea());
@@ -114,17 +114,17 @@ namespace SCPSLBot.AI.FirstPersonControl
             {
                 this.currentArea = withinArea;
                 this.goalArea = targetArea;
-                Log.Debug($"New start area {withinArea}.");
-                Log.Debug($"New goal area {targetArea}.");
+                //Log.Debug($"New start area {withinArea}.");
+                //Log.Debug($"New goal area {targetArea}.");
 
                 this.AreasPath = navMesh.GetShortestPath(this.currentArea, this.goalArea);
                 this.currentPathIdx = 0;
 
-                Log.Debug($"New path of {this.AreasPath.Count} areas:");
-                foreach (var areaInPath in AreasPath)
-                {
-                    Log.Debug($"Area {areaInPath}.");
-                }
+                //Log.Debug($"New path of {this.AreasPath.Count} areas:");
+                //foreach (var areaInPath in AreasPath)
+                //{
+                //    Log.Debug($"Area {areaInPath}.");
+                //}
             }
         }
 
