@@ -11,7 +11,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Looking
 {
     internal class FpcLook
     {
-        public Vector3 DesiredAngles { get; set; } = Vector3.zero;
         public Quaternion DesiredHorizontalRotation { get; set; } = Quaternion.identity;
         public Quaternion DesiredVerticalRotation { get; set; } = Quaternion.identity;
 
@@ -68,7 +67,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Looking
 
             do
             {
-                DesiredAngles = degreesStep * Time.deltaTime;
+                //DesiredAngles = degreesStep * Time.deltaTime;
 
                 currentMagnitude += degreesStepMagnitude * Time.deltaTime;
 
@@ -76,7 +75,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Looking
             }
             while (currentMagnitude < targetDegreesMagnitude);
 
-            DesiredAngles = Vector3.zero;
+            //DesiredAngles = Vector3.zero;
 
             yield break;
         }

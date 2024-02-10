@@ -62,7 +62,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 
             var item = _itemWithinPickupDistance.Item;
 
-            if (Vector3.Dot((itemPosition - cameraPosition).normalized, cameraDirection) > 1f - .001f)
+            if (Vector3.Dot((itemPosition - cameraPosition).normalized, cameraDirection) > 1f - .0001f)
             {
                 Log.Debug($"Attempting to pick up item {item} by {_botPlayer}");
 
