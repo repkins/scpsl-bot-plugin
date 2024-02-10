@@ -12,6 +12,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Looking
     internal class FpcLook
     {
         public Vector3 DesiredAngles { get; set; } = Vector3.zero;
+        public Quaternion DesiredHorizontalRotation { get; set; } = Quaternion.identity;
+        public Quaternion DesiredVerticalRotation { get; set; } = Quaternion.identity;
 
         public Vector3 TargetPosition { get; private set; } = Vector3.zero;
 
@@ -36,22 +38,25 @@ namespace SCPSLBot.AI.FirstPersonControl.Looking
             var hDirectionToTarget = Vector3.ProjectOnPlane(relativePos, Vector3.up).normalized;
             var hForward = playerTransform.forward;
 
-            var hAngleDiff = Vector3.SignedAngle(hDirectionToTarget, hForward, Vector3.down);
+            var hRotation = Quaternion.FromToRotation(hForward, hDirectionToTarget);
 
-            var hReverseRotation = Quaternion.AngleAxis(-hAngleDiff, Vector3.up);
+            var hReverseRotation = Quaternion.Inverse(hRotation);
 
             var vDirectionToTarget = Vector3.Normalize(hReverseRotation * relativePos);
             var vForward = cameraTransform.forward;
+            var vLocalForward = playerTransform.InverseTransformDirection(vForward);
+            var vLocalDirToTarget = playerTransform.InverseTransformDirection(vDirectionToTarget);
 
-            var vAngleDiff = Vector3.SignedAngle(vDirectionToTarget, vForward, cameraTransform.right);
+            var vRotation = Quaternion.FromToRotation(vLocalForward, vLocalDirToTarget);
 
-            // total angles
-            var targetAngleDiff = new Vector3(vAngleDiff, hAngleDiff);
+            hRotation = Quaternion.Slerp(Quaternion.identity, hRotation, .075f);
+            vRotation = Quaternion.Slerp(Quaternion.identity, vRotation, .075f);
 
-            var angleDiff = targetAngleDiff * .075f;
-            angleDiff = Vector3.MoveTowards(Vector3.zero, angleDiff, Time.deltaTime * MaxSteeringForceDegrees);
+            hRotation = Quaternion.RotateTowards(Quaternion.identity, hRotation, Time.deltaTime * MaxSteeringForceDegrees);
+            vRotation = Quaternion.RotateTowards(Quaternion.identity, vRotation, Time.deltaTime * MaxSteeringForceDegrees);
 
-            DesiredAngles = angleDiff;
+            DesiredHorizontalRotation = hRotation;
+            DesiredVerticalRotation = vRotation;
         }
 
         public IEnumerator<float> ByFpcAsync(Vector3 degreesStep, Vector3 targetDegrees)
