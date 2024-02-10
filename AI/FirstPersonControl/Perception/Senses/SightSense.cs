@@ -1,4 +1,5 @@
 ﻿using PluginAPI.Core;
+using System;
 using System.Linq;
 using UnityEngine;
 
@@ -45,10 +46,13 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             return false;
         }
 
-        protected static bool IsWithinFov(Transform transform, Transform targetTransform)
+        protected static bool IsWithinFov(Transform transform, Transform targetTransform) => 
+            IsWithinFov(transform.position, transform.forward, targetTransform.position);
+
+        protected static bool IsWithinFov(Vector3 position, Vector3 forward, Vector3 targetPosition)
         {
-            var facingDir = transform.forward;
-            var diff = Vector3.Normalize(targetTransform.position - transform.position);
+            var facingDir = forward;
+            var diff = Vector3.Normalize(position - targetPosition);
 
             if (Vector3.Dot(facingDir, diff) < 0)
             {
