@@ -7,6 +7,7 @@ using InventorySystem.Items.Keycards;
 using InventorySystem.Items.Usables;
 using MapGeneration.Distributors;
 using PlayerRoles.FirstPersonControl;
+using PlayerRoles.Spectating;
 using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Looking;
 using SCPSLBot.AI.FirstPersonControl.Mind.Activities;
@@ -85,6 +86,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             
             //MindRunner.AddActivity(new Explore(this));
 
+            MindRunner.AddDesire(new GetKeycardContainmentOne());
             MindRunner.AddDesire(new GetO5Keycard());
 
             MindRunner.SubscribeToBeliefUpdates();
@@ -170,6 +172,15 @@ namespace SCPSLBot.AI.FirstPersonControl
         }
 
         #region Debug functions
+
+        public void SendBroadcastToSpectators(string message, ushort duration)
+        {
+            var spectatingPlayers = Player.GetPlayers().Where(p => p.RoleBase is OverwatchRole s && s.SyncedSpectatedNetId == this.BotHub.PlayerHub.netId);
+            foreach (var spectatingPlayer in spectatingPlayers)
+            {
+                spectatingPlayer.SendBroadcast(message, duration);
+            }
+        }
 
         public IEnumerator<float> MoveToFpcAsync(Vector3 localDirection, int timeAmount) => Move.ToFpcAsync(localDirection, timeAmount);
         public IEnumerator<float> LookByFpcAsync(Vector3 degreesStep, Vector3 targetDegrees) => Look.ByFpcAsync(degreesStep, targetDegrees);

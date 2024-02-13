@@ -1,6 +1,7 @@
 ﻿using Interactables;
 using MapGeneration;
 using MapGeneration.Distributors;
+using PlayerRoles.Spectating;
 using PluginAPI.Core;
 using PluginAPI.Core.Zones;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
