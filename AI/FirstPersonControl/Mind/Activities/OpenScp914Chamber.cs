@@ -4,7 +4,7 @@ using System;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 {
-    internal class OpenScp914Door : IActivity
+    internal class OpenScp914Chamber : IActivity
     {
         public bool Condition() => _keycardInInventory.Item != null
                                 && _closedDoorWithinSight.Door != null;
@@ -12,13 +12,13 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
             _keycardInInventory = fpcMind.ActivityEnabledBy<KeycardContainmentOneInInventory>(this);
-            _closedDoorWithinSight = fpcMind.ActivityEnabledBy<ClosedScp914RoomDoorWithinSight>(this);
+            _closedDoorWithinSight = fpcMind.ActivityEnabledBy<ClosedScp914ChamberWithinSight>(this);
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
             // 914 room opened within sight
-            fpcMind.ActivityImpacts<ClosedScp914RoomDoorWithinSight>(this);
+            fpcMind.ActivityImpacts<ClosedScp914ChamberWithinSight>(this);
         }
 
         public void Tick()
@@ -29,6 +29,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
         public void Reset() { }
 
         private KeycardContainmentOneInInventory _keycardInInventory;
-        private ClosedScp914RoomDoorWithinSight _closedDoorWithinSight;
+        private ClosedScp914ChamberWithinSight _closedDoorWithinSight;
     }
 }

@@ -3,9 +3,8 @@ using System;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Room
 {
-    internal class RoomBase
+    internal class RoomBase : IBelief
     {
-
         public Area Area { get; private set; }
 
         public event Action OnUpdate;

@@ -40,7 +40,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             var numClosedScp914RoomDoors = 0u;
 
             var pryableWithinSightBelief = _fpcBotPlayer.MindRunner.GetBelief<DoorWithinSight<PryableDoor>>();
-            var closedScp914RoomDoorWithinSightBelief = _fpcBotPlayer.MindRunner.GetBelief<ClosedScp914RoomDoorWithinSight>();
+            var closedScp914RoomDoorWithinSightBelief = _fpcBotPlayer.MindRunner.GetBelief<ClosedScp914ChamberWithinSight>();
             foreach (var doorWithinSight in DoorsWithinSight)
             {
                 if (doorWithinSight is PryableDoor pryable)

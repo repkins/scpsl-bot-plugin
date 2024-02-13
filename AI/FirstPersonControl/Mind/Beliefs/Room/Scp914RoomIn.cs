@@ -1,6 +1,6 @@
 ﻿namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Room
 {
-    internal class Scp914RoomWithinSight : RoomWithinSight
+    internal class Scp914RoomIn : RoomIn
     {
     }
 }
