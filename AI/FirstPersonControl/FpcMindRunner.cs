@@ -76,30 +76,19 @@ namespace SCPSLBot.AI.FirstPersonControl
             foreach (var activities in beliefActivities)
             {
                 var enabledActivities = activities
-                    .Where(a => a.Condition());
-
-                if (!enabledActivities.Any())
-                {
-                    enabledActivities = activities
-                        .Select(a =>
-                        {
-                            Log.Debug($"Activity {a.GetType().Name} needs to be enabled.");
-                            return a;
-                        })
-                        .Select(a => ActivitiesEnabledByBeliefs[a]
-                            .Where(t => !t.Condition(t.Belief))
-                            .Select(t => t.Belief))
-                        .SelectMany(GetClosestActivitiesEnabledBy);
-                }
-                else
-                {
-                    enabledActivities = enabledActivities
-                        .Select(a =>
-                        {
-                            Log.Debug($"Activity {a.GetType().Name} conditions fulfilled.");
-                            return a;
-                        });
-                }
+                    .Select(a =>
+                    {
+                        Log.Debug($"Activity {a.GetType().Name}.");
+                        return a;
+                    })
+                    .Select(a => ActivitiesEnabledByBeliefs[a]
+                        .Where(t => !t.Condition(t.Belief))
+                        .Select(t => t.Belief)
+                        .Select(b => {
+                            Log.Debug($"Belief {b.GetType().Name} needs to be satisfied.");
+                            return b;
+                        }))
+                    .SelectMany(GetClosestActivitiesEnabledBy);
 
                 return enabledActivities;
             }
