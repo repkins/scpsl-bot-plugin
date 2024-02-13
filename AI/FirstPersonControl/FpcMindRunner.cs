@@ -2,6 +2,7 @@
 using SCPSLBot.AI.FirstPersonControl.Mind;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl
 {
@@ -66,14 +67,14 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         private IEnumerable<IActivity> GetClosestActivitiesEnabledBy(IEnumerable<IBelief> beliefs)
         {
-            var beliefActivities = beliefs
+            var activitySets = beliefs
                 .Select(b => {
                     Log.Debug($"Getting activities enabled by {b.GetType().Name}");
                     return b;
                 })
                 .Select(b => BeliefsImpactedByActivities[b]);
 
-            foreach (var activities in beliefActivities)
+            foreach (var activities in activitySets)
             {
                 var enabledActivities = activities
                     .Where(a => ActivitiesEnabledByBeliefs[a].All(t => t.Condition(t.Belief)));
@@ -117,7 +118,8 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         private void SelectActivityAndRun(IEnumerable<IActivity> enabledActivities)
         {
-            var selectedActivity = enabledActivities.FirstOrDefault();  // TODO: cost?
+            var selectedActivity = enabledActivities.OrderBy(a => Random.Range(0f, 10f))
+                .FirstOrDefault();  // TODO: cost?
 
             var prevActivity = RunningActivity;
 
