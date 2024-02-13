@@ -76,23 +76,38 @@ namespace SCPSLBot.AI.FirstPersonControl
             foreach (var activities in beliefActivities)
             {
                 var enabledActivities = activities
-                    .Select(a =>
-                    {
-                        Log.Debug($"Activity {a.GetType().Name}.");
-                        return a;
-                    })
-                    .Select(a => ActivitiesEnabledByBeliefs[a]
-                        .Select(t => {
-                            Log.Debug($"Belief {t.Belief.GetType().Name}.");
-                            return t;
+                    .Where(a => ActivitiesEnabledByBeliefs[a].All(t => t.Condition(t.Belief)));
+
+                if (!enabledActivities.Any())
+                {
+                    enabledActivities = activities
+                        .Select(a =>
+                        {
+                            Log.Debug($"Activity {a.GetType().Name} needs to be enabled.");
+                            return a;
                         })
-                        .Where(t => !t.Condition(t.Belief))
-                        .Select(t => t.Belief)
-                        .Select(b => {
-                            Log.Debug($"Belief {b.GetType().Name} needs to be satisfied.");
-                            return b;
-                        }))
-                    .SelectMany(GetClosestActivitiesEnabledBy);
+                        .Select(a => ActivitiesEnabledByBeliefs[a]
+                            .Select(t => {
+                                Log.Debug($"Belief {t.Belief.GetType().Name}.");
+                                return t;
+                            })
+                            .Where(t => !t.Condition(t.Belief))
+                            .Select(t => t.Belief)
+                            .Select(b => {
+                                Log.Debug($"Belief {b.GetType().Name} needs to be satisfied.");
+                                return b;
+                            }))
+                        .SelectMany(GetClosestActivitiesEnabledBy);
+                }
+                else
+                {
+                    enabledActivities = enabledActivities
+                        .Select(a =>
+                        {
+                            Log.Debug($"Activity {a.GetType().Name} conditions fulfilled.");
+                            return a;
+                        });
+                }
 
                 return enabledActivities;
             }

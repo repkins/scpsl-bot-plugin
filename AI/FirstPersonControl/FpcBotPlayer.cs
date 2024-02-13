@@ -58,6 +58,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             MindRunner.AddBelief(new KeycardO5WithinPickupDistance());
             MindRunner.AddBelief(new KeycardO5InInventory());
 
+            MindRunner.AddActivity(new FindKeycardO5(this));
             MindRunner.AddActivity(new GoToPickupKeycardO5(this));
             MindRunner.AddActivity(new PickupKeycardO5(this));
 
