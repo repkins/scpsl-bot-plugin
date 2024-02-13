@@ -2,7 +2,7 @@
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.Keycard;
 using System;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Scp914
 {
     internal class OpenScp914Chamber : IActivity
     {
