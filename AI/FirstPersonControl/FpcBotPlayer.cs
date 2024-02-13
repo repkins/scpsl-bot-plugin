@@ -14,6 +14,7 @@ using SCPSLBot.AI.FirstPersonControl.Mind.Activities.Keycard;
 using SCPSLBot.AI.FirstPersonControl.Mind.Activities.KeycardO5;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Door;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Door.Scp914;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.Keycard;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.Medkit;
@@ -79,8 +80,9 @@ namespace SCPSLBot.AI.FirstPersonControl
             MindRunner.AddActivity(new PickupItem<KeycardPickup, KeycardItem>(this));
 
             MindRunner.AddBelief(new DoorWithinSight<PryableDoor>());
-
-            MindRunner.AddActivity(new Explore(this));
+            MindRunner.AddBelief(new ClosedScp914ChamberDoorWithinSight());
+            
+            //MindRunner.AddActivity(new Explore(this));
 
             MindRunner.AddDesire(new GetO5Keycard());
 

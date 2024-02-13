@@ -82,6 +82,10 @@ namespace SCPSLBot.AI.FirstPersonControl
                         return a;
                     })
                     .Select(a => ActivitiesEnabledByBeliefs[a]
+                        .Select(t => {
+                            Log.Debug($"Belief {t.Belief.GetType().Name}.");
+                            return t;
+                        })
                         .Where(t => !t.Condition(t.Belief))
                         .Select(t => t.Belief)
                         .Select(b => {
