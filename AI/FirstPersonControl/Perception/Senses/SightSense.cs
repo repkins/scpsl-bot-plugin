@@ -52,7 +52,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         protected static bool IsWithinFov(Vector3 position, Vector3 forward, Vector3 targetPosition)
         {
             var facingDir = forward;
-            var diff = Vector3.Normalize(position - targetPosition);
+            var diff = Vector3.Normalize(targetPosition - position);
 
             if (Vector3.Dot(facingDir, diff) < 0)
             {
