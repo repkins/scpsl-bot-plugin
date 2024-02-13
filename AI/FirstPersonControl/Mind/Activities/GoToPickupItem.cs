@@ -19,17 +19,17 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
         protected abstract ItemWithinSight ItemWithinSight { get; }
         protected abstract ItemWithinPickupDistance ItemWithinPickupDistance { get; }
 
+        public bool Condition() => _itemWithinSight.Item;
+
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            _itemWithinSight = fpcMind.ActivityEnabledBy(this, ItemWithinSight);
+            _itemWithinSight = fpcMind.ActivityEnabledBy(this, ItemWithinSight, b => b.Item);
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
             fpcMind.ActivityImpacts(this, ItemWithinPickupDistance);
         }
-
-        public bool Condition() => _itemWithinSight.Item;
 
         public GoToPickupItem(FpcBotPlayer botPlayer)
         {

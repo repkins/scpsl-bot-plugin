@@ -9,17 +9,17 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
         protected abstract RoomWithinSight RoomWithinSight { get; }
         protected abstract RoomIn RoomIn { get; }
 
+        public bool Condition() => _roomWithinSight.Area != null;
+
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            _roomWithinSight = fpcMind.ActivityEnabledBy(this, RoomWithinSight);
+            _roomWithinSight = fpcMind.ActivityEnabledBy(this, RoomWithinSight, b => b.Area != null);
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
             fpcMind.ActivityImpacts(this, RoomIn);
         }
-
-        public bool Condition() => _roomWithinSight.Area != null;
 
         public GoToRoom(FpcBotPlayer botPlayer)
         {

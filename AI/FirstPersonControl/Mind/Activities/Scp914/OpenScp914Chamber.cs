@@ -6,13 +6,13 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Scp914
 {
     internal class OpenScp914Chamber : IActivity
     {
-        public bool Condition() => _keycardInInventory.Item != null
-                                && _closedDoorWithinSight.Door != null;
+        public bool Condition() => _keycardInInventory.Item
+                                && _closedDoorWithinSight.Door;
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            _keycardInInventory = fpcMind.ActivityEnabledBy<KeycardContainmentOneInInventory>(this);
-            _closedDoorWithinSight = fpcMind.ActivityEnabledBy<ClosedScp914ChamberWithinSight>(this);
+            _keycardInInventory = fpcMind.ActivityEnabledBy<KeycardContainmentOneInInventory>(this, b => b.Item);
+            _closedDoorWithinSight = fpcMind.ActivityEnabledBy<ClosedScp914ChamberWithinSight>(this, b => b.Door);
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)

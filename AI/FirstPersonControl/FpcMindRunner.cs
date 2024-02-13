@@ -64,7 +64,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             return enabledActivities;
         }
 
-        private IEnumerable<IActivity> GetClosestActivitiesEnabledBy(List<IBelief> beliefs)
+        private IEnumerable<IActivity> GetClosestActivitiesEnabledBy(IEnumerable<IBelief> beliefs)
         {
             var beliefActivities = beliefs
                 .Select(b => {
@@ -86,7 +86,10 @@ namespace SCPSLBot.AI.FirstPersonControl
                             Log.Debug($"Activity {a.GetType().Name} needs to be enabled.");
                             return a;
                         })
-                        .SelectMany(a => GetClosestActivitiesEnabledBy(ActivitiesEnabledByBeliefs[a]));
+                        .Select(a => ActivitiesEnabledByBeliefs[a]
+                            .Where(t => !t.Condition(t.Belief))
+                            .Select(t => t.Belief))
+                        .SelectMany(GetClosestActivitiesEnabledBy);
                 }
                 else
                 {
