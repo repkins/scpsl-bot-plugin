@@ -1,6 +1,4 @@
-﻿using InventorySystem.Items.Pickups;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
-using UnityEngine;
+﻿using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 {
