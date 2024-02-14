@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item
 {
-    internal class LastKnownItemLocation<T> : IBelief where T : ItemBase
+    internal class LastKnownItemLocation<T> : IBelief where T : InventorySystem.Items.ItemBase
     {
         public Vector3? Position { get; private set; }
 

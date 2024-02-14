@@ -5,11 +5,17 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item
 {
     internal class ItemInInventory<T> : ItemInInventory where T : ItemBase
     {
+        public ItemInInventory(ItemType itemType) : base(itemType)
+        { }
+
         public new T Item => base.Item as T;
     }
 
-    internal class ItemInInventory : IBelief
+    internal class ItemInInventory : ItemBase, IBelief
     {
+        public ItemInInventory(ItemType itemType) : base(itemType)
+        { }
+
         public event Action OnUpdate;
         public ItemBase Item { get; private set; }
 

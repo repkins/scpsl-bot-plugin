@@ -1,6 +1,7 @@
 ﻿using Interactables;
 using MapGeneration;
 using MapGeneration.Distributors;
+using PlayerRoles.Spectating;
 using PluginAPI.Core;
 using PluginAPI.Core.Zones;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
@@ -14,27 +15,26 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 {
-    internal class FindItem : ItemActivity, IActivity
+    internal abstract class FindItemBase : IActivity
     {
-        public FindItem(ItemType itemType, FpcBotPlayer botPlayer) : base(itemType)
+        protected abstract ItemWithinSightBase ItemWithinSight { get; }
+
+        public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            this.botPlayer = botPlayer;
+            fpcMind.ActivityImpacts(this, ItemWithinSight);
         }
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         { }
 
-        public void SetImpactsBeliefs(FpcMind fpcMind)
+        public bool Condition() => true;
+
+        public FindItemBase(FpcBotPlayer botPlayer)
         {
-            fpcMind.ActivityImpacts<ItemWithinSight>(this, OfItemType);
+            this.botPlayer = botPlayer;
         }
 
-        public void Reset()
-        {
-            goalArea = null;
-            goalPoi = null;
-            lastEntryArea = null;
-        }
+        private const float interactDistance = 2f;
 
         public void Tick()
         {
@@ -204,8 +204,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
             }
         }
 
+        public void Reset()
+        {
+            goalArea = null;
+            goalPoi = null;
+            lastEntryArea = null;
+        }
+
         protected readonly FpcBotPlayer botPlayer;
-        private const float interactDistance = 2f;
 
         private Area lastEntryArea;
         private Area goalArea;

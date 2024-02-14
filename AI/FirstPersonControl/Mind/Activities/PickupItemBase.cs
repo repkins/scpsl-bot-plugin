@@ -1,31 +1,44 @@
-﻿using InventorySystem.Searching;
+﻿using InventorySystem.Items;
+using InventorySystem.Items.Pickups;
+using InventorySystem.Searching;
 using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 {
-    internal class PickupItem : ItemActivity, IActivity
+    internal class PickupItem<P, I> : PickupItemBase where P : ItemPickupBase 
+                                                where I : ItemBase
     {
-        public PickupItem(ItemType itemType, FpcBotPlayer botPlayer) : base(itemType)
+        protected override ItemWithinPickupDistanceBase ItemWithinPickupDistance => _botPlayer.MindRunner.GetBelief<ItemWithinPickupDistance<P>>();
+        protected override ItemInInventory ItemInInventory => _botPlayer.MindRunner.GetBelief<ItemInInventory<I>>();
+
+        public PickupItem(FpcBotPlayer botPlayer) : base(botPlayer)
         {
-            this._botPlayer = botPlayer;
         }
+    }
+
+
+    internal abstract class PickupItemBase : IActivity
+    {
+        protected abstract ItemWithinPickupDistanceBase ItemWithinPickupDistance { get; }
+        protected abstract ItemInInventory ItemInInventory { get; }
+
+        public bool Condition() => _itemWithinPickupDistance.Item;
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            this._itemWithinPickupDistance = fpcMind.ActivityEnabledBy<ItemWithinPickupDistance>(this, OfItemType, b => b.Item);
+            _itemWithinPickupDistance = fpcMind.ActivityEnabledBy(this, ItemWithinPickupDistance, b => b.Item);
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityImpacts<ItemInInventory>(this, OfItemType);
+            fpcMind.ActivityImpacts(this, ItemInInventory);
         }
 
-        public void Reset()
+        public PickupItemBase(FpcBotPlayer botPlayer)
         {
-            isPickingUp = false;
-            pickupCooldown = 0f;
+            _botPlayer = botPlayer;
         }
 
         public void Tick()
@@ -64,9 +77,15 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
             _botPlayer.LookToPosition(itemPosition);
         }
 
+        public void Reset()
+        {
+            isPickingUp = false;
+            pickupCooldown = 0f;
+        }
+
         protected readonly FpcBotPlayer _botPlayer;
 
-        private ItemWithinPickupDistance _itemWithinPickupDistance;
+        private ItemWithinPickupDistanceBase _itemWithinPickupDistance;
 
         private bool isPickingUp;
         private float pickupCooldown;

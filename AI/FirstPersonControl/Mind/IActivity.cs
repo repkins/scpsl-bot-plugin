@@ -11,8 +11,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
         void SetEnabledByBeliefs(FpcMind fpcMind);
         void SetImpactsBeliefs(FpcMind fpcMind);
 
-        bool Condition();
-
         void Tick();
         void Reset();
     }

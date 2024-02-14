@@ -20,14 +20,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
         public Dictionary<IBelief, List<IActivity>> BeliefsImpactedByActivities { get; } = new Dictionary<IBelief, List<IActivity>>();
         public Dictionary<IBelief, List<IDesire>> BeliefsEnablingDesires { get; } = new Dictionary<IBelief, List<IDesire>>();
 
-        public B ActivityEnabledBy<B>(IActivity activity, Predicate<B> condition) where B : class, IBelief
+        public B ActivityEnabledBy<B>(IActivity activity, Predicate<B> predicate, Predicate<B> condition) where B : class, IBelief
         {
             var belief = Beliefs[typeof(B)] as B;
 
             return ActivityEnabledBy(activity, belief, condition);
         }
 
-        public B ActivityImpacts<B>(IActivity activity) where B : class, IBelief
+        public B ActivityImpacts<B>(IActivity activity, Predicate<B> predicate) where B : class, IBelief
         {
             var belief = Beliefs[typeof(B)];
 

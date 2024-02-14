@@ -3,8 +3,11 @@ using System;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item
 {
-    internal class ItemPickup<T> : IBelief where T : ItemPickupBase
+    internal class ItemPickup<T> : ItemBase, IBelief where T : ItemPickupBase
     {
+        public ItemPickup(ItemType itemType) : base(itemType)
+        { }
+
         public T Item { get; private set; }
 
         public event Action OnUpdate;

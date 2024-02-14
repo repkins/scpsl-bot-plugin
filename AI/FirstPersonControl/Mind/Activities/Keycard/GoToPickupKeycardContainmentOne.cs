@@ -3,10 +3,10 @@ using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.Keycard;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Keycard
 {
-    internal class GoToPickupKeycardContainmentOne : GoToPickupItem
+    internal class GoToPickupKeycardContainmentOne : GoToPickupItemBase
     {
-        protected override ItemWithinSight ItemWithinSight => _botPlayer.MindRunner.GetBelief<KeycardContainmentOneWithinSight>();
-        protected override ItemWithinPickupDistance ItemWithinPickupDistance => _botPlayer.MindRunner.GetBelief<KeycardContainmentOneWithinPickupDistance>();
+        protected override ItemWithinSightBase ItemWithinSight => _botPlayer.MindRunner.GetBelief<KeycardContainmentOneWithinSight>();
+        protected override ItemWithinPickupDistanceBase ItemWithinPickupDistance => _botPlayer.MindRunner.GetBelief<KeycardContainmentOneWithinPickupDistance>();
 
         public GoToPickupKeycardContainmentOne(FpcBotPlayer botPlayer) : base(botPlayer)
         {

@@ -4,37 +4,24 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 {
-    internal class GoToPickupItem<T> : GoToPickupItem where T : ItemPickupBase
+    internal class GoToPickupItem : ItemActivity, IActivity
     {
-        protected override ItemWithinSight ItemWithinSight => _botPlayer.MindRunner.GetBelief<ItemWithinSight<T>>();
-        protected override ItemWithinPickupDistance ItemWithinPickupDistance => _botPlayer.MindRunner.GetBelief<ItemWithinPickupDistance<T>>();
-
-        public GoToPickupItem(FpcBotPlayer botPlayer) : base(botPlayer)
+        public GoToPickupItem(ItemType itemType, FpcBotPlayer botPlayer) : base(itemType)
         {
+            this._botPlayer = botPlayer;
         }
-    }
-
-    internal abstract class GoToPickupItem : IActivity
-    {
-        protected abstract ItemWithinSight ItemWithinSight { get; }
-        protected abstract ItemWithinPickupDistance ItemWithinPickupDistance { get; }
-
-        public bool Condition() => _itemWithinSight.Item;
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            _itemWithinSight = fpcMind.ActivityEnabledBy(this, ItemWithinSight, b => b.Item);
+            _itemWithinSight = fpcMind.ActivityEnabledBy<ItemWithinSight>(this, OfItemType, b => b.Item);
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityImpacts(this, ItemWithinPickupDistance);
+            fpcMind.ActivityImpacts<ItemWithinPickupDistance>(this, OfItemType);
         }
 
-        public GoToPickupItem(FpcBotPlayer botPlayer)
-        {
-            _botPlayer = botPlayer;
-        }
+        public void Reset() { }
 
         public void Tick()
         {
@@ -42,8 +29,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 
             _botPlayer.MoveToPosition(targetItemPosition);
         }
-
-        public void Reset() { }
 
         private ItemWithinSight _itemWithinSight;
         protected readonly FpcBotPlayer _botPlayer;
