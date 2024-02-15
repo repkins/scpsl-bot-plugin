@@ -1,9 +1,7 @@
 ﻿using Interactables.Interobjects.DoorUtils;
 using InventorySystem.Items;
 using InventorySystem.Items.Firearms;
-using InventorySystem.Items.Keycards;
 using PluginAPI.Core;
-using PluginAPI.Core.Items;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.Keycard;
 using System;
@@ -29,11 +27,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 
         public void UpdateBeliefs()
         {
-            var keycardInventoryBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemInInventory<KeycardItem>>();
-            var keycardO5InventoryBelief = _fpcBotPlayer.MindRunner.GetBelief<KeycardO5InInventory>();
-            var KeycardContainmentOneInInventoryBelief = _fpcBotPlayer.MindRunner.GetBelief<KeycardContainmentOneInInventory>();
+            var keycardO5InventoryBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemInInventory>(b => b.ItemType == ItemType.KeycardO5);
+            var KeycardContainmentOneInInventoryBelief = _fpcBotPlayer.MindRunner.GetBelief<KeycardInInventory>(b => b.Permissions == KeycardPermissions.ContainmentLevelOne);
 
-            ProcessItemBeliefs(keycardInventoryBelief, item => item is KeycardItem);
             ProcessItemBeliefs(keycardO5InventoryBelief, item => item.ItemTypeId == ItemType.KeycardO5);
             ProcessItemBeliefs(KeycardContainmentOneInInventoryBelief, item => item.Permissions.HasFlag(KeycardPermissions.ContainmentLevelOne));
         }

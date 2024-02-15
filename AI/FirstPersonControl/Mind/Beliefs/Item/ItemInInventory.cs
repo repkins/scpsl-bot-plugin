@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using InventorySystem.Items;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item
 {
-    internal class ItemInInventory : ItemInInventoryBase
+    internal class ItemInInventory : ItemInInventory<ItemBase>
     {
         public ItemType ItemType { get; }
         public ItemInInventory(ItemType itemType)

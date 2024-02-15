@@ -40,7 +40,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
                 .Select(fa => fa.ConnectedAreas.First())
                 .Where(fa => IsWithinFov(playerPosition, playerForward, fa.CenterPosition));
 
-            var scp914WithinSightBelief = _fpcBotPlayer.MindRunner.GetBelief<Scp914RoomWithinSight>();
+            var scp914WithinSightBelief = _fpcBotPlayer.MindRunner.GetBelief<Scp914RoomWithinSight>(b => true);
             var numScp914rooms = 0;
 
             foreach (var areaWithinSight in foreignRoomAreasWithinSight)
