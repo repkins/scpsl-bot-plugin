@@ -50,7 +50,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             {
                 if (sensedItem is I itemOf && predicate(itemOf))
                 {
-                    if (itemBelief.Item is null)
+                    if (!itemBelief.Item)
                     {
                         UpdateItemInInventoryBelief(itemBelief, sensedItem as I);
                     }
@@ -59,9 +59,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
                 HasFirearmInInventory = sensedItem is Firearm;
             }
 
-            if (itemBelief.Item is not null && !sensedItems.ContainsKey(itemBelief.Item.ItemSerial))
+            if (itemBelief.Item && !sensedItems.ContainsKey(itemBelief.Item.ItemSerial))
             {
-                UpdateItemInInventoryBelief(itemBelief, null as I);
+                UpdateItemInInventoryBelief(itemBelief, null);
             }
         }
 

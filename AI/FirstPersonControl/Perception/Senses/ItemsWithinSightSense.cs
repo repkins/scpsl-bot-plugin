@@ -87,7 +87,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             {
                 if (predicate(item))
                 {
-                    if (itemBelief.Item is null)
+                    if (!itemBelief.Item)
                     {
                         UpdateItemBelief(itemBelief, item as P);
                     }
@@ -95,7 +95,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
                 }
             }
 
-            if (numItems <= 0 && itemBelief.Item is not null)
+            if (numItems <= 0 && itemBelief.Item)
             {
                 UpdateItemBelief(itemBelief, null as P);
             }

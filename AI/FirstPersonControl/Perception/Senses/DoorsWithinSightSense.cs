@@ -45,7 +45,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             {
                 if (doorWithinSight is PryableDoor pryable)
                 {
-                    if (pryableWithinSightBelief.Door is null)
+                    if (!pryableWithinSightBelief.Door)
                     {
                         UpdateDoorBelief(pryableWithinSightBelief, pryable);
                     }
@@ -56,7 +56,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
                     {
                         if (!doorWithinSight.IsConsideredOpen())
                         {
-                            if (closedScp914RoomDoorWithinSightBelief.Door is null)
+                            if (!closedScp914RoomDoorWithinSightBelief.Door)
                             {
                                 UpdateDoorBelief(closedScp914RoomDoorWithinSightBelief, pryable);
                             }
@@ -67,11 +67,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
                 }
             }
 
-            if (numPryableDoors <= 0 && pryableWithinSightBelief.Door is not null)
+            if (numPryableDoors <= 0 && pryableWithinSightBelief.Door)
             {
                 UpdateDoorBelief(pryableWithinSightBelief, null as PryableDoor);
             }
-            if (numClosedScp914RoomDoors <= 0 && closedScp914RoomDoorWithinSightBelief.Door is not null)
+            if (numClosedScp914RoomDoors <= 0 && closedScp914RoomDoorWithinSightBelief.Door)
             {
                 UpdateDoorBelief(closedScp914RoomDoorWithinSightBelief, null as PryableDoor);
             }
