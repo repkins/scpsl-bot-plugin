@@ -32,7 +32,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             }
         }
 
-        public void UpdateBeliefs()
+        public void ProcessSensedItems()
         {
             //var numLockers = 0u;
             //var lockerWithinSightBelief = _fpcBotPlayer.MindRunner.GetBelief<LockerWithinSight<Locker>>();

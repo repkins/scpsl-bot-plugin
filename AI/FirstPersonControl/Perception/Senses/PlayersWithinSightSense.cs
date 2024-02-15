@@ -38,7 +38,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             }
         }
 
-        public void UpdateBeliefs()
+        public void ProcessSensedItems()
         {
         }
 

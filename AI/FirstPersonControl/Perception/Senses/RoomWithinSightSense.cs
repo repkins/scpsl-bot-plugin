@@ -22,7 +22,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         public void Reset()
         { }
 
-        public void UpdateBeliefs()
+        public void ProcessSensedItems()
         {
             var playerPosition = _fpcBotPlayer.FpcRole.transform.position;
             var playerForward = _fpcBotPlayer.FpcRole.transform.forward;

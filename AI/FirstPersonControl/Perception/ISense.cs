@@ -11,6 +11,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception
     {
         void ProcessSensibility(Collider collider);
         void Reset();
-        void UpdateBeliefs();
+        void ProcessSensedItems();
     }
 }

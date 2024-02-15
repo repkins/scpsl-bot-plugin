@@ -74,7 +74,7 @@ namespace SCPSLBot.AI.FirstPersonControl
         {
             foreach (var sense in Senses)
             {
-                sense.UpdateBeliefs();
+                sense.ProcessSensedItems();
             }
         }
 

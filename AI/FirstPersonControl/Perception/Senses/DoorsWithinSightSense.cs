@@ -34,7 +34,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             }
         }
 
-        public void UpdateBeliefs()
+        public void ProcessSensedItems()
         {
             var numPryableDoors = 0u;
             var numClosedScp914RoomDoors = 0u;

@@ -61,9 +61,9 @@ namespace SCPSLBot.AI.FirstPersonControl
             MindRunner.AddActivity(new PickupItem(ItemType.KeycardO5, this));
 
 
-            MindRunner.AddBelief(new KeycardWithinSight(KeycardPermissions.ContainmentLevelOne));
-            MindRunner.AddBelief(new KeycardWithinPickupDistance(KeycardPermissions.ContainmentLevelOne));
-            MindRunner.AddBelief(new KeycardInInventory(KeycardPermissions.ContainmentLevelOne));
+            MindRunner.AddBelief(new KeycardWithinSight(KeycardPermissions.ContainmentLevelOne, Perception.GetSense<ItemsWithinSightSense>()));
+            MindRunner.AddBelief(new KeycardWithinPickupDistance(KeycardPermissions.ContainmentLevelOne, Perception.GetSense<ItemsWithinSightSense>()));
+            MindRunner.AddBelief(new KeycardInInventory(KeycardPermissions.ContainmentLevelOne, Perception.GetSense<ItemsInInventorySense>()));
 
             MindRunner.AddActivity(new FindKeycard(KeycardPermissions.ContainmentLevelOne, this));
             MindRunner.AddActivity(new GoToPickupKeycard(KeycardPermissions.ContainmentLevelOne, this));
