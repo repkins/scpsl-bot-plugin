@@ -31,7 +31,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
             fpcMind.ActivityImpacts<ItemWithinSight<KeycardPickup>>(this);
-            fpcMind.ActivityImpacts<KeycardO5WithinSight>(this);
+            fpcMind.ActivityImpacts<ItemWithinSight>(this, b => b.ItemType == ItemType.KeycardO5);
             //fpcMind.ActivityImpacts<ItemWithinSightMedkit>(this);
             //fpcMind.ActivityImpacts<ItemWithinSight<FirearmPickup>>(this);
         }

@@ -1,4 +1,5 @@
-﻿using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Door.Scp914;
+﻿using Interactables.Interobjects.DoorUtils;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Door.Scp914;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.Keycard;
 using System;
 
@@ -6,12 +7,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Scp914
 {
     internal class OpenScp914Chamber : IActivity
     {
-        public bool Condition() => _keycardInInventory.Item
-                                && _closedDoorWithinSight.Door;
-
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            _keycardInInventory = fpcMind.ActivityEnabledBy<KeycardContainmentOneInInventory>(this, b => b.Item);
+            _keycardInInventory = fpcMind.ActivityEnabledBy<KeycardInInventory>(this, OfContainmentLevelOne, b => b.Item);
             _closedDoorWithinSight = fpcMind.ActivityEnabledBy<ClosedScp914ChamberDoorWithinSight>(this, b => b.Door);
         }
 
@@ -28,7 +26,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Scp914
 
         public void Reset() { }
 
-        private KeycardContainmentOneInInventory _keycardInInventory;
+        private KeycardInInventory _keycardInInventory;
         private ClosedScp914ChamberDoorWithinSight _closedDoorWithinSight;
+
+        private bool OfContainmentLevelOne(KeycardInInventory b) => b.Permissions.HasFlag(KeycardPermissions.ContainmentLevelOne);
     }
 }

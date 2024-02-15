@@ -63,22 +63,17 @@ namespace SCPSLBot.AI.FirstPersonControl
             MindRunner.AddActivity(new PickupItem(ItemType.KeycardO5, this));
 
 
-            MindRunner.AddBelief(new KeycardContainmentOneWithinSight());
-            MindRunner.AddBelief(new KeycardContainmentOneWithinPickupDistance());
-            MindRunner.AddBelief(new KeycardContainmentOneInInventory());
+            MindRunner.AddBelief(new KeycardWithinSight(KeycardPermissions.ContainmentLevelOne));
+            MindRunner.AddBelief(new KeycardWithinPickupDistance(KeycardPermissions.ContainmentLevelOne));
+            MindRunner.AddBelief(new KeycardInInventory(KeycardPermissions.ContainmentLevelOne));
 
-            MindRunner.AddActivity(new FindKeycardContainmentOne(this));
-            MindRunner.AddActivity(new GoToPickupKeycardContainmentOne(this));
-            MindRunner.AddActivity(new PickupKeycardContainmentOne(this));
+            MindRunner.AddActivity(new FindKeycard(KeycardPermissions.ContainmentLevelOne, this));
+            MindRunner.AddActivity(new GoToPickupKeycard(KeycardPermissions.ContainmentLevelOne, this));
+            MindRunner.AddActivity(new PickupKeycard(KeycardPermissions.ContainmentLevelOne, this));
 
 
-            MindRunner.AddBelief(new ItemWithinSight<KeycardPickup>());
-            MindRunner.AddBelief(new ItemWithinSightMedkit());
-            MindRunner.AddBelief(new ItemWithinPickupDistance<KeycardPickup>());
-            MindRunner.AddBelief(new ItemInInventory<KeycardItem>());
+            MindRunner.AddBelief(new ItemWithinSight(ItemType.Medkit));
 
-            //MindRunner.AddActivity(new GoToPickupItem<KeycardPickup>(this));
-            //MindRunner.AddActivity(new PickupItem<KeycardPickup, KeycardItem>(this));
 
             MindRunner.AddBelief(new DoorWithinSight<PryableDoor>());
             MindRunner.AddBelief(new ClosedScp914ChamberDoorWithinSight());

@@ -14,7 +14,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         public void SubscribeToBeliefUpdates()
         {
-            foreach (var belief in Beliefs.Values)
+            foreach (var belief in Beliefs.Values.SelectMany(bc => bc))
             {
                 belief.OnUpdate += () => OnBeliefUpdate(belief);
             }
