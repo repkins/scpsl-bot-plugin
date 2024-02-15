@@ -2,33 +2,19 @@
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 {
-    internal class GoToPickupItem : ItemActivity, IActivity
+    internal class GoToPickupItem : GoToPickupItemBase, IActivity
     {
-        public GoToPickupItem(ItemType itemType, FpcBotPlayer botPlayer) : base(itemType)
+        public ItemType ItemType { get; }
+        public GoToPickupItem(ItemType itemType, FpcBotPlayer botPlayer) : base(botPlayer)
         {
-            this._botPlayer = botPlayer;
+            ItemType = itemType;
         }
 
-        public void SetEnabledByBeliefs(FpcMind fpcMind)
-        {
-            _itemWithinSight = fpcMind.ActivityEnabledBy<ItemWithinSight>(this, OfItemType, b => b.Item);
-        }
+        protected override ItemWithinSightBase ItemWithinSight => _botPlayer.MindRunner.GetBelief<ItemWithinSight>(OfItemType);
+        protected override ItemWithinPickupDistanceBase ItemWithinPickupDistance => _botPlayer.MindRunner.GetBelief<ItemWithinPickupDistance>(OfItemType);
 
-        public void SetImpactsBeliefs(FpcMind fpcMind)
-        {
-            fpcMind.ActivityImpacts<ItemWithinPickupDistance>(this, OfItemType);
-        }
+        private bool OfItemType(ItemWithinSight b) => b.ItemType == this.ItemType;
+        private bool OfItemType(ItemWithinPickupDistance b) => b.ItemType == this.ItemType;
 
-        public void Reset() { }
-
-        public void Tick()
-        {
-            var targetItemPosition = _itemWithinSight.Item.transform.position;
-
-            _botPlayer.MoveToPosition(targetItemPosition);
-        }
-
-        private ItemWithinSight _itemWithinSight;
-        protected readonly FpcBotPlayer _botPlayer;
     }
 }

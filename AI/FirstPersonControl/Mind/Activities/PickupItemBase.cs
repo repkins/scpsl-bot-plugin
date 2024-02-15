@@ -1,28 +1,14 @@
-﻿using InventorySystem.Items;
-using InventorySystem.Items.Pickups;
-using InventorySystem.Searching;
+﻿using InventorySystem.Searching;
 using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 {
-    internal class PickupItem<P, I> : PickupItemBase where P : ItemPickupBase 
-                                                where I : ItemBase
-    {
-        protected override ItemWithinPickupDistanceBase ItemWithinPickupDistance => _botPlayer.MindRunner.GetBelief<ItemWithinPickupDistance<P>>();
-        protected override ItemInInventory ItemInInventory => _botPlayer.MindRunner.GetBelief<ItemInInventory<I>>();
-
-        public PickupItem(FpcBotPlayer botPlayer) : base(botPlayer)
-        {
-        }
-    }
-
-
     internal abstract class PickupItemBase : IActivity
     {
         protected abstract ItemWithinPickupDistanceBase ItemWithinPickupDistance { get; }
-        protected abstract ItemInInventory ItemInInventory { get; }
+        protected abstract ItemInInventoryBase ItemInInventory { get; }
 
         public bool Condition() => _itemWithinPickupDistance.Item;
 

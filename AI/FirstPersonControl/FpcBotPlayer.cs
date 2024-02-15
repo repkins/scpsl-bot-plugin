@@ -12,7 +12,6 @@ using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Looking;
 using SCPSLBot.AI.FirstPersonControl.Mind.Activities;
 using SCPSLBot.AI.FirstPersonControl.Mind.Activities.Keycard;
-using SCPSLBot.AI.FirstPersonControl.Mind.Activities.KeycardO5;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Door;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Door.Scp914;
@@ -78,8 +77,8 @@ namespace SCPSLBot.AI.FirstPersonControl
             MindRunner.AddBelief(new ItemWithinPickupDistance<KeycardPickup>());
             MindRunner.AddBelief(new ItemInInventory<KeycardItem>());
 
-            MindRunner.AddActivity(new GoToPickupItem<KeycardPickup>(this));
-            MindRunner.AddActivity(new PickupItem<KeycardPickup, KeycardItem>(this));
+            //MindRunner.AddActivity(new GoToPickupItem<KeycardPickup>(this));
+            //MindRunner.AddActivity(new PickupItem<KeycardPickup, KeycardItem>(this));
 
             MindRunner.AddBelief(new DoorWithinSight<PryableDoor>());
             MindRunner.AddBelief(new ClosedScp914ChamberDoorWithinSight());

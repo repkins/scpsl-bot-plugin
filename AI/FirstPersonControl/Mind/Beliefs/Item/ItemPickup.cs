@@ -5,12 +5,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item
 {
     internal class ItemPickup<T> : IBelief where T : ItemPickupBase
     {
-        public readonly ItemType ItemType;
-        public ItemPickup(ItemType itemType)
-        {
-            this.ItemType = itemType;
-        }
-
         public T Item { get; private set; }
 
         public event Action OnUpdate;

@@ -96,7 +96,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
             desire.SetEnabledByBeliefs(this);
         }
 
-        public B GetBelief<B>() where B : IBelief
+        public B GetBelief<B>(Predicate<B> predicate) where B : IBelief
         {
             var belief = Beliefs[typeof(B)];
             return (B)belief;
