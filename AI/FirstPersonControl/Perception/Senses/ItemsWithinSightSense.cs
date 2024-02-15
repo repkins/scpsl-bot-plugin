@@ -17,6 +17,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         public HashSet<ItemPickupBase> ItemsWithinSight { get; } = new();
         public HashSet<ItemPickupBase> ItemsWithinPickupDistance { get; } = new();
 
+        public event Action OnBeforeSensedItemsWithinSight;
+        public event Action<ItemPickupBase> OnSensedItemWithinSight;
+        public event Action OnAfterSensedItemsWithinSight;
+
+        public event Action OnBeforeSensedItemsWithinPickupDistance;
+        public event Action<ItemPickupBase> OnSensedItemWithinPickupDistance;
+        public event Action OnAfterSensedItemsWithinPickupDistance;
+
         public ItemsWithinSightSense(FpcBotPlayer botPlayer) : base(botPlayer)
         {
             _fpcBotPlayer = botPlayer;
@@ -51,22 +59,25 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         {
             var mind = _fpcBotPlayer.MindRunner;
 
-            var itemWithinSightBeliefs = mind.GetBeliefs<ItemWithinSight>();
-            var itemWithinPickupDistanceBeliefs = mind.GetBeliefs<ItemWithinPickupDistance>();
-            foreach (var itemWithinSightBelief in itemWithinSightBeliefs)
+            OnBeforeSensedItemsWithinSight?.Invoke();
+            foreach (var item in ItemsWithinSight)
             {
-                ProcessItemBelief(itemWithinSightBelief, item => item.Info.ItemId == itemWithinSightBelief.ItemType, ItemsWithinSight);
+                OnSensedItemWithinSight?.Invoke(item);
             }
-            foreach (var itemWithinPickupDistanceBelief in itemWithinPickupDistanceBeliefs)
-            {                
-                ProcessItemBelief(itemWithinPickupDistanceBelief, item => item.Info.ItemId == itemWithinPickupDistanceBelief.ItemType, ItemsWithinPickupDistance);
+            OnAfterSensedItemsWithinSight?.Invoke();
+
+            OnBeforeSensedItemsWithinPickupDistance?.Invoke();
+            foreach (var item in ItemsWithinPickupDistance)
+            {
+                OnSensedItemWithinPickupDistance?.Invoke(item);
             }
+            OnAfterSensedItemsWithinPickupDistance?.Invoke();
 
             var keycardWithinSightBeliefs = mind.GetBeliefs<KeycardWithinSight>();
             var keycardWithinPickupDistanceBeliefs = mind.GetBeliefs<KeycardWithinPickupDistance>();
             foreach (var keycardWithinSightBelief in keycardWithinSightBeliefs)
             {
-                ProcessItemBelief(keycardWithinSightBelief, item => InventoryItemLoader.TryGetItem<KeycardItem>(item.Info.ItemId, out var keycard) 
+                ProcessItemBelief(keycardWithinSightBelief, item => InventoryItemLoader.TryGetItem<KeycardItem>(item.Info.ItemId, out var keycard)
                     && keycard.Permissions.HasFlag(keycardWithinSightBelief.Permissions), ItemsWithinSight);
             }
             foreach (var keycardWithinPickupDistanceBelief in keycardWithinPickupDistanceBeliefs)
@@ -74,9 +85,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
                 ProcessItemBelief(keycardWithinPickupDistanceBelief, item => InventoryItemLoader.TryGetItem<KeycardItem>(item.Info.ItemId, out var keycard)
                     && keycard.Permissions.HasFlag(keycardWithinPickupDistanceBelief.Permissions), ItemsWithinPickupDistance);
             }
-
-            var medkitWithinSight = mind.GetBelief<ItemWithinSight>(b => b.ItemType == ItemType.Medkit);
-            ProcessItemBelief(medkitWithinSight, b => b.Info.ItemId == ItemType.Medkit, ItemsWithinSight);
         }
 
         private void ProcessItemBelief<P>(ItemPickup<P> belief, Predicate<ItemPickupBase> predicate, IEnumerable<ItemPickupBase> items) where P : ItemPickupBase

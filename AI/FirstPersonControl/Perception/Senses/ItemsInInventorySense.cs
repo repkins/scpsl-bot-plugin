@@ -1,5 +1,4 @@
-﻿using Interactables.Interobjects.DoorUtils;
-using InventorySystem.Items;
+﻿using InventorySystem.Items;
 using InventorySystem.Items.Firearms;
 using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
@@ -14,6 +13,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
     {
         public bool HasFirearmInInventory { get; private set; }
 
+        public event Action<ItemBase> OnSensedItem;
+        public event Action OnAfterSensedItems;
+
         public ItemsInInventorySense(FpcBotPlayer botPlayer)
         {
             _fpcBotPlayer = botPlayer;
@@ -27,13 +29,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 
         public void UpdateBeliefs()
         {
-            var itemInInventoryBeliefs = _fpcBotPlayer.MindRunner.GetBeliefs<ItemInInventory>();
-            var keycardInInventoryBeliefs = _fpcBotPlayer.MindRunner.GetBeliefs<KeycardInInventory>();
-
-            foreach (var itemInInventoryBelief in itemInInventoryBeliefs)
+            var userInventory = _fpcBotPlayer.BotHub.PlayerHub.inventory.UserInventory;
+            foreach (var item in userInventory.Items.Values)
             {
-                ProcessItemBeliefs(itemInInventoryBelief, item => item.ItemTypeId == itemInInventoryBelief.ItemType);
+                OnSensedItem?.Invoke(item);
             }
+            OnAfterSensedItems?.Invoke();
+
+            var keycardInInventoryBeliefs = _fpcBotPlayer.MindRunner.GetBeliefs<KeycardInInventory>();
 
             foreach (var keycardInInventoryBelief in keycardInInventoryBeliefs)
             {

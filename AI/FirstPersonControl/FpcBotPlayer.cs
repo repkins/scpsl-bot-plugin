@@ -17,6 +17,7 @@ using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.Keycard;
 using SCPSLBot.AI.FirstPersonControl.Mind.Desires;
 using SCPSLBot.AI.FirstPersonControl.Movement;
+using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -51,9 +52,9 @@ namespace SCPSLBot.AI.FirstPersonControl
             MindRunner.AddBelief(new LastKnownItemLocation<Firearm>());
 
 
-            MindRunner.AddBelief(new ItemWithinSight(ItemType.KeycardO5));
-            MindRunner.AddBelief(new ItemWithinPickupDistance(ItemType.KeycardO5));
-            MindRunner.AddBelief(new ItemInInventory(ItemType.KeycardO5));
+            MindRunner.AddBelief(new ItemWithinSight(ItemType.KeycardO5, Perception.GetSense<ItemsWithinSightSense>()));
+            MindRunner.AddBelief(new ItemWithinPickupDistance(ItemType.KeycardO5, Perception.GetSense<ItemsWithinSightSense>()));
+            MindRunner.AddBelief(new ItemInInventory(ItemType.KeycardO5, Perception.GetSense<ItemsInInventorySense>()));
 
             MindRunner.AddActivity(new FindItem(ItemType.KeycardO5, this));
             MindRunner.AddActivity(new GoToPickupItem(ItemType.KeycardO5, this));
@@ -69,7 +70,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             MindRunner.AddActivity(new PickupKeycard(KeycardPermissions.ContainmentLevelOne, this));
 
 
-            MindRunner.AddBelief(new ItemWithinSight(ItemType.Medkit));
+            MindRunner.AddBelief(new ItemWithinSight(ItemType.Medkit, Perception.GetSense<ItemsWithinSightSense>()));
 
 
             MindRunner.AddBelief(new DoorWithinSight<PryableDoor>());
