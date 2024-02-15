@@ -133,6 +133,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
             return belief as B;
         }
 
+        public IEnumerable<B> GetBeliefs<B>() where B : class, IBelief
+        {
+            return Beliefs[typeof(B)].Select(b => b as B);
+        }
+
         public B ActivityEnabledBy<B>(IActivity activity, B belief, Predicate<B> condition) where B : class, IBelief
         {
             var enablesActivities = BeliefsEnablingActivities[belief];

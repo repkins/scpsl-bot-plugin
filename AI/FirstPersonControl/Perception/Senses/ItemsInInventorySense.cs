@@ -27,11 +27,18 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 
         public void UpdateBeliefs()
         {
-            var keycardO5InventoryBelief = _fpcBotPlayer.MindRunner.GetBelief<ItemInInventory>(b => b.ItemType == ItemType.KeycardO5);
-            var KeycardContainmentOneInInventoryBelief = _fpcBotPlayer.MindRunner.GetBelief<KeycardInInventory>(b => b.Permissions == KeycardPermissions.ContainmentLevelOne);
+            var itemInInventoryBeliefs = _fpcBotPlayer.MindRunner.GetBeliefs<ItemInInventory>();
+            var keycardInInventoryBeliefs = _fpcBotPlayer.MindRunner.GetBeliefs<KeycardInInventory>();
 
-            ProcessItemBeliefs(keycardO5InventoryBelief, item => item.ItemTypeId == ItemType.KeycardO5);
-            ProcessItemBeliefs(KeycardContainmentOneInInventoryBelief, item => item.Permissions.HasFlag(KeycardPermissions.ContainmentLevelOne));
+            foreach (var itemInInventoryBelief in itemInInventoryBeliefs)
+            {
+                ProcessItemBeliefs(itemInInventoryBelief, item => item.ItemTypeId == itemInInventoryBelief.ItemType);
+            }
+
+            foreach (var keycardInInventoryBelief in keycardInInventoryBeliefs)
+            {
+                ProcessItemBeliefs(keycardInInventoryBelief, item => item.Permissions.HasFlag(keycardInInventoryBelief.Permissions));
+            }
         }
 
         private void ProcessItemBeliefs<I>(ItemInInventory<I> beliefs, Predicate<I> predicate) where I : ItemBase
