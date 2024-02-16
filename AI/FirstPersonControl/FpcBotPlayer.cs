@@ -47,39 +47,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             Look = new(this);
             Move = new(this);
 
-            MindRunner.AddBelief(new LastKnownItemLocation<KeycardItem>());
-            MindRunner.AddBelief(new LastKnownItemLocation<Medkit>());
-            MindRunner.AddBelief(new LastKnownItemLocation<Firearm>());
-
-
-            MindRunner.AddBelief(new ItemWithinSight(ItemType.KeycardO5, Perception.GetSense<ItemsWithinSightSense>()));
-            MindRunner.AddBelief(new ItemWithinPickupDistance(ItemType.KeycardO5, Perception.GetSense<ItemsWithinSightSense>()));
-            MindRunner.AddBelief(new ItemInInventory(ItemType.KeycardO5, Perception.GetSense<ItemsInInventorySense>()));
-
-            MindRunner.AddActivity(new FindItem(ItemType.KeycardO5, this));
-            MindRunner.AddActivity(new GoToPickupItem(ItemType.KeycardO5, this));
-            MindRunner.AddActivity(new PickupItem(ItemType.KeycardO5, this));
-
-
-            MindRunner.AddBelief(new KeycardWithinSight(KeycardPermissions.ContainmentLevelOne, Perception.GetSense<ItemsWithinSightSense>()));
-            MindRunner.AddBelief(new KeycardWithinPickupDistance(KeycardPermissions.ContainmentLevelOne, Perception.GetSense<ItemsWithinSightSense>()));
-            MindRunner.AddBelief(new KeycardInInventory(KeycardPermissions.ContainmentLevelOne, Perception.GetSense<ItemsInInventorySense>()));
-
-            MindRunner.AddActivity(new FindKeycard(KeycardPermissions.ContainmentLevelOne, this));
-            MindRunner.AddActivity(new GoToPickupKeycard(KeycardPermissions.ContainmentLevelOne, this));
-            MindRunner.AddActivity(new PickupKeycard(KeycardPermissions.ContainmentLevelOne, this));
-
-
-            MindRunner.AddBelief(new ItemWithinSight(ItemType.Medkit, Perception.GetSense<ItemsWithinSightSense>()));
-
-
-            MindRunner.AddBelief(new DoorWithinSight<PryableDoor>());
-            MindRunner.AddBelief(new ClosedScp914ChamberDoorWithinSight());
-            
-            //MindRunner.AddActivity(new Explore(this));
-
-            MindRunner.AddDesire(new GetKeycardContainmentOne());
-            MindRunner.AddDesire(new GetO5Keycard());
+            FpcMindFactory.BuildMind(MindRunner, this, Perception);
 
             MindRunner.SubscribeToBeliefUpdates();
         }
