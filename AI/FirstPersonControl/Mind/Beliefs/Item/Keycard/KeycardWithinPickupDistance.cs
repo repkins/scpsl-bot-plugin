@@ -3,7 +3,7 @@ using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.Keycard
 {
-    internal class KeycardWithinPickupDistance : KeycardOfPermissions<ItemWithinPickupDistanceBase>
+    internal class KeycardWithinPickupDistance : KeycardWithPermissions<ItemWithinPickupDistanceBase>
     {
         public KeycardWithinPickupDistance(KeycardPermissions permissions, ItemsWithinSightSense itemsSightSense) 
             : base(permissions, itemsSightSense)

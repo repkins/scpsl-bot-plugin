@@ -6,14 +6,14 @@ using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item
 {
-    internal class KeycardOfPermissions<T> : KeycardOfPermissions where T : ItemPickup<ItemPickupBase>, new()
+    internal class KeycardWithPermissions<T> : KeycardOfPermissions where T : ItemPickup<ItemPickupBase>, new()
     {
-        public KeycardOfPermissions(KeycardPermissions permissions, ItemsWithinSightSense itemsSightSense) 
+        public KeycardWithPermissions(KeycardPermissions permissions, ItemsWithinSightSense itemsSightSense) 
             : base(permissions, itemsSightSense, new T())
         {
         }
 
-        public static implicit operator T(KeycardOfPermissions<T> ofPermissions) => ofPermissions.belief as T;
+        public static implicit operator T(KeycardWithPermissions<T> ofPermissions) => ofPermissions.belief as T;
     }
 
     internal abstract class KeycardOfPermissions : ItemOfCriteriaBase<ItemPickup<ItemPickupBase>>
