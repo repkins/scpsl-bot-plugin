@@ -6,10 +6,20 @@ using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item
 {
-    internal class KeycardOfPermissions<T> : ItemOfCriteriaBase<T> where T : ItemPickup<ItemPickupBase>
+    internal class KeycardOfPermissions<T> : KeycardOfPermissions where T : ItemPickup<ItemPickupBase>
+    {
+        public KeycardOfPermissions(KeycardPermissions permissions, ItemsWithinSightSense itemsSightSense, T belief) 
+            : base(permissions, itemsSightSense, belief)
+        {
+        }
+
+        public static implicit operator T(KeycardOfPermissions<T> ofPermissions) => ofPermissions.belief as T;
+    }
+
+    internal abstract class KeycardOfPermissions : ItemOfCriteriaBase<ItemPickup<ItemPickupBase>>
     {
         public KeycardPermissions Permissions;
-        public KeycardOfPermissions(KeycardPermissions permissions, ItemsWithinSightSense itemsSightSense, T belief) : base(belief)
+        public KeycardOfPermissions(KeycardPermissions permissions, ItemsWithinSightSense itemsSightSense, ItemPickup<ItemPickupBase> belief) : base(belief)
         {
             this.Permissions = permissions;
 
@@ -17,8 +27,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item
             _itemsSightSense.OnSensedItemWithinSight += ProcessSensedItem;
             _itemsSightSense.OnAfterSensedItemsWithinSight += ProcessAbsentItem;
         }
-
-        public static implicit operator T(KeycardOfPermissions<T> ofPermissions) => ofPermissions.belief;
 
         private readonly ItemsWithinSightSense _itemsSightSense;
         private int numItems = 0;
