@@ -5,8 +5,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.Keycard
 {
     internal class KeycardWithinSight : KeycardOfPermissions<ItemWithinSightBase>
     {
-        public KeycardWithinSight(KeycardPermissions permissions, ItemsWithinSightSense itemsSightSense, ItemWithinSightBase belief) 
-            : base(permissions, itemsSightSense, belief)
+        public KeycardWithinSight(KeycardPermissions permissions, ItemsWithinSightSense itemsSightSense) 
+            : base(permissions, itemsSightSense)
         { }
     }
 }

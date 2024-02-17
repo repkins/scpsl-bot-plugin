@@ -6,10 +6,10 @@ using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item
 {
-    internal class KeycardOfPermissions<T> : KeycardOfPermissions where T : ItemPickup<ItemPickupBase>
+    internal class KeycardOfPermissions<T> : KeycardOfPermissions where T : ItemPickup<ItemPickupBase>, new()
     {
-        public KeycardOfPermissions(KeycardPermissions permissions, ItemsWithinSightSense itemsSightSense, T belief) 
-            : base(permissions, itemsSightSense, belief)
+        public KeycardOfPermissions(KeycardPermissions permissions, ItemsWithinSightSense itemsSightSense) 
+            : base(permissions, itemsSightSense, new T())
         {
         }
 
