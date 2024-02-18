@@ -48,18 +48,23 @@ namespace SCPSLBot.AI.FirstPersonControl
                 Log.Debug($"Desire: {desire.GetType().Name}");
 
                 var desireEnablingBeliefs = DesiresEnabledByBeliefs[desire];
-                foreach (var enablingBelief in desireEnablingBeliefs)
+                DumpBeliefsActivities(desireEnablingBeliefs, "  ");
+            }
+        }
+
+        private void DumpBeliefsActivities(IEnumerable<IBelief> beliefs, string prefix)
+        {
+            foreach (var enablingBelief in beliefs)
+            {
+                Log.Debug($"{prefix}Belief: {enablingBelief}");
+
+                var activities = BeliefsImpactedByActivities[enablingBelief];
+                foreach (var activity in activities)
                 {
-                    Log.Debug($"  Belief: {enablingBelief}");
+                    Log.Debug($"{prefix}  Activity: {activity}");
 
-                    var activities = BeliefsImpactedByActivities[enablingBelief];
-                    foreach (var activity in activities)
-                    {
-                        Log.Debug($"    Activity: {activity}");
-
-                        var enablingBeliefs = ActivitiesEnabledByBeliefs[activity];
-
-                    }
+                    var enablingBeliefs = ActivitiesEnabledByBeliefs[activity];
+                    DumpBeliefsActivities(enablingBeliefs.Select(t => t.Belief), $"{prefix}    ");
                 }
             }
         }

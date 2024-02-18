@@ -1,21 +1,14 @@
-﻿using Interactables.Interobjects.DoorUtils;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.Keycard;
+﻿using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Desires
 {
     internal class GetO5Keycard : IDesire
     {
-        public KeycardPermissions Permissions { get; }
-        public GetO5Keycard(KeycardPermissions permissions)
-        {
-            Permissions = permissions;
-        }
-
-        private KeycardInInventory _keycardO5InInventory;
+        private ItemOfTypeInInventory _keycardO5InInventory;
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            _keycardO5InInventory = fpcMind.DesireEnabledBy<KeycardInInventory>(this, OfO5Permissions);
+            _keycardO5InInventory = fpcMind.DesireEnabledBy<ItemOfTypeInInventory>(this, OfKeycardO5);
         }
 
         public bool Condition()
@@ -23,6 +16,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Desires
             return _keycardO5InInventory.Item;
         }
 
-        private bool OfO5Permissions(KeycardInInventory b) => b.Permissions == Permissions;
+        private bool OfKeycardO5(ItemOfTypeInInventory b) => b.ItemType == ItemType.KeycardO5;
     }
 }

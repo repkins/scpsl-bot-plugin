@@ -11,6 +11,7 @@ using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.Keycard;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
 using SCPSLBot.AI.FirstPersonControl.Mind.Desires;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
+using SCPSLBot.AI.FirstPersonControl.Mind.Activities;
 
 namespace SCPSLBot.AI.FirstPersonControl
 {
@@ -28,13 +29,13 @@ namespace SCPSLBot.AI.FirstPersonControl
             mind.AddBelief(new LastKnownItemLocation<Firearm>());
 
 
-            mind.AddBelief(new KeycardWithinSight(new (KeycardO5Permissions), perception.GetSense<ItemsWithinSightSense>()));
-            mind.AddBelief(new KeycardWithinPickupDistance(new (KeycardO5Permissions), perception.GetSense<ItemsWithinSightSense>()));
-            mind.AddBelief(new KeycardInInventory(KeycardO5Permissions, perception.GetSense<ItemsInInventorySense>()));
+            mind.AddBelief(new ItemOfTypeWithinSight(new (ItemType.KeycardO5), perception.GetSense<ItemsWithinSightSense>()));
+            mind.AddBelief(new ItemOfTypeWithinPickupDistance(new (ItemType.KeycardO5), perception.GetSense<ItemsWithinSightSense>()));
+            mind.AddBelief(new ItemOfTypeInInventory(ItemType.KeycardO5, perception.GetSense<ItemsInInventorySense>()));
 
-            mind.AddActivity(new FindKeycard(KeycardO5Permissions, botPlayer));
-            mind.AddActivity(new GoToPickupKeycard(KeycardO5Permissions, botPlayer));
-            mind.AddActivity(new PickupKeycard(KeycardO5Permissions, botPlayer));
+            mind.AddActivity(new FindItemOfType(ItemType.KeycardO5, botPlayer));
+            mind.AddActivity(new GoToPickupItemOfType(ItemType.KeycardO5, botPlayer));
+            mind.AddActivity(new PickupItemOfType(ItemType.KeycardO5, botPlayer));
 
 
             mind.AddBelief(new KeycardWithinSight(new (KeycardPermissions.ContainmentLevelOne), perception.GetSense<ItemsWithinSightSense>()));
@@ -55,7 +56,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             //mind.AddActivity(new Explore(botPlayer));
 
             mind.AddDesire(new GetKeycardContainmentOne());
-            mind.AddDesire(new GetO5Keycard(KeycardO5Permissions));
+            mind.AddDesire(new GetO5Keycard());
         }
     }
 }
