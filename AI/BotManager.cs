@@ -80,6 +80,23 @@ namespace SCPSLBot.AI
             }
         }
 
+        public void DebugBotMindDump(int playerId)
+        {
+            if (!ReferenceHub.TryGetHub(playerId, out var hub))
+            {
+                Log.Warning($"There is no player with such id.");
+                return;
+            }
+
+            if (!BotPlayers.TryGetValue(hub, out var botPlayer))
+            {
+                Log.Warning($"Player with such id is not a bot.");
+                return;
+            }
+
+            botPlayer.MindDump();
+        }
+
         public void DebugBotMove(int playerId, Vector3 direction, int timeAmount)
         {
             if (!ReferenceHub.TryGetHub(playerId, out var hub))

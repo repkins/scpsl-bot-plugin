@@ -86,6 +86,11 @@ namespace SCPSLBot.AI
             Log.Debug($"Type of role: {newRole.GetType()}");
         }
 
+        internal void MindDump()
+        {
+            CurrentBotPlayer.DumpMind();
+        }
+
         private FpcBotPlayer _fpcPlayer;
     }
 }

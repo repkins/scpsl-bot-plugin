@@ -7,5 +7,6 @@ namespace SCPSLBot.AI.FirstPersonControl
     {
         void OnRoleChanged();
         void Update();
+        void DumpMind();
     }
 }

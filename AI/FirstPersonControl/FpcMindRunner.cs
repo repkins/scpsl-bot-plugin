@@ -40,6 +40,21 @@ namespace SCPSLBot.AI.FirstPersonControl
             RunningActivity?.Tick();
         }
 
+        internal void Dump()
+        {
+            var allDesires = DesiresEnabledByBeliefs.Keys;
+            foreach (var desire in allDesires)
+            {
+                Log.Debug($"Desire: {desire.GetType().Name}");
+
+                var desireEnablingBeliefs = DesiresEnabledByBeliefs[desire];
+                foreach (var enablingBelief in desireEnablingBeliefs)
+                {
+                    Log.Debug($"Belief: {enablingBelief.GetType().Name}");
+                }
+            }
+        }
+
         private void OnBeliefUpdate(IBelief updatedBelief)
         {
             isBeliefsUpdated = true;

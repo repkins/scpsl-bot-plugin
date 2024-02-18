@@ -133,6 +133,11 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         #region Debug functions
 
+        public void DumpMind()
+        {
+            MindRunner.Dump();
+        }
+
         public void SendBroadcastToSpectators(string message, ushort duration)
         {
             var spectatingPlayers = Player.GetPlayers().Where(p => p.RoleBase is OverwatchRole s && s.SyncedSpectatedNetId == this.BotHub.PlayerHub.netId);
