@@ -14,6 +14,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Keycard
             this.Permissions = permissions;
         }
 
-        private bool OfPermissions(KeycardOfPermissions obj) => obj.Permissions == Permissions;
+        private bool OfPermissions(KeycardWithPermissions obj) => obj.Permissions == Permissions;
     }
 }

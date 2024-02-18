@@ -49,7 +49,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             mind.AddBelief(new ItemWithinSight(ItemType.Medkit, perception.GetSense<ItemsWithinSightSense>()));
 
 
-            mind.AddBelief(new DoorWithinSight<PryableDoor>());
+            //mind.AddBelief(new DoorWithinSight<PryableDoor>());
             mind.AddBelief(new ClosedScp914ChamberDoorWithinSight());
 
             //mind.AddActivity(new Explore(botPlayer));

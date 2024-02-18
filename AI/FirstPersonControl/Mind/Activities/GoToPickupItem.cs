@@ -13,8 +13,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
         protected override ItemWithinSightBase ItemWithinSight => _botPlayer.MindRunner.GetBelief<ItemWithinSight>(OfItemType);
         protected override ItemWithinPickupDistanceBase ItemWithinPickupDistance => _botPlayer.MindRunner.GetBelief<ItemWithinPickupDistance>(OfItemType);
 
-        private bool OfItemType(ItemWithinSight b) => b.ItemType == this.ItemType;
-        private bool OfItemType(ItemWithinPickupDistance b) => b.ItemType == this.ItemType;
+        private bool OfItemType(ItemOfType b) => b.ItemType == this.ItemType;
 
     }
 }
