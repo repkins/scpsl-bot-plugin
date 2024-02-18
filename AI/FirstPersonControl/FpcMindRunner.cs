@@ -72,7 +72,7 @@ namespace SCPSLBot.AI.FirstPersonControl
         private void OnBeliefUpdate(IBelief updatedBelief)
         {
             isBeliefsUpdated = true;
-            Log.Debug($"Belief {updatedBelief.GetType().Name} updated.");
+            Log.Debug($"Belief updated: {updatedBelief}");
         }
 
         private IEnumerable<IActivity> GetEnabledActivitiesTowardsDesires()
