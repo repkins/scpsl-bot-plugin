@@ -51,8 +51,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item
                 }
             }
             
-                numItems = 0;
-            }
+            numItems = 0;
+        }
+
+        public override string ToString()
+        {
+            return $"{GetType().Name}({Criteria})";
         }
     }
 }

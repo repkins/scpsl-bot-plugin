@@ -17,5 +17,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Keycard
 
         private bool OfPermissions(ItemWithinPickupDistance<KeycardWithPermissions> b) => b.Criteria.Permissions == Permissions;
         private bool OfPermissions(KeycardInInventory b) => b.Permissions == Permissions;
+
+        public override string ToString()
+        {
+            return $"{GetType().Name}({Permissions})";
+        }
     }
 }

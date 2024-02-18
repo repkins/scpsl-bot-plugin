@@ -50,12 +50,12 @@ namespace SCPSLBot.AI.FirstPersonControl
                 var desireEnablingBeliefs = DesiresEnabledByBeliefs[desire];
                 foreach (var enablingBelief in desireEnablingBeliefs)
                 {
-                    Log.Debug($"  Belief: {enablingBelief.GetType().Name}");
+                    Log.Debug($"  Belief: {enablingBelief}");
 
                     var activities = BeliefsImpactedByActivities[enablingBelief];
                     foreach (var activity in activities)
                     {
-                        Log.Debug($"    Activity: {enablingBelief.GetType().Name}");
+                        Log.Debug($"    Activity: {activity}");
 
                         var enablingBeliefs = ActivitiesEnabledByBeliefs[activity];
 

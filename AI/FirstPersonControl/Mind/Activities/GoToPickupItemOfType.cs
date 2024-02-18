@@ -16,5 +16,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 
         private bool OfItemType(ItemPickup<ItemPickupBase, ItemOfType> b) => b.Criteria.ItemType == this.ItemType;
 
+        public override string ToString()
+        {
+            return $"{GetType().Name}({ItemType})";
+        }
     }
 }

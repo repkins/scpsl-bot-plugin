@@ -18,5 +18,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item
             return InventoryItemLoader.TryGetItem<KeycardItem>(item.Info.ItemId, out var keycard)
                 && keycard.Permissions.HasFlag(Permissions);
         }
+
+        public override string ToString()
+        {
+            return $"{Permissions}";
+        }
     }
 }

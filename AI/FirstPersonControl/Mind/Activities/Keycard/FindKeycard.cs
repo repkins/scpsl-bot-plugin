@@ -15,5 +15,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Keycard
         }
 
         private bool OfPermissions(KeycardWithinSight obj) => obj.Criteria.Permissions == Permissions;
+
+        public override string ToString()
+        {
+            return $"{GetType().Name}({Permissions})";
+        }
     }
 }

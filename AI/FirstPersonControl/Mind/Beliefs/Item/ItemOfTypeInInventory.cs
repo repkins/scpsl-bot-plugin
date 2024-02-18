@@ -32,15 +32,20 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item
 
         private void ProcessAbsentItem()
         {
-            if (numItems > 0)
+            if (numItems <= 0)
             {
                 if (Item)
                 {
                     Update(null);
                 }
-
-                numItems = 0;
             }
+
+            numItems = 0;
+        }
+
+        public override string ToString()
+        {
+            return $"{GetType().Name}({ItemType})";
         }
     }
 }

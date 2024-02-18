@@ -15,5 +15,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 
         private bool OfItemType(ItemWithinPickupDistance<ItemOfType> b) => b.Criteria.ItemType == this.ItemType;
         private bool OfItemType(ItemOfTypeInInventory b) => b.ItemType == this.ItemType;
+
+        public override string ToString()
+        {
+            return $"{GetType().Name}({ItemType})";
+        }
     }
 }

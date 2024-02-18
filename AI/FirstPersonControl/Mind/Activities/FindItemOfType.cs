@@ -13,5 +13,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
         protected override ItemWithinSight<ItemOfType> ItemWithinSight => botPlayer.MindRunner.GetBelief<ItemOfTypeWithinSight>(OfItemType);
 
         private bool OfItemType(ItemWithinSight<ItemOfType> b) => b.Criteria.ItemType == this.ItemType;
+
+        public override string ToString()
+        {
+            return $"{GetType().Name}({ItemType})";
+        }
     }
 }
