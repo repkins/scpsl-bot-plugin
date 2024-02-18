@@ -36,21 +36,13 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 
         public void ProcessSensedItems()
         {
-            var numPryableDoors = 0u;
             var numClosedScp914RoomDoors = 0u;
 
-            var pryableWithinSightBelief = _fpcBotPlayer.MindRunner.GetBelief<DoorWithinSight<PryableDoor>>(b => true);
             var closedScp914RoomDoorWithinSightBelief = _fpcBotPlayer.MindRunner.GetBelief<ClosedScp914ChamberDoorWithinSight>(b => true);
             foreach (var doorWithinSight in DoorsWithinSight)
             {
                 if (doorWithinSight is PryableDoor pryable)
                 {
-                    if (!pryableWithinSightBelief.Door)
-                    {
-                        UpdateDoorBelief(pryableWithinSightBelief, pryable);
-                    }
-                    numPryableDoors++;
-
                     // Checking if door is SCP-914 access door by it's unique permissions.
                     if (doorWithinSight.RequiredPermissions.RequiredPermissions.HasFlag(KeycardPermissions.ContainmentLevelOne))
                     {
@@ -62,15 +54,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
                             }
                             numClosedScp914RoomDoors++;
                         }
-
                     }
                 }
             }
 
-            if (numPryableDoors <= 0 && pryableWithinSightBelief.Door)
-            {
-                UpdateDoorBelief(pryableWithinSightBelief, null as PryableDoor);
-            }
             if (numClosedScp914RoomDoors <= 0 && closedScp914RoomDoorWithinSightBelief.Door)
             {
                 UpdateDoorBelief(closedScp914RoomDoorWithinSightBelief, null as PryableDoor);

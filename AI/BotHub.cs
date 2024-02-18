@@ -88,7 +88,7 @@ namespace SCPSLBot.AI
 
         internal void MindDump()
         {
-            CurrentBotPlayer.DumpMind();
+            CurrentBotPlayer?.DumpMind();
         }
 
         private FpcBotPlayer _fpcPlayer;

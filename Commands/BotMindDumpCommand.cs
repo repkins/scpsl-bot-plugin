@@ -17,7 +17,7 @@ namespace TestPlugin.Commands
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            if (arguments.Count < 3)
+            if (arguments.Count < 1)
             {
                 response = "To execute this command provide at least 3 arguments!";
                 return false;
