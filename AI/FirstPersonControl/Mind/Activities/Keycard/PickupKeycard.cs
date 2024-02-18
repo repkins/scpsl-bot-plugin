@@ -4,9 +4,9 @@ using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.Keycard;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Keycard
 {
-    internal class PickupKeycard : PickupItemBase
+    internal class PickupKeycard : PickupItemBase<KeycardWithPermissions>
     {
-        protected override ItemWithinPickupDistanceBase ItemWithinPickupDistance => _botPlayer.MindRunner.GetBelief<KeycardWithinPickupDistance>(OfPermissions);
+        protected override ItemWithinPickupDistance<KeycardWithPermissions> ItemWithinPickupDistance => _botPlayer.MindRunner.GetBelief<KeycardWithinPickupDistance>(OfPermissions);
         protected override ItemInInventoryBase ItemInInventory => _botPlayer.MindRunner.GetBelief<KeycardInInventory>(OfPermissions);
 
         public readonly KeycardPermissions Permissions;
@@ -15,7 +15,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Keycard
             this.Permissions = permissions;
         }
 
-        private bool OfPermissions(KeycardWithPermissions b) => b.Permissions == Permissions;
+        private bool OfPermissions(ItemWithinPickupDistance<KeycardWithPermissions> b) => b.Criteria.Permissions == Permissions;
         private bool OfPermissions(KeycardInInventory b) => b.Permissions == Permissions;
     }
 }

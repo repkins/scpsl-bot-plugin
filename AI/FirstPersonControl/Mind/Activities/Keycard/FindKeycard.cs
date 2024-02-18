@@ -4,9 +4,9 @@ using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.Keycard;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Keycard
 {
-    internal class FindKeycard : FindItemBase
+    internal class FindKeycard : FindItemBase<KeycardWithPermissions>
     {
-        protected override ItemWithinSightBase ItemWithinSight => botPlayer.MindRunner.GetBelief<KeycardWithinSight>(OfPermissions);
+        protected override ItemWithinSight<KeycardWithPermissions> ItemWithinSight => botPlayer.MindRunner.GetBelief<KeycardWithinSight>(OfPermissions);
 
         public readonly KeycardPermissions Permissions;
         public FindKeycard(KeycardPermissions permissions, FpcBotPlayer botPlayer) : base(botPlayer)
@@ -14,6 +14,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Keycard
             this.Permissions = permissions;
         }
 
-        private bool OfPermissions(KeycardWithPermissions obj) => obj.Permissions == Permissions;
+        private bool OfPermissions(KeycardWithinSight obj) => obj.Criteria.Permissions == Permissions;
     }
 }

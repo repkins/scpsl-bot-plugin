@@ -1,13 +1,11 @@
-﻿using InventorySystem.Items.Pickups;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
-using UnityEngine;
+﻿using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 {
-    internal abstract class GoToPickupItemBase : IActivity
+    internal abstract class GoToPickupItemBase<C> : IActivity where C : struct
     {
-        protected abstract ItemWithinSightBase ItemWithinSight { get; }
-        protected abstract ItemWithinPickupDistanceBase ItemWithinPickupDistance { get; }
+        protected abstract ItemWithinSight<C> ItemWithinSight { get; }
+        protected abstract ItemWithinPickupDistance<C> ItemWithinPickupDistance { get; }
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
@@ -33,7 +31,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 
         public void Reset() { }
 
-        private ItemWithinSightBase _itemWithinSight;
+        private ItemWithinSight<C> _itemWithinSight;
         protected readonly FpcBotPlayer _botPlayer;
     }
 }

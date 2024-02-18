@@ -3,10 +3,10 @@ using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item
 {
-    internal class ItemInInventory : ItemInInventory<ItemBase>
+    internal class ItemOfTypeInInventory : ItemInInventory<ItemBase>
     {
         public ItemType ItemType { get; }
-        public ItemInInventory(ItemType itemType, ItemsInInventorySense itemsInInventorySense)
+        public ItemOfTypeInInventory(ItemType itemType, ItemsInInventorySense itemsInInventorySense)
         {
             ItemType = itemType;
 

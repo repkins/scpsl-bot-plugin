@@ -1,14 +1,11 @@
-﻿using InventorySystem.Items.Keycards;
-using InventorySystem.Items.Pickups;
-using InventorySystem;
+﻿using InventorySystem.Items.Pickups;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.Keycard
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item
 {
-    internal class KeycardWithinSight : ItemWithinSight<KeycardWithPermissions>
+    internal class ItemOfTypeWithinSight : ItemWithinSight<ItemOfType>
     {
-        public KeycardWithinSight(KeycardWithPermissions permissions, ItemsWithinSightSense itemsSightSense) 
-            : base(permissions)
+        public ItemOfTypeWithinSight(ItemOfType criteria, ItemsWithinSightSense itemsSightSense) : base(criteria)
         {
             _itemsSightSense = itemsSightSense;
             _itemsSightSense.OnSensedItemWithinSight += ProcessSensedItem;
@@ -20,8 +17,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.Keycard
 
         private void ProcessSensedItem(ItemPickupBase item)
         {
-            if (InventoryItemLoader.TryGetItem<KeycardItem>(item.Info.ItemId, out var keycard)
-                    && keycard.Permissions.HasFlag(Criteria.Permissions))
+            if (item.Info.ItemId == Criteria.ItemType)
             {
                 if (!Item)
                 {

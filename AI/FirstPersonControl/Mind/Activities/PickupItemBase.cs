@@ -5,9 +5,9 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 {
-    internal abstract class PickupItemBase : IActivity
+    internal abstract class PickupItemBase<C> : IActivity where C : struct
     {
-        protected abstract ItemWithinPickupDistanceBase ItemWithinPickupDistance { get; }
+        protected abstract ItemWithinPickupDistance<C> ItemWithinPickupDistance { get; }
         protected abstract ItemInInventoryBase ItemInInventory { get; }
 
         public bool Condition() => _itemWithinPickupDistance.Item;
@@ -71,7 +71,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 
         protected readonly FpcBotPlayer _botPlayer;
 
-        private ItemWithinPickupDistanceBase _itemWithinPickupDistance;
+        private ItemWithinPickupDistance<C> _itemWithinPickupDistance;
 
         private bool isPickingUp;
         private float pickupCooldown;

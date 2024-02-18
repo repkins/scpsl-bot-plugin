@@ -2,11 +2,9 @@
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item
 {
-    internal class ItemWithinSight<T> : ItemWithinSightBase
+    internal class ItemWithinSight<C> : ItemPickup<ItemPickupBase, C> where C : struct
     {
-    }
-
-    internal class ItemWithinSightBase : ItemPickup<ItemPickupBase>
-    {
+        public ItemWithinSight(C criteria) : base(criteria)
+        { }
     }
 }

@@ -28,8 +28,8 @@ namespace SCPSLBot.AI.FirstPersonControl
             mind.AddBelief(new LastKnownItemLocation<Firearm>());
 
 
-            mind.AddBelief(new KeycardWithinSight(KeycardO5Permissions, perception.GetSense<ItemsWithinSightSense>()));
-            mind.AddBelief(new KeycardWithinPickupDistance(KeycardO5Permissions, perception.GetSense<ItemsWithinSightSense>()));
+            mind.AddBelief(new KeycardWithinSight(new (KeycardO5Permissions), perception.GetSense<ItemsWithinSightSense>()));
+            mind.AddBelief(new KeycardWithinPickupDistance(new (KeycardO5Permissions), perception.GetSense<ItemsWithinSightSense>()));
             mind.AddBelief(new KeycardInInventory(KeycardO5Permissions, perception.GetSense<ItemsInInventorySense>()));
 
             mind.AddActivity(new FindKeycard(KeycardO5Permissions, botPlayer));
@@ -37,8 +37,8 @@ namespace SCPSLBot.AI.FirstPersonControl
             mind.AddActivity(new PickupKeycard(KeycardO5Permissions, botPlayer));
 
 
-            mind.AddBelief(new KeycardWithinSight(KeycardPermissions.ContainmentLevelOne, perception.GetSense<ItemsWithinSightSense>()));
-            mind.AddBelief(new KeycardWithinPickupDistance(KeycardPermissions.ContainmentLevelOne, perception.GetSense<ItemsWithinSightSense>()));
+            mind.AddBelief(new KeycardWithinSight(new (KeycardPermissions.ContainmentLevelOne), perception.GetSense<ItemsWithinSightSense>()));
+            mind.AddBelief(new KeycardWithinPickupDistance(new (KeycardPermissions.ContainmentLevelOne), perception.GetSense<ItemsWithinSightSense>()));
             mind.AddBelief(new KeycardInInventory(KeycardPermissions.ContainmentLevelOne, perception.GetSense<ItemsInInventorySense>()));
 
             mind.AddActivity(new FindKeycard(KeycardPermissions.ContainmentLevelOne, botPlayer));
@@ -46,7 +46,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             mind.AddActivity(new PickupKeycard(KeycardPermissions.ContainmentLevelOne, botPlayer));
 
 
-            mind.AddBelief(new ItemWithinSight(ItemType.Medkit, perception.GetSense<ItemsWithinSightSense>()));
+            mind.AddBelief(new ItemOfTypeWithinSight(new (ItemType.Medkit), perception.GetSense<ItemsWithinSightSense>()));
 
 
             //mind.AddBelief(new DoorWithinSight<PryableDoor>());
