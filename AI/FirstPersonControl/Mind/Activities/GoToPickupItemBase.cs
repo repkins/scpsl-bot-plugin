@@ -2,7 +2,7 @@
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 {
-    internal abstract class GoToPickupItemBase<C> : IActivity where C : struct
+    internal abstract class GoToPickupItemBase<C> : IActivity where C : IItemBeliefCriteria
     {
         protected abstract ItemWithinSight<C> ItemWithinSight { get; }
         protected abstract ItemWithinPickupDistance<C> ItemWithinPickupDistance { get; }

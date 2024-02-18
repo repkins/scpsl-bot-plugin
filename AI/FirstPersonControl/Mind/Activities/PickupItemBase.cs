@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 {
-    internal abstract class PickupItemBase<C> : IActivity where C : struct
+    internal abstract class PickupItemBase<C> : IActivity where C : IItemBeliefCriteria
     {
         protected abstract ItemWithinPickupDistance<C> ItemWithinPickupDistance { get; }
         protected abstract ItemInInventoryBase ItemInInventory { get; }

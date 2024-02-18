@@ -14,7 +14,7 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
 {
-    internal abstract class FindItemBase<C> : IActivity where C : struct
+    internal abstract class FindItemBase<C> : IActivity where C : IItemBeliefCriteria
     {
         protected abstract ItemWithinSight<C> ItemWithinSight { get; }
 
