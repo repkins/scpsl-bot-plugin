@@ -51,7 +51,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
 
             //mind.AddBelief(new DoorWithinSight<PryableDoor>());
-            mind.AddBelief(new ClosedScp914ChamberDoorWithinSight());
+            mind.AddBelief(new Scp914ChamberDoorWithinSight(DoorState.Closed));
 
             //mind.AddActivity(new Explore(botPlayer));
 
