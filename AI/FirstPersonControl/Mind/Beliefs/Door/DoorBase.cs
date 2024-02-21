@@ -20,6 +20,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Door
             Door = door;
             OnUpdate?.Invoke();
         }
+
+        public override string ToString()
+        {
+            return $"{GetType().Name}({State})";
+        }
     }
 
     internal enum DoorState
