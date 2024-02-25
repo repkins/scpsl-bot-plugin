@@ -6,8 +6,16 @@ using System.Threading.Tasks;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Scp914
 {
-    internal class InsideScp914Chamber : IBelief
+    internal class Scp914Chamber : IBelief
     {
+        public bool IsInside { get; private set; }
+
         public event Action OnUpdate;
+
+        public void Update(bool isInside)
+        {
+            IsInside = isInside;
+            OnUpdate?.Invoke();
+        }
     }
 }

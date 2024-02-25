@@ -6,17 +6,19 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Scp914
 {
     internal class EnterScp914Chamber : IActivity
     {
-        private Scp914ChamberDoor _closedDoorWithinSight;
+        private Scp914ChamberDoor _openedDoorWithinSight;
+        private Scp914Chamber _scp914Chamber;
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            _closedDoorWithinSight = fpcMind.ActivityEnabledBy<Scp914ChamberDoor>(this, OfOpened, b => b.Door);
+            _openedDoorWithinSight = fpcMind.ActivityEnabledBy<Scp914ChamberDoor>(this, OfOpened, b => b.Door);
+            _scp914Chamber = fpcMind.ActivityEnabledBy<Scp914Chamber>(this, b => !b.IsInside);
 
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityImpacts<InsideScp914Chamber>(this);
+            fpcMind.ActivityImpacts<Scp914Chamber>(this);
         }
 
         public void Tick()
