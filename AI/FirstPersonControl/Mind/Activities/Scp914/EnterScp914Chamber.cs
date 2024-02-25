@@ -1,15 +1,16 @@
-﻿using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Scp914;
+﻿using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Door;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Scp914;
 using System;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Scp914
 {
     internal class EnterScp914Chamber : IActivity
     {
-        private Scp914ChamberDoorWithinSight _closedDoorWithinSight;
+        private Scp914ChamberDoor _closedDoorWithinSight;
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            _closedDoorWithinSight = fpcMind.ActivityEnabledBy<Scp914ChamberDoorWithinSight>(this, OfOpened, b => b.Door);
+            _closedDoorWithinSight = fpcMind.ActivityEnabledBy<Scp914ChamberDoor>(this, OfOpened, b => b.Door);
 
         }
 
@@ -28,6 +29,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Scp914
             throw new NotImplementedException();
         }
 
-        private bool OfOpened(Scp914ChamberDoorWithinSight obj) => obj.State == Beliefs.Door.DoorState.Opened;
+        private bool OfOpened(Scp914ChamberDoor obj) => obj.State == DoorState.Opened;
     }
 }

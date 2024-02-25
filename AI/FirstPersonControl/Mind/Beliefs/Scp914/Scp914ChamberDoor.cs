@@ -3,9 +3,9 @@ using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Door;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Scp914
 {
-    internal class Scp914ChamberDoorWithinSight : DoorWithinSight<PryableDoor>
+    internal class Scp914ChamberDoor : Door<PryableDoor>
     {
-        public Scp914ChamberDoorWithinSight(DoorState state) : base(state)
+        public Scp914ChamberDoor(DoorState state) : base(state)
         {
         }
     }

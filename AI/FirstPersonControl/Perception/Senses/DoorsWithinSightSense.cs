@@ -36,9 +36,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 
         public void ProcessSensedItems()
         {
-            var numClosedScp914RoomDoors = 0u;
-
-            var closedScp914RoomDoorWithinSightBelief = _fpcBotPlayer.MindRunner.GetBelief<Scp914ChamberDoorWithinSight>(b => b.State == DoorState.Closed);
+            var closedScp914ChamberDoorBelief = _fpcBotPlayer.MindRunner.GetBelief<Scp914ChamberDoor>(b => b.State == DoorState.Closed);
             foreach (var doorWithinSight in DoorsWithinSight)
             {
                 if (doorWithinSight is PryableDoor pryable)
@@ -48,19 +46,20 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
                     {
                         if (!doorWithinSight.IsConsideredOpen())
                         {
-                            if (!closedScp914RoomDoorWithinSightBelief.Door)
+                            if (!closedScp914ChamberDoorBelief.Door)
                             {
-                                UpdateDoorBelief(closedScp914RoomDoorWithinSightBelief, pryable);
+                                UpdateDoorBelief(closedScp914ChamberDoorBelief, pryable);
                             }
-                            numClosedScp914RoomDoors++;
+                        }
+                        else
+                        {
+                            if (closedScp914ChamberDoorBelief.Door)
+                            {
+                                UpdateDoorBelief(closedScp914ChamberDoorBelief, null as PryableDoor);
+                            }
                         }
                     }
                 }
-            }
-
-            if (numClosedScp914RoomDoors <= 0 && closedScp914RoomDoorWithinSightBelief.Door)
-            {
-                UpdateDoorBelief(closedScp914RoomDoorWithinSightBelief, null as PryableDoor);
             }
         }
 

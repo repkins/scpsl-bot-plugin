@@ -2,9 +2,9 @@
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Door
 {
-    internal class DoorWithinSight<T> : DoorBase<T> where T : DoorVariant
+    internal class Door<T> : DoorBase<T> where T : DoorVariant
     {
-        public DoorWithinSight(DoorState state) : base(state)
+        public Door(DoorState state) : base(state)
         {
         }
     }
