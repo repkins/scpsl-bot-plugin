@@ -1,6 +1,7 @@
 ﻿using Interactables.Interobjects;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Door;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Door.Scp914
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Scp914
 {
     internal class Scp914ChamberDoorWithinSight : DoorWithinSight<PryableDoor>
     {

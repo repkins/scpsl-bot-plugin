@@ -1,7 +1,7 @@
 ﻿using Interactables.Interobjects.DoorUtils;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Door;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Door.Scp914;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.Keycard;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Scp914;
 using System;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Scp914

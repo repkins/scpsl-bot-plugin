@@ -5,13 +5,13 @@ using InventorySystem.Items.Keycards;
 using InventorySystem.Items.Usables;
 using SCPSLBot.AI.FirstPersonControl.Mind;
 using SCPSLBot.AI.FirstPersonControl.Mind.Activities.Keycard;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Door.Scp914;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Door;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.Keycard;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
 using SCPSLBot.AI.FirstPersonControl.Mind.Desires;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using SCPSLBot.AI.FirstPersonControl.Mind.Activities;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Scp914;
 
 namespace SCPSLBot.AI.FirstPersonControl
 {
