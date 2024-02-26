@@ -12,12 +12,16 @@ namespace SCPSLBot.AI.FirstPersonControl
 {
     internal class FpcBotNavigator
     {
+        public Area AreaWithin { get; }
+
         private Area currentArea;
         private Area goalArea;
         public List<Area> AreasPath = new();
         private int currentPathIdx = -1;
+
         private bool isGoalOutside;
         private Vector3 targetAreaClosestPositionToGoal;
+        
         private readonly NavigationMesh navMesh = NavigationMesh.Instance;
 
         private readonly FpcBotPlayer botPlayer;
@@ -84,7 +88,7 @@ namespace SCPSLBot.AI.FirstPersonControl
                 while (isEdgeReached && !IsAtLastArea());
             }
 
-            var withinArea = navMesh.GetAreaWithin(playerPosition);
+            var withinArea = GetAreaWithin();
             var targetArea = navMesh.GetAreaWithin(goalPosition);
 
             if (targetArea == null)
@@ -126,6 +130,13 @@ namespace SCPSLBot.AI.FirstPersonControl
                 //    Log.Debug($"Area {areaInPath}.");
                 //}
             }
+        }
+
+        public Area GetAreaWithin()
+        {
+            var playerPosition = botPlayer.FpcRole.FpcModule.transform.position;
+
+            return navMesh.GetAreaWithin(playerPosition);
         }
 
         private Vector3 GetNextCorner(Vector3 goalPosition)

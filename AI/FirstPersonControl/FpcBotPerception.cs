@@ -37,6 +37,8 @@ namespace SCPSLBot.AI.FirstPersonControl
             Senses.Add(InventorySense);
 
             Senses.Add(new LockersWithinSightSense(fpcBotPlayer));
+            
+            Senses.Add(new SpatialSense(fpcBotPlayer));
         }
 
         public void Tick(IFpcRole fpcRole)
@@ -67,11 +69,6 @@ namespace SCPSLBot.AI.FirstPersonControl
                 }
             }
 
-            ProcessBeliefs();
-        }
-
-        private void ProcessBeliefs()
-        {
             foreach (var sense in Senses)
             {
                 sense.ProcessSensedItems();
