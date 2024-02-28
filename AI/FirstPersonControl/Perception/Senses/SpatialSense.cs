@@ -5,7 +5,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 {
     internal class SpatialSense : ISense
     {
-        public event Action<Vector3> OnSensedLocalPlayerPosition;
+        public event Action<Vector3> OnSensedPlayerPosition;
 
         public SpatialSense(FpcBotPlayer botPlayer)
         {
@@ -21,7 +21,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         public void ProcessSensedItems()
         {
             var playerPosition = _botPlayer.FpcRole.FpcModule.transform.position;
-            OnSensedLocalPlayerPosition?.Invoke(playerPosition);
+            OnSensedPlayerPosition?.Invoke(playerPosition);
         }
 
         private readonly FpcBotPlayer _botPlayer;

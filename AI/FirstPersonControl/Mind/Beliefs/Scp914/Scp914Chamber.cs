@@ -1,4 +1,6 @@
 ﻿using MapGeneration;
+using PluginAPI.Core.Attributes;
+using PluginAPI.Enums;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using System;
 using UnityEngine;
@@ -13,21 +15,27 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Scp914
 
         public Scp914Chamber(SpatialSense spatialSense)
         {
-            spatialSense.OnSensedLocalPlayerPosition += ProcessSensedPlayerPosition;
+            spatialSense.OnSensedPlayerPosition += ProcessSensedPlayerPosition;
         }
 
         private void ProcessSensedPlayerPosition(Vector3 playerPosition)
         {
             var room = RoomIdUtils.RoomAtPositionRaycasts(playerPosition);
-            if (room)
+            if (!room)
             {
-                var localPlayerPosition = room.transform.InverseTransformPoint(playerPosition);
+                return;
+            }
 
-                if (chamberDoorLocalPlane.GetSide(localPlayerPosition) == true)
+            if (room.Name == RoomName.Lcz914 && ChamberDoorLocalPlane.GetSide(room.transform.InverseTransformPoint(playerPosition)) == true)
+            {
+                if (!IsInside)
                 {
                     Update(isInside: true);
                 }
-                else
+            }
+            else
+            {
+                if (IsInside)
                 {
                     Update(isInside: false);
                 }
@@ -45,6 +53,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Scp914
             return $"{GetType().Name}(IsInside = {IsInside})";
         }
 
-        private Plane chamberDoorLocalPlane = new(Vector3.forward, new Vector3(0f, 0f, 0f));
+        private static Plane ChamberDoorLocalPlane = new(Vector3.right, new Vector3(-2.8f, 1f, 0f));
+        public RoomIdentifier Scp914RoomInstance { get; }
     }
 }
