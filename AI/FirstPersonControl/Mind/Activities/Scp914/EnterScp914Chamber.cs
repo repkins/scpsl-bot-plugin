@@ -28,9 +28,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Scp914
 
         public void Tick()
         {
-            var playerPos = _botPlayer.FpcRole.FpcModule.Position;
-
-            var targetPosition = _openedDoorSaw.Door.transform.position + _openedDoorSaw.Door.transform.forward;
+            var targetPosition = _openedDoorSaw.Door.transform.position + _scp914Chamber.InsideNormal;
 
             _botPlayer.MoveToPosition(targetPosition);
         }

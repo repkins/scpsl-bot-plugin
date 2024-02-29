@@ -20,13 +20,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Scp914
 
         private void ProcessSensedPlayerPosition(Vector3 playerPosition)
         {
-            var room = RoomIdUtils.RoomAtPositionRaycasts(playerPosition);
-            if (!room)
-            {
-                return;
-            }
+            EnsureAssignedScp914Room();
 
-            if (room.Name == RoomName.Lcz914 && ChamberDoorLocalPlane.GetSide(room.transform.InverseTransformPoint(playerPosition)) == true)
+            var room = RoomIdUtils.RoomAtPositionRaycasts(playerPosition);
+            if (room == scp914RoomInstance && sideLocalPlane.GetSide(room.transform.InverseTransformPoint(playerPosition)) == true)
             {
                 if (!IsInside)
                 {
@@ -48,12 +45,26 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Scp914
             OnUpdate?.Invoke();
         }
 
+        private void EnsureAssignedScp914Room()
+        {
+            if (!scp914RoomInstance)
+            {
+                RoomIdUtils.TryFindRoom(RoomName.Lcz914, FacilityZone.LightContainment, RoomShape.Endroom, out var foundRoom);
+                if (foundRoom)
+                {
+                    scp914RoomInstance = foundRoom;
+                }
+            }
+        }
+
         public override string ToString()
         {
             return $"{GetType().Name}(IsInside = {IsInside})";
         }
 
-        private static Plane ChamberDoorLocalPlane = new(Vector3.right, new Vector3(-2.8f, 1f, 0f));
-        public RoomIdentifier Scp914RoomInstance { get; }
+        private static Plane sideLocalPlane = new(Vector3.right, new Vector3(-2.8f, 1f, 0f));
+        public Vector3 InsideNormal => scp914RoomInstance.transform.TransformDirection(sideLocalPlane.normal);
+
+        private RoomIdentifier scp914RoomInstance;
     }
 }
