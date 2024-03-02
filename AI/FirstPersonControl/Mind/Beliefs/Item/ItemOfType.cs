@@ -15,6 +15,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item
             return item.Info.ItemId == ItemType;
         }
 
+        public bool Equals(IItemBeliefCriteria other)
+        {
+            return other is ItemOfType otherOf && otherOf.ItemType == this.ItemType;
+        }
 
         public override string ToString()
         {

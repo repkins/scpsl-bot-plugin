@@ -19,6 +19,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item
                 && keycard.Permissions.HasFlag(Permissions);
         }
 
+        public bool Equals(IItemBeliefCriteria other)
+        {
+            return other is KeycardWithPermissions otherOf && otherOf.Permissions == this.Permissions;
+        }
+
         public override string ToString()
         {
             return $"{Permissions}";
