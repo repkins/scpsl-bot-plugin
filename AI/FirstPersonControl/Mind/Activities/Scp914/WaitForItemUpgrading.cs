@@ -1,32 +1,36 @@
-﻿using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
+﻿using Scp914;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Scp914;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Scp914
 {
     internal class WaitForItemUpgrading : IActivity
     {
         public readonly ItemType InItemType;
+        public readonly Scp914KnobSetting KnobSetting;
         public readonly IEnumerable<IItemBeliefCriteria> OutItemCriterias;
+        public WaitForItemUpgrading(ItemType inItemType, Scp914KnobSetting knobSetting, IEnumerable<IItemBeliefCriteria> outItemCriterias)
+        {
+            this.InItemType = inItemType;
+            this.KnobSetting = knobSetting;
+            this.OutItemCriterias = outItemCriterias;
+        }
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityEnabledBy<Scp914Chamber>(this, b => b.IsInside);
             fpcMind.ActivityEnabledBy<ItemInIntakeChamber>(this, b => b.ItemType == InItemType);
+            fpcMind.ActivityEnabledBy<Scp914RunningOnSetting>(this, b => b.Setting == KnobSetting);
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityImpacts<OutakeChamberOpen>(this);
+            fpcMind.ActivityImpacts<OutakeChamberDoor>(this, b => b.IsOpened);
 
             foreach (var outCriteria in OutItemCriterias)
             {
-                var belief = fpcMind.GetBelief<ItemInOutakeChamber>(b => b.Criteria.Equals(outCriteria));
-                fpcMind.ActivityImpacts(this, belief);
+                fpcMind.ActivityImpacts<ItemInOutakeChamber>(this, b => b.Criteria.Equals(outCriteria));
             }
         }
 

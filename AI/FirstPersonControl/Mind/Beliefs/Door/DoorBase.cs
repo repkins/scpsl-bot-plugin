@@ -21,6 +21,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Door
             OnUpdate?.Invoke();
         }
 
+        public bool IsOpened => State == DoorState.Opened;
+        public bool IsClosed => State == DoorState.Closed;
+
         public override string ToString()
         {
             return $"{GetType().Name}({State})";
