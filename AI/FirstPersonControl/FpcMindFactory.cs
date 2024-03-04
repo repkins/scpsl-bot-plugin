@@ -31,7 +31,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             mind.AddBelief(new ItemOfTypeWithinSight(new (ItemType.KeycardO5), perception.GetSense<ItemsWithinSightSense>()));
             mind.AddBelief(new ItemOfTypeWithinPickupDistance(new (ItemType.KeycardO5), perception.GetSense<ItemsWithinSightSense>()));
-            mind.AddBelief(new ItemOfTypeInInventory(ItemType.KeycardO5, perception.GetSense<ItemsInInventorySense>()));
+            mind.AddBelief(new ItemInInventory<ItemOfType>(new (ItemType.KeycardO5), perception.GetSense<ItemsInInventorySense>()));
 
             mind.AddActivity(new FindItemOfType(ItemType.KeycardO5, botPlayer));
             mind.AddActivity(new GoToPickupItemOfType(ItemType.KeycardO5, botPlayer));
@@ -40,7 +40,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             mind.AddBelief(new KeycardWithinSight(new (KeycardPermissions.ContainmentLevelOne), perception.GetSense<ItemsWithinSightSense>()));
             mind.AddBelief(new KeycardWithinPickupDistance(new (KeycardPermissions.ContainmentLevelOne), perception.GetSense<ItemsWithinSightSense>()));
-            mind.AddBelief(new KeycardInInventory(KeycardPermissions.ContainmentLevelOne, perception.GetSense<ItemsInInventorySense>()));
+            mind.AddBelief(new ItemInInventory<KeycardWithPermissions>(new (KeycardPermissions.ContainmentLevelOne), perception.GetSense<ItemsInInventorySense>()));
 
             mind.AddActivity(new FindKeycard(KeycardPermissions.ContainmentLevelOne, botPlayer));
             mind.AddActivity(new GoToPickupKeycard(KeycardPermissions.ContainmentLevelOne, botPlayer));

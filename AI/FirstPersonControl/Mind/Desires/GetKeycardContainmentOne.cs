@@ -7,18 +7,18 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Desires
 {
     internal class GetKeycardContainmentOne : IDesire
     {
-        private ItemInInventory<KeycardItem> _keycardInInventory;
+        private ItemInInventory<KeycardWithPermissions> _keycardInInventory;
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            _keycardInInventory = fpcMind.DesireEnabledBy<KeycardInInventory>(this, OfContainmentOne);
+            _keycardInInventory = fpcMind.DesireEnabledBy<ItemInInventory<KeycardWithPermissions>>(this, OfContainmentOne);
         }
 
         public bool Condition()
         {
-            return _keycardInInventory.Item != null;
+            return _keycardInInventory.Item;
         }
 
-        private bool OfContainmentOne(KeycardInInventory b) => b.Permissions == KeycardPermissions.ContainmentLevelOne;
+        private bool OfContainmentOne(ItemInInventory<KeycardWithPermissions> b) => b.Criteria.Permissions == KeycardPermissions.ContainmentLevelOne;
     }
 }

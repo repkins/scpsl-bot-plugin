@@ -1,4 +1,5 @@
-﻿using InventorySystem.Items.Pickups;
+﻿using InventorySystem.Items;
+using InventorySystem.Items.Pickups;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item
 {
@@ -13,6 +14,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item
         public bool EvaluateItem(ItemPickupBase item)
         {
             return item.Info.ItemId == ItemType;
+        }
+
+        public bool EvaluateItem(ItemBase item)
+        {
+            return item.ItemTypeId == ItemType;
         }
 
         public bool Equals(IItemBeliefCriteria other)

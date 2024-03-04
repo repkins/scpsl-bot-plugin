@@ -7,7 +7,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Keycard
     internal class PickupKeycard : PickupItemBase<KeycardWithPermissions>
     {
         protected override ItemWithinPickupDistance<KeycardWithPermissions> ItemWithinPickupDistance => _botPlayer.MindRunner.GetBelief<KeycardWithinPickupDistance>(OfPermissions);
-        protected override ItemInInventoryBase ItemInInventory => _botPlayer.MindRunner.GetBelief<KeycardInInventory>(OfPermissions);
+        protected override ItemInInventoryBase ItemInInventory => _botPlayer.MindRunner.GetBelief<ItemInInventory<KeycardWithPermissions>>(OfPermissions);
 
         public readonly KeycardPermissions Permissions;
         public PickupKeycard(KeycardPermissions permissions, FpcBotPlayer botPlayer) : base(botPlayer)
@@ -16,7 +16,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Keycard
         }
 
         private bool OfPermissions(ItemWithinPickupDistance<KeycardWithPermissions> b) => b.Criteria.Permissions == Permissions;
-        private bool OfPermissions(KeycardInInventory b) => b.Permissions == Permissions;
+        private bool OfPermissions(ItemInInventory<KeycardWithPermissions> b) => b.Criteria.Permissions == Permissions;
 
         public override string ToString()
         {

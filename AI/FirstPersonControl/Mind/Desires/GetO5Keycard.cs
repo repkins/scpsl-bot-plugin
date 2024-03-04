@@ -4,11 +4,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Desires
 {
     internal class GetO5Keycard : IDesire
     {
-        private ItemOfTypeInInventory _keycardO5InInventory;
+        private ItemInInventory<ItemOfType> _keycardO5InInventory;
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            _keycardO5InInventory = fpcMind.DesireEnabledBy<ItemOfTypeInInventory>(this, OfKeycardO5);
+            _keycardO5InInventory = fpcMind.DesireEnabledBy<ItemInInventory<ItemOfType>>(this, OfKeycardO5);
         }
 
         public bool Condition()
@@ -16,6 +16,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Desires
             return _keycardO5InInventory.Item;
         }
 
-        private bool OfKeycardO5(ItemOfTypeInInventory b) => b.ItemType == ItemType.KeycardO5;
+        private bool OfKeycardO5(ItemInInventory<ItemOfType> b) => b.Criteria.ItemType == ItemType.KeycardO5;
     }
 }

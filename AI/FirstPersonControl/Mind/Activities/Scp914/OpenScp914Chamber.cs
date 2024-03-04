@@ -1,6 +1,7 @@
 ﻿using Interactables.Interobjects.DoorUtils;
 using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Door;
+using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.Keycard;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Scp914;
 using System;
@@ -12,7 +13,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Scp914
     {
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            _keycardInInventory = fpcMind.ActivityEnabledBy<KeycardInInventory>(this, OfContainmentLevelOne, b => b.Item);
+            _keycardInInventory = fpcMind.ActivityEnabledBy<ItemInInventory<KeycardWithPermissions>>(this, OfContainmentLevelOne, b => b.Item);
             _closedDoor = fpcMind.ActivityEnabledBy<Scp914ChamberDoor>(this, OfClosed, b => b.Door);
         }
 
@@ -60,11 +61,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Scp914
 
         public void Reset() { }
 
-        private KeycardInInventory _keycardInInventory;
+        private ItemInInventory<KeycardWithPermissions> _keycardInInventory;
         private Scp914ChamberDoor _closedDoor;
         private FpcBotPlayer _botPlayer;
 
-        private static bool OfContainmentLevelOne(KeycardInInventory b) => b.Permissions == KeycardPermissions.ContainmentLevelOne;
+        private static bool OfContainmentLevelOne(ItemInInventory<KeycardWithPermissions> b) => b.Criteria.Permissions == KeycardPermissions.ContainmentLevelOne;
         private static bool OfClosed(Scp914ChamberDoor b) => b.State == DoorState.Closed;
         private static bool OfOpened(Scp914ChamberDoor b) => b.State == DoorState.Opened;
     }

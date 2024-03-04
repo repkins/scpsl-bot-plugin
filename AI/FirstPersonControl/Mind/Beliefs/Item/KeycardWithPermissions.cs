@@ -2,6 +2,7 @@
 using InventorySystem.Items.Keycards;
 using InventorySystem;
 using InventorySystem.Items.Pickups;
+using InventorySystem.Items;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item
 {
@@ -16,6 +17,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item
         public bool EvaluateItem(ItemPickupBase item)
         {
             return InventoryItemLoader.TryGetItem<KeycardItem>(item.Info.ItemId, out var keycard)
+                && keycard.Permissions.HasFlag(Permissions);
+        }
+
+        public bool EvaluateItem(ItemBase item)
+        {
+            return item is KeycardItem keycard
                 && keycard.Permissions.HasFlag(Permissions);
         }
 

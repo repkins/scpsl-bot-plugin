@@ -8,24 +8,24 @@ using System.Threading.Tasks;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Scp914
 {
-    internal class GoToPickupItemInOutakeChamberOfType : IActivity
+    internal class GoToPickupItemInOutakeChamber<C> : IActivity where C : IItemBeliefCriteria
     {
-        public readonly ItemType ItemType;
-        public GoToPickupItemInOutakeChamberOfType(ItemType itemType)
+        public readonly C Criteria;
+        public GoToPickupItemInOutakeChamber(C criteria)
         {
-            this.ItemType = itemType;
+            this.Criteria = criteria;
         }
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityEnabledBy<ItemInOutakeChamber>(this, b => b.Criteria is ItemOfType, b => b.Position.HasValue);
+            fpcMind.ActivityEnabledBy<ItemInOutakeChamber>(this, b => b.Criteria.Equals(Criteria), b => b.Position.HasValue);
             fpcMind.ActivityEnabledBy<Scp914Chamber>(this, b => b.IsInside);
-            fpcMind.ActivityEnabledBy<OutakeChamberDoor>(this, b => b.IsOpened);
+            fpcMind.ActivityEnabledBy<OutakeChamberDoor>(this, b => b.IsOpened, b => b.Door);
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityImpacts<ItemOfTypeInInventory>(this, b => b.ItemType == ItemType);
+            fpcMind.ActivityImpacts<ItemInInventory<C>>(this, b => b.Criteria.Equals(Criteria));
         }
 
         public void Tick()
