@@ -1,6 +1,4 @@
 ﻿using MapGeneration;
-using PluginAPI.Core.Attributes;
-using PluginAPI.Enums;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using System;
 using UnityEngine;
@@ -9,9 +7,23 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Scp914
 {
     internal class Scp914Chamber : IBelief
     {
-        public bool IsInside { get; private set; }
+        public readonly Side Side;
+        public Scp914Chamber(Side side)
+        {
+            this.Side = side;
+        }
+
+        public bool Inside => Side == Side.In;
+        public bool Outside => Side == Side.Out;
+
+        public bool IsPlayerAtSide { get; private set; }
 
         public event Action OnUpdate;
+
+        public bool Condition()
+        {
+            return IsPlayerAtSide;
+        }
 
         public Scp914Chamber(SpatialSense spatialSense)
         {
@@ -22,26 +34,28 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Scp914
         {
             EnsureAssignedScp914Room();
 
+            Side SidePlayerAt;
+
             var room = RoomIdUtils.RoomAtPositionRaycasts(playerPosition);
             if (room == scp914RoomInstance && sideLocalPlane.GetSide(room.transform.InverseTransformPoint(playerPosition)) == true)
             {
-                if (!IsInside)
-                {
-                    Update(isInside: true);
-                }
+                SidePlayerAt = Side.In;
             }
             else
             {
-                if (IsInside)
-                {
-                    Update(isInside: false);
-                }
+                SidePlayerAt = Side.Out;
+            }
+
+            var isAtCurrentSide = Side == SidePlayerAt;
+            if (isAtCurrentSide != IsPlayerAtSide)
+            {
+                Update(isAtCurrentSide);
             }
         }
 
-        private void Update(bool isInside)
+        private void Update(bool isAtSide)
         {
-            IsInside = isInside;
+            IsPlayerAtSide = isAtSide;
             OnUpdate?.Invoke();
         }
 
@@ -59,12 +73,18 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Scp914
 
         public override string ToString()
         {
-            return $"{GetType().Name}(IsInside = {IsInside})";
+            return $"{GetType().Name}(IsInside = {IsPlayerAtSide})";
         }
 
         private static Plane sideLocalPlane = new(Vector3.right, new Vector3(-2.8f, 1f, 0f));
         public Vector3 InsideNormal => scp914RoomInstance.transform.TransformDirection(sideLocalPlane.normal);
 
         private RoomIdentifier scp914RoomInstance;
+    }
+
+    enum Side
+    {
+        In,
+        Out,
     }
 }

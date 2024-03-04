@@ -18,7 +18,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Scp914
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityEnabledBy<Scp914Chamber>(this, b => b.IsInside);
+            fpcMind.ActivityEnabledBy<Scp914Chamber>(this, b => b.IsPlayerAtSide);
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)

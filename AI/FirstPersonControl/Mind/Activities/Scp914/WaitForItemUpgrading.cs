@@ -26,7 +26,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Scp914
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityImpacts<OutakeChamberDoor>(this, b => b.IsOpened);
+            fpcMind.ActivityImpacts<OutakeChamberDoor>(this, b => b.Opened);
 
             foreach (var outCriteria in OutItemCriterias)
             {
