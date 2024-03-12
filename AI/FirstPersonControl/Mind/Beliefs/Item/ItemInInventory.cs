@@ -11,9 +11,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item
         }
     }
 
-    internal class ItemInInventory<C, T> : ItemInInventoryBase where C : IItemBeliefCriteria where T : ItemBase
+    internal class ItemInInventory<C, T> : ItemInInventoryBase, IBelief<C> where C : IItemBeliefCriteria where T : ItemBase
     {
-        public readonly C Criteria;
+        public C Criteria { get; }
         public ItemInInventory(C criteria, ItemsInInventorySense inventorySense)
         {
             this.Criteria = criteria;

@@ -10,4 +10,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
     {
         event Action OnUpdate;
     }
+
+    internal interface IBelief<C> : IBelief
+    {
+        C Criteria { get; }
+    }
 }

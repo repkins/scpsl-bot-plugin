@@ -25,24 +25,32 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
 
         public B ActivityEnabledBy<B>(IActivity activity, Predicate<B> condition) where B : class, IBelief
         {
-            var beliefsOfClass = Beliefs[typeof(B)];
-            var belief = beliefsOfClass.First();
+            var beliefsOfType = Beliefs[typeof(B)];
+            var belief = beliefsOfType.First();
 
             return ActivityEnabledBy(activity, belief as B, condition);
         }
 
         public B ActivityEnabledBy<B>(IActivity activity, Predicate<B> predicate, Predicate<B> condition) where B : class, IBelief
         {
-            var beliefsOfClass = Beliefs[typeof(B)];
-            var belief = beliefsOfClass.Find(b => predicate(b as B));
+            var beliefsOfType = Beliefs[typeof(B)];
+            var belief = beliefsOfType.Find(b => predicate(b as B));
+
+            return ActivityEnabledBy(activity, belief as B, condition);
+        }
+
+        public B ActivityEnabledBy<B, C>(IActivity activity, C criteria, Predicate<B> condition) where B : class, IBelief<C> where C : IEquatable<C>
+        {
+            var beliefsOfType = Beliefs[typeof(B)].Select(b => (B)b);
+            var belief = beliefsOfType.First(b => b.Criteria.Equals(criteria));
 
             return ActivityEnabledBy(activity, belief as B, condition);
         }
 
         public B ActivityImpacts<B>(IActivity activity) where B : class, IBelief
         {
-            var beliefsOfClass = Beliefs[typeof(B)];
-            var belief = beliefsOfClass.First();
+            var beliefsOfType = Beliefs[typeof(B)];
+            var belief = beliefsOfType.First();
 
             ActivityImpacts(activity, belief);
 
@@ -51,8 +59,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
 
         public B ActivityImpacts<B>(IActivity activity, Predicate<B> predicate) where B : class, IBelief
         {
-            var beliefsOfClass = Beliefs[typeof(B)];
-            var belief = beliefsOfClass.Find(b => predicate(b as B));
+            var beliefsOfType = Beliefs[typeof(B)];
+            var belief = beliefsOfType.Find(b => predicate(b as B));
 
             ActivityImpacts(activity, belief);
 
@@ -61,8 +69,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
 
         public B DesireEnabledBy<B>(IDesire desire, Predicate<B> predicate) where B : class, IBelief
         {
-            var beliefsOfClass = Beliefs[typeof(B)];
-            var belief = beliefsOfClass.Find(b => predicate(b as B));
+            var beliefsOfType = Beliefs[typeof(B)];
+            var belief = beliefsOfType.Find(b => predicate(b as B));
 
             DesireEnabledBy(desire, belief);
 
@@ -99,12 +107,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
 
         public FpcMind AddBelief(IBelief belief)
         {
-            if (!Beliefs.TryGetValue(belief.GetType(), out var beliefsOfClass))
+            if (!Beliefs.TryGetValue(belief.GetType(), out var beliefsOfType))
             {
-                beliefsOfClass = new();
-                Beliefs.Add(belief.GetType(), beliefsOfClass);
+                beliefsOfType = new();
+                Beliefs.Add(belief.GetType(), beliefsOfType);
             }
-            beliefsOfClass.Add(belief);
+            beliefsOfType.Add(belief);
 
             var enablesActivities = new List<IActivity>();
             BeliefsEnablingActivities.Add(belief, enablesActivities);
@@ -127,8 +135,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
 
         public B GetBelief<B>(Predicate<B> predicate) where B : class, IBelief
         {
-            var beliefsOfClass = Beliefs[typeof(B)];
-            var belief = beliefsOfClass.Find(b => predicate(b as B));
+            var beliefsOfType = Beliefs[typeof(B)];
+            var belief = beliefsOfType.Find(b => predicate(b as B));
 
             return belief as B;
         }
