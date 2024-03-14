@@ -13,12 +13,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Scp914
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
             _openedDoorSaw = fpcMind.ActivityEnabledBy<Scp914ChamberDoor>(this, OfOpened, b => b.Door);
-            _scp914Chamber = fpcMind.ActivityEnabledBy<Scp914Chamber>(this, b => !b.IsPlayerAtSide);
+            _scp914Chamber = fpcMind.ActivityEnabledBy<Scp914Chamber>(this, b => b.Outside, b => b.IsPlayerAtSide);
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityImpacts<Scp914Chamber>(this);
+            fpcMind.ActivityImpacts<Scp914Chamber>(this, b => b.Inside);
         }
 
         public EnterScp914Chamber(FpcBotPlayer botPlayer)

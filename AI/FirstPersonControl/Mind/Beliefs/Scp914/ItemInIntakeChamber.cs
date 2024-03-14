@@ -14,6 +14,15 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Scp914
             this.ItemType = itemType;
         }
 
+        private bool isInside;
+        public bool Inside => isInside == true;
+
         public event Action OnUpdate;
+
+        public void Update(bool isInside)
+        {
+            this.isInside = isInside;
+            this.OnUpdate?.Invoke();
+        }
     }
 }

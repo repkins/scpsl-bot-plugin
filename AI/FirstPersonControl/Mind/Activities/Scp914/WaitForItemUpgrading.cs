@@ -20,14 +20,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Scp914
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityEnabledBy<ItemInIntakeChamber>(this, b => b.ItemType == InItemType);
-            fpcMind.ActivityEnabledBy<Scp914RunningOnSetting>(this, b => b.Setting == KnobSetting);
+            fpcMind.ActivityEnabledBy<ItemInIntakeChamber>(this, b => b.ItemType == InItemType, b => b.Inside);
+            fpcMind.ActivityEnabledBy<Scp914RunningOnSetting>(this, b => b.Setting == KnobSetting, b => b.RunningAtSetting);
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityImpacts<OutakeChamberDoor>(this, b => b.Opened);
-
             foreach (var outCriteria in OutItemCriterias)
             {
                 fpcMind.ActivityImpacts<ItemInOutakeChamber>(this, b => b.Criteria.Equals(outCriteria));

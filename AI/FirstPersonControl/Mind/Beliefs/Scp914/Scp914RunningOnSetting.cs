@@ -16,5 +16,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Scp914
         }
 
         public event Action OnUpdate;
+
+        public bool RunningAtSetting { get; private set; }
     }
 }

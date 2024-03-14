@@ -4,7 +4,7 @@ using System;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Scp914
 {
-    internal class GoToPickupItemInOutakeChamber<C> : IActivity where C : IItemBeliefCriteria
+    internal class GoToPickupItemInOutakeChamber<C> : IActivity where C : IItemBeliefCriteria, IEquatable<C>
     {
         public readonly C Criteria;
         public GoToPickupItemInOutakeChamber(C criteria)
