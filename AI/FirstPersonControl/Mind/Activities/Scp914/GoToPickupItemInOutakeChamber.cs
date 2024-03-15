@@ -14,8 +14,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Scp914
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityEnabledBy<ItemInOutakeChamber>(this, b => b.Criteria.Equals(Criteria), b => b.Position.HasValue);
-            fpcMind.ActivityEnabledBy<Scp914Chamber>(this, b => b.Outside, b => b.IsPlayerAtSide);
+            fpcMind.ActivityEnabledBy<ItemInOutakeChamber>(this, b => b.Criteria.Equals(Criteria), b => b.Inside);
+            fpcMind.ActivityEnabledBy<Scp914Chamber>(this, b => b.Inside, b => b.IsPlayerAtSide);
             fpcMind.ActivityEnabledBy<OutakeChamberDoor>(this, b => b.Opened, b => b.Door);
         }
 

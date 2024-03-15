@@ -3,6 +3,7 @@ using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
 using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Scp914;
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Scp914
 {
@@ -11,6 +12,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Scp914
         public readonly ItemType InItemType;
         public readonly Scp914KnobSetting KnobSetting;
         public readonly IEnumerable<IItemBeliefCriteria> OutItemCriterias;
+
         public WaitForItemUpgrading(ItemType inItemType, Scp914KnobSetting knobSetting, IEnumerable<IItemBeliefCriteria> outItemCriterias)
         {
             this.InItemType = inItemType;
@@ -18,9 +20,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Scp914
             this.OutItemCriterias = outItemCriterias;
         }
 
+        private ItemInIntakeChamber itemInIntakeBelief;
+        private readonly List<ItemInOutakeChamber> itemInOutakeBeliefs = new();
+
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityEnabledBy<ItemInIntakeChamber>(this, b => b.ItemType == InItemType, b => b.Inside);
+            itemInIntakeBelief = fpcMind.ActivityEnabledBy<ItemInIntakeChamber>(this, b => b.ItemType == InItemType, b => b.Inside);
             fpcMind.ActivityEnabledBy<Scp914RunningOnSetting>(this, b => b.Setting == KnobSetting, b => b.RunningAtSetting);
         }
 
@@ -28,18 +33,32 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Scp914
         {
             foreach (var outCriteria in OutItemCriterias)
             {
-                fpcMind.ActivityImpacts<ItemInOutakeChamber>(this, b => b.Criteria.Equals(outCriteria));
+                itemInOutakeBeliefs.Add(fpcMind.ActivityImpacts<ItemInOutakeChamber>(this, b => b.Criteria.Equals(outCriteria)));
             }
+        }
+
+        private float timeRemainingMs;
+
+        public void Reset()
+        {
+            timeRemainingMs = 10f;
         }
 
         public void Tick()
         {
-            throw new NotImplementedException();
-        }
+            var frameMs = Time.deltaTime;
 
-        public void Reset()
-        {
-            throw new NotImplementedException();
+            if (timeRemainingMs < 0f)
+            {
+                var dropPosition = itemInIntakeBelief.DropPosition;
+                itemInIntakeBelief.Update(isInside: false);
+                foreach (var outItemBelief in itemInOutakeBeliefs)
+                {
+                    outItemBelief.Update(isInside: true, dropPosition);
+                }
+            }
+
+            timeRemainingMs -= frameMs;
         }
 
     }

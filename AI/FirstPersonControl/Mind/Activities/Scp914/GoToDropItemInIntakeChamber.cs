@@ -35,13 +35,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Scp914
         {
             RoomIdUtils.TryFindRoom(RoomName.Lcz914, FacilityZone.LightContainment, RoomShape.Endroom, out var scr914Room);
 
-            var dropPosition = scr914Room.transform.TransformPoint(new Vector3(0, 0, 0));
+            var dropPosition = scr914Room.transform.TransformPoint(new(4.82f, 1.02f, 5.16f));
 
             var playerPos = botPlayer.FpcRole.FpcModule.transform.position;
 
             if (Vector3.Distance(dropPosition, playerPos) < 0.01f)
             {
                 itemToUpgradeInInvetory.Item.ServerDropItem();
+                itemInIntake.Update(isInside: true, dropPosition);
             }
             else
             {

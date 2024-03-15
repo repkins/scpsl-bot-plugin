@@ -16,8 +16,16 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Scp914
             this.Criteria = criteria;
         }
 
-        public Vector3? Position { get; internal set; }
-
         public event Action OnUpdate;
+
+        public bool Inside { get; private set; }
+        public Vector3? DropPosition { get; private set; }
+
+        public void Update(bool isInside, Vector3? position = null)
+        {
+            Inside = isInside;
+            DropPosition = position;
+            OnUpdate?.Invoke();
+        }
     }
 }

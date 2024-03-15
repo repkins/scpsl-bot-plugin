@@ -1,4 +1,5 @@
 ﻿using CommandSystem;
+using CommandSystem.Commands.RemoteAdmin.Stripdown;
 using MapGeneration;
 using Mirror;
 using PlayerRoles;
@@ -40,8 +41,9 @@ namespace TestPlugin.Commands
             
             var collider = hit.collider;
             var layerName = LayerMask.LayerToName(collider.gameObject.layer);
+            var tag = collider.gameObject.tag;
 
-            response = $"Got hit with collider of {collider.gameObject} and layer {layerName}";
+            response = $"Got hit with collider of {collider.gameObject} and layer {layerName} and tag {tag}";
             Log.Info(response);
 
             return true;
