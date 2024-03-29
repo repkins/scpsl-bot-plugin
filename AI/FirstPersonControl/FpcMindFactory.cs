@@ -11,7 +11,6 @@ using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
 using SCPSLBot.AI.FirstPersonControl.Mind.Desires;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using SCPSLBot.AI.FirstPersonControl.Mind.Activities;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Scp914;
 
 namespace SCPSLBot.AI.FirstPersonControl
 {
@@ -48,11 +47,6 @@ namespace SCPSLBot.AI.FirstPersonControl
 
 
             mind.AddBelief(new ItemOfTypeWithinSight(new (ItemType.Medkit), perception.GetSense<ItemsWithinSightSense>()));
-
-
-            //mind.AddBelief(new DoorWithinSight<PryableDoor>());
-            mind.AddBelief(new Scp914ChamberDoor(DoorState.Closed));
-            mind.AddBelief(new Scp914ChamberDoor(DoorState.Opened));
 
             //mind.AddActivity(new Explore(botPlayer));
 
