@@ -1,4 +1,5 @@
-﻿using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
+﻿using SCPSLBot.AI.FirstPersonControl.Mind.Item;
+using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Desires
 {

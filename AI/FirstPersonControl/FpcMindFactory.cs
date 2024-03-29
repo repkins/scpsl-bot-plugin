@@ -4,10 +4,13 @@ using InventorySystem.Items.Keycards;
 using InventorySystem.Items.Usables;
 using SCPSLBot.AI.FirstPersonControl.Mind;
 using SCPSLBot.AI.FirstPersonControl.Mind.Desires;
-using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
-using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
+using SCPSLBot.AI.FirstPersonControl.Mind.Item;
 using SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities;
+using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
 using SCPSLBot.AI.FirstPersonControl.Mind.Item.Keycard;
+using SCPSLBot.AI.FirstPersonControl.Mind.Item.Keycard.Activities;
+using SCPSLBot.AI.FirstPersonControl.Mind.Item.Keycard.Beliefs;
+using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 
 namespace SCPSLBot.AI.FirstPersonControl
 {

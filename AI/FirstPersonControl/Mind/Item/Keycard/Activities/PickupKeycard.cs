@@ -1,10 +1,11 @@
 ﻿using Interactables.Interobjects.DoorUtils;
 using SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities;
 using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
+using SCPSLBot.AI.FirstPersonControl.Mind.Item.Keycard.Beliefs;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Keycard
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Keycard.Activities
 {
-    internal class PickupKeycard : PickupItemBase<KeycardWithPermissions>
+    internal class PickupKeycard : PickupItem<KeycardWithPermissions>
     {
         protected override ItemWithinPickupDistance<KeycardWithPermissions> ItemWithinPickupDistance => _botPlayer.MindRunner.GetBelief<KeycardWithinPickupDistance>(OfPermissions);
         protected override ItemInInventoryBase ItemInInventory => _botPlayer.MindRunner.GetBelief<ItemInInventory<KeycardWithPermissions>>(OfPermissions);

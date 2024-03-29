@@ -2,7 +2,7 @@
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 {
-    internal abstract class GoToPickupItemBase<C> : IActivity where C : IItemBeliefCriteria
+    internal abstract class GoToPickupItem<C> : IActivity where C : IItemBeliefCriteria
     {
         protected abstract ItemWithinSight<C> ItemWithinSight { get; }
         protected abstract ItemWithinPickupDistance<C> ItemWithinPickupDistance { get; }
@@ -17,7 +17,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
             fpcMind.ActivityImpacts(this, ItemWithinPickupDistance);
         }
 
-        public GoToPickupItemBase(FpcBotPlayer botPlayer)
+        public GoToPickupItem(FpcBotPlayer botPlayer)
         {
             _botPlayer = botPlayer;
         }

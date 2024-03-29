@@ -4,7 +4,7 @@ using InventorySystem;
 using InventorySystem.Items.Pickups;
 using InventorySystem.Items;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Keycard
 {
     internal struct KeycardWithPermissions : IItemBeliefCriteria
     {

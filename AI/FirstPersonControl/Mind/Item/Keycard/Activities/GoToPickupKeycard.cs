@@ -2,10 +2,11 @@
 using InventorySystem.Items.Pickups;
 using SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities;
 using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
+using SCPSLBot.AI.FirstPersonControl.Mind.Item.Keycard.Beliefs;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Keycard
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Keycard.Activities
 {
-    internal class GoToPickupKeycard : GoToPickupItemBase<KeycardWithPermissions>
+    internal class GoToPickupKeycard : GoToPickupItem<KeycardWithPermissions>
     {
         protected override ItemWithinSight<KeycardWithPermissions> ItemWithinSight => _botPlayer.MindRunner.GetBelief<KeycardWithinSight>(OfPermissions);
         protected override ItemWithinPickupDistance<KeycardWithPermissions> ItemWithinPickupDistance => _botPlayer.MindRunner.GetBelief<KeycardWithinPickupDistance>(OfPermissions);

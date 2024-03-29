@@ -3,7 +3,7 @@ using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 {
-    internal class GoToPickupItemOfType : GoToPickupItemBase<ItemOfType>
+    internal class GoToPickupItemOfType : GoToPickupItem<ItemOfType>
     {
         public ItemType ItemType { get; }
         public GoToPickupItemOfType(ItemType itemType, FpcBotPlayer botPlayer) : base(botPlayer)

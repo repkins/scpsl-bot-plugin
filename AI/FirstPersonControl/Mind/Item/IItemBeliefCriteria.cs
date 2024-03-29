@@ -2,7 +2,7 @@
 using InventorySystem.Items.Pickups;
 using System;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Item
 {
     internal interface IItemBeliefCriteria : IEquatable<IItemBeliefCriteria>
     {

@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 {
-    internal abstract class PickupItemBase<C> : IActivity where C : IItemBeliefCriteria
+    internal abstract class PickupItem<C> : IActivity where C : IItemBeliefCriteria
     {
         protected abstract ItemWithinPickupDistance<C> ItemWithinPickupDistance { get; }
         protected abstract ItemInInventoryBase ItemInInventory { get; }
@@ -22,7 +22,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
             fpcMind.ActivityImpacts(this, ItemInInventory);
         }
 
-        public PickupItemBase(FpcBotPlayer botPlayer)
+        public PickupItem(FpcBotPlayer botPlayer)
         {
             _botPlayer = botPlayer;
         }

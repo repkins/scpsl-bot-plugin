@@ -1,5 +1,6 @@
 ﻿using Interactables.Interobjects.DoorUtils;
 using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
+using SCPSLBot.AI.FirstPersonControl.Mind.Item.Keycard;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Desires
 {

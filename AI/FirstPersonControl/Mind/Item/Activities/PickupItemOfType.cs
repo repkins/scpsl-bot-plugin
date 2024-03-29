@@ -2,7 +2,7 @@
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 {
-    internal class PickupItemOfType : PickupItemBase<ItemOfType>
+    internal class PickupItemOfType : PickupItem<ItemOfType>
     {
         protected override ItemWithinPickupDistance<ItemOfType> ItemWithinPickupDistance => _botPlayer.MindRunner.GetBelief<ItemOfTypeWithinPickupDistance>(OfItemType);
         protected override ItemInInventoryBase ItemInInventory => _botPlayer.MindRunner.GetBelief<ItemInInventory<ItemOfType>>(OfItemType);

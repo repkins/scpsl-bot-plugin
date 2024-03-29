@@ -1,8 +1,8 @@
 ﻿using InventorySystem.Items.Pickups;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Room;
+using SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs;
 using UnityEngine;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Room.Activities
 {
     internal abstract class GoToRoom : IActivity
     {

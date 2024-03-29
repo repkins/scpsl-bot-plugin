@@ -1,7 +1,7 @@
 ﻿using SCPSLBot.Navigation.Mesh;
 using System;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Room
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs
 {
     internal class RoomBase : IBelief
     {

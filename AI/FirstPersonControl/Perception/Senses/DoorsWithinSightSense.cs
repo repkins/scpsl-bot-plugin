@@ -3,7 +3,7 @@ using Interactables.Interobjects.DoorUtils;
 using MapGeneration;
 using PluginAPI.Core;
 using Scp914;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Door;
+using SCPSLBot.AI.FirstPersonControl.Mind.Door;
 using System.Collections.Generic;
 using UnityEngine;
 

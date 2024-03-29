@@ -14,7 +14,7 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 {
-    internal abstract class FindItemBase<C> : IActivity where C : IItemBeliefCriteria
+    internal abstract class FindItem<C> : IActivity where C : IItemBeliefCriteria
     {
         protected abstract ItemWithinSight<C> ItemWithinSight { get; }
 
@@ -26,7 +26,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         { }
 
-        public FindItemBase(FpcBotPlayer botPlayer)
+        public FindItem(FpcBotPlayer botPlayer)
         {
             this.botPlayer = botPlayer;
         }

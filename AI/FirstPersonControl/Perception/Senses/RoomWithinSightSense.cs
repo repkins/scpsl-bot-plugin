@@ -1,6 +1,6 @@
 ﻿using MapGeneration;
 using PluginAPI.Core;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Room;
+using SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs;
 using SCPSLBot.Navigation.Mesh;
 using System.Linq;
 using UnityEngine;

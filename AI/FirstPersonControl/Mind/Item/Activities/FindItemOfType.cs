@@ -2,7 +2,7 @@
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 {
-    internal class FindItemOfType : FindItemBase<ItemOfType>
+    internal class FindItemOfType : FindItem<ItemOfType>
     {
         public readonly ItemType ItemType;
         public FindItemOfType(ItemType itemType, FpcBotPlayer botPlayer) : base(botPlayer)
