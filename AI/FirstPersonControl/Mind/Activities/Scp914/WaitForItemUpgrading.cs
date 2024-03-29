@@ -50,11 +50,13 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Scp914
 
             if (timeRemainingMs < 0f)
             {
-                var dropPosition = itemInIntakeBelief.DropPosition;
+                var dropIntakePosition = itemInIntakeBelief.DropPosition;
+                var dropOutakePos = dropIntakePosition + (Scp914Controller.Singleton.OutputChamber.position - Scp914Controller.Singleton.IntakeChamber.position);
+
                 itemInIntakeBelief.Update(isInside: false);
                 foreach (var outItemBelief in itemInOutakeBeliefs)
                 {
-                    outItemBelief.Update(isInside: true, dropPosition);
+                    outItemBelief.Update(isInside: true, dropOutakePos);
                 }
             }
 
