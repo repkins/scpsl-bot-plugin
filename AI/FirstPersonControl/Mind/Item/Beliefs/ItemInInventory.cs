@@ -2,7 +2,7 @@
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using System;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 {
     internal class ItemInInventory<C> : ItemInInventory<C, ItemBase> where C : IItemBeliefCriteria
     {
@@ -16,7 +16,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item
         public C Criteria { get; }
         public ItemInInventory(C criteria, ItemsInInventorySense inventorySense)
         {
-            this.Criteria = criteria;
+            Criteria = criteria;
             this._itemsInInventorySense = inventorySense;
 
             _itemsInInventorySense.OnSensedItem += ProcessSensedItem;

@@ -2,7 +2,7 @@
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using System;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 {
     internal class ItemPickup<P, C> : IBelief where P : ItemPickupBase where C : IItemBeliefCriteria
     {
@@ -50,7 +50,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item
                     Update(null);
                 }
             }
-            
+
             numItems = 0;
         }
 

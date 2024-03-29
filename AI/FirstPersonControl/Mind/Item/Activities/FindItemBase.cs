@@ -3,7 +3,7 @@ using MapGeneration;
 using MapGeneration.Distributors;
 using PluginAPI.Core;
 using PluginAPI.Core.Zones;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
+using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using SCPSLBot.MapGeneration;
 using SCPSLBot.Navigation.Mesh;
@@ -12,7 +12,7 @@ using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 {
     internal abstract class FindItemBase<C> : IActivity where C : IItemBeliefCriteria
     {

@@ -1,6 +1,7 @@
-﻿using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
+﻿using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
+using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.Keycard
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Keycard
 {
     internal class KeycardWithinPickupDistance : ItemWithinPickupDistance<KeycardWithPermissions>
     {

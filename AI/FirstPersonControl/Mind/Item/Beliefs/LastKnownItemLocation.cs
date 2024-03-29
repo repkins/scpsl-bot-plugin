@@ -6,9 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 {
-    internal class LastKnownItemLocation<T> : IBelief where T : InventorySystem.Items.ItemBase
+    internal class LastKnownItemLocation<T> : IBelief where T : ItemBase
     {
         public Vector3? Position { get; private set; }
 

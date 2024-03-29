@@ -2,7 +2,7 @@
 using InventorySystem.Items.Pickups;
 using System;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 {
     internal struct ItemOfType : IItemBeliefCriteria, IEquatable<ItemOfType>
     {
@@ -37,7 +37,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item
             return other.ItemType == this.ItemType;
         }
 
-        public static implicit operator ItemOfType(ItemType itemType) => new (itemType);
+        public static implicit operator ItemOfType(ItemType itemType) => new(itemType);
 
         public override string ToString()
         {

@@ -1,16 +1,13 @@
 ﻿using Interactables.Interobjects.DoorUtils;
-using Interactables.Interobjects;
 using InventorySystem.Items.Firearms;
 using InventorySystem.Items.Keycards;
 using InventorySystem.Items.Usables;
 using SCPSLBot.AI.FirstPersonControl.Mind;
-using SCPSLBot.AI.FirstPersonControl.Mind.Activities.Keycard;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Door;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.Keycard;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
 using SCPSLBot.AI.FirstPersonControl.Mind.Desires;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
-using SCPSLBot.AI.FirstPersonControl.Mind.Activities;
+using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
+using SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities;
+using SCPSLBot.AI.FirstPersonControl.Mind.Item.Keycard;
 
 namespace SCPSLBot.AI.FirstPersonControl
 {

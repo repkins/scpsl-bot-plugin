@@ -1,8 +1,8 @@
 ﻿using Interactables.Interobjects.DoorUtils;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item.Keycard;
+using SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities;
+using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities.Keycard
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Keycard
 {
     internal class FindKeycard : FindItemBase<KeycardWithPermissions>
     {

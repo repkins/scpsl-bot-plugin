@@ -1,6 +1,6 @@
-﻿using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
+﻿using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 {
     internal abstract class GoToPickupItemBase<C> : IActivity where C : IItemBeliefCriteria
     {

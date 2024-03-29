@@ -1,9 +1,9 @@
 ﻿using InventorySystem.Searching;
 using PluginAPI.Core;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
+using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
 using UnityEngine;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 {
     internal abstract class PickupItemBase<C> : IActivity where C : IItemBeliefCriteria
     {

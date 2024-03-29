@@ -1,6 +1,6 @@
-﻿using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
+﻿using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 {
     internal class PickupItemOfType : PickupItemBase<ItemOfType>
     {
@@ -10,11 +10,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
         public ItemType ItemType { get; }
         public PickupItemOfType(ItemType itemType, FpcBotPlayer botPlayer) : base(botPlayer)
         {
-            this.ItemType = itemType;
+            ItemType = itemType;
         }
 
-        private bool OfItemType(ItemWithinPickupDistance<ItemOfType> b) => b.Criteria.ItemType == this.ItemType;
-        private bool OfItemType(ItemInInventory<ItemOfType> b) => b.Criteria.ItemType == this.ItemType;
+        private bool OfItemType(ItemWithinPickupDistance<ItemOfType> b) => b.Criteria.ItemType == ItemType;
+        private bool OfItemType(ItemInInventory<ItemOfType> b) => b.Criteria.ItemType == ItemType;
 
         public override string ToString()
         {

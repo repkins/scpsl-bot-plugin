@@ -1,7 +1,7 @@
 ﻿using InventorySystem.Items.Pickups;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
+using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 {
     internal class GoToPickupItemOfType : GoToPickupItemBase<ItemOfType>
     {
@@ -14,7 +14,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Activities
         protected override ItemWithinSight<ItemOfType> ItemWithinSight => _botPlayer.MindRunner.GetBelief<ItemOfTypeWithinSight>(OfItemType);
         protected override ItemWithinPickupDistance<ItemOfType> ItemWithinPickupDistance => _botPlayer.MindRunner.GetBelief<ItemOfTypeWithinPickupDistance>(OfItemType);
 
-        private bool OfItemType(ItemPickup<ItemPickupBase, ItemOfType> b) => b.Criteria.ItemType == this.ItemType;
+        private bool OfItemType(ItemPickup<ItemPickupBase, ItemOfType> b) => b.Criteria.ItemType == ItemType;
 
         public override string ToString()
         {

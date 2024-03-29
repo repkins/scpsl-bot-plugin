@@ -1,7 +1,4 @@
-﻿using InventorySystem.Items.Keycards;
-using SCPSLBot.AI.FirstPersonControl.Attributes;
-using SCPSLBot.AI.FirstPersonControl.Mind.Beliefs.Item;
-using SCPSLBot.AI.FirstPersonControl.Mind.Desires;
+﻿using SCPSLBot.AI.FirstPersonControl.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
