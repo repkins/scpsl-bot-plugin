@@ -23,9 +23,9 @@ namespace SCPSLBot.AI.FirstPersonControl
             mind.AddBelief(new ItemWithinPickupDistance<ItemOfType>(new(ItemType.KeycardO5), perception.GetSense<ItemsWithinSightSense>()));
             mind.AddBelief(new ItemInInventory<ItemOfType>(new(ItemType.KeycardO5), perception.GetSense<ItemsInInventorySense>()));
 
-            mind.AddActivity(new FindItemOfType(ItemType.KeycardO5, botPlayer));
-            mind.AddActivity(new GoToPickupItemOfType(ItemType.KeycardO5, botPlayer));
-            mind.AddActivity(new PickupItemOfType(ItemType.KeycardO5, botPlayer));
+            mind.AddActivity(new FindItem<ItemOfType>(ItemType.KeycardO5, botPlayer));
+            mind.AddActivity(new GoToPickupItem<ItemOfType>(ItemType.KeycardO5, botPlayer));
+            mind.AddActivity(new PickupItem<ItemOfType>(ItemType.KeycardO5, botPlayer));
 
 
             mind.AddBelief(new ItemWithinSight<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelOne), perception.GetSense<ItemsWithinSightSense>()));

@@ -48,49 +48,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 
             if (lockersWithinSightSense.LockersWithinSight.Any())
             {
-                var lockerWithinSight = lockersWithinSightSense.LockersWithinSight.FirstOrDefault(l => l.StructureType == StructureType.StandardLocker);
-                if (lockerWithinSight)
+                var handlingLocker = this.HandleLockers(lockersWithinSightSense, ref goalPoiReached);
+                if (handlingLocker)
                 {
-                    var lockerPos = lockerWithinSight.transform.position;
-                    var targetPlayerPosAtLocker = Vector3.ProjectOnPlane(lockerPos + lockerWithinSight.transform.forward * 2, Vector3.up);
-                    targetPlayerPosAtLocker.y = playerPosition.y;
-
-                    var closedChamber = lockerWithinSight.Chambers.FirstOrDefault(ch => !ch.IsOpen);
-                    if (closedChamber)
-                    {
-                        if (Vector3.Distance(targetPlayerPosAtLocker, playerPosition) < 0.1f)
-                        {
-                            if (!botPlayer.OpenLockerDoor(closedChamber, interactDistance))
-                            {
-                                var posToChamber = closedChamber.GetComponentInChildren<InteractableCollider>().GetComponent<Collider>().bounds.center;
-
-                                botPlayer.LookToPosition(posToChamber);
-                                //Log.Debug($"Looking towards door interactable");
-                            }
-                            else
-                            {
-                                stopwatch.Restart();
-                            }
-                        }
-                        else
-                        {
-                            botPlayer.MoveToPosition(targetPlayerPosAtLocker);
-                        }
-
-                        return;
-                    }
-
-                    if (stopwatch.Elapsed.TotalSeconds < 1f)
-                    {
-                        return;
-                    }
-
-                    stopwatch.Stop();
-
-                    if (goalPoi.HasValue && !goalPoiReached)
-                    {
-                        goalPoiReached = true;
-                    }
+                    return;
                 }
             }
 
@@ -102,46 +63,19 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
             var withinArea = navMesh.GetAreaWithin(playerPosition);
             if (withinArea is null && goalArea == null && !goalPoi.HasValue)
             {
-                Log.Debug($"No within area found, trying to get to closest area.");
-
-                if (navMesh.GetNearestEdge(playerPosition, out var closestPoint).HasValue)
-                {
-                    botPlayer.MoveToPosition(closestPoint);
-                }
-                else
-                {
-                    Log.Warning($"Could not find way to nearest area.");
-                }
+                HandleNoArea(playerPosition, navMesh);
 
                 return;
             }
 
             if (withinArea != null && goalPoi.HasValue && goalPoiReached)
             {
-                var idx = goalPoi.Value.idx;
-
-                Log.Debug($"Reached goal poi, adding to visited pois with {(withinArea.RoomKindArea.RoomKind, idx)}");
-
-                visitedPointsOfInterestIndices.Add((withinArea.RoomKindArea.RoomKind, idx));
-
-                goalPoi = null;
+                HandlePoiReached(withinArea, goalPoi.Value.idx);
             }
 
             if (withinArea != null && !goalPoi.HasValue && pointsOfInterests.TryGetValue(withinArea.RoomKindArea.RoomKind, out var roomPois))
             {
-                var nextLocalPoi = roomPois
-                    .Select((p, i) => (p, i))
-                    .Where(t => !visitedPointsOfInterestIndices.Contains((withinArea.RoomKindArea.RoomKind, t.i)))
-                    .OrderBy(t => Vector3.SqrMagnitude(t.p - playerPosition))
-                    .Select(t => new (Vector3 p, int i)?(t))
-                    .DefaultIfEmpty(null)
-                    .First();
-
-                if (nextLocalPoi.HasValue)
-                {
-                    goalPoi = (withinArea.Room.Transform.TransformPoint(nextLocalPoi.Value.p), nextLocalPoi.Value.i);
-                    Log.Debug($"Assigned goal poi");
-                }
+                SelectPoi(playerPosition, withinArea, roomPois);
             }
 
             // Set new position leading to unexplored area (room)
@@ -162,48 +96,149 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 
             if (!goalPoi.HasValue && goalArea is null && withinArea != null)
             {
-                var areasWithForeign = navMesh.AreasByRoom[withinArea.Room]
-                    .Where(a => a.ForeignConnectedAreas.Any());
-
-                var selectedAreas = areasWithForeign.Take(2)
-                    .Count() < 2
-                        ? areasWithForeign
-                        : areasWithForeign.Where(awf => awf != lastEntryArea);
-
-                var possibleGoalAreas = selectedAreas
-                    .SelectMany(a => a.ForeignConnectedAreas)
-                    .Select(fa => fa.ConnectedAreas.First())
-                    .OrderBy(fa => roomsLastVisitTime.TryGetValue(fa.Room, out var time) ? time : 0f)
-                    .ToArray();
-
-                goalArea = possibleGoalAreas.First();
-
-                Log.Debug($"Moving to next room");
+                SelectGoalArea(navMesh, withinArea);
             }
 
             var goalPos = goalPoi?.pos ?? goalArea?.CenterPosition;
-
             if (goalPos.HasValue)
             {
-                var points = botPlayer.Navigator.GetPathTowards(goalPos.Value);
-                var doorsOnPath = botPlayer.Perception.GetDoorsOnPath(points);
-
-                var firstDoorOnPath = doorsOnPath.FirstOrDefault();
-                if (firstDoorOnPath && !firstDoorOnPath.TargetState && Vector3.Distance(firstDoorOnPath.transform.position + Vector3.up, playerPosition) <= interactDistance)
-                {
-                    Log.Debug($"{firstDoorOnPath} is within interactable distance");
-
-                    if (!botPlayer.OpenDoor(firstDoorOnPath, interactDistance))
-                    {
-                        botPlayer.LookToPosition(firstDoorOnPath.transform.position + Vector3.up);
-                        //Log.Debug($"Looking towards door interactable");
-                    }
-                }
-                //else
-                //{
-                botPlayer.MoveToPosition(goalPos.Value);
-                //}
+                HandleGoalPosition(playerPosition, goalPos.Value);
             }
+        }
+
+        private bool HandleLockers(LockersWithinSightSense lockersWithinSightSense, ref bool goalPoiReached)
+        {
+            var playerPosition = botPlayer.FpcRole.FpcModule.Position;
+
+            var lockerWithinSight = lockersWithinSightSense.LockersWithinSight.FirstOrDefault(l => l.StructureType == StructureType.StandardLocker);
+            if (lockerWithinSight)
+            {
+                var lockerPos = lockerWithinSight.transform.position;
+                var targetPlayerPosAtLocker = Vector3.ProjectOnPlane(lockerPos + lockerWithinSight.transform.forward * 2, Vector3.up);
+                targetPlayerPosAtLocker.y = playerPosition.y;
+
+                var closedChamber = lockerWithinSight.Chambers.FirstOrDefault(ch => !ch.IsOpen);
+                if (closedChamber)
+                {
+                    if (Vector3.Distance(targetPlayerPosAtLocker, playerPosition) < 0.1f)
+                    {
+                        if (!botPlayer.OpenLockerDoor(closedChamber, interactDistance))
+                        {
+                            var posToChamber = closedChamber.GetComponentInChildren<InteractableCollider>().GetComponent<Collider>().bounds.center;
+
+                            botPlayer.LookToPosition(posToChamber);
+                            //Log.Debug($"Looking towards door interactable");
+                        }
+                        else
+                        {
+                            stopwatch.Restart();
+                        }
+                    }
+                    else
+                    {
+                        botPlayer.MoveToPosition(targetPlayerPosAtLocker);
+                    }
+
+                    return true;
+                }
+
+                if (stopwatch.Elapsed.TotalSeconds < 1f)
+                {
+                    return true;
+                }
+
+                stopwatch.Stop();
+
+                if (goalPoi.HasValue && !goalPoiReached)
+                {
+                    goalPoiReached = true;
+                }
+            }
+
+            return false;
+        }
+
+        private void HandleNoArea(Vector3 playerPosition, NavigationMesh navMesh)
+        {
+            Log.Debug($"No within area found, trying to get to closest area.");
+
+            if (navMesh.GetNearestEdge(playerPosition, out var closestPoint).HasValue)
+            {
+                botPlayer.MoveToPosition(closestPoint);
+            }
+            else
+            {
+                Log.Warning($"Could not find way to nearest area.");
+            }
+        }
+
+        private void HandlePoiReached(Area withinArea, int idx)
+        {
+            Log.Debug($"Reached goal poi, adding to visited pois with {(withinArea.RoomKindArea.RoomKind, idx)}");
+
+            visitedPointsOfInterestIndices.Add((withinArea.RoomKindArea.RoomKind, idx));
+
+            goalPoi = null;
+        }
+
+        private void SelectPoi(Vector3 playerPosition, Area withinArea, List<Vector3> roomPois)
+        {
+            var nextLocalPoi = roomPois
+                .Select((p, i) => (p, i))
+                .Where(t => !visitedPointsOfInterestIndices.Contains((withinArea.RoomKindArea.RoomKind, t.i)))
+                .OrderBy(t => Vector3.SqrMagnitude(t.p - playerPosition))
+                .Select(t => new (Vector3 p, int i)?(t))
+                .DefaultIfEmpty(null)
+                .First();
+
+            if (nextLocalPoi.HasValue)
+            {
+                goalPoi = (withinArea.Room.Transform.TransformPoint(nextLocalPoi.Value.p), nextLocalPoi.Value.i);
+                Log.Debug($"Assigned goal poi");
+            }
+        }
+
+        private void SelectGoalArea(NavigationMesh navMesh, Area withinArea)
+        {
+            var areasWithForeign = navMesh.AreasByRoom[withinArea.Room]
+                                .Where(a => a.ForeignConnectedAreas.Any());
+
+            var selectedAreas = areasWithForeign.Take(2)
+                .Count() < 2
+                    ? areasWithForeign
+                    : areasWithForeign.Where(awf => awf != lastEntryArea);
+
+            var possibleGoalAreas = selectedAreas
+                .SelectMany(a => a.ForeignConnectedAreas)
+                .Select(fa => fa.ConnectedAreas.First())
+                .OrderBy(fa => roomsLastVisitTime.TryGetValue(fa.Room, out var time) ? time : 0f)
+                .ToArray();
+
+            goalArea = possibleGoalAreas.First();
+
+            Log.Debug($"Moving to next room");
+        }
+
+        private void HandleGoalPosition(Vector3 playerPosition, Vector3 goalPos)
+        {
+            var points = botPlayer.Navigator.GetPathTowards(goalPos);
+            var doorsOnPath = botPlayer.Perception.GetDoorsOnPath(points);
+
+            var firstDoorOnPath = doorsOnPath.FirstOrDefault();
+            if (firstDoorOnPath && !firstDoorOnPath.TargetState && Vector3.Distance(firstDoorOnPath.transform.position + Vector3.up, playerPosition) <= interactDistance)
+            {
+                Log.Debug($"{firstDoorOnPath} is within interactable distance");
+
+                if (!botPlayer.OpenDoor(firstDoorOnPath, interactDistance))
+                {
+                    botPlayer.LookToPosition(firstDoorOnPath.transform.position + Vector3.up);
+                    //Log.Debug($"Looking towards door interactable");
+                }
+            }
+            //else
+            //{
+            botPlayer.MoveToPosition(goalPos);
+            //}
         }
 
         public void Reset()
