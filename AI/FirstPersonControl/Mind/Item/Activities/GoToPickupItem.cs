@@ -1,20 +1,24 @@
 ﻿using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
+using System;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 {
-    internal abstract class GoToPickupItem<C> : IActivity where C : IItemBeliefCriteria
+    internal class GoToPickupItem<C> : IActivity where C : IItemBeliefCriteria, IEquatable<C>
     {
-        protected abstract ItemWithinSight<C> ItemWithinSight { get; }
-        protected abstract ItemWithinPickupDistance<C> ItemWithinPickupDistance { get; }
+        public readonly C Criteria;
+        public GoToPickupItem(C criteria, FpcBotPlayer botPlayer) : this(botPlayer)
+        {
+            this.Criteria = criteria;
+        }
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            _itemWithinSight = fpcMind.ActivityEnabledBy(this, ItemWithinSight, b => b.Item);
+            _itemWithinSight = fpcMind.ActivityEnabledBy<ItemWithinSight<C>>(this, b => b.Criteria.Equals(Criteria), b => b.Item);
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityImpacts(this, ItemWithinPickupDistance);
+            fpcMind.ActivityImpacts<ItemWithinPickupDistance<C>>(this, b => b.Criteria.Equals(Criteria));
         }
 
         public GoToPickupItem(FpcBotPlayer botPlayer)

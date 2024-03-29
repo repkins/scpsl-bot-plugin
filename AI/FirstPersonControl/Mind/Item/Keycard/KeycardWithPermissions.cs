@@ -3,10 +3,11 @@ using InventorySystem.Items.Keycards;
 using InventorySystem;
 using InventorySystem.Items.Pickups;
 using InventorySystem.Items;
+using System;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Keycard
 {
-    internal struct KeycardWithPermissions : IItemBeliefCriteria
+    internal struct KeycardWithPermissions : IItemBeliefCriteria, IEquatable<KeycardWithPermissions>
     {
         public KeycardPermissions Permissions;
         public KeycardWithPermissions(KeycardPermissions permissions)
@@ -28,7 +29,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Keycard
 
         public bool Equals(IItemBeliefCriteria other)
         {
-            return other is KeycardWithPermissions otherOf && otherOf.Permissions == this.Permissions;
+            return other is KeycardWithPermissions otherOf && this.Equals(otherOf);
+        }
+
+        public bool Equals(KeycardWithPermissions other)
+        {
+            return other.Permissions == this.Permissions;
         }
 
         public override string ToString()

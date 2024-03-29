@@ -1,25 +1,27 @@
 ﻿using InventorySystem.Searching;
 using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
+using System;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 {
-    internal abstract class PickupItem<C> : IActivity where C : IItemBeliefCriteria
+    internal class PickupItem<C> : IActivity where C : IItemBeliefCriteria, IEquatable<C>
     {
-        protected abstract ItemWithinPickupDistance<C> ItemWithinPickupDistance { get; }
-        protected abstract ItemInInventoryBase ItemInInventory { get; }
-
-        public bool Condition() => _itemWithinPickupDistance.Item;
+        public readonly C Criteria;
+        public PickupItem(C criteria, FpcBotPlayer botPlayer) : this(botPlayer)
+        {
+            this.Criteria = criteria;
+        }
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            _itemWithinPickupDistance = fpcMind.ActivityEnabledBy(this, ItemWithinPickupDistance, b => b.Item);
+            _itemWithinPickupDistance = fpcMind.ActivityEnabledBy<ItemWithinPickupDistance<C>>(this, b => b.Criteria.Equals(Criteria), b => b.Item);
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityImpacts(this, ItemInInventory);
+            fpcMind.ActivityImpacts<ItemInInventory<C>>(this, b => b.Criteria.Equals(Criteria));
         }
 
         public PickupItem(FpcBotPlayer botPlayer)

@@ -7,6 +7,7 @@ using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using SCPSLBot.MapGeneration;
 using SCPSLBot.Navigation.Mesh;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -14,17 +15,21 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 {
-    internal abstract class FindItem<C> : IActivity where C : IItemBeliefCriteria
+    internal class FindItem<C> : IActivity where C : IItemBeliefCriteria, IEquatable<C>
     {
-        protected abstract ItemWithinSight<C> ItemWithinSight { get; }
-
-        public void SetImpactsBeliefs(FpcMind fpcMind)
+        public readonly C Criteria;
+        public FindItem(C criteria, FpcBotPlayer botPlayer) : this(botPlayer)
         {
-            fpcMind.ActivityImpacts(this, ItemWithinSight);
+            this.Criteria = criteria;
         }
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         { }
+
+        public void SetImpactsBeliefs(FpcMind fpcMind)
+        {
+            fpcMind.ActivityImpacts<ItemWithinSight<C>>(this, b => b.Criteria.Equals(Criteria));
+        }
 
         public FindItem(FpcBotPlayer botPlayer)
         {
