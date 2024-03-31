@@ -65,13 +65,18 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             OnAfterSensedItemsWithinPickupDistance?.Invoke();
         }
 
-        public bool IsPositionWithinSight(Vector3 position)
+        public bool IsPositionWithinSight(Vector3 targetPosition)
         {
             var cameraTransform = _fpcBotPlayer.BotHub.PlayerHub.PlayerCameraReference;
 
-            var isHit = Physics.Linecast(cameraTransform.position, position);
+            if (!IsWithinFov(cameraTransform.position, cameraTransform.forward, targetPosition))
+            {
+                return false;
+            }
 
-            return !isHit;
+            var isObstructed = Physics.Linecast(cameraTransform.position, targetPosition);
+
+            return !isObstructed;
         }
 
         private readonly FpcBotPlayer _fpcBotPlayer;

@@ -5,15 +5,9 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 {
-    internal class ItemLocation<C> : ItemLocation where C : IItemBeliefCriteria
+    internal partial class ItemLocation<C> where C : IItemBeliefCriteria
     {
-        public C Criteria { get; }
-        public ItemLocation(C criteria, ItemsWithinSightSense itemsSightSense) : this(itemsSightSense)
-        {
-            Criteria = criteria;
-        }
-
-        public ItemLocation(ItemsWithinSightSense itemsSightSense)
+        public ItemLocation(C criteria, ItemsWithinSightSense itemsSightSense) : this(criteria)
         {
             this.itemsSightSense = itemsSightSense;
             this.itemsSightSense.OnSensedItemWithinSight += ProcessSensedItem;
@@ -48,9 +42,19 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
         private readonly ItemsWithinSightSense itemsSightSense;
     }
 
+    internal partial class ItemLocation<C> : ItemLocation where C : IItemBeliefCriteria
+    {
+        public C Criteria { get; }
+        public ItemLocation(C criteria)
+        {
+            Criteria = criteria;
+        }
+    }
+
     internal class ItemLocation : IBelief
     {
         public Vector3? Position;
+        public bool IsKnown => Position.HasValue;
 
         public event Action OnUpdate;
 
