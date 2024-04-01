@@ -30,7 +30,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
         {
             if (numItemsWithinSight == 0 && Position.HasValue)
             {
-                if (itemsSightSense.IsPositionWithinSight(Position.Value))
+                if (itemsSightSense.IsPositionWithinFov(Position.Value) 
+                    && (!itemsSightSense.IsPositionObstructed(Position.Value) || itemsSightSense.GetDistanceToPosition(Position.Value) < 1.5f))
                 {
                     Update(null);
                 }
