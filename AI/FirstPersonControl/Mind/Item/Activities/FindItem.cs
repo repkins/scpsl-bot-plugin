@@ -28,7 +28,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityImpacts<ItemWithinSight<C>>(this, b => b.Criteria.Equals(Criteria));
+            fpcMind.ActivityImpacts<ItemLocation<C>>(this, b => b.Criteria.Equals(Criteria));
         }
 
         public FindItem(FpcBotPlayer botPlayer)
