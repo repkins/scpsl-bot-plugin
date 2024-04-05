@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 {
-    internal partial class ItemLocation<C> where C : IItemBeliefCriteria
+    internal partial class ItemLocation<C>
     {
         public ItemLocation(C criteria, ItemsWithinSightSense itemsSightSense) : this(criteria)
         {

@@ -50,12 +50,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             }
         }
 
-        private static void UpdateDoorBelief<T, I>(T doorBelief, I door) where T : DoorBase<I> where I : DoorVariant
-        {
-            doorBelief.Update(door);
-            Log.Debug($"{doorBelief.GetType().Name} updated: {door}");
-        }
-
         private readonly FpcBotPlayer _fpcBotPlayer;
     }
 }
