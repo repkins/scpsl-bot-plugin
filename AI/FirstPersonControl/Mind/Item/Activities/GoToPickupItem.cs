@@ -1,5 +1,6 @@
 ﻿using InventorySystem.Searching;
 using PluginAPI.Core;
+using SCPSLBot.AI.FirstPersonControl.Mind.Door;
 using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using System;
@@ -21,6 +22,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
             itemLocation = fpcMind.ActivityEnabledBy<ItemLocation<C>>(this, b => b.Criteria.Equals(Criteria), b => b.IsKnown);
+            fpcMind.ActivityEnabledBy<DoorObstacle>(this, b => !b.Is(itemLocation.Position!.Value));
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
@@ -50,7 +52,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
                 pickupCooldown = 0f;
             }
 
-            var itemPosition = itemLocation.Position.Value;
+            var itemPosition = itemLocation.Position!.Value;
             var cameraPosition = _botPlayer.BotHub.PlayerHub.PlayerCameraReference.position;
 
             if (Vector3.Distance(itemPosition, cameraPosition) > 1.75f)
