@@ -1,14 +1,9 @@
 ﻿using Interactables.Interobjects;
 using Interactables.Interobjects.DoorUtils;
-using InventorySystem.Items;
-using InventorySystem.Items.Keycards;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
@@ -20,48 +15,60 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
         public DoorObstacle(DoorsWithinSightSense doorsWithinSightSense, FpcBotNavigator navigator)
         {
             doorsWithinSightSense.OnSensedDoorWithinSight += OnSensedDoorWithinSight;
-            doorsWithinSightSense.OnAfterSensedDoorsWithinSight += OnAfterSensedDoorsWithinSight;
             this.navigator = navigator;
         }
 
         private void OnSensedDoorWithinSight(DoorVariant door)
         {
-            var pathOfPoints = navigator.PointsPath;
-
-            var rays = pathOfPoints.Zip(pathOfPoints.Skip(1), (point, nextPoint) => new Ray(point, nextPoint - point));
-
             var doorColliders = door.GetComponentsInChildren<Collider>();
-            var doorIsObstacle = rays.Any(ray => doorColliders.Any(collider => collider.Raycast(ray, out _, 1f)));
-            if (doorIsObstacle)
+
+            var goalPositions = Doors.Where(p => p.Value == door).Select(p => p.Key);
+            foreach (var goalPos in goalPositions)
             {
-                var goalPos = pathOfPoints.Last();
-                Add(door, goalPos);
+                var ray = Rays[goalPos];
+                if (!doorColliders.Any(collider => collider.Raycast(ray, out _, 1f)))
+                {
+                    Remove(goalPos);
+                }
             }
 
+            var pathOfPoints = navigator.PointsPath;
+            var rays = pathOfPoints.Zip(pathOfPoints.Skip(1), (point, nextPoint) => new Ray(point, nextPoint - point));
 
+            var hitRay = rays.Where(ray => doorColliders.Any(collider => collider.Raycast(ray, out _, 1f)))
+                .Select(r => new Ray?(r))
+                .FirstOrDefault();
+
+            if (hitRay.HasValue)
+            {
+                var newGoalPos = pathOfPoints.Last();
+                Add(door, newGoalPos, hitRay.Value);
+            }
         }
 
-        private void OnAfterSensedDoorsWithinSight()
-        {
-
-        }
-
-        private void Add(DoorVariant door, Vector3 goalPos)
+        private void Add(DoorVariant door, Vector3 goalPos, Ray ray)
         {
             if (!Doors.ContainsKey(goalPos))
             {
                 Doors.Add(goalPos, door);
+                Rays.Add(goalPos, ray);
                 OnUpdate?.Invoke();
             }
         }
 
-        private void Remove(DoorVariant door)
+        private void Remove(Vector3 goalPos)
         {
-            throw new NotImplementedException();
+            if (Doors.ContainsKey(goalPos))
+            {
+                Doors.Remove(goalPos);
+                Rays.Remove(goalPos);
+                OnUpdate?.Invoke();
+            }
         }
 
         public bool IsAny => Doors.Count > 0;
         public Dictionary<Vector3, DoorVariant> Doors { get; } = new();
+        public Dictionary<Vector3, Ray> Rays { get; } = new();
 
         public event Action OnUpdate;
 
@@ -82,7 +89,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
         private static KeycardPermissions ToKeycardPermissions(DoorPermissions doorPermissions)
         {
-            return doorPermissions.RequiredPermissions ^ KeycardPermissions.ScpOverride;
+            return doorPermissions.RequiredPermissions & ~KeycardPermissions.ScpOverride;
         }
 
         private static bool IsInteractable(DoorVariant d)
