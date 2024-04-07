@@ -67,4 +67,8 @@
 	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 	  </None>
 	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="AI\FirstPersonControl\Mind\Room\Activities\" />
+	</ItemGroup>
 </Project>
