@@ -15,10 +15,10 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 {
-    internal class FindItem<C> : IActivity where C : IItemBeliefCriteria, IEquatable<C>
+    internal class OldFindItem<C> : IActivity where C : IItemBeliefCriteria, IEquatable<C>
     {
         public readonly C Criteria;
-        public FindItem(C criteria, FpcBotPlayer botPlayer) : this(botPlayer)
+        public OldFindItem(C criteria, FpcBotPlayer botPlayer) : this(botPlayer)
         {
             this.Criteria = criteria;
         }
@@ -28,10 +28,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityImpacts<ItemLocation<C>>(this, b => b.Criteria.Equals(Criteria));
+            fpcMind.ActivityImpacts<ItemSightedLocation<C>>(this, b => b.Criteria.Equals(Criteria));
         }
 
-        public FindItem(FpcBotPlayer botPlayer)
+        public OldFindItem(FpcBotPlayer botPlayer)
         {
             this.botPlayer = botPlayer;
         }

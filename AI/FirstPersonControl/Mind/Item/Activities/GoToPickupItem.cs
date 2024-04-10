@@ -17,11 +17,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
             this.Criteria = criteria;
         }
 
-        private ItemLocation<C> itemLocation;
+        private ItemSightedLocation<C> itemLocation;
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            itemLocation = fpcMind.ActivityEnabledBy<ItemLocation<C>>(this, b => b.Criteria.Equals(Criteria), b => b.IsKnown);
+            itemLocation = fpcMind.ActivityEnabledBy<ItemSightedLocation<C>>(this, b => b.Criteria.Equals(Criteria), b => b.IsKnown);
             fpcMind.ActivityEnabledBy<DoorObstacle>(this, b => !b.Is(itemLocation.Position!.Value));
         }
 

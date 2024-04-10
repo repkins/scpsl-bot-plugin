@@ -3,7 +3,7 @@ using SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Keycard.Activities
 {
-    internal class FindKeycard : FindItem<KeycardWithPermissions>
+    internal class FindKeycard : OldFindItem<KeycardWithPermissions>
     {
         public FindKeycard(KeycardPermissions permissions, FpcBotPlayer botPlayer) : base(new(permissions), botPlayer)
         {

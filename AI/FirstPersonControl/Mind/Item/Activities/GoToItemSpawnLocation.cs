@@ -4,25 +4,26 @@ using System;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 {
-    internal class GoToNextRoomForItem<C> : IActivity where C : IItemBeliefCriteria, IEquatable<C>
+    internal class GoToItemSpawnLocation<C> : IActivity where C : IItemBeliefCriteria, IEquatable<C>
     {
         public readonly C Criteria;
-        public GoToNextRoomForItem(C criteria)
+        public GoToItemSpawnLocation(C criteria)
         {
             this.Criteria = criteria;
         }
 
-        private NextRoomLocationForItem<C> nextRoomLocation;
+        private ItemSpawnLocation<C> itemSpawnLocation;
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            nextRoomLocation = fpcMind.ActivityEnabledBy<NextRoomLocationForItem<C>>(this, b => b.Criteria.Equals(Criteria), b => b.Position.HasValue);
-            fpcMind.ActivityEnabledBy<DoorObstacle>(this, b => !b.Is(nextRoomLocation.Position!.Value));
+            itemSpawnLocation = fpcMind.ActivityEnabledBy<ItemSpawnLocation<C>>(this, b => b.Position.HasValue);
+
+            fpcMind.ActivityEnabledBy<DoorObstacle>(this, b => !b.Is(itemSpawnLocation.Position!.Value));
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityImpacts<ItemLocation<C>>(this, b => b.Criteria.Equals(Criteria));
+            fpcMind.ActivityImpacts<ItemSightedLocation<C>>(this, b => b.Criteria.Equals(Criteria));
         }
 
         public void Tick()
