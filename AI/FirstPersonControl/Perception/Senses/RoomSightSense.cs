@@ -2,16 +2,24 @@
 using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs;
 using SCPSLBot.Navigation.Mesh;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 {
-    internal class RoomWithinSightSense : SightSense, ISense
+    internal class RoomSightSense : SightSense, ISense
     {
+        public IEnumerable<Area> ForeignRoomsAreas { get; private set; }
+        public RoomIdentifier RoomWithin { get; private set; }
+
+        public event Action<Area> OnSensedForeignRoomArea;
+        public event Action OnAfterSensedForeignRooms;
+
         private readonly FpcBotPlayer _fpcBotPlayer;
 
-        public RoomWithinSightSense(FpcBotPlayer botPlayer) : base(botPlayer)
+        public RoomSightSense(FpcBotPlayer botPlayer) : base(botPlayer)
         {
             _fpcBotPlayer = botPlayer;
         }
@@ -27,18 +35,23 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             var playerPosition = _fpcBotPlayer.FpcRole.transform.position;
             var playerForward = _fpcBotPlayer.FpcRole.transform.forward;
 
-            var room = RoomIdUtils.RoomAtPositionRaycasts(playerPosition);
-            if (room is null)
+            RoomWithin = RoomIdUtils.RoomAtPositionRaycasts(playerPosition);
+            if (RoomWithin is null)
             {
                 Log.Debug($"Could not determine room bot currently in");
                 return;
             }
 
-            var foreignRoomAreasWithinSight = NavigationMesh.Instance.AreasByRoom[room.ApiRoom]
+            ForeignRoomsAreas = NavigationMesh.Instance.AreasByRoom[RoomWithin.ApiRoom]
                 .Where(a => a.ForeignConnectedAreas.Any())
                 .SelectMany(a => a.ForeignConnectedAreas)
-                .Select(fa => fa.ConnectedAreas.First())
-                .Where(fa => IsWithinFov(playerPosition, playerForward, fa.CenterPosition));
+                .Select(fa => fa.ConnectedAreas.First());
+
+            foreach (var sensedForeignRoomArea in ForeignRoomsAreas)
+            {
+                OnSensedForeignRoomArea?.Invoke(sensedForeignRoomArea);
+            }
+            OnAfterSensedForeignRooms?.Invoke();
         }
     }
 }
