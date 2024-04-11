@@ -40,11 +40,5 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
                 .Select(fa => fa.ConnectedAreas.First())
                 .Where(fa => IsWithinFov(playerPosition, playerForward, fa.CenterPosition));
         }
-
-        private static void UpdateRoomBelief(RoomBase roomBelief, Area area)
-        {
-            roomBelief.Update(area);
-            Log.Debug($"{roomBelief.GetType().Name} updated: {area}");
-        }
     }
 }
