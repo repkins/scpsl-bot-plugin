@@ -1,6 +1,5 @@
 ﻿using PluginAPI.Core;
 using PluginAPI.Core.Zones;
-using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using System;
 using System.Collections.Generic;
@@ -19,13 +18,15 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs
             this.roomSightSense.OnAfterSensedForeignRooms += OnAfterSensedForeignRooms;
         }
 
-        private Dictionary<FacilityRoom, float> roomsLastEntryTime = new();
+        private Dictionary<FacilityRoom, float> roomsLastVisitTime = new();
+        private FacilityRoom enteringAreaRoom;
+        private FacilityRoom prevRoomWithin;
 
         private void OnAfterSensedForeignRooms()
         {
             var foreignRoomAreas = this.roomSightSense.ForeignRoomsAreas;
             var enteringArea = foreignRoomAreas
-                .OrderBy(fa => roomsLastEntryTime.TryGetValue(fa.Room, out var time) ? time : 0f)
+                .OrderBy(fa => roomsLastVisitTime.TryGetValue(fa.Room, out var time) ? time : 0f)
                 .FirstOrDefault();
 
             if (enteringArea is null)
@@ -35,12 +36,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs
             }
 
             var roomWithin = this.roomSightSense.RoomWithin.ApiRoom;
-            var enteringAreaRoom = enteringArea.Room;
+            enteringAreaRoom = enteringArea.Room;
 
-            if (roomWithin == enteringAreaRoom)
+            if (roomWithin != prevRoomWithin && prevRoomWithin != null)
             {
-                roomsLastEntryTime[roomWithin] = Time.time;
+                roomsLastVisitTime[prevRoomWithin] = Time.time;
             }
+
+            prevRoomWithin = roomWithin;
 
             var enterPosition = enteringArea.CenterPosition;
             Update(enterPosition);
@@ -60,7 +63,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs
 
         public override string ToString()
         {
-            return $"{nameof(RoomEnterLocation)}";
+            return $"{nameof(RoomEnterLocation)}({enteringAreaRoom.Identifier.Name})";
         }
     }
 }

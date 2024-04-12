@@ -59,12 +59,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
         private void Add(DoorVariant door, Vector3 goalPos, Ray ray)
         {
-            if (!Doors.ContainsKey(goalPos))
-            {
-                Doors.Add(goalPos, door);
-                Rays.Add(goalPos, ray);
-                OnUpdate?.Invoke();
-            }
+            Doors[goalPos] = door;
+            Rays[goalPos] = ray;
+            OnUpdate?.Invoke();
         }
 
         private void Remove(Vector3 goalPos)

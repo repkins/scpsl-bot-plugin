@@ -37,7 +37,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
             var enterPosition = roomEnterLocation.Position!.Value;
             var cameraPosition = botPlayer.BotHub.PlayerHub.PlayerCameraReference.position;
 
-            if (Vector3.Distance(enterPosition, cameraPosition) > 1.75f)
+            if (Vector3.Distance(enterPosition, cameraPosition) > 1.25f)
             {
                 botPlayer.MoveToPosition(enterPosition);
                 return;
