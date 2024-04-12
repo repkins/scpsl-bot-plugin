@@ -1,5 +1,6 @@
 ﻿using PluginAPI.Core;
 using PluginAPI.Core.Zones;
+using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using System;
 using System.Collections.Generic;
@@ -55,6 +56,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs
                 Position = position;
                 OnUpdate?.Invoke();
             }
+        }
+
+        public override string ToString()
+        {
+            return $"{nameof(RoomEnterLocation)}";
         }
     }
 }

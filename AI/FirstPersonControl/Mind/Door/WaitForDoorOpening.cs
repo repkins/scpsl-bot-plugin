@@ -10,6 +10,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
     internal class WaitForDoorOpening : IActivity
     {
         private DoorObstacle doorObstacleBelief;
+        private FpcBotPlayer botPlayer;
+
+        public WaitForDoorOpening(FpcBotPlayer botPlayer)
+        {
+            this.botPlayer = botPlayer;
+        }
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {

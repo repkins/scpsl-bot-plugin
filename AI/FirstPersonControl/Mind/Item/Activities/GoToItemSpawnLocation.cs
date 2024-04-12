@@ -47,6 +47,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
         {
         }
 
+        public override string ToString()
+        {
+            return $"{nameof(GoToItemSpawnLocation<C>)}({this.Criteria})";
+        }
+
         protected readonly FpcBotPlayer botPlayer;
     }
 }

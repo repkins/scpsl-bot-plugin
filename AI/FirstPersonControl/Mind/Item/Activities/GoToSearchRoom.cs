@@ -48,6 +48,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
         {
         }
 
+        public override string ToString()
+        {
+            return $"{nameof(GoToSearchRoom<C>)}({this.Criteria})";
+        }
+
         protected readonly FpcBotPlayer botPlayer;
     }
 }

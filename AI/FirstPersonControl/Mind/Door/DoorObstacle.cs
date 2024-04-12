@@ -14,13 +14,17 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
         public DoorObstacle(DoorsWithinSightSense doorsWithinSightSense, FpcBotNavigator navigator)
         {
-            doorsWithinSightSense.OnSensedDoorWithinSight += OnSensedDoorWithinSight;
             this.navigator = navigator;
+            doorsWithinSightSense.OnSensedDoorWithinSight += OnSensedDoorWithinSight;
         }
+
+        private readonly Queue<Vector3> removeQueue = new();
 
         private void OnSensedDoorWithinSight(DoorVariant door)
         {
             var doorColliders = door.GetComponentsInChildren<Collider>();
+
+            // Remove doors not obstructing paths anymore
 
             var goalPositions = Doors.Where(p => p.Value == door).Select(p => p.Key);
             foreach (var goalPos in goalPositions)
@@ -28,9 +32,16 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
                 var ray = Rays[goalPos];
                 if (!doorColliders.Any(collider => collider.Raycast(ray, out _, 1f)))
                 {
-                    Remove(goalPos);
+                    removeQueue.Enqueue(goalPos);
                 }
             }
+
+            while (removeQueue.Count > 0)
+            {
+                Remove(removeQueue.Dequeue());
+            }
+
+            // Add door if obstructs current navigation path
 
             var pathOfPoints = navigator.PointsPath;
             var rays = pathOfPoints.Zip(pathOfPoints.Skip(1), (point, nextPoint) => new Ray(point, nextPoint - point));
@@ -87,6 +98,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
             return Doors.Values.LastOrDefault(d => IsInteractable(d) && ToKeycardPermissions(d.RequiredPermissions) == keycardPermissions);
         }
 
+        public Vector3 GetLastGoalPosition(DoorVariant door)
+        {
+            return this.Doors.Last(p => p.Value == door).Key;
+        }
+
         private static KeycardPermissions ToKeycardPermissions(DoorPermissions doorPermissions)
         {
             return doorPermissions.RequiredPermissions & ~KeycardPermissions.ScpOverride;
@@ -100,6 +116,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
         private static bool IsUniteractable(DoorVariant d)
         {
             return d is DummyDoor or ElevatorDoor;
+        }
+
+        public override string ToString()
+        {
+            return $"{nameof(DoorObstacle)}({this.Doors.Count})";
         }
     }
 }

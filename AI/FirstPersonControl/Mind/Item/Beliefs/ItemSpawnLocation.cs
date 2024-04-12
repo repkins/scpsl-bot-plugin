@@ -15,5 +15,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
         public Vector3? Position { get; private set; }
 
         public event Action OnUpdate;
+
+        public override string ToString()
+        {
+            return $"{nameof(ItemSpawnLocation<C>)}({this.Criteria})";
+        }
     }
 }

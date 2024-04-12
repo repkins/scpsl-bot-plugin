@@ -91,6 +91,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
             pickupCooldown = 0f;
         }
 
+        public override string ToString()
+        {
+            return $"{nameof(GoToPickupItem<C>)}({this.Criteria})";
+        }
+
         protected readonly FpcBotPlayer _botPlayer;
     }
 }

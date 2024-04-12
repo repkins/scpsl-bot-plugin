@@ -43,7 +43,7 @@ namespace SCPSLBot.AI.FirstPersonControl
         public void Update()
         {
             Perception.Tick(FpcRole);
-            //MindRunner.Tick(); TODO:
+            MindRunner.Tick();
         }
 
         public void OnRoleChanged()

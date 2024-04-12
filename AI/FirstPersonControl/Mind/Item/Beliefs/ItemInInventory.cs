@@ -53,7 +53,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 
         public override string ToString()
         {
-            return $"{GetType().Name}({Criteria})";
+            return $"{nameof(ItemInInventory<C>)}({Criteria})";
         }
 
         public new T Item => base.Item as T;

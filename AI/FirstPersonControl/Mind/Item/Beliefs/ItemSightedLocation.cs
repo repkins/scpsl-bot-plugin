@@ -50,6 +50,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
         {
             Criteria = criteria;
         }
+
+        public override string ToString()
+        {
+            return $"{nameof(ItemSightedLocation<C>)}({this.Criteria})";
+        }
     }
 
     internal class ItemLocation : IBelief
