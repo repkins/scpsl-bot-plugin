@@ -77,17 +77,17 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         private IEnumerable<IActivity> GetEnabledActivitiesTowardsDesires()
         {
-            Log.Debug($"Getting enabled activities towards desires.");
+            //Log.Debug($"Getting enabled activities towards desires.");
 
             var allDesires = DesiresEnabledByBeliefs.Keys;
             var enabledActivities = allDesires
                 .Select(d => { 
-                    Log.Debug($"Evaluating desire {d.GetType().Name}"); 
+                    //Log.Debug($"Evaluating desire {d.GetType().Name}"); 
                     return d;
                 })
                 .Where(d => !d.Condition())
                 .Select(d => {
-                    Log.Debug($"Desire {d.GetType().Name} not fulfilled");
+                    //Log.Debug($"Desire {d.GetType().Name} not fulfilled");
                     return d;
                 })
                 .SelectMany(d => GetClosestActivitiesEnabledBy(DesiresEnabledByBeliefs[d]));
@@ -99,7 +99,7 @@ namespace SCPSLBot.AI.FirstPersonControl
         {
             var activitySets = beliefs
                 .Select(b => {
-                    Log.Debug($"Getting activities enabled by {b.GetType().Name}");
+                    //Log.Debug($"Getting activities enabled by {b.GetType().Name}");
                     return b;
                 })
                 .Select(b => BeliefsImpactedByActivities[b]);
@@ -114,18 +114,18 @@ namespace SCPSLBot.AI.FirstPersonControl
                     enabledActivities = activities
                         .Select(a =>
                         {
-                            Log.Debug($"Activity {a.GetType().Name} needs to be enabled.");
+                            //Log.Debug($"Activity {a.GetType().Name} needs to be enabled.");
                             return a;
                         })
                         .Select(a => ActivitiesEnabledByBeliefs[a]
                             .Select(t => {
-                                Log.Debug($"Belief {t.Belief.GetType().Name}.");
+                                //Log.Debug($"Belief {t.Belief.GetType().Name}.");
                                 return t;
                             })
                             .Where(t => !t.Condition(t.Belief))
                             .Select(t => t.Belief)
                             .Select(b => {
-                                Log.Debug($"Belief {b.GetType().Name} needs to be satisfied.");
+                                //Log.Debug($"Belief {b.GetType().Name} needs to be satisfied.");
                                 return b;
                             }))
                         .SelectMany(GetClosestActivitiesEnabledBy);
@@ -135,7 +135,7 @@ namespace SCPSLBot.AI.FirstPersonControl
                     enabledActivities = enabledActivities
                         .Select(a =>
                         {
-                            Log.Debug($"Activity {a.GetType().Name} conditions fulfilled.");
+                            //Log.Debug($"Activity {a.GetType().Name} conditions fulfilled.");
                             return a;
                         });
                 }
@@ -148,7 +148,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         private void SelectActivityAndRun(IEnumerable<IActivity> enabledActivities)
         {
-            var selectedActivity = enabledActivities.OrderBy(a => Random.Range(0f, 10f))
+            var selectedActivity = enabledActivities//.OrderBy(a => Random.Range(0f, 10f))
                 .FirstOrDefault();  // TODO: cost?
 
             var prevActivity = RunningActivity;
@@ -158,7 +158,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             if (RunningActivity != prevActivity)
             {
                 RunningActivity?.Reset();
-                Log.Debug($"New activity for bot: {RunningActivity?.GetType().Name}");
+                Log.Debug($"New activity for bot: {RunningActivity}");
             }
         }
     }
