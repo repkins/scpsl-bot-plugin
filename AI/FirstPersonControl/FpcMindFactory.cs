@@ -8,6 +8,7 @@ using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
 using SCPSLBot.AI.FirstPersonControl.Mind.Item.Keycard;
 using SCPSLBot.AI.FirstPersonControl.Mind.Item.Keycard.Activities;
 using SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs;
+using SCPSLBot.AI.FirstPersonControl.Mind.Scp914;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 
 namespace SCPSLBot.AI.FirstPersonControl
@@ -44,6 +45,22 @@ namespace SCPSLBot.AI.FirstPersonControl
             mind.AddActivity(new GoToPickupItem<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelOne), botPlayer));
 
 
+            //mind.AddBelief(new ItemSpawnLocation<ItemOfType>(ItemType.KeycardO5, perception.GetSense<ItemsWithinSightSense>()));
+            mind.AddBelief(new ItemSightedLocation<ItemOfType>(ItemType.KeycardScientist, perception.GetSense<ItemsWithinSightSense>()));
+            mind.AddBelief(new ItemInInventory<ItemOfType>(ItemType.KeycardScientist, perception.GetSense<ItemsInInventorySense>()));
+
+            mind.AddActivity(new GoToSearchRoom<ItemOfType>(ItemType.KeycardScientist, botPlayer));
+            //mind.AddActivity(new GoToItemSpawnLocation<ItemOfType>(ItemType.KeycardScientist, botPlayer));
+            mind.AddActivity(new GoToPickupItem<ItemOfType>(ItemType.KeycardScientist, botPlayer));
+
+
+            mind.AddBelief(new Scp914Location(perception.GetSense<RoomSightSense>()));
+            mind.AddBelief(new ItemInIntakeChamber<ItemOfType>(new(ItemType.KeycardScientist)));
+
+            mind.AddActivity(new GoToSearchRoomForScp914(botPlayer));
+            mind.AddActivity(new GoToDropItemInIntakeChamber<ItemOfType>(new(ItemType.KeycardScientist), botPlayer));
+
+
             mind.AddActivity(new OpenNonKeycardDoorObstacle(botPlayer));
             mind.AddActivity(new OpenKeycardDoorObstacle(KeycardPermissions.ContainmentLevelOne, botPlayer));
             mind.AddActivity(new WaitForDoorOpening(botPlayer));
@@ -51,7 +68,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             mind.AddBelief(new ItemSightedLocation<ItemOfType>(new(ItemType.Medkit), perception.GetSense<ItemsWithinSightSense>()));
 
-            mind.AddDesire(new GetKeycardContainmentOne());
+            mind.AddDesire(new DropKeycardScientistInIntakeChamber());
             mind.AddDesire(new GetO5Keycard());
         }
     }
