@@ -33,9 +33,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
                     hits = hits.OrderBy(h => h.distance);
 
                     //var hit = hits.First(h => (h.collider.gameObject.layer & LayerMask.GetMask("Hitbox")) <= 0);
-                    var hit = hits.First(h => h.collider.GetComponentInParent<ReferenceHub>() is not ReferenceHub otherHub || otherHub != playerHub);
+                    var hit = hits.Select(h => new RaycastHit?(h))
+                        .FirstOrDefault(h => h!.Value.collider.GetComponentInParent<ReferenceHub>() is not ReferenceHub otherHub || otherHub != playerHub);
 
-                    if (hit.collider.GetComponentInParent<T>() is T hitItem
+                    if (hit.HasValue && hit.Value.collider.GetComponentInParent<T>() is T hitItem
                         && hitItem == item)
                     {
                         return true;

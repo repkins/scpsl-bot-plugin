@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
+using System;
 using System.Reflection;
 using UnityEngine;
 
@@ -15,17 +16,23 @@ namespace SCPSLBot.AI.FirstPersonControl.Rotation
         {
             var hub = HubField.GetValue(__instance) as ReferenceHub;
 
-            if (BotManager.Instance.BotPlayers.TryGetValue(hub, out var botHub)
+            if (hub != null && BotManager.Instance.BotPlayers.TryGetValue(hub, out var botHub)
                 && botHub.CurrentBotPlayer is FpcBotPlayer fpcPlayer)
             {
                 var hRotation = fpcPlayer.Look.DesiredHorizontalRotation;
                 var vRotation = fpcPlayer.Look.DesiredVerticalRotation;
 
-                hub.transform.rotation *= hRotation;
-                hub.PlayerCameraReference.localRotation *= vRotation;
+                //__instance.CurrentHorizontal = Mathf.DeltaAngle(0f, hub.transform.eulerAngles.y);
+                //__instance.CurrentVertical = -Mathf.DeltaAngle(0f, hub.PlayerCameraReference.localEulerAngles.x);
 
-                __instance.CurrentHorizontal = Mathf.DeltaAngle(0f, hub.transform.eulerAngles.y);
-                __instance.CurrentVertical = -Mathf.DeltaAngle(0f, hub.PlayerCameraReference.localEulerAngles.x);
+                __instance.CurrentHorizontal += hRotation.eulerAngles.y;
+                __instance.CurrentVertical += -Mathf.DeltaAngle(0f, vRotation.eulerAngles.x);
+
+                Quaternion rotation = Quaternion.Euler(Vector3.up * __instance.CurrentHorizontal);
+                Quaternion cameraRotation = Quaternion.Euler(Vector3.left * __instance.CurrentVertical);
+
+                hub.transform.rotation = rotation;
+                hub.PlayerCameraReference.localRotation = cameraRotation;
 
                 fpcPlayer.Look.DesiredHorizontalRotation = Quaternion.identity;
                 fpcPlayer.Look.DesiredVerticalRotation = Quaternion.identity;

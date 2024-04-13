@@ -56,5 +56,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
         {
 
         }
+
+        public override string ToString()
+        {
+            return $"{nameof(OpenNonKeycardDoorObstacle)}";
+        }
     }
 }
