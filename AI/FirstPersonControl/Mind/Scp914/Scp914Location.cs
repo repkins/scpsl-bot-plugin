@@ -26,6 +26,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
         public Vector3? Position { get; private set; }
         public Vector3? IntakeChamberPosition { get; private set; }
+        public Vector3? ControlsPosition { get; private set; }
         public event Action OnUpdate;
 
         private void Update(Scp914Controller controller)
