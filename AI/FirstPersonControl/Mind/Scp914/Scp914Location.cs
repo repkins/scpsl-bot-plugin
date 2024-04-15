@@ -1,5 +1,6 @@
 ﻿using Interactables;
 using MapGeneration;
+using PluginAPI.Core;
 using RemoteAdmin;
 using Scp914;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
@@ -41,8 +42,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
                 this.Position = newPosition;
                 this.IntakeChamberPosition = controller.IntakeChamber.position;
 
-                var interactableColliderPositions = controller.GetComponentsInChildren<InteractableCollider>()
-                    .ToDictionary(ic => (Scp914InteractCode)ic.ColliderId, ic => ic.GetComponent<Collider>().bounds.center);
+                var interactableColliderPositions = InteractableCollider.AllInstances[controller]
+                    .ToDictionary(pair => (Scp914InteractCode)pair.Key, pair => pair.Value.GetComponent<Collider>().bounds.center);
 
                 this.SettingKnobPosition = interactableColliderPositions[Scp914InteractCode.ChangeMode];
                 this.StartKnobPosition = interactableColliderPositions[Scp914InteractCode.Activate];

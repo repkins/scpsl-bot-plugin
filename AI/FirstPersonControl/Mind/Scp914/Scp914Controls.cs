@@ -14,7 +14,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
         private void OnSensedInteractableColliderWithinSight(InteractableCollider interactable)
         {
-            if (interactable.GetComponentInParent<Scp914Controller>() is not Scp914Controller scp914Controller)
+            if (interactable.Target is not Scp914Controller scp914Controller)
             {
                 return;
             }
@@ -46,6 +46,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
                 this.KnobSetting = newSetting;
                 this.OnUpdate?.Invoke();
             }
+        }
+
+        public override string ToString()
+        {
+            return $"{nameof(Scp914Controls)}";
         }
     }
 }

@@ -64,6 +64,16 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
             return belief as B;
         }
 
+        public B DesireEnabledBy<B>(IDesire desire) where B : class, IBelief
+        {
+            var beliefsOfType = Beliefs[typeof(B)];
+            var belief = beliefsOfType.First();
+
+            DesireEnabledBy(desire, belief);
+
+            return belief as B;
+        }
+
         public B DesireEnabledBy<B>(IDesire desire, Predicate<B> predicate) where B : class, IBelief
         {
             var beliefsOfType = Beliefs[typeof(B)];
