@@ -21,7 +21,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
             scp914Location = fpcMind.ActivityEnabledBy<Scp914Location>(this, b => b.ControlsPosition.HasValue);
-            scp914Controls = fpcMind.ActivityEnabledBy<Scp914Controls>(this, b => b.KnobSetting.HasValue);
+            scp914Controls = fpcMind.ActivityEnabledBy<Scp914Controls>(this, b => true);
 
             fpcMind.ActivityEnabledBy<DoorObstacle>(this, b => !b.Is(scp914Location.ControlsPosition!.Value));
         }
@@ -46,7 +46,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
             var scp914Controller = Scp914Controller.Singleton;
 
-            var currentSetting = this.scp914Controls.KnobSetting!.Value;
+            var currentSetting = this.scp914Controls.KnobSetting;
             if (currentSetting != this.KnobSetting)
             {
                 var settingKnob = this.scp914Controls.SettingKnob;
