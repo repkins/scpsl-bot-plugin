@@ -12,7 +12,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             _fpcBotPlayer = botPlayer;
         }
 
-        protected bool IsWithinSight<T>(Collider collider, T item) where T : MonoBehaviour
+        protected bool IsWithinSight<T>(Collider collider, T item) where T : Component
         {
             var playerHub = _fpcBotPlayer.BotHub.PlayerHub;
             var cameraTransform = _fpcBotPlayer.BotHub.PlayerHub.PlayerCameraReference;

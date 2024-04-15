@@ -41,6 +41,8 @@ namespace SCPSLBot.AI.FirstPersonControl
             Senses.Add(new SpatialSense(fpcBotPlayer));
 
             Senses.Add(new RoomSightSense(fpcBotPlayer));
+
+            Senses.Add(new InteractablesWithinSightSense(fpcBotPlayer));
         }
 
         public void Tick(IFpcRole fpcRole)

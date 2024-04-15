@@ -4,8 +4,10 @@ using MapGeneration.Distributors;
 using PlayerRoles.FirstPersonControl;
 using PlayerRoles.Spectating;
 using PluginAPI.Core;
+using Scp914;
 using SCPSLBot.AI.FirstPersonControl.Looking;
 using SCPSLBot.AI.FirstPersonControl.Movement;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -67,6 +69,36 @@ namespace SCPSLBot.AI.FirstPersonControl
         } 
 
         public void LookToPosition(Vector3 targetPosition) => Look.ToPosition(targetPosition);
+
+        public bool Interact(IServerInteractable targetInteractable, byte colliderId)
+        {
+            var hub = BotHub.PlayerHub;
+            var playerCamera = hub.PlayerCameraReference;
+
+            if (targetInteractable is not Component targetInteractableComponent)
+            {
+                Log.Warning($"Target interactable {targetInteractable} is not Unity component");
+                return false;
+            }
+
+            var (isHit, hit) = targetInteractableComponent.GetComponentsInChildren<InteractableCollider>()
+                    .Where(InteractableCollider => InteractableCollider.ColliderId == colliderId)
+                    .Select(interactableCollider => interactableCollider.GetComponent<Collider>())
+                    .Select(collider => (isHit: collider.Raycast(new Ray(playerCamera.position, hub.PlayerCameraReference.forward), out var hit, 2f), hit))
+                    .FirstOrDefault(t => t.isHit);
+
+            if (isHit
+                && hit.collider.GetComponent<InteractableCollider>() is InteractableCollider interactableCollider && interactableCollider.ColliderId == colliderId
+                && hit.collider.GetComponentInParent<IServerInteractable>() is IServerInteractable interactable && interactable == targetInteractable)
+            {
+                interactable.ServerInteract(hub, colliderId);
+                //Log.Debug($"ServerInteract(...) called on {interactable}");
+
+                return true;
+            }
+
+            return false;
+        }
 
         public bool OpenDoor(DoorVariant targetDoor, float maxInteractDistance)
         {
