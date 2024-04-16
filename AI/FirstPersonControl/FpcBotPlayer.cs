@@ -70,28 +70,24 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         public void LookToPosition(Vector3 targetPosition) => Look.ToPosition(targetPosition);
 
-        public bool Interact(IServerInteractable targetInteractable, byte colliderId)
+        public bool Interact(InteractableCollider interactableCollider)
         {
+            if (interactableCollider.Target is not IServerInteractable interactable)
+            {
+                throw new InvalidOperationException("interactableCollider target is not server interactable.");
+            }
+
             var hub = BotHub.PlayerHub;
             var playerCamera = hub.PlayerCameraReference;
 
-            if (targetInteractable is not Component targetInteractableComponent)
-            {
-                Log.Warning($"Target interactable {targetInteractable} is not Unity component");
-                return false;
-            }
+            var isHit = interactableCollider
+                .GetComponent<Collider>()
+                .Raycast(new Ray(playerCamera.position, hub.PlayerCameraReference.forward), out var hit, 2f);
 
-            var (isHit, hit) = targetInteractableComponent.GetComponentsInChildren<InteractableCollider>()
-                    .Where(InteractableCollider => InteractableCollider.ColliderId == colliderId)
-                    .Select(interactableCollider => interactableCollider.GetComponent<Collider>())
-                    .Select(collider => (isHit: collider.Raycast(new Ray(playerCamera.position, hub.PlayerCameraReference.forward), out var hit, 2f), hit))
-                    .FirstOrDefault(t => t.isHit);
-
-            if (isHit
-                && hit.collider.GetComponent<InteractableCollider>() is InteractableCollider interactableCollider && interactableCollider.ColliderId == colliderId
-                && hit.collider.GetComponentInParent<IServerInteractable>() is IServerInteractable interactable && interactable == targetInteractable)
+            if (isHit && hit.collider.GetComponent<InteractableCollider>() == interactableCollider)
             {
-                interactable.ServerInteract(hub, colliderId);
+                interactable.ServerInteract(hub, interactableCollider.ColliderId);
+
                 //Log.Debug($"ServerInteract(...) called on {interactable}");
 
                 return true;

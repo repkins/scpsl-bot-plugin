@@ -45,13 +45,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
                 return;
             }
 
-            var scp914Controller = Scp914Controller.Singleton;
-
             var currentSetting = this.scp914Controls.KnobSetting;
             if (currentSetting != this.KnobSetting)
             {
                 var settingKnob = this.scp914Controls.SettingKnob;
-                if (!settingKnob || !this.botPlayer.Interact(scp914Controller, settingKnob.ColliderId))
+                if (!settingKnob || !this.botPlayer.Interact(settingKnob))
                 {
                     var knobSettingPosition = this.scp914Location.SettingKnobPosition!.Value;
                     this.botPlayer.LookToPosition(knobSettingPosition);
@@ -60,7 +58,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
             }
 
             var startKnob = this.scp914Controls.StartKnob;
-            if (!startKnob || !this.botPlayer.Interact(scp914Controller, startKnob.ColliderId))
+            if (!startKnob || !this.botPlayer.Interact(startKnob))
             {
                 var startKnobPosition = this.scp914Location.StartKnobPosition!.Value;
                 this.botPlayer.LookToPosition(startKnobPosition);
