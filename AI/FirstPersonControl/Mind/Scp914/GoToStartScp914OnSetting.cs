@@ -1,4 +1,5 @@
 ﻿using Interactables;
+using PluginAPI.Core;
 using Scp914;
 using SCPSLBot.AI.FirstPersonControl.Mind.Door;
 using System.Linq;
@@ -38,7 +39,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
             var playerPosition = this.botPlayer.BotHub.PlayerHub.transform.position;
             var controlsPosition = this.scp914Location.ControlsPosition!.Value;
 
-            if (Vector3.Distance(playerPosition, controlsPosition) > 0.01f)
+            if (Vector3.Distance(playerPosition, controlsPosition) > 1f)
             {
                 this.botPlayer.MoveToPosition(controlsPosition);
                 return;
