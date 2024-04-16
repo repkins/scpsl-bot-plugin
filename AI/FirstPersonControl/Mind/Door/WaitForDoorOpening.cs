@@ -19,12 +19,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            doorObstacleBelief = fpcMind.ActivityEnabledBy<DoorObstacle>(this, b => b.GetLastUninteractableDoor());
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityImpacts<DoorObstacle>(this);
+            doorObstacleBelief = fpcMind.ActivityImpactsWithCondition<DoorObstacle>(this, b => !b.GetLastUninteractableDoor());
         }
 
         public void Tick()

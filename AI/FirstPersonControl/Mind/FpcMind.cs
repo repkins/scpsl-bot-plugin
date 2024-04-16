@@ -17,7 +17,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
 
         public Dictionary<Type, List<IBelief>> Beliefs { get; } = new Dictionary<Type, List<IBelief>>();
         public Dictionary<IBelief, List<IActivity>> BeliefsEnablingActivities { get; } = new Dictionary<IBelief, List<IActivity>>();
-        public Dictionary<IBelief, List<IActivity>> BeliefsImpactedByActivities { get; } = new Dictionary<IBelief, List<IActivity>>();
+        public Dictionary<IBelief, List<(IActivity Activity, Predicate<IBelief> Condition)>> BeliefsImpactedByActivities { get; } = new ();
         public Dictionary<IBelief, List<IDesire>> BeliefsEnablingDesires { get; } = new Dictionary<IBelief, List<IDesire>>();
 
         public B ActivityEnabledBy<B>(IActivity activity, Predicate<B> condition) where B : class, IBelief
@@ -49,7 +49,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
             var beliefsOfType = Beliefs[typeof(B)];
             var belief = beliefsOfType.First();
 
-            ActivityImpacts(activity, belief);
+            ActivityImpacts(activity, belief, b => false);
 
             return belief as B;
         }
@@ -59,7 +59,17 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
             var beliefsOfType = Beliefs[typeof(B)];
             var belief = beliefsOfType.Find(b => predicate(b as B));
 
-            ActivityImpacts(activity, belief);
+            ActivityImpacts(activity, belief, b => false);
+
+            return belief as B;
+        }
+
+        public B ActivityImpactsWithCondition<B>(IActivity activity, Predicate<B> condition) where B : class, IBelief
+        {
+            var beliefsOfType = Beliefs[typeof(B)];
+            var belief = beliefsOfType.First();
+
+            ActivityImpacts(activity, belief as B, condition);
 
             return belief as B;
         }
@@ -94,7 +104,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
             {
                 var beliefType = attr.BeliefType;
                 var belief = Beliefs[beliefType].First();
-                ActivityImpacts(activity, belief);
+                var condition = attr.Condition;
+                ActivityImpacts(activity, belief, condition);
             }
 
             var enabledByAttributes = activity.GetType().GetCustomAttributes<ActivityEnabledBy>();
@@ -121,14 +132,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
             }
             beliefsOfType.Add(belief);
 
-            var enablesActivities = new List<IActivity>();
-            BeliefsEnablingActivities.Add(belief, enablesActivities);
+            BeliefsEnablingActivities.Add(belief, new());
+            BeliefsImpactedByActivities.Add(belief, new());
 
-            var impactedByActivities = new List<IActivity>();
-            BeliefsImpactedByActivities.Add(belief, impactedByActivities);
-
-            var enablingDesires = new List<IDesire>();
-            BeliefsEnablingDesires.Add(belief, enablingDesires);
+            BeliefsEnablingDesires.Add(belief, new());
 
             return this;
         }
@@ -164,11 +171,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
             return belief;
         }
 
-        public void ActivityImpacts(IActivity activity, IBelief belief)
+        public void ActivityImpacts<B>(IActivity activity, B belief, Predicate<B> condition) where B : class, IBelief
         {
             ActivitiesImpactingBeliefs[activity].Add(belief);
 
-            BeliefsImpactedByActivities[belief].Add(activity);
+            BeliefsImpactedByActivities[belief].Add((activity, b => condition(b as B)));
         }
 
         private void DesireEnabledBy(IDesire desire, IBelief belief)

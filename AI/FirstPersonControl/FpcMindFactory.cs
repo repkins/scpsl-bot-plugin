@@ -71,7 +71,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             mind.AddBelief(new ItemSightedLocation<ItemOfType>(new(ItemType.Medkit), perception.GetSense<ItemsWithinSightSense>()));
 
             mind.AddDesire(new StartScp914OnFineSetting());
-            mind.AddDesire(new GetO5Keycard());
+            //mind.AddDesire(new GetO5Keycard());
         }
     }
 }

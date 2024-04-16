@@ -16,6 +16,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Attributes
         }
 
         public Type BeliefType { get; }
+        public Predicate<IBelief> Condition { get; }
     }
 
     internal class ActivityImpacts<B> : ActivityImpacts where B : IBelief

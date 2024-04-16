@@ -19,10 +19,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
         private void OnSensedRoomWithin(RoomIdentifier roomWithin)
         {
-            if (roomWithin.Name != RoomName.Lcz914)
-            {
-                return;
-            }
+            //if (roomWithin.Name != RoomName.Lcz914)
+            //{
+            //    return;
+            //}
 
             this.Update(Scp914Controller.Singleton);
         }

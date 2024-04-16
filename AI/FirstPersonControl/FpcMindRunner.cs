@@ -59,7 +59,7 @@ namespace SCPSLBot.AI.FirstPersonControl
                 Log.Debug($"{prefix}Belief: {enablingBelief}");
 
                 var activities = BeliefsImpactedByActivities[enablingBelief];
-                foreach (var activity in activities)
+                foreach (var (activity, _) in activities)
                 {
                     Log.Debug($"{prefix}  Activity: {activity}");
 
@@ -77,17 +77,17 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         private IEnumerable<IActivity> GetEnabledActivitiesTowardsDesires()
         {
-            //Log.Debug($"Getting enabled activities towards desires.");
+            Log.Debug($"    Getting enabled activities towards desires.");
 
             var allDesires = DesiresEnabledByBeliefs.Keys;
             var enabledActivities = allDesires
                 .Select(d => { 
-                    //Log.Debug($"Evaluating desire {d.GetType().Name}"); 
+                    Log.Debug($"    Evaluating desire {d.GetType().Name}"); 
                     return d;
                 })
                 .Where(d => !d.Condition())
                 .Select(d => {
-                    //Log.Debug($"Desire {d.GetType().Name} not fulfilled");
+                    Log.Debug($"    Desire {d.GetType().Name} not fulfilled");
                     return d;
                 })
                 .SelectMany(d => GetClosestActivitiesEnabledBy(DesiresEnabledByBeliefs[d]));
@@ -99,33 +99,35 @@ namespace SCPSLBot.AI.FirstPersonControl
         {
             var activitySets = beliefs
                 .Select(b => {
-                    //Log.Debug($"Getting activities enabled by {b.GetType().Name}");
+                    Log.Debug($"    Getting activities impacting {b.GetType().Name}");
                     return b;
                 })
-                .Select(b => BeliefsImpactedByActivities[b]);
+                .Select(b => BeliefsImpactedByActivities[b]
+                    .Where(t => !t.Condition(b))
+                    .Select(t => t.Activity));
 
-            foreach (var activities in activitySets)
+            foreach (var activitiesImpacting in activitySets)
             {
-                var enabledActivities = activities
+                var enabledActivities = activitiesImpacting
                     .Where(a => ActivitiesEnabledByBeliefs[a].All(t => t.Condition(t.Belief)));
 
                 if (!enabledActivities.Any())
                 {
-                    enabledActivities = activities
+                    enabledActivities = activitiesImpacting
                         .Select(a =>
                         {
-                            //Log.Debug($"Activity {a.GetType().Name} needs to be enabled.");
+                            Log.Debug($"    Activity {a.GetType().Name} needs to be enabled.");
                             return a;
                         })
                         .Select(a => ActivitiesEnabledByBeliefs[a]
                             .Select(t => {
-                                //Log.Debug($"Belief {t.Belief.GetType().Name}.");
+                                Log.Debug($"    Belief {t.Belief.GetType().Name}.");
                                 return t;
                             })
                             .Where(t => !t.Condition(t.Belief))
                             .Select(t => t.Belief)
                             .Select(b => {
-                                //Log.Debug($"Belief {b.GetType().Name} needs to be satisfied.");
+                                Log.Debug($"    Belief {b.GetType().Name} needs to be satisfied.");
                                 return b;
                             }))
                         .SelectMany(GetClosestActivitiesEnabledBy);
@@ -135,7 +137,7 @@ namespace SCPSLBot.AI.FirstPersonControl
                     enabledActivities = enabledActivities
                         .Select(a =>
                         {
-                            //Log.Debug($"Activity {a.GetType().Name} conditions fulfilled.");
+                            Log.Debug($"    Activity {a.GetType().Name} conditions fulfilled.");
                             return a;
                         });
                 }

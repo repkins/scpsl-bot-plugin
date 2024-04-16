@@ -24,13 +24,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            doorObstacleBelief = fpcMind.ActivityEnabledBy<DoorObstacle>(this, b => b.GetLastDoor(Permissions));
             keycardInInventory = fpcMind.ActivityEnabledBy<ItemInInventory<KeycardWithPermissions>>(this, b => b.Criteria.Equals(new (Permissions)), b => b.Item);
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityImpacts<DoorObstacle>(this);
+            doorObstacleBelief = fpcMind.ActivityImpactsWithCondition<DoorObstacle>(this, b => !b.GetLastDoor(Permissions));
         }
 
         public void Tick()
