@@ -36,7 +36,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
         private IEnumerator<float> Scp914RunningCoroutine()
         {
-            yield return Timing.WaitForSeconds(10f);
+            yield return Timing.WaitForSeconds(15f);
 
             this.Update(null);
         }
