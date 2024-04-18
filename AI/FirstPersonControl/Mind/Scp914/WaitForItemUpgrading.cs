@@ -1,4 +1,5 @@
-﻿using Scp914;
+﻿using PluginAPI.Core;
+using Scp914;
 using SCPSLBot.AI.FirstPersonControl.Mind.Item;
 using System;
 
@@ -23,7 +24,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            this.itemInIntakeChamber = fpcMind.ActivityEnabledBy<ItemInIntakeChamber<ItemOfType>>(this, b => b.Criteria.Equals(this.InputItemType));
+            this.itemInIntakeChamber = fpcMind.ActivityEnabledBy<ItemInIntakeChamber<ItemOfType>>(this, b => b.Criteria.Equals(this.InputItemType), b => b.PositionRelative.HasValue);
             this.runningOnSetting = fpcMind.ActivityEnabledBy<Scp914RunningOnSetting>(this, b => b.RunningKnobSetting == Setting);
         }
 
@@ -34,19 +35,30 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
         private float? lastItemsTransformedTime;
 
+        public void Reset()
+        {
+            this.lastItemsTransformedTime = this.runningOnSetting.ItemsTransformedTime;
+        }
+
         public void Tick()
         {
             if (this.lastItemsTransformedTime != this.runningOnSetting.ItemsTransformedTime)
             {
+                if (this.itemInOutakeChamber.PositionRelative.HasValue)
+                {
+                    Log.Debug($"{this.itemInOutakeChamber} position already assigned.");
+                    return;
+                }
+
                 var itemRelativePosition = this.itemInIntakeChamber.PositionRelative;
                 this.itemInOutakeChamber.Update(itemRelativePosition);
                 this.itemInIntakeChamber.Update(null);
             }
         }
 
-        public void Reset()
+        public override string ToString()
         {
-            this.lastItemsTransformedTime = this.runningOnSetting.ItemsTransformedTime;
+            return $"{nameof(WaitForItemUpgrading<C>)}({this.InputItemType}, {this.OutputCriteria}, {this.Setting})";
         }
     }
 }

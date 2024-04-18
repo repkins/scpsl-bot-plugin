@@ -57,10 +57,12 @@ namespace SCPSLBot.AI.FirstPersonControl
             mind.AddBelief(new Scp914Controls(perception.GetSense<InteractablesWithinSightSense>()));
             mind.AddBelief(new ItemInIntakeChamber<ItemOfType>(new(ItemType.KeycardScientist)));
             mind.AddBelief(new Scp914RunningOnSetting(perception.GetSense<RoomSightSense>()));
+            mind.AddBelief(new ItemInOutakeChamber<ItemOfType>(new(ItemType.KeycardResearchCoordinator)));
 
             mind.AddActivity(new GoToSearchRoomForScp914(botPlayer));
             mind.AddActivity(new GoToDropItemInIntakeChamber<ItemOfType>(new(ItemType.KeycardScientist), botPlayer));
             mind.AddActivity(new GoToStartScp914OnSetting(Scp914.Scp914KnobSetting.Fine, botPlayer));
+            mind.AddActivity(new WaitForItemUpgrading<ItemOfType>(ItemType.KeycardScientist, new(ItemType.KeycardResearchCoordinator), Scp914.Scp914KnobSetting.Fine));
 
 
             mind.AddActivity(new OpenNonKeycardDoorObstacle(botPlayer));
@@ -70,7 +72,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             mind.AddBelief(new ItemSightedLocation<ItemOfType>(new(ItemType.Medkit), perception.GetSense<ItemsWithinSightSense>()));
 
-            mind.AddDesire(new StartScp914OnFineSetting());
+            mind.AddDesire(new WaitForUpgradingToResearchSupervisorKeycard());
             //mind.AddDesire(new GetO5Keycard());
         }
     }

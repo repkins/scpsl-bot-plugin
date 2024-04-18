@@ -59,5 +59,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
                 this.OnUpdate?.Invoke();
             }
         }
+
+        public override string ToString()
+        {
+            return $"{nameof(Scp914RunningOnSetting)}({this.RunningKnobSetting})";
+        }
     }
 }
