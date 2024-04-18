@@ -47,8 +47,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
             if (Vector3.Distance(playerPosition, itemDropPosition) > 0.4f)
             {
-                Log.Debug($"{Vector3.Distance(playerPosition, itemDropPosition)}");
-
                 botPlayer.MoveToPosition(itemDropPosition);
                 return;
             }
