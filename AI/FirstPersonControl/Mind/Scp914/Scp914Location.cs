@@ -29,6 +29,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
         public Vector3? Position { get; private set; }
         public Vector3? IntakeChamberPosition { get; private set; }
+        public Vector3? OutakeChamberPosition { get; private set; }
         public Vector3? ControlsPosition { get; private set; }
         public Vector3? SettingKnobPosition { get; private set; }
         public Vector3? StartKnobPosition { get; private set; }
@@ -41,6 +42,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
             {
                 this.Position = newPosition;
                 this.IntakeChamberPosition = controller.IntakeChamber.position;
+                this.OutakeChamberPosition = controller.OutputChamber.position;
 
                 var interactableColliderPositions = InteractableCollider.AllInstances[controller]
                     .ToDictionary(pair => (Scp914InteractCode)pair.Key, pair => pair.Value.GetComponent<Collider>().bounds.center);
