@@ -1,10 +1,6 @@
 ﻿using Scp914;
 using SCPSLBot.AI.FirstPersonControl.Mind.Item;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 {
@@ -21,25 +17,36 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
             this.Setting = setting;
         }
 
+        private ItemInIntakeChamber<ItemOfType> itemInIntakeChamber;
+        private Scp914RunningOnSetting runningOnSetting;
+        private ItemInOutakeChamber<C> itemInOutakeChamber;
+
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityEnabledBy<ItemInIntakeChamber<ItemOfType>>(this, b => b.Criteria.Equals(this.InputItemType));
-            fpcMind.ActivityEnabledBy<Scp914RunningOnSetting>(this, b => b.RunningKnobSetting == Setting);
+            this.itemInIntakeChamber = fpcMind.ActivityEnabledBy<ItemInIntakeChamber<ItemOfType>>(this, b => b.Criteria.Equals(this.InputItemType));
+            this.runningOnSetting = fpcMind.ActivityEnabledBy<Scp914RunningOnSetting>(this, b => b.RunningKnobSetting == Setting);
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityImpacts<ItemInOutakeChamber<C>>(this, b => b.Criteria.Equals(OutputCriteria));
+            this.itemInOutakeChamber = fpcMind.ActivityImpacts<ItemInOutakeChamber<C>>(this, b => b.Criteria.Equals(OutputCriteria));
         }
+
+        private float? lastItemsTransformedTime;
 
         public void Tick()
         {
-
+            if (this.lastItemsTransformedTime != this.runningOnSetting.ItemsTransformedTime)
+            {
+                var itemRelativePosition = this.itemInIntakeChamber.PositionRelative;
+                this.itemInOutakeChamber.Update(itemRelativePosition);
+                this.itemInIntakeChamber.Update(null);
+            }
         }
 
         public void Reset()
         {
-            throw new NotImplementedException();
+            this.lastItemsTransformedTime = this.runningOnSetting.ItemsTransformedTime;
         }
     }
 }

@@ -8,6 +8,7 @@ using Scp914;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 {
@@ -36,12 +37,18 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
         private IEnumerator<float> Scp914RunningCoroutine()
         {
-            yield return Timing.WaitForSeconds(15f);
+            yield return Timing.WaitForSeconds(10f);
+
+            this.ItemsTransformedTime = Time.time;
+
+            yield return Timing.WaitForSeconds(5f);
 
             this.Update(null);
         }
 
-        public Scp914KnobSetting? RunningKnobSetting;
+        public Scp914KnobSetting? RunningKnobSetting { get; private set; }
+        public float? ItemsTransformedTime { get; private set; }
+
         public event Action OnUpdate;
 
         private void Update(Scp914KnobSetting? newSetting)
