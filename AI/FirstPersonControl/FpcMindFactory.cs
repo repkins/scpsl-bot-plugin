@@ -51,7 +51,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
 
             mind.AddBelief(new ItemInIntakeChamber<ItemOfType>(new(ItemType.KeycardScientist)));
-            mind.AddBelief(new ItemInOutakeChamber<ItemOfType>(new(ItemType.KeycardResearchCoordinator)));
+            mind.AddBelief(new ItemInOutakeChamber<ItemOfType>(new(ItemType.KeycardResearchCoordinator), perception.GetSense<ItemsWithinSightSense>()));
             mind.AddActivity(new GoToDropItemInIntakeChamber<ItemOfType>(new(ItemType.KeycardScientist), botPlayer));
             mind.AddActivity(new WaitForItemUpgrading<ItemOfType>(ItemType.KeycardScientist, new(ItemType.KeycardResearchCoordinator), Scp914.Scp914KnobSetting.Fine));
             mind.AddActivity(new GoToItemInOutakeChamber<ItemOfType>(new(ItemType.KeycardResearchCoordinator), botPlayer));

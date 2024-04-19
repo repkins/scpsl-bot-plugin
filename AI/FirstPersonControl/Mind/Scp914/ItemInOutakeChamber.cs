@@ -10,12 +10,16 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
     internal class ItemInOutakeChamber<C> : IBelief where C : IItemBeliefCriteria
     {
         public C Criteria { get; }
+
+        private readonly ItemsWithinSightSense itemsSightSense;
+
         public ItemInOutakeChamber(C criteria, ItemsWithinSightSense itemsSightSense)
         {
             this.Criteria = criteria;
+            this.itemsSightSense = itemsSightSense;
 
-            itemsSightSense.OnSensedItemWithinSight += OnSensedItemWithinSight;
-            itemsSightSense.OnAfterSensedItemsWithinSight += OnAfterSensedItemsWithinSight; ;
+            this.itemsSightSense.OnSensedItemWithinSight += OnSensedItemWithinSight;
+            this.itemsSightSense.OnAfterSensedItemsWithinSight += OnAfterSensedItemsWithinSight;
         }
 
         private int numItemsWithinSight = 0;
@@ -48,7 +52,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
                 var itemPosition = outakeChamberPosition + this.PositionRelative.Value;
 
                 if (this.itemsSightSense.IsPositionWithinFov(itemPosition)
-                    && (!itemsSightSense.IsPositionObstructed(itemPosition) || itemsSightSense.GetDistanceToPosition(itemPosition) < 1.5f))
+                    && (!this.itemsSightSense.IsPositionObstructed(itemPosition)))
                 {
                     Update(null);
                 }
@@ -71,7 +75,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
         public override string ToString()
         {
-            return $"{nameof(ItemInOutakeChamber<C>)}({this.Criteria})";
+            return $"{nameof(ItemInOutakeChamber<C>)}({this.Criteria}, {this.PositionRelative})";
         }
     }
 }

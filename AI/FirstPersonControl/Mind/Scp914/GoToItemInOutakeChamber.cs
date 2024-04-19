@@ -48,11 +48,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
             var transformedItemPosition = outakeChamberPosition + itemInOutakeChamber.PositionRelative!.Value;
             botPlayer.LookToPosition(transformedItemPosition);
-
-            if (Vector3.Distance(playerPosition, outakeChamberPosition) <= 0.4f)
-            {
-                itemInOutakeChamber.Update(null);
-            }
         }
 
         public void Reset()
