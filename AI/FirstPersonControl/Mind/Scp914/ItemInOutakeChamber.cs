@@ -1,4 +1,7 @@
-﻿using SCPSLBot.AI.FirstPersonControl.Mind.Item;
+﻿using InventorySystem.Items.Pickups;
+using Scp914;
+using SCPSLBot.AI.FirstPersonControl.Mind.Item;
+using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using System;
 using UnityEngine;
 
@@ -7,9 +10,51 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
     internal class ItemInOutakeChamber<C> : IBelief where C : IItemBeliefCriteria
     {
         public C Criteria { get; }
-        public ItemInOutakeChamber(C criteria)
+        public ItemInOutakeChamber(C criteria, ItemsWithinSightSense itemsSightSense)
         {
             this.Criteria = criteria;
+
+            itemsSightSense.OnSensedItemWithinSight += OnSensedItemWithinSight;
+            itemsSightSense.OnAfterSensedItemsWithinSight += OnAfterSensedItemsWithinSight; ;
+        }
+
+        private int numItemsWithinSight = 0;
+
+        private void OnSensedItemWithinSight(ItemPickupBase item)
+        {
+            if (Criteria.EvaluateItem(item))
+            {
+                var outakeChamberPosition = Scp914Controller.Singleton.OutputChamber.position;
+                var outakeChamberRotation = Scp914Controller.Singleton.OutputChamber.rotation;
+                var outakeChamberSize = outakeChamberRotation * new Vector3(0.8f, 2f, 1.6f);
+                var outakeChamberBounds = new Bounds(outakeChamberPosition, outakeChamberSize);
+
+                if (outakeChamberBounds.Contains(item.Position))
+                {
+                    var relPosition = item.Position - outakeChamberPosition;
+                    Update(relPosition);
+
+                    numItemsWithinSight++;
+                }
+            }
+        }
+
+        private void OnAfterSensedItemsWithinSight()
+        {
+            if (numItemsWithinSight == 0 && this.PositionRelative.HasValue)
+            {
+                var outakeChamberPosition = Scp914Controller.Singleton.OutputChamber.position;
+
+                var itemPosition = outakeChamberPosition + this.PositionRelative.Value;
+
+                if (this.itemsSightSense.IsPositionWithinFov(itemPosition)
+                    && (!itemsSightSense.IsPositionObstructed(itemPosition) || itemsSightSense.GetDistanceToPosition(itemPosition) < 1.5f))
+                {
+                    Update(null);
+                }
+            }
+
+            numItemsWithinSight = 0;
         }
 
         public Vector3? PositionRelative { get; private set; }
