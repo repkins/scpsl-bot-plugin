@@ -120,7 +120,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
         public override string ToString()
         {
-            return $"{nameof(DoorObstacle)}({string.Join(", ", this.Doors.Values)})";
+            return $"{nameof(DoorObstacle)}(){string.Join(",", this.Doors.Values.Select(d => $"\n{d}"))}";
         }
     }
 }

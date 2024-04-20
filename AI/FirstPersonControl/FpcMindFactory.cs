@@ -51,10 +51,45 @@ namespace SCPSLBot.AI.FirstPersonControl
             mind.AddActivity(new GoToPickupItem<ItemOfType>(ItemType.KeycardResearchCoordinator, botPlayer));
 
 
+            mind.AddBelief(new ItemSightedLocation<ItemOfType>(ItemType.KeycardFacilityManager, perception.GetSense<ItemsWithinSightSense>()));
+            mind.AddBelief(new ItemInInventory<ItemOfType>(ItemType.KeycardFacilityManager, perception.GetSense<ItemsInInventorySense>()));
+
+            mind.AddActivity(new GoToPickupItem<ItemOfType>(ItemType.KeycardFacilityManager, botPlayer));
+
+
+            //mind.AddBelief(new ItemSpawnLocation<ItemOfType>(ItemType.KeycardO5, perception.GetSense<ItemsWithinSightSense>()));
+            mind.AddBelief(new ItemSightedLocation<ItemOfType>(ItemType.KeycardO5, perception.GetSense<ItemsWithinSightSense>()));
+            mind.AddBelief(new ItemInInventory<ItemOfType>(ItemType.KeycardO5, perception.GetSense<ItemsInInventorySense>()));
+
+            //mind.AddActivity(new GoToItemSpawnLocation<ItemOfType>(ItemType.KeycardO5, botPlayer));
+            mind.AddActivity(new GoToPickupItem<ItemOfType>(ItemType.KeycardO5, botPlayer));
+
+
+            var outputKeycardCriterias = new IItemBeliefCriteria[]
+            {
+                new KeycardWithPermissions(KeycardPermissions.Checkpoints),
+                new KeycardWithPermissions(KeycardPermissions.ExitGates),
+                new KeycardWithPermissions(KeycardPermissions.Intercom),
+                new KeycardWithPermissions(KeycardPermissions.AlphaWarhead),
+                new KeycardWithPermissions(KeycardPermissions.ContainmentLevelOne),
+                new KeycardWithPermissions(KeycardPermissions.ContainmentLevelTwo),
+                new KeycardWithPermissions(KeycardPermissions.ContainmentLevelThree),
+                new KeycardWithPermissions(KeycardPermissions.ArmoryLevelOne),
+                new KeycardWithPermissions(KeycardPermissions.ArmoryLevelTwo),
+                new KeycardWithPermissions(KeycardPermissions.ArmoryLevelThree),
+                new KeycardWithPermissions(PermissionsCheckpointContainmentLevelOneTwo),
+            };
+            foreach (var outputCriteria in outputKeycardCriterias)
+            {
+                mind.AddBelief(new ItemInOutakeChamber(outputCriteria, perception.GetSense<ItemsWithinSightSense>()));
+            }
+
+
             mind.AddBelief(new ItemInIntakeChamber<ItemOfType>(new(ItemType.KeycardScientist)));
             mind.AddActivity(new GoToDropItemInIntakeChamber<ItemOfType>(new(ItemType.KeycardScientist), botPlayer));
 
-            var outputKeycardCriterias = new IItemBeliefCriteria[]
+            mind.AddBelief(new ItemInOutakeChamber(new ItemOfType(ItemType.KeycardResearchCoordinator), perception.GetSense<ItemsWithinSightSense>()));
+            var outputKeycardResearchSupervisorCriterias = new IItemBeliefCriteria[]
             {
                 new ItemOfType(ItemType.KeycardResearchCoordinator),
                 new KeycardWithPermissions(KeycardPermissions.Checkpoints),
@@ -62,22 +97,51 @@ namespace SCPSLBot.AI.FirstPersonControl
                 new KeycardWithPermissions(KeycardPermissions.ContainmentLevelTwo),
                 new KeycardWithPermissions(PermissionsCheckpointContainmentLevelOneTwo),
             };
-            foreach (var outputCriteria in outputKeycardCriterias)
-            {
-                mind.AddBelief(new ItemInOutakeChamber(outputCriteria, perception.GetSense<ItemsWithinSightSense>()));
-            }            
-            mind.AddActivity(new WaitForItemUpgrading(ItemType.KeycardScientist, outputKeycardCriterias, Scp914.Scp914KnobSetting.Fine));
-
+            mind.AddActivity(new WaitForItemUpgrading(ItemType.KeycardScientist, outputKeycardResearchSupervisorCriterias, Scp914.Scp914KnobSetting.Fine));
             mind.AddActivity(new GoToItemInOutakeChamber<ItemOfType>(new(ItemType.KeycardResearchCoordinator), botPlayer));
 
 
-            //mind.AddBelief(new ItemSpawnLocation<ItemOfType>(ItemType.KeycardO5, perception.GetSense<ItemsWithinSightSense>()));
-            mind.AddBelief(new ItemSightedLocation<ItemOfType>(ItemType.KeycardO5, perception.GetSense<ItemsWithinSightSense>()));
-            mind.AddBelief(new ItemInInventory<ItemOfType>(ItemType.KeycardO5, perception.GetSense<ItemsInInventorySense>()));
+            mind.AddBelief(new ItemInIntakeChamber<ItemOfType>(new(ItemType.KeycardResearchCoordinator)));
+            mind.AddActivity(new GoToDropItemInIntakeChamber<ItemOfType>(new(ItemType.KeycardResearchCoordinator), botPlayer));
 
-            mind.AddActivity(new GoToSearchRoom<ItemOfType>(ItemType.KeycardO5, botPlayer));
-            //mind.AddActivity(new GoToItemSpawnLocation<ItemOfType>(ItemType.KeycardO5, botPlayer));
-            mind.AddActivity(new GoToPickupItem<ItemOfType>(ItemType.KeycardO5, botPlayer));
+            mind.AddBelief(new ItemInOutakeChamber(new ItemOfType(ItemType.KeycardFacilityManager), perception.GetSense<ItemsWithinSightSense>()));
+            var outputKeycardFacilityManagerCriterias = new IItemBeliefCriteria[]
+            {
+                new ItemOfType(ItemType.KeycardFacilityManager),
+                new KeycardWithPermissions(KeycardPermissions.Checkpoints),
+                new KeycardWithPermissions(KeycardPermissions.ExitGates),
+                new KeycardWithPermissions(KeycardPermissions.Intercom),
+                new KeycardWithPermissions(KeycardPermissions.AlphaWarhead),
+                new KeycardWithPermissions(KeycardPermissions.ContainmentLevelOne),
+                new KeycardWithPermissions(KeycardPermissions.ContainmentLevelTwo),
+                new KeycardWithPermissions(KeycardPermissions.ContainmentLevelThree),
+                new KeycardWithPermissions(PermissionsCheckpointContainmentLevelOneTwo),
+            };
+            mind.AddActivity(new WaitForItemUpgrading(ItemType.KeycardResearchCoordinator, outputKeycardFacilityManagerCriterias, Scp914.Scp914KnobSetting.Fine));
+            mind.AddActivity(new GoToItemInOutakeChamber<ItemOfType>(new(ItemType.KeycardFacilityManager), botPlayer));
+
+
+            mind.AddBelief(new ItemInIntakeChamber<ItemOfType>(new(ItemType.KeycardFacilityManager)));
+            mind.AddActivity(new GoToDropItemInIntakeChamber<ItemOfType>(new(ItemType.KeycardFacilityManager), botPlayer));
+
+            mind.AddBelief(new ItemInOutakeChamber(new ItemOfType(ItemType.KeycardO5), perception.GetSense<ItemsWithinSightSense>()));
+            var outputKeycardO5Criterias = new IItemBeliefCriteria[]
+            {
+                new ItemOfType(ItemType.KeycardO5),
+                new KeycardWithPermissions(KeycardPermissions.Checkpoints),
+                new KeycardWithPermissions(KeycardPermissions.ExitGates),
+                new KeycardWithPermissions(KeycardPermissions.Intercom),
+                new KeycardWithPermissions(KeycardPermissions.AlphaWarhead),
+                new KeycardWithPermissions(KeycardPermissions.ContainmentLevelOne),
+                new KeycardWithPermissions(KeycardPermissions.ContainmentLevelTwo),
+                new KeycardWithPermissions(KeycardPermissions.ContainmentLevelThree),
+                new KeycardWithPermissions(KeycardPermissions.ArmoryLevelOne),
+                new KeycardWithPermissions(KeycardPermissions.ArmoryLevelTwo),
+                new KeycardWithPermissions(KeycardPermissions.ArmoryLevelThree),
+                new KeycardWithPermissions(PermissionsCheckpointContainmentLevelOneTwo),
+            };
+            mind.AddActivity(new WaitForItemUpgrading(ItemType.KeycardFacilityManager, outputKeycardO5Criterias, Scp914.Scp914KnobSetting.Fine));
+            mind.AddActivity(new GoToItemInOutakeChamber<ItemOfType>(new(ItemType.KeycardO5), botPlayer));
 
 
             //mind.AddBelief(new ItemSpawnLocation<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelOne), perception.GetSense<ItemsWithinSightSense>()));
@@ -97,8 +161,8 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             mind.AddBelief(new ItemSightedLocation<ItemOfType>(new(ItemType.Medkit), perception.GetSense<ItemsWithinSightSense>()));
 
-            mind.AddDesire(new GetResearchSupervisorKeycard());
-            //mind.AddDesire(new GetO5Keycard());
+            //mind.AddDesire(new GetResearchSupervisorKeycard());
+            mind.AddDesire(new GetO5Keycard());
         }
     }
 }

@@ -13,10 +13,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
         public readonly IItemBeliefCriteria[] OutputCriterias;
         public readonly Scp914KnobSetting Setting;
 
-        public WaitForItemUpgrading(ItemType inputItemType, IItemBeliefCriteria[] outputCriterias, Scp914KnobSetting setting)
+        public WaitForItemUpgrading(ItemType inputItemType, IEnumerable<IItemBeliefCriteria> outputCriterias, Scp914KnobSetting setting)
         {
             this.InputItemType = inputItemType;
-            this.OutputCriterias = outputCriterias;
+            this.OutputCriterias = outputCriterias.ToArray();
             this.Setting = setting;
         }
 
@@ -68,7 +68,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
         public override string ToString()
         {
-            return $"{nameof(WaitForItemUpgrading)}({this.InputItemType}, {this.Setting}, ({string.Join(", ", this.OutputCriterias.ToString())}))";
+            return $"{nameof(WaitForItemUpgrading)}({this.InputItemType}, {this.Setting}, ({string.Join<IItemBeliefCriteria>(", ", this.OutputCriterias)}))";
         }
     }
 }

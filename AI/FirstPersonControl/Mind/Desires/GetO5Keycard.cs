@@ -9,14 +9,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Desires
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            _keycardO5InInventory = fpcMind.DesireEnabledBy<ItemInInventory<ItemOfType>>(this, OfKeycardO5);
+            _keycardO5InInventory = fpcMind.DesireEnabledBy<ItemInInventory<ItemOfType>>(this, b => b.Criteria.Equals(ItemType.KeycardO5));
         }
 
         public bool Condition()
         {
             return _keycardO5InInventory.Item;
         }
-
-        private bool OfKeycardO5(ItemInInventory<ItemOfType> b) => b.Criteria.ItemType == ItemType.KeycardO5;
     }
 }
