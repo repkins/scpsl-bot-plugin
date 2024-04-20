@@ -1,9 +1,7 @@
-﻿using PluginAPI.Core;
-using SCPSLBot.AI.FirstPersonControl.Mind.Door;
+﻿using SCPSLBot.AI.FirstPersonControl.Mind.Door;
 using SCPSLBot.AI.FirstPersonControl.Mind.Item;
 using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
 using System;
-using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 {
@@ -15,12 +13,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
             this.Criteria = criteria;
         }
 
-        private ItemInOutakeChamber<C> itemInOutakeChamber;
+        private ItemInOutakeChamber itemInOutakeChamber;
         private Scp914Location scp914Location;
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            this.itemInOutakeChamber = fpcMind.ActivityEnabledBy<ItemInOutakeChamber<C>>(this, b => b.PositionRelative.HasValue);
+            this.itemInOutakeChamber = fpcMind.ActivityEnabledBy<ItemInOutakeChamber>(this, b => b.Criteria.Equals(this.Criteria), b => b.PositionRelative.HasValue);
             this.scp914Location = fpcMind.ActivityEnabledBy<Scp914Location>(this, b => b.OutakeChamberPosition.HasValue);
 
             fpcMind.ActivityEnabledBy<DoorObstacle>(this, b => !b.Is(this.scp914Location.OutakeChamberPosition!.Value));

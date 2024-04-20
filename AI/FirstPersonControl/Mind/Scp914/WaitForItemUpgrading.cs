@@ -2,25 +2,27 @@
 using Scp914;
 using SCPSLBot.AI.FirstPersonControl.Mind.Item;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 {
-    internal class WaitForItemUpgrading<C> : IActivity where C : IItemBeliefCriteria, IEquatable<C>
+    internal class WaitForItemUpgrading : IActivity
     {
         public readonly ItemType InputItemType;
-        public readonly C OutputCriteria;
+        public readonly IItemBeliefCriteria[] OutputCriterias;
         public readonly Scp914KnobSetting Setting;
 
-        public WaitForItemUpgrading(ItemType inputItemType, C outputCriteria, Scp914KnobSetting setting)
+        public WaitForItemUpgrading(ItemType inputItemType, IItemBeliefCriteria[] outputCriterias, Scp914KnobSetting setting)
         {
             this.InputItemType = inputItemType;
-            this.OutputCriteria = outputCriteria;
+            this.OutputCriterias = outputCriterias;
             this.Setting = setting;
         }
 
         private ItemInIntakeChamber<ItemOfType> itemInIntakeChamber;
         private Scp914RunningOnSetting runningOnSetting;
-        private ItemInOutakeChamber<C> itemInOutakeChamber;
+        private List<ItemInOutakeChamber> itemInOutakeChamberBeliefs = new();
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
@@ -30,7 +32,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            this.itemInOutakeChamber = fpcMind.ActivityImpacts<ItemInOutakeChamber<C>>(this, b => b.Criteria.Equals(OutputCriteria));
+            foreach (var outputCriteria in this.OutputCriterias)
+            {
+                var itemInOutakeChamberBelief = fpcMind.ActivityImpacts<ItemInOutakeChamber>(this, b => b.Criteria.Equals(outputCriteria));
+                this.itemInOutakeChamberBeliefs.Add(itemInOutakeChamberBelief);
+            }
         }
 
         private float? lastItemsTransformedTime;
@@ -44,21 +50,25 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
         {
             if (this.lastItemsTransformedTime != this.runningOnSetting.ItemsTransformedTime)
             {
-                if (this.itemInOutakeChamber.PositionRelative.HasValue)
+                if (!this.itemInIntakeChamber.PositionRelative.HasValue)
                 {
-                    Log.Debug($"{this.itemInOutakeChamber} position already assigned.");
+                    Log.Debug($"{this.itemInIntakeChamber} has no position value.");
                     return;
                 }
 
                 var itemRelativePosition = this.itemInIntakeChamber.PositionRelative;
-                this.itemInOutakeChamber.Update(itemRelativePosition);
+                foreach (var itemInOutakeChamberBelief in this.itemInOutakeChamberBeliefs)
+                {
+                    itemInOutakeChamberBelief.Update(itemRelativePosition);
+                }
+
                 this.itemInIntakeChamber.Update(null);
             }
         }
 
         public override string ToString()
         {
-            return $"{nameof(WaitForItemUpgrading<C>)}({this.InputItemType}, {this.OutputCriteria}, {this.Setting})";
+            return $"{nameof(WaitForItemUpgrading)}({this.InputItemType}, {this.Setting}, ({string.Join(", ", this.OutputCriterias.ToString())}))";
         }
     }
 }

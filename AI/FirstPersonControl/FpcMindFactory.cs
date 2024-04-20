@@ -18,6 +18,7 @@ namespace SCPSLBot.AI.FirstPersonControl
                                                                 KeycardPermissions.Intercom | KeycardPermissions.AlphaWarhead | 
                                                                 KeycardPermissions.ContainmentLevelOne | KeycardPermissions.ContainmentLevelTwo | KeycardPermissions.ContainmentLevelThree | 
                                                                 KeycardPermissions.ArmoryLevelOne | KeycardPermissions.ArmoryLevelTwo | KeycardPermissions.ArmoryLevelThree;
+        private const KeycardPermissions PermissionsCheckpointContainmentLevelOneTwo = KeycardPermissions.Checkpoints | KeycardPermissions.ContainmentLevelOne | KeycardPermissions.ContainmentLevelTwo;
 
         public static void BuildMind(FpcMind mind, FpcBotPlayer botPlayer, FpcBotPerception perception)
         {
@@ -51,9 +52,22 @@ namespace SCPSLBot.AI.FirstPersonControl
 
 
             mind.AddBelief(new ItemInIntakeChamber<ItemOfType>(new(ItemType.KeycardScientist)));
-            mind.AddBelief(new ItemInOutakeChamber<ItemOfType>(new(ItemType.KeycardResearchCoordinator), perception.GetSense<ItemsWithinSightSense>()));
             mind.AddActivity(new GoToDropItemInIntakeChamber<ItemOfType>(new(ItemType.KeycardScientist), botPlayer));
-            mind.AddActivity(new WaitForItemUpgrading<ItemOfType>(ItemType.KeycardScientist, new(ItemType.KeycardResearchCoordinator), Scp914.Scp914KnobSetting.Fine));
+
+            var outputKeycardCriterias = new IItemBeliefCriteria[]
+            {
+                new ItemOfType(ItemType.KeycardResearchCoordinator),
+                new KeycardWithPermissions(KeycardPermissions.Checkpoints),
+                new KeycardWithPermissions(KeycardPermissions.ContainmentLevelOne),
+                new KeycardWithPermissions(KeycardPermissions.ContainmentLevelTwo),
+                new KeycardWithPermissions(PermissionsCheckpointContainmentLevelOneTwo),
+            };
+            foreach (var outputCriteria in outputKeycardCriterias)
+            {
+                mind.AddBelief(new ItemInOutakeChamber(outputCriteria, perception.GetSense<ItemsWithinSightSense>()));
+            }            
+            mind.AddActivity(new WaitForItemUpgrading(ItemType.KeycardScientist, outputKeycardCriterias, Scp914.Scp914KnobSetting.Fine));
+
             mind.AddActivity(new GoToItemInOutakeChamber<ItemOfType>(new(ItemType.KeycardResearchCoordinator), botPlayer));
 
 

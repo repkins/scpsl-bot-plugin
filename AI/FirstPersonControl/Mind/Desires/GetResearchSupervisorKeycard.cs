@@ -9,13 +9,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Desires
     internal class GetResearchSupervisorKeycard : IDesire
     {
         private ItemInInventory<ItemOfType> _itemInInventory;
-        private ItemInOutakeChamber<ItemOfType> _itemInOutakeChamber;
         private Scp914RunningOnSetting _scp914RunningOnSetting;
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
             _itemInInventory = fpcMind.DesireEnabledBy<ItemInInventory<ItemOfType>>(this, b => b.Criteria.Equals(new (ItemType.KeycardResearchCoordinator)));
-            //_itemInOutakeChamber = fpcMind.DesireEnabledBy<ItemInOutakeChamber<ItemOfType>>(this, b => b.Criteria.Equals(new (ItemType.KeycardResearchCoordinator)));
             //_scp914RunningOnSetting = fpcMind.DesireEnabledBy<Scp914RunningOnSetting>(this);
 
         }

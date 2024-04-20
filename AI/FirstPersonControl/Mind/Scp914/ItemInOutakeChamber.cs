@@ -7,13 +7,13 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 {
-    internal class ItemInOutakeChamber<C> : IBelief where C : IItemBeliefCriteria
+    internal class ItemInOutakeChamber : IBelief
     {
-        public C Criteria { get; }
+        public IItemBeliefCriteria Criteria { get; }
 
         private readonly ItemsWithinSightSense itemsSightSense;
 
-        public ItemInOutakeChamber(C criteria, ItemsWithinSightSense itemsSightSense)
+        public ItemInOutakeChamber(IItemBeliefCriteria criteria, ItemsWithinSightSense itemsSightSense)
         {
             this.Criteria = criteria;
             this.itemsSightSense = itemsSightSense;
@@ -30,7 +30,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
             {
                 var outakeChamberPosition = Scp914Controller.Singleton.OutputChamber.position;
                 var outakeChamberRotation = Scp914Controller.Singleton.OutputChamber.rotation;
-                var outakeChamberSize = outakeChamberRotation * new Vector3(0.8f, 2f, 1.6f);
+                var outakeChamberSize = outakeChamberRotation * new Vector3(1.76f, 3.33f, 3.11f);
                 var outakeChamberBounds = new Bounds(outakeChamberPosition, outakeChamberSize);
 
                 if (outakeChamberBounds.Contains(item.Position))
@@ -75,7 +75,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
         public override string ToString()
         {
-            return $"{nameof(ItemInOutakeChamber<C>)}({this.Criteria}, {this.PositionRelative})";
+            return $"{nameof(ItemInOutakeChamber)}({this.Criteria}, {this.PositionRelative})";
         }
     }
 }
