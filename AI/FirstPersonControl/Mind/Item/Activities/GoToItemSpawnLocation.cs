@@ -1,7 +1,7 @@
 ﻿using SCPSLBot.AI.FirstPersonControl.Mind.Door;
 using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
-using System;
 using UnityEngine;
+using System;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 {
@@ -17,8 +17,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            itemSpawnLocation = fpcMind.ActivityEnabledBy<ItemSpawnLocation<C>>(this, b => b.Position.HasValue);
-            fpcMind.ActivityEnabledBy<DoorObstacle>(this, b => !b.Is(itemSpawnLocation.Position!.Value));
+            this.itemSpawnLocation = fpcMind.ActivityEnabledBy<ItemSpawnLocation<C>>(this, b => b.Criteria.Equals(this.Criteria), b => b.Position.HasValue);
+
+            fpcMind.ActivityEnabledBy<DoorObstacle>(this, b => !b.Is(this.itemSpawnLocation.Position!.Value));
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
