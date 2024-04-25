@@ -32,20 +32,35 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
             this.botPlayer = botPlayer;
         }
 
+        private float closestDist;
+
+        public void Reset()
+        {
+            closestDist = float.MaxValue;
+        }
+
         public void Tick()
         {
             var spawnPosition = itemSpawnLocation.Position!.Value;
             var cameraPosition = botPlayer.BotHub.PlayerHub.PlayerCameraReference.position;
 
-            if (Vector3.Distance(spawnPosition, cameraPosition) > 1.75f)
+            var dist = Vector3.Distance(spawnPosition, cameraPosition);
+
+            closestDist = dist < closestDist ? dist : closestDist;
+
+            if (dist > 1.75f)
             {
                 botPlayer.MoveToPosition(spawnPosition);
                 return;
             }
-        }
 
-        public void Reset()
-        {
+            var cameraDirection = botPlayer.BotHub.PlayerHub.PlayerCameraReference.forward;
+
+            if (Vector3.Dot((spawnPosition - cameraPosition).normalized, cameraDirection) <= 1f - .0001f)
+            {
+                botPlayer.LookToPosition(spawnPosition);
+                return;
+            }
         }
 
         public override string ToString()
