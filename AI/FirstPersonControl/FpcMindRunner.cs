@@ -1,5 +1,6 @@
 ﻿using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Mind;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -90,12 +91,60 @@ namespace SCPSLBot.AI.FirstPersonControl
                     Log.Debug($"    Desire {d.GetType().Name} not fulfilled");
                     return d;
                 })
-                .SelectMany(d => GetClosestActivitiesEnabledBy(DesiresEnabledByBeliefs[d]));
+                .SelectMany(d => DesiresEnabledByBeliefs[d])
+                .SelectMany(GetClosestActivitiesImpacting);
 
             return enabledActivities;
         }
 
-        private IEnumerable<IActivity> GetClosestActivitiesEnabledBy(IEnumerable<IBelief> beliefs)
+        private IEnumerable<IActivity> GetClosestActivitiesImpacting(IBelief belief)
+        {
+            Log.Debug($"    Getting activities impacting {belief}");
+
+            var activitiesImpacting = BeliefsImpactedByActivities[belief]
+                .Where(t => !t.Condition(belief))
+                .Select(t => t.Activity);
+
+            var enabledActivities = activitiesImpacting.SelectMany(GetClosestEnablingActivities);
+
+            return enabledActivities;
+        }
+
+        private IEnumerable<IActivity> GetClosestEnablingActivities(IActivity activityImpacting)
+        {
+            Log.Debug($"    Activity {activityImpacting}...");
+
+            var beliefsEnabling = ActivitiesEnabledByBeliefs[activityImpacting];
+            if (beliefsEnabling.All(t => t.Condition(t.Belief)))
+            {
+                Log.Debug($"    Activity {activityImpacting} conditions fulfilled.");
+
+                return Enumerable.Repeat(activityImpacting, 1);
+            }
+            else
+            {
+                Log.Debug($"    Activity {activityImpacting} needs to be enabled.");
+
+                var enabledActivities = beliefsEnabling
+                    .Select(t =>
+                    {
+                        Log.Debug($"    Belief {t.Belief}...");
+                        return t;
+                    })
+                    .Where(t => !t.Condition(t.Belief))
+                    .Take(1)
+                    .Select(t => t.Belief)
+                    .Select(b =>
+                    {
+                        Log.Debug($"    Belief {b} needs to be satisfied.");
+                        return b;
+                    })
+                    .SelectMany(GetClosestActivitiesImpacting);
+                return enabledActivities;
+            }
+        }
+
+        private IEnumerable<IActivity> GetClosestActivitiesImpacting(IEnumerable<IBelief> beliefs)
         {
             var activitySets = beliefs
                 .Select(b => {
@@ -130,7 +179,7 @@ namespace SCPSLBot.AI.FirstPersonControl
                                 Log.Debug($"    Belief {b.GetType().Name} needs to be satisfied.");
                                 return b;
                             }))
-                        .SelectMany(GetClosestActivitiesEnabledBy);
+                        .SelectMany(GetClosestActivitiesImpacting);
                 }
                 else
                 {
