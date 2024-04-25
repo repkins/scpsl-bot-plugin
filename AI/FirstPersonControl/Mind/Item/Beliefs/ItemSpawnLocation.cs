@@ -43,7 +43,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
                 var spawnPosition = this.Position.Value;
 
                 if (this.itemsSightSense.IsPositionWithinFov(spawnPosition)
-                    && (!this.itemsSightSense.IsPositionObstructed(spawnPosition)))
+                    && (!itemsSightSense.IsPositionObstructed(Position.Value) || itemsSightSense.GetDistanceToPosition(Position.Value) < 1.5f))
                 {
                     this.visitedSpawnPositions.Add(spawnPosition);
                     Update(null);
@@ -60,8 +60,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
                 return;
             }
 
-            if (!this.Position.HasValue)
-            {
+            //if (!this.Position.HasValue)
+            //{
                 var unvisitedSpawnPosition = this.GetItemSpawnPositions(roomWithin)
                     .Where(spawnPosition => !this.visitedSpawnPositions.Contains(spawnPosition))
                     .Select(spawnPosition => new Vector3?(spawnPosition))
@@ -71,7 +71,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
                 {
                     this.Update(unvisitedSpawnPosition.Value);
                 }
-            }
+            //}
         }
 
         private readonly Dictionary<RoomIdentifier, Vector3[]> roomItemSpawnPositions = new();
@@ -93,13 +93,16 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 
         private void Update(Vector3? spawnPosition)
         {
-            this.Position = spawnPosition;
-            this.OnUpdate?.Invoke();
+            if (spawnPosition != this.Position)
+            {
+                this.Position = spawnPosition;
+                this.OnUpdate?.Invoke();
+            }
         }
 
         public override string ToString()
         {
-            return $"{nameof(ItemSpawnLocation<C>)}({this.Criteria})";
+            return $"{nameof(ItemSpawnLocation<C>)}({this.Criteria}): {this.Position}";
         }
     }
 

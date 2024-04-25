@@ -36,6 +36,8 @@ namespace SCPSLBot.AI.FirstPersonControl
             InventorySense = new ItemsInInventorySense(fpcBotPlayer);
             Senses.Add(InventorySense);
 
+            Senses.Add(new GlassSightSense(fpcBotPlayer));
+
             Senses.Add(new LockersWithinSightSense(fpcBotPlayer));
             
             Senses.Add(new SpatialSense(fpcBotPlayer));

@@ -12,6 +12,29 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             _fpcBotPlayer = botPlayer;
         }
 
+        public bool IsPositionObstructed(Vector3 targetPosition)
+        {
+            var cameraTransform = _fpcBotPlayer.BotHub.PlayerHub.PlayerCameraReference;
+
+            var isObstructed = Physics.Linecast(cameraTransform.position, targetPosition);
+
+            return isObstructed;
+        }
+
+        public bool IsPositionWithinFov(Vector3 targetPosition)
+        {
+            var cameraTransform = _fpcBotPlayer.BotHub.PlayerHub.PlayerCameraReference;
+
+            return IsWithinFov(cameraTransform.position, cameraTransform.forward, targetPosition);
+        }
+
+        public float GetDistanceToPosition(Vector3 targetPosition)
+        {
+            var cameraTransform = _fpcBotPlayer.BotHub.PlayerHub.PlayerCameraReference;
+
+            return Vector3.Distance(targetPosition, cameraTransform.position);
+        }
+
         protected bool IsWithinSight<T>(Collider collider, T item) where T : Component
         {
             var playerHub = _fpcBotPlayer.BotHub.PlayerHub;
