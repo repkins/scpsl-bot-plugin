@@ -16,7 +16,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         {
             var cameraTransform = _fpcBotPlayer.BotHub.PlayerHub.PlayerCameraReference;
 
-            var isObstructed = Physics.Linecast(cameraTransform.position, targetPosition);
+            var isObstructed = Physics.Linecast(cameraTransform.position, targetPosition, ~excludedCollisionLayerMask);
 
             return isObstructed;
         }
@@ -43,7 +43,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             if (IsWithinFov(cameraTransform, collider.transform))
             {
                 var relPosToItem = collider.bounds.center - cameraTransform.position;
-                _numHits = Physics.RaycastNonAlloc(cameraTransform.position, relPosToItem, _hitsBuffer, relPosToItem.magnitude);
+                _numHits = Physics.RaycastNonAlloc(cameraTransform.position, relPosToItem, _hitsBuffer, relPosToItem.magnitude, ~excludedCollisionLayerMask);
 
                 if (_numHits == HitsBufferSize)
                 {
@@ -96,5 +96,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         private const int HitsBufferSize = 20;
         private RaycastHit[] _hitsBuffer = new RaycastHit[HitsBufferSize];
         private int _numHits;
+
+        private LayerMask excludedCollisionLayerMask = LayerMask.GetMask("InvisibleCollider");
     }
 }

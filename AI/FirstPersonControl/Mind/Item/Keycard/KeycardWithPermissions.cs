@@ -4,6 +4,7 @@ using InventorySystem;
 using InventorySystem.Items.Pickups;
 using InventorySystem.Items;
 using System;
+using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Keycard
 {
@@ -25,6 +26,22 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Keycard
         {
             return item is KeycardItem keycard
                 && keycard.Permissions.HasFlag(Permissions);
+        }
+
+        public bool CanOvercome(Collider hitCollider)
+        {
+            var door = hitCollider.GetComponentInParent<DoorVariant>();
+            if (door is not null)
+            {
+                var doorPermissions = door.RequiredPermissions.RequiredPermissions;
+                var doorKeycardPermissions = doorPermissions & ~KeycardPermissions.ScpOverride;
+                if (doorKeycardPermissions == this.Permissions)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public bool Equals(IItemBeliefCriteria other)

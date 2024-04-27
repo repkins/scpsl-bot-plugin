@@ -21,8 +21,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Misc
 
         private void OnSensedWindowsWithinSight(BreakableWindow window)
         {
-            Log.Debug($"sensed window: {window}");
-
             var windowColliders = window.GetComponentsInChildren<Collider>();
 
             // Remove windows not obstructing paths anymore

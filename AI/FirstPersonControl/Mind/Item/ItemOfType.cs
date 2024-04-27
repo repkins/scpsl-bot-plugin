@@ -1,6 +1,7 @@
 ﻿using InventorySystem.Items;
 using InventorySystem.Items.Pickups;
 using System;
+using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item
 {
@@ -20,6 +21,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item
         public bool EvaluateItem(ItemBase item)
         {
             return item.ItemTypeId == ItemType;
+        }
+
+        public bool CanOvercome(Collider collider)
+        {
+            return true;
         }
 
         public bool Matches(ItemType inItemType)
