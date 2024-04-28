@@ -31,5 +31,10 @@ namespace SCPSLBot.Navigation.Mesh
         {
             return !(left == right);
         }
+
+        public override string ToString()
+        {
+            return (From, To).ToString();
+        }
     }
 }

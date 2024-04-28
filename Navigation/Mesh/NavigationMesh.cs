@@ -64,9 +64,12 @@ namespace SCPSLBot.Navigation.Mesh
             var localPosition = room.transform.InverseTransformPoint(position);
 
             var hit = roomAreas.SelectMany(a => a.RoomKindArea.Edges)
-                .Select(e => (edge: e, dist: GetPointDistToEdgePlane(e, localPosition, out var closest), closest))
-                .Where(t => t.dist <= 0f)
-                .Where(t => IsAlongEdge(t.edge, localPosition))
+                .Select(edge => (edge, planeDist: GetPointDistToEdgePlane(edge, localPosition, out var planeClosest), planeClosest))
+                .Where(t => t.planeDist <= 0f)
+
+                .Select(t => (t.edge, closest: ClampWithinEdgePoints(t.edge, t.planeClosest)))
+                .Select(t => (t.edge, dist: -Vector3.SqrMagnitude(localPosition - t.closest), t.closest))
+
                 .Where(t => IsEdgeCenterWithinVertically(t.edge, localPosition))
                 .OrderByDescending(t => t.dist)
                 .Select(t => new (RoomKindEdge, float, Vector3)?(t))
@@ -86,6 +89,26 @@ namespace SCPSLBot.Navigation.Mesh
             closestPoint = room.transform.TransformPoint(closestLocalPoint);
 
             return (roomEdgeFrom, roomEdgeTo);
+        }
+
+        private Vector3 ClampWithinEdgePoints(RoomKindEdge edge, Vector3 planeClosestPoint)
+        {
+            var dir1To2 = edge.To.LocalPosition - edge.From.LocalPosition;
+            var dir1ToPoint = planeClosestPoint - edge.From.LocalPosition;
+
+            var dir2To1 = edge.From.LocalPosition - edge.To.LocalPosition;
+            var dir2ToPoint = planeClosestPoint - edge.To.LocalPosition;
+
+            if (Vector3.Dot(dir1ToPoint, dir1To2) < 0f)
+            {
+                return edge.From.LocalPosition;
+            }
+            if (Vector3.Dot(dir2ToPoint, dir2To1) < 0f)
+            {
+                return edge.To.LocalPosition;
+            }
+
+            return planeClosestPoint;
         }
 
         public List<Area> GetShortestPath(Area startingArea, Area endArea)
