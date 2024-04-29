@@ -8,29 +8,21 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 {
-    internal class GoToPickupItem<C> : GoToLocation<C> where C : IItemBeliefCriteria, IEquatable<C>
+    internal class GoToPickupItem<C> : GoTo<ItemSightedLocation<C>, C> where C : IItemBeliefCriteria, IEquatable<C>
     {
-        public readonly C Criteria;
-        public GoToPickupItem(C criteria, FpcBotPlayer botPlayer) : this(botPlayer)
+        public GoToPickupItem(C criteria, FpcBotPlayer botPlayer) : base(criteria)
         {
-            this.Criteria = criteria;
+            _botPlayer = botPlayer;
         }
 
         public new void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            itemLocation = fpcMind.ActivityEnabledBy<ItemSightedLocation<C>>(this, b => b.Criteria.Equals(Criteria), b => b.AccessiblePosition.HasValue);
-
             base.SetEnabledByBeliefs(fpcMind);
         }
 
         public override void SetImpactsBeliefs(FpcMind fpcMind)
         {
             fpcMind.ActivityImpacts<ItemInInventory<C>>(this, b => b.Criteria.Equals(Criteria));
-        }
-
-        public GoToPickupItem(FpcBotPlayer botPlayer)
-        {
-            _botPlayer = botPlayer;
         }
 
         private bool isPickingUp;

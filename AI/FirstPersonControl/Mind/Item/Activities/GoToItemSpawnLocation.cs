@@ -4,29 +4,21 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 {
-    internal class GoToItemSpawnLocation<C> : GoToLocation<C> where C : IItemBeliefCriteria, IEquatable<C>
+    internal class GoToItemSpawnLocation<C> : GoTo<ItemSpawnLocation<C>, C> where C : IItemBeliefCriteria, IEquatable<C>
     {
-        public readonly C Criteria;
-        public GoToItemSpawnLocation(C criteria, FpcBotPlayer botPlayer) : this(botPlayer)
+        public GoToItemSpawnLocation(C criteria, FpcBotPlayer botPlayer) : base(criteria)
         {
-            this.Criteria = criteria;
+            this.botPlayer = botPlayer;
         }
 
         public new void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            this.itemLocation = fpcMind.ActivityEnabledBy<ItemSpawnLocation<C>>(this, b => b.Criteria.Equals(Criteria), b => b.AccessiblePosition.HasValue);
-
             base.SetEnabledByBeliefs(fpcMind);
         }
 
         public override void SetImpactsBeliefs(FpcMind fpcMind)
         {
             fpcMind.ActivityImpacts<ItemSightedLocation<C>>(this, b => b.Criteria.Equals(Criteria));
-        }
-
-        public GoToItemSpawnLocation(FpcBotPlayer botPlayer)
-        {
-            this.botPlayer = botPlayer;
         }
 
         private float closestDist;
