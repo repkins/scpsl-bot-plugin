@@ -56,7 +56,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 
 
         public Vector3? AccessiblePosition;
-        public Vector3? Position => this.AccessiblePosition;
 
         public event Action OnUpdate;
 

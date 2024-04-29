@@ -32,9 +32,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 
         private void OnAfterSensedItemsWithinSight()
         {
-            if (this.Position.HasValue)
+            if (this.AccessiblePosition.HasValue)
             {
-                var spawnPosition = this.Position.Value;
+                var spawnPosition = this.AccessiblePosition.Value;
 
                 if (this.itemsSightSense.IsPositionWithinFov(spawnPosition)
                 //    && (!itemsSightSense.IsPositionObstructed(Position.Value) || itemsSightSense.GetDistanceToPosition(Position.Value) < 1.5f))
@@ -93,7 +93,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 
         public override string ToString()
         {
-            return $"{nameof(ItemSpawnLocation<C>)}({this.Criteria}): {this.Position}";
+            return $"{nameof(ItemSpawnLocation<C>)}({this.Criteria}): {this.AccessiblePosition}";
         }
     }
 

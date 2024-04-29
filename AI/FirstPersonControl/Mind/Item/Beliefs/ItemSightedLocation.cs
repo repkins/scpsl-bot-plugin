@@ -31,10 +31,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
         private void HandleAfterSensedItems()
         {
             // Evaluate item position out of sight
-            if (Position.HasValue && numItemsWithinSight == 0)
+            if (AccessiblePosition.HasValue && numItemsWithinSight == 0)
             {
-                if (itemsSightSense.IsPositionWithinFov(Position.Value)
-                    && (!itemsSightSense.IsPositionObstructed(Position.Value) || itemsSightSense.GetDistanceToPosition(Position.Value) < 1.5f))
+                var sightedPosition = AccessiblePosition.Value;
+                if (itemsSightSense.IsPositionWithinFov(sightedPosition)
+                    && (!itemsSightSense.IsPositionObstructed(sightedPosition) || itemsSightSense.GetDistanceToPosition(sightedPosition) < 1.5f))
                 {
                     ClearPosition();
                 }

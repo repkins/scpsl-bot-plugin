@@ -43,7 +43,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 
         public void Tick()
         {
-            var spawnPosition = itemSpawnLocation.Position!.Value;
+            var spawnPosition = itemSpawnLocation.AccessiblePosition!.Value;
             var cameraPosition = botPlayer.BotHub.PlayerHub.PlayerCameraReference.position;
 
             var dist = Vector3.Distance(spawnPosition, cameraPosition);
