@@ -1,6 +1,5 @@
 ﻿using InventorySystem.Searching;
 using PluginAPI.Core;
-using SCPSLBot.AI.FirstPersonControl.Mind.Door;
 using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using System;
@@ -9,7 +8,7 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 {
-    internal class GoToPickupItem<C> : IActivity where C : IItemBeliefCriteria, IEquatable<C>
+    internal class GoToPickupItem<C> : GoToLocation<C> where C : IItemBeliefCriteria, IEquatable<C>
     {
         public readonly C Criteria;
         public GoToPickupItem(C criteria, FpcBotPlayer botPlayer) : this(botPlayer)
@@ -17,16 +16,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
             this.Criteria = criteria;
         }
 
-        private ItemSightedLocation<C> itemLocation;
-
-        public void SetEnabledByBeliefs(FpcMind fpcMind)
+        public new void SetEnabledByBeliefs(FpcMind fpcMind)
         {
             itemLocation = fpcMind.ActivityEnabledBy<ItemSightedLocation<C>>(this, b => b.Criteria.Equals(Criteria), b => b.AccessiblePosition.HasValue);
 
-            fpcMind.ActivityEnabledBy<DoorObstacle>(this, b => !b.Is(itemLocation.AccessiblePosition!.Value));
+            base.SetEnabledByBeliefs(fpcMind);
         }
 
-        public void SetImpactsBeliefs(FpcMind fpcMind)
+        public override void SetImpactsBeliefs(FpcMind fpcMind)
         {
             fpcMind.ActivityImpacts<ItemInInventory<C>>(this, b => b.Criteria.Equals(Criteria));
         }
@@ -39,7 +36,13 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
         private bool isPickingUp;
         private float pickupCooldown;
 
-        public void Tick()
+        public override void Reset()
+        {
+            isPickingUp = false;
+            pickupCooldown = 0f;
+        }
+
+        public override void Tick()
         {
             if (isPickingUp)
             {
@@ -84,12 +87,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
             _botPlayer.BotHub.ConnectionToServer.Send(searchRequestMsg);
 
             this.isPickingUp = true;
-        }
-
-        public void Reset() 
-        {
-            isPickingUp = false;
-            pickupCooldown = 0f;
         }
 
         public override string ToString()

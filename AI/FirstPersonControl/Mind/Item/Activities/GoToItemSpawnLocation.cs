@@ -1,12 +1,10 @@
-﻿using SCPSLBot.AI.FirstPersonControl.Mind.Door;
-using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
-using UnityEngine;
+﻿using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
 using System;
-using SCPSLBot.AI.FirstPersonControl.Mind.Misc;
+using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 {
-    internal class GoToItemSpawnLocation<C> : IActivity where C : IItemBeliefCriteria, IEquatable<C>
+    internal class GoToItemSpawnLocation<C> : GoToLocation<C> where C : IItemBeliefCriteria, IEquatable<C>
     {
         public readonly C Criteria;
         public GoToItemSpawnLocation(C criteria, FpcBotPlayer botPlayer) : this(botPlayer)
@@ -14,17 +12,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
             this.Criteria = criteria;
         }
 
-        private ItemSpawnLocation<C> itemSpawnLocation;
-
-        public void SetEnabledByBeliefs(FpcMind fpcMind)
+        public new void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            this.itemSpawnLocation = fpcMind.ActivityEnabledBy<ItemSpawnLocation<C>>(this, b => b.Criteria.Equals(this.Criteria), b => b.AccessiblePosition.HasValue);
+            this.itemLocation = fpcMind.ActivityEnabledBy<ItemSpawnLocation<C>>(this, b => b.Criteria.Equals(Criteria), b => b.AccessiblePosition.HasValue);
 
-            fpcMind.ActivityEnabledBy<DoorObstacle>(this, b => !b.Is(this.itemSpawnLocation.AccessiblePosition!.Value));
-            fpcMind.ActivityEnabledBy<GlassObstacle>(this, b => !b.Is(this.itemSpawnLocation.AccessiblePosition!.Value));
+            base.SetEnabledByBeliefs(fpcMind);
         }
 
-        public void SetImpactsBeliefs(FpcMind fpcMind)
+        public override void SetImpactsBeliefs(FpcMind fpcMind)
         {
             fpcMind.ActivityImpacts<ItemSightedLocation<C>>(this, b => b.Criteria.Equals(Criteria));
         }
@@ -36,14 +31,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 
         private float closestDist;
 
-        public void Reset()
+        public override void Reset()
         {
             closestDist = float.MaxValue;
         }
 
-        public void Tick()
+        public override void Tick()
         {
-            var spawnPosition = itemSpawnLocation.AccessiblePosition!.Value;
+            var spawnPosition = itemLocation.AccessiblePosition!.Value;
             var cameraPosition = botPlayer.BotHub.PlayerHub.PlayerCameraReference.position;
 
             var dist = Vector3.Distance(spawnPosition, cameraPosition);

@@ -19,6 +19,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
             roomEnterLocation = fpcMind.ActivityEnabledBy<RoomEnterLocation>(this, b => b.Position.HasValue);
+
             fpcMind.ActivityEnabledBy<DoorObstacle>(this, b => !b.Is(roomEnterLocation.Position!.Value));
         }
 
