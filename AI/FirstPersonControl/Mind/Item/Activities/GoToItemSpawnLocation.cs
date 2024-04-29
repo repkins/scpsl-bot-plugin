@@ -18,10 +18,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            this.itemSpawnLocation = fpcMind.ActivityEnabledBy<ItemSpawnLocation<C>>(this, b => b.Criteria.Equals(this.Criteria), b => b.Position.HasValue);
+            this.itemSpawnLocation = fpcMind.ActivityEnabledBy<ItemSpawnLocation<C>>(this, b => b.Criteria.Equals(this.Criteria), b => b.AccessiblePosition.HasValue);
 
-            fpcMind.ActivityEnabledBy<DoorObstacle>(this, b => !b.Is(this.itemSpawnLocation.Position!.Value));
-            fpcMind.ActivityEnabledBy<GlassObstacle>(this, b => !b.Is(this.itemSpawnLocation.Position!.Value));
+            fpcMind.ActivityEnabledBy<DoorObstacle>(this, b => !b.Is(this.itemSpawnLocation.AccessiblePosition!.Value));
+            fpcMind.ActivityEnabledBy<GlassObstacle>(this, b => !b.Is(this.itemSpawnLocation.AccessiblePosition!.Value));
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)

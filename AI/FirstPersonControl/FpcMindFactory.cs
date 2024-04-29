@@ -39,7 +39,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
 
             mind.AddBelief(new ItemSpawnLocation<ItemOfType>(ItemType.KeycardZoneManager, new[] { ItemType.KeycardZoneManager }, perception.GetSense<RoomSightSense>(), perception.GetSense<ItemsWithinSightSense>(), botPlayer.Navigator));
-            mind.AddBelief(new ItemSightedLocation<ItemOfType>(ItemType.KeycardZoneManager, perception.GetSense<ItemsWithinSightSense>()));
+            mind.AddBelief(new ItemSightedLocation<ItemOfType>(ItemType.KeycardZoneManager, botPlayer.Navigator, perception.GetSense<ItemsWithinSightSense>()));
             mind.AddBelief(new ItemInInventory<ItemOfType>(ItemType.KeycardZoneManager, perception.GetSense<ItemsInInventorySense>()));
 
             mind.AddActivity(new GoToItemSpawnLocation<ItemOfType>(ItemType.KeycardZoneManager, botPlayer));
@@ -48,7 +48,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
 
             mind.AddBelief(new ItemSpawnLocation<ItemOfType>(ItemType.KeycardScientist, new[] { ItemType.KeycardScientist }, perception.GetSense<RoomSightSense>(), perception.GetSense<ItemsWithinSightSense>(), botPlayer.Navigator));
-            mind.AddBelief(new ItemSightedLocation<ItemOfType>(ItemType.KeycardScientist, perception.GetSense<ItemsWithinSightSense>()));
+            mind.AddBelief(new ItemSightedLocation<ItemOfType>(ItemType.KeycardScientist, botPlayer.Navigator, perception.GetSense<ItemsWithinSightSense>()));
             mind.AddBelief(new ItemInInventory<ItemOfType>(ItemType.KeycardScientist, perception.GetSense<ItemsInInventorySense>()));
 
             mind.AddActivity(new GoToItemSpawnLocation<ItemOfType>(ItemType.KeycardScientist, botPlayer));
@@ -56,19 +56,19 @@ namespace SCPSLBot.AI.FirstPersonControl
             mind.AddActivity(new GoToPickupItem<ItemOfType>(ItemType.KeycardScientist, botPlayer));
 
 
-            mind.AddBelief(new ItemSightedLocation<ItemOfType>(ItemType.KeycardResearchCoordinator, perception.GetSense<ItemsWithinSightSense>()));
+            mind.AddBelief(new ItemSightedLocation<ItemOfType>(ItemType.KeycardResearchCoordinator, botPlayer.Navigator, perception.GetSense<ItemsWithinSightSense>()));
             mind.AddBelief(new ItemInInventory<ItemOfType>(ItemType.KeycardResearchCoordinator, perception.GetSense<ItemsInInventorySense>()));
 
             mind.AddActivity(new GoToPickupItem<ItemOfType>(ItemType.KeycardResearchCoordinator, botPlayer));
 
 
-            mind.AddBelief(new ItemSightedLocation<ItemOfType>(ItemType.KeycardFacilityManager, perception.GetSense<ItemsWithinSightSense>()));
+            mind.AddBelief(new ItemSightedLocation<ItemOfType>(ItemType.KeycardFacilityManager, botPlayer.Navigator, perception.GetSense<ItemsWithinSightSense>()));
             mind.AddBelief(new ItemInInventory<ItemOfType>(ItemType.KeycardFacilityManager, perception.GetSense<ItemsInInventorySense>()));
 
             mind.AddActivity(new GoToPickupItem<ItemOfType>(ItemType.KeycardFacilityManager, botPlayer));
 
 
-            mind.AddBelief(new ItemSightedLocation<ItemOfType>(ItemType.KeycardO5, perception.GetSense<ItemsWithinSightSense>()));
+            mind.AddBelief(new ItemSightedLocation<ItemOfType>(ItemType.KeycardO5, botPlayer.Navigator, perception.GetSense<ItemsWithinSightSense>()));
             mind.AddBelief(new ItemInInventory<ItemOfType>(ItemType.KeycardO5, perception.GetSense<ItemsInInventorySense>()));
 
             mind.AddActivity(new GoToPickupItem<ItemOfType>(ItemType.KeycardO5, botPlayer));
@@ -153,7 +153,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             mind.AddActivity(new GoToItemInOutakeChamber<ItemOfType>(new(ItemType.KeycardO5), botPlayer));
 
 
-            mind.AddBelief(new ItemSightedLocation<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelOne), perception.GetSense<ItemsWithinSightSense>()));
+            mind.AddBelief(new ItemSightedLocation<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelOne), botPlayer.Navigator, perception.GetSense<ItemsWithinSightSense>()));
             mind.AddBelief(new ItemInInventory<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelOne), perception.GetSense<ItemsInInventorySense>()));
             mind.AddActivity(new GoToPickupItem<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelOne), botPlayer));
 
@@ -174,7 +174,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             mind.AddActivity(new WaitForDoorOpening(botPlayer));
 
 
-            mind.AddBelief(new ItemSightedLocation<ItemOfType>(new(ItemType.Medkit), perception.GetSense<ItemsWithinSightSense>()));
+            mind.AddBelief(new ItemSightedLocation<ItemOfType>(new(ItemType.Medkit), botPlayer.Navigator, perception.GetSense<ItemsWithinSightSense>()));
 
             //mind.AddDesire(new GetResearchSupervisorKeycard());
             mind.AddDesire(new GetO5Keycard());

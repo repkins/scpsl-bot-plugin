@@ -21,8 +21,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            itemLocation = fpcMind.ActivityEnabledBy<ItemSightedLocation<C>>(this, b => b.Criteria.Equals(Criteria), b => b.IsKnown);
-            fpcMind.ActivityEnabledBy<DoorObstacle>(this, b => !b.Is(itemLocation.Position!.Value));
+            itemLocation = fpcMind.ActivityEnabledBy<ItemSightedLocation<C>>(this, b => b.Criteria.Equals(Criteria), b => b.AccessiblePosition.HasValue);
+
+            fpcMind.ActivityEnabledBy<DoorObstacle>(this, b => !b.Is(itemLocation.AccessiblePosition!.Value));
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
@@ -52,7 +53,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
                 pickupCooldown = 0f;
             }
 
-            var itemPosition = itemLocation.Position!.Value;
+            var itemPosition = itemLocation.AccessiblePosition!.Value;
             var cameraPosition = _botPlayer.BotHub.PlayerHub.PlayerCameraReference.position;
 
             if (Vector3.Distance(itemPosition, cameraPosition) > 1.75f)

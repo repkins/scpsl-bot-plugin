@@ -11,33 +11,24 @@ using HarmonyLib;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 {
-    internal class ItemSpawnLocation<C> : IBelief where C : IItemBeliefCriteria
+    internal class ItemSpawnLocation<C> : ItemLocation<C> where C : IItemBeliefCriteria
     {
-        public C Criteria { get; }
-        public ItemSpawnLocation(C criteria, ItemType[] spawnItemTypes, RoomSightSense roomSense, ItemsWithinSightSense itemsSightSense, FpcBotNavigator navigator) 
-            : this(spawnItemTypes, roomSense, itemsSightSense, navigator)
-        {
-            this.Criteria = criteria;
-        }
-
         private readonly ItemType[] spawnItemTypes;
         private readonly RoomSightSense roomSense;
         private readonly ItemsWithinSightSense itemsSightSense;
-        private readonly FpcBotNavigator navigator;
 
-        private ItemSpawnLocation(ItemType[] spawnItemTypes, RoomSightSense roomSense, ItemsWithinSightSense itemsSightSense, FpcBotNavigator navigator)
+        public ItemSpawnLocation(C criteria, ItemType[] spawnItemTypes, RoomSightSense roomSense, ItemsWithinSightSense itemsSightSense, FpcBotNavigator navigator) 
+            : base(criteria, navigator, itemsSightSense)
         {
             this.spawnItemTypes = spawnItemTypes;
-            this.roomSense = roomSense;
             this.itemsSightSense = itemsSightSense;
-            this.navigator = navigator;
+            this.roomSense = roomSense;
 
             this.roomSense.OnAfterSensedForeignRooms += OnAfterSensedForeignRooms;
             this.itemsSightSense.OnAfterSensedItemsWithinSight += OnAfterSensedItemsWithinSight;
         }
 
         private readonly HashSet<Vector3> visitedSpawnPositions = new();
-        private readonly HashSet<Vector3> inaccesableSpawnPositions = new();
 
         private void OnAfterSensedItemsWithinSight()
         {
@@ -45,19 +36,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
             {
                 var spawnPosition = this.Position.Value;
 
-                if (!this.IsAccessable(spawnPosition))
-                {
-                    this.inaccesableSpawnPositions.Add(spawnPosition);
-                    Update(null);
-                    return;
-                }
-
                 if (this.itemsSightSense.IsPositionWithinFov(spawnPosition)
                 //    && (!itemsSightSense.IsPositionObstructed(Position.Value) || itemsSightSense.GetDistanceToPosition(Position.Value) < 1.5f))
                     && (!itemsSightSense.IsPositionObstructed(spawnPosition)))
                 {
                     this.visitedSpawnPositions.Add(spawnPosition);
-                    Update(null);
+                    ClearPosition();
                 }
             }
         }
@@ -75,13 +59,13 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
             //{
                 var unvisitedSpawnPosition = this.GetItemSpawnPositions(roomWithin)
                     .Where(spawnPosition => !this.visitedSpawnPositions.Contains(spawnPosition))
-                    .Where(spawnPosition => this.IsAccessable(spawnPosition))
+                    .Where(spawnPosition => this.IsAccessible(spawnPosition))
                     .Select(spawnPosition => new Vector3?(spawnPosition))
                     .FirstOrDefault();
 
                 if (unvisitedSpawnPosition.HasValue)
                 {
-                    this.Update(unvisitedSpawnPosition.Value);
+                    this.SetAccesablePosition(unvisitedSpawnPosition.Value);
                 }
             //}
         }
@@ -105,45 +89,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
                     .ToArray();
             }
             return spawnPositions;
-        }
-
-        private bool IsAccessable(Vector3 spawnPosition)
-        {
-            var pathOfPoints = this.navigator.PointsPath;
-
-            if (pathOfPoints.Last() != spawnPosition)
-            {
-                return !this.inaccesableSpawnPositions.Contains(spawnPosition);
-            }
-
-            var pathSegments = pathOfPoints.Zip(pathOfPoints.Skip(1), (point, nextPoint) => (point, nextPoint));
-
-            var hits = pathSegments.Select(segment => (isHit: Physics.Linecast(segment.point, segment.nextPoint, out var hit), hit))
-                .Where(t => t.isHit);
-
-            if (hits.All(t => this.Criteria.CanOvercome(t.hit.collider)))
-            {
-                this.inaccesableSpawnPositions.Remove(spawnPosition);
-
-                return true;
-            }
-
-            Log.Debug($"{this}: cannot overcome");
-
-            return false;
-        }
-
-        public Vector3? Position { get; private set; }
-
-        public event Action OnUpdate;
-
-        private void Update(Vector3? spawnPosition)
-        {
-            if (spawnPosition != this.Position)
-            {
-                this.Position = spawnPosition;
-                this.OnUpdate?.Invoke();
-            }
         }
 
         public override string ToString()

@@ -5,9 +5,11 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 {
-    internal partial class ItemSightedLocation<C>
+    internal partial class ItemSightedLocation<C> : ItemLocation<C> where C : IItemBeliefCriteria
     {
-        public ItemSightedLocation(C criteria, ItemsWithinSightSense itemsSightSense) : this(criteria)
+        private readonly ItemsWithinSightSense itemsSightSense;
+
+        public ItemSightedLocation(C criteria, FpcBotNavigator navigator, ItemsWithinSightSense itemsSightSense) : base(criteria, navigator, itemsSightSense)
         {
             this.itemsSightSense = itemsSightSense;
             this.itemsSightSense.OnSensedItemWithinSight += ProcessSensedItem;
@@ -18,9 +20,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 
         private void ProcessSensedItem(ItemPickupBase item)
         {
-            if (Criteria.EvaluateItem(item))
+            if (Criteria.EvaluateItem(item) && IsAccessible(item.Position))
             {
-                Update(item.Position);
+                SetAccesablePosition(item.Position);
 
                 numItemsWithinSight++;
             }
@@ -28,49 +30,21 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 
         private void HandleAfterSensedItems()
         {
-            if (numItemsWithinSight == 0 && Position.HasValue)
+            // Evaluate item position out of sight
+            if (Position.HasValue && numItemsWithinSight == 0)
             {
-                if (itemsSightSense.IsPositionWithinFov(Position.Value) 
+                if (itemsSightSense.IsPositionWithinFov(Position.Value)
                     && (!itemsSightSense.IsPositionObstructed(Position.Value) || itemsSightSense.GetDistanceToPosition(Position.Value) < 1.5f))
                 {
-                    Update(null);
+                    ClearPosition();
                 }
             }
-
             numItemsWithinSight = 0;
-        }
-
-        private readonly ItemsWithinSightSense itemsSightSense;
-    }
-
-    internal partial class ItemSightedLocation<C> : ItemLocation where C : IItemBeliefCriteria
-    {
-        public C Criteria { get; }
-        public ItemSightedLocation(C criteria)
-        {
-            Criteria = criteria;
         }
 
         public override string ToString()
         {
             return $"{nameof(ItemSightedLocation<C>)}({this.Criteria})";
-        }
-    }
-
-    internal class ItemLocation : IBelief
-    {
-        public Vector3? Position;
-        public bool IsKnown => Position.HasValue;
-
-        public event Action OnUpdate;
-
-        protected void Update(Vector3? position)
-        {
-            if (position != Position)
-            {
-                Position = position;
-                OnUpdate?.Invoke();
-            }
         }
     }
 }
