@@ -6,7 +6,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Movement
 {
     internal class FpcMove
     {
-        //public Vector3 GoaldDirection { get; set; } = Vector3.zero;
+        //public Vector3 DesiredDirection { get; set; } = Vector3.zero;
         public Vector3 DesiredLocalDirection { get; set; } = Vector3.zero;
 
         private readonly FpcBotPlayer botPlayer;

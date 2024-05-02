@@ -19,8 +19,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Rotation
             if (hub != null && BotManager.Instance.BotPlayers.TryGetValue(hub, out var botHub)
                 && botHub.CurrentBotPlayer is FpcBotPlayer fpcPlayer)
             {
-                var hRotation = fpcPlayer.Look.GoaldHorizontalRotation;
-                var vRotation = fpcPlayer.Look.GoaldVerticalRotation;
+                var hRotation = fpcPlayer.Look.DesiredHorizontalRotation;
+                var vRotation = fpcPlayer.Look.DesiredVerticalRotation;
 
                 //__instance.CurrentHorizontal = Mathf.DeltaAngle(0f, hub.transform.eulerAngles.y);
                 //__instance.CurrentVertical = -Mathf.DeltaAngle(0f, hub.PlayerCameraReference.localEulerAngles.x);
@@ -34,8 +34,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Rotation
                 hub.transform.rotation = rotation;
                 hub.PlayerCameraReference.localRotation = cameraRotation;
 
-                fpcPlayer.Look.GoaldHorizontalRotation = Quaternion.identity;
-                fpcPlayer.Look.GoaldVerticalRotation = Quaternion.identity;
+                fpcPlayer.Look.DesiredHorizontalRotation = Quaternion.identity;
+                fpcPlayer.Look.DesiredVerticalRotation = Quaternion.identity;
 
                 return false;
             }
