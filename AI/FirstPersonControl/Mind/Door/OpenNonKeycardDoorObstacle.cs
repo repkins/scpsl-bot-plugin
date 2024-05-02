@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 {
-    internal class OpenNonKeycardDoorObstacle : IActivity
+    internal class OpenNonKeycardDoorObstacle : IAction
     {
         private DoorObstacle doorObstacleBelief;
         private FpcBotPlayer botPlayer;
@@ -26,7 +26,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            doorObstacleBelief = fpcMind.ActivityImpactsWithCondition<DoorObstacle>(this, b => !b.GetLastDoor(KeycardPermissions.None));
+            doorObstacleBelief = fpcMind.ActionImpactsWithCondition<DoorObstacle>(this, b => !b.GetLastDoor(KeycardPermissions.None));
         }
 
         public void Tick()

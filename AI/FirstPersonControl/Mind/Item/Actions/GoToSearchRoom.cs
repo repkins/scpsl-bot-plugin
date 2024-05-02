@@ -4,9 +4,9 @@ using SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs;
 using System;
 using UnityEngine;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
 {
-    internal class GoToSearchRoom<C> : IActivity where C : IItemBeliefCriteria, IEquatable<C>
+    internal class GoToSearchRoom<C> : IAction where C : IItemBeliefCriteria, IEquatable<C>
     {
         public readonly C Criteria;
         public GoToSearchRoom(C criteria, FpcBotPlayer botPlayer) : this(botPlayer)
@@ -18,14 +18,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            roomEnterLocation = fpcMind.ActivityEnabledBy<RoomEnterLocation>(this, b => b.Position.HasValue);
+            roomEnterLocation = fpcMind.ActionEnabledBy<RoomEnterLocation>(this, b => b.Position.HasValue);
 
-            fpcMind.ActivityEnabledBy<DoorObstacle>(this, b => !b.Is(roomEnterLocation.Position!.Value));
+            fpcMind.ActionEnabledBy<DoorObstacle>(this, b => !b.Is(roomEnterLocation.Position!.Value));
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityImpacts<ItemSightedLocation<C>>(this, b => b.Criteria.Equals(Criteria));
+            fpcMind.ActionImpacts<ItemSightedLocation<C>>(this, b => b.Criteria.Equals(Criteria));
         }
 
         public GoToSearchRoom(FpcBotPlayer botPlayer)

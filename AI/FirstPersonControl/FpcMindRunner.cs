@@ -9,7 +9,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 {
     internal class FpcMindRunner : FpcMind
     {
-        public IActivity RunningActivity { get; private set; }
+        public IAction RunningAction { get; private set; }
 
         private bool isBeliefsUpdated = false;
 
@@ -21,11 +21,11 @@ namespace SCPSLBot.AI.FirstPersonControl
             }
         }
 
-        public void EvaluateDesiresToActivities()
+        public void EvaluateGoalsToActions()
         {
-            IEnumerable<IActivity> enabledActivities = GetEnabledActivitiesTowardsDesires();
+            IEnumerable<IAction> enabledActions = GetEnabledActionsTowardsGoals();
 
-            SelectActivityAndRun(enabledActivities);
+            SelectActionAndRun(enabledActions);
         }
 
         public void Tick()
@@ -34,38 +34,38 @@ namespace SCPSLBot.AI.FirstPersonControl
             {
                 isBeliefsUpdated = false;
 
-                IEnumerable<IActivity> enabledActivities = GetEnabledActivitiesTowardsDesires();
-                SelectActivityAndRun(enabledActivities);
+                IEnumerable<IAction> enabledActions = GetEnabledActionsTowardsGoals();
+                SelectActionAndRun(enabledActions);
             }
 
-            RunningActivity?.Tick();
+            RunningAction?.Tick();
         }
 
         internal void Dump()
         {
-            var allDesires = DesiresEnabledByBeliefs.Keys;
-            foreach (var desire in allDesires)
+            var allGoals = GoalsEnabledByBeliefs.Keys;
+            foreach (var desire in allGoals)
             {
-                Log.Debug($"Desire: {desire.GetType().Name}");
+                Log.Debug($"Goal: {desire.GetType().Name}");
 
-                var desireEnablingBeliefs = DesiresEnabledByBeliefs[desire];
-                DumpBeliefsActivities(desireEnablingBeliefs, "  ");
+                var desireEnablingBeliefs = GoalsEnabledByBeliefs[desire];
+                DumpBeliefsActions(desireEnablingBeliefs, "  ");
             }
         }
 
-        private void DumpBeliefsActivities(IEnumerable<IBelief> beliefs, string prefix)
+        private void DumpBeliefsActions(IEnumerable<IBelief> beliefs, string prefix)
         {
             foreach (var enablingBelief in beliefs)
             {
                 Log.Debug($"{prefix}Belief: {enablingBelief}");
 
-                var activities = BeliefsImpactedByActivities[enablingBelief];
-                foreach (var (activity, _) in activities)
+                var Actions = BeliefsImpactedByActions[enablingBelief];
+                foreach (var (Action, _) in Actions)
                 {
-                    Log.Debug($"{prefix}  Activity: {activity}");
+                    Log.Debug($"{prefix}  Action: {Action}");
 
-                    var enablingBeliefs = ActivitiesEnabledByBeliefs[activity];
-                    DumpBeliefsActivities(enablingBeliefs.Select(t => t.Belief), $"{prefix}    ");
+                    var enablingBeliefs = ActionsEnabledByBeliefs[Action];
+                    DumpBeliefsActions(enablingBeliefs.Select(t => t.Belief), $"{prefix}    ");
                 }
             }
         }
@@ -76,56 +76,56 @@ namespace SCPSLBot.AI.FirstPersonControl
             Log.Debug($"Belief updated: {updatedBelief}");
         }
 
-        private IEnumerable<IActivity> GetEnabledActivitiesTowardsDesires()
+        private IEnumerable<IAction> GetEnabledActionsTowardsGoals()
         {
-            //Log.Debug($"    Getting enabled activities towards desires.");
+            //Log.Debug($"    Getting enabled Actions towards desires.");
 
-            var allDesires = DesiresEnabledByBeliefs.Keys;
-            var enabledActivities = allDesires
+            var allGoals = GoalsEnabledByBeliefs.Keys;
+            var enabledActions = allGoals
                 .Select(d => { 
                     //Log.Debug($"    Evaluating desire {d.GetType().Name}"); 
                     return d;
                 })
                 .Where(d => !d.Condition())
                 .Select(d => {
-                    //Log.Debug($"    Desire {d.GetType().Name} not fulfilled");
+                    //Log.Debug($"    Goal {d.GetType().Name} not fulfilled");
                     return d;
                 })
-                .SelectMany(d => DesiresEnabledByBeliefs[d])
-                .SelectMany(GetClosestActivitiesImpacting);
+                .SelectMany(d => GoalsEnabledByBeliefs[d])
+                .SelectMany(GetClosestActionsImpacting);
 
-            return enabledActivities;
+            return enabledActions;
         }
 
-        private IEnumerable<IActivity> GetClosestActivitiesImpacting(IBelief belief)
+        private IEnumerable<IAction> GetClosestActionsImpacting(IBelief belief)
         {
-            //Log.Debug($"    Getting activities impacting {belief}");
+            //Log.Debug($"    Getting Actions impacting {belief}");
 
-            var activitiesImpacting = BeliefsImpactedByActivities[belief]
+            var ActionsImpacting = BeliefsImpactedByActions[belief]
                 .Where(t => !t.Condition(belief))
-                .Select(t => t.Activity);
+                .Select(t => t.Action);
 
-            var enabledActivities = activitiesImpacting.SelectMany(GetClosestEnablingActivities);
+            var enabledActions = ActionsImpacting.SelectMany(GetClosestEnablingActions);
 
-            return enabledActivities;
+            return enabledActions;
         }
 
-        private IEnumerable<IActivity> GetClosestEnablingActivities(IActivity activityImpacting)
+        private IEnumerable<IAction> GetClosestEnablingActions(IAction ActionImpacting)
         {
-            //Log.Debug($"    Activity {activityImpacting}...");
+            //Log.Debug($"    Action {ActionImpacting}...");
 
-            var beliefsEnabling = ActivitiesEnabledByBeliefs[activityImpacting];
+            var beliefsEnabling = ActionsEnabledByBeliefs[ActionImpacting];
             if (beliefsEnabling.All(t => t.Condition(t.Belief)))
             {
-                //Log.Debug($"    Activity {activityImpacting} conditions fulfilled.");
+                //Log.Debug($"    Action {ActionImpacting} conditions fulfilled.");
 
-                return Enumerable.Repeat(activityImpacting, 1);
+                return Enumerable.Repeat(ActionImpacting, 1);
             }
             else
             {
-                //Log.Debug($"    Activity {activityImpacting} needs to be enabled.");
+                //Log.Debug($"    Action {ActionImpacting} needs to be enabled.");
 
-                var enabledActivities = beliefsEnabling
+                var enabledActions = beliefsEnabling
                     .Select(t =>
                     {
                         //Log.Debug($"    Belief {t.Belief}...");
@@ -139,36 +139,36 @@ namespace SCPSLBot.AI.FirstPersonControl
                         //Log.Debug($"    Belief {b} needs to be satisfied.");
                         return b;
                     })
-                    .SelectMany(GetClosestActivitiesImpacting);
-                return enabledActivities;
+                    .SelectMany(GetClosestActionsImpacting);
+                return enabledActions;
             }
         }
 
-        private IEnumerable<IActivity> GetClosestActivitiesImpacting(IEnumerable<IBelief> beliefs)
+        private IEnumerable<IAction> GetClosestActionsImpacting(IEnumerable<IBelief> beliefs)
         {
-            var activitySets = beliefs
+            var ActionSets = beliefs
                 .Select(b => {
-                    Log.Debug($"    Getting activities impacting {b.GetType().Name}");
+                    Log.Debug($"    Getting Actions impacting {b.GetType().Name}");
                     return b;
                 })
-                .Select(b => BeliefsImpactedByActivities[b]
+                .Select(b => BeliefsImpactedByActions[b]
                     .Where(t => !t.Condition(b))
-                    .Select(t => t.Activity));
+                    .Select(t => t.Action));
 
-            foreach (var activitiesImpacting in activitySets)
+            foreach (var ActionsImpacting in ActionSets)
             {
-                var enabledActivities = activitiesImpacting
-                    .Where(a => ActivitiesEnabledByBeliefs[a].All(t => t.Condition(t.Belief)));
+                var enabledActions = ActionsImpacting
+                    .Where(a => ActionsEnabledByBeliefs[a].All(t => t.Condition(t.Belief)));
 
-                if (!enabledActivities.Any())
+                if (!enabledActions.Any())
                 {
-                    enabledActivities = activitiesImpacting
+                    enabledActions = ActionsImpacting
                         .Select(a =>
                         {
-                            Log.Debug($"    Activity {a.GetType().Name} needs to be enabled.");
+                            Log.Debug($"    Action {a.GetType().Name} needs to be enabled.");
                             return a;
                         })
-                        .Select(a => ActivitiesEnabledByBeliefs[a]
+                        .Select(a => ActionsEnabledByBeliefs[a]
                             .Select(t => {
                                 Log.Debug($"    Belief {t.Belief.GetType().Name}.");
                                 return t;
@@ -179,37 +179,37 @@ namespace SCPSLBot.AI.FirstPersonControl
                                 Log.Debug($"    Belief {b.GetType().Name} needs to be satisfied.");
                                 return b;
                             }))
-                        .SelectMany(GetClosestActivitiesImpacting);
+                        .SelectMany(GetClosestActionsImpacting);
                 }
                 else
                 {
-                    enabledActivities = enabledActivities
+                    enabledActions = enabledActions
                         .Select(a =>
                         {
-                            Log.Debug($"    Activity {a.GetType().Name} conditions fulfilled.");
+                            Log.Debug($"    Action {a.GetType().Name} conditions fulfilled.");
                             return a;
                         });
                 }
 
-                return enabledActivities;
+                return enabledActions;
             }
 
-            return Enumerable.Empty<IActivity>();
+            return Enumerable.Empty<IAction>();
         }
 
-        private void SelectActivityAndRun(IEnumerable<IActivity> enabledActivities)
+        private void SelectActionAndRun(IEnumerable<IAction> enabledActions)
         {
-            var selectedActivity = enabledActivities//.OrderBy(a => Random.Range(0f, 10f))
+            var selectedAction = enabledActions//.OrderBy(a => Random.Range(0f, 10f))
                 .FirstOrDefault();  // TODO: cost?
 
-            var prevActivity = RunningActivity;
+            var prevAction = RunningAction;
 
-            RunningActivity = selectedActivity ?? null;
+            RunningAction = selectedAction ?? null;
 
-            if (RunningActivity != prevActivity)
+            if (RunningAction != prevAction)
             {
-                RunningActivity?.Reset();
-                Log.Debug($"New activity for bot: {RunningActivity}");
+                RunningAction?.Reset();
+                Log.Debug($"New Action for bot: {RunningAction}");
             }
         }
     }

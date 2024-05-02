@@ -3,9 +3,9 @@ using System;
 
 namespace SCPSLBot.AI.FirstPersonControl.Attributes
 {
-    internal class ActivityEnabledBy : Attribute
+    internal class ActionEnabledBy : Attribute
     {
-        public ActivityEnabledBy(Type beliefType, Predicate<IBelief> condition)
+        public ActionEnabledBy(Type beliefType, Predicate<IBelief> condition)
         {
             BeliefType = beliefType;
             Condition = condition;
@@ -15,9 +15,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Attributes
         public Predicate<IBelief> Condition { get; }
     }
 
-    internal class ActivityEnabledBy<B> : ActivityEnabledBy where B : IBelief
+    internal class ActionEnabledBy<B> : ActionEnabledBy where B : IBelief
     {
-        public ActivityEnabledBy(Predicate<IBelief> condition) : base(typeof(B), condition)
+        public ActionEnabledBy(Predicate<IBelief> condition) : base(typeof(B), condition)
         {
         }
     }

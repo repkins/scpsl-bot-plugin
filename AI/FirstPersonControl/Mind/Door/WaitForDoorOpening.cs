@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 {
-    internal class WaitForDoorOpening : IActivity
+    internal class WaitForDoorOpening : IAction
     {
         private DoorObstacle doorObstacleBelief;
         private FpcBotPlayer botPlayer;
@@ -23,7 +23,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            doorObstacleBelief = fpcMind.ActivityImpactsWithCondition<DoorObstacle>(this, b => !b.GetLastUninteractableDoor());
+            doorObstacleBelief = fpcMind.ActionImpactsWithCondition<DoorObstacle>(this, b => !b.GetLastUninteractableDoor());
         }
 
         public void Tick()

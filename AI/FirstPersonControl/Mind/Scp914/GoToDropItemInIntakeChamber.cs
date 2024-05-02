@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 {
-    internal class GoToDropItemInIntakeChamber<C> : IActivity where C : IItemBeliefCriteria, IEquatable<C>
+    internal class GoToDropItemInIntakeChamber<C> : IAction where C : IItemBeliefCriteria, IEquatable<C>
     {
         public C Criteria { get; }
         public GoToDropItemInIntakeChamber(C criteria, FpcBotPlayer botPlayer) : this(botPlayer)
@@ -21,14 +21,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            this.itemInInventoryBelief = fpcMind.ActivityEnabledBy<ItemInInventory<C>>(this, b => b.Criteria.Equals(this.Criteria), b => b.Item);
-            this.scp914Location = fpcMind.ActivityEnabledBy<Scp914Location>(this, b => b.IntakeChamberPosition.HasValue);
-            fpcMind.ActivityEnabledBy<DoorObstacle>(this, b => !b.Is(scp914Location.IntakeChamberPosition!.Value));
+            this.itemInInventoryBelief = fpcMind.ActionEnabledBy<ItemInInventory<C>>(this, b => b.Criteria.Equals(this.Criteria), b => b.Item);
+            this.scp914Location = fpcMind.ActionEnabledBy<Scp914Location>(this, b => b.IntakeChamberPosition.HasValue);
+            fpcMind.ActionEnabledBy<DoorObstacle>(this, b => !b.Is(scp914Location.IntakeChamberPosition!.Value));
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            this.itemInIntakeChamber = fpcMind.ActivityImpacts<ItemInIntakeChamber<C>>(this, b => b.Criteria.Equals(this.Criteria));
+            this.itemInIntakeChamber = fpcMind.ActionImpacts<ItemInIntakeChamber<C>>(this, b => b.Criteria.Equals(this.Criteria));
         }
 
         private readonly FpcBotPlayer botPlayer;

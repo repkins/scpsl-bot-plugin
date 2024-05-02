@@ -13,9 +13,9 @@ using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
 {
-    internal class OldFindItem<C> : IActivity where C : IItemBeliefCriteria, IEquatable<C>
+    internal class OldFindItem<C> : IAction where C : IItemBeliefCriteria, IEquatable<C>
     {
         public readonly C Criteria;
         public OldFindItem(C criteria, FpcBotPlayer botPlayer) : this(botPlayer)
@@ -28,7 +28,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityImpacts<ItemSightedLocation<C>>(this, b => b.Criteria.Equals(Criteria));
+            fpcMind.ActionImpacts<ItemSightedLocation<C>>(this, b => b.Criteria.Equals(Criteria));
         }
 
         public OldFindItem(FpcBotPlayer botPlayer)

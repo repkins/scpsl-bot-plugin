@@ -6,7 +6,7 @@ using System;
 using System.Linq;
 using UnityEngine;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
 {
     internal class GoToPickupItem<C> : GoTo<ItemSightedLocation<C>, C> where C : IItemBeliefCriteria, IEquatable<C>
     {
@@ -22,7 +22,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 
         public override void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityImpacts<ItemInInventory<C>>(this, b => b.Criteria.Equals(Criteria));
+            fpcMind.ActionImpacts<ItemInInventory<C>>(this, b => b.Criteria.Equals(Criteria));
         }
 
         private bool isPickingUp;

@@ -2,7 +2,7 @@
 using System;
 using UnityEngine;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
 {
     internal class GoToItemSpawnLocation<C> : GoTo<ItemSpawnLocation<C>, C> where C : IItemBeliefCriteria, IEquatable<C>
     {
@@ -18,7 +18,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Activities
 
         public override void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityImpacts<ItemSightedLocation<C>>(this, b => b.Criteria.Equals(Criteria));
+            fpcMind.ActionImpacts<ItemSightedLocation<C>>(this, b => b.Criteria.Equals(Criteria));
         }
 
         private float closestDist;

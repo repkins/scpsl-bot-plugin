@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 {
-    internal class OpenKeycardDoorObstacle : IActivity
+    internal class OpenKeycardDoorObstacle : IAction
     {
         public readonly KeycardPermissions Permissions;
         public OpenKeycardDoorObstacle(KeycardPermissions permissions, FpcBotPlayer botPlayer)
@@ -24,12 +24,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            keycardInInventory = fpcMind.ActivityEnabledBy<ItemInInventory<KeycardWithPermissions>>(this, b => b.Criteria.Equals(new (Permissions)), b => b.Item);
+            keycardInInventory = fpcMind.ActionEnabledBy<ItemInInventory<KeycardWithPermissions>>(this, b => b.Criteria.Equals(new (Permissions)), b => b.Item);
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            doorObstacleBelief = fpcMind.ActivityImpactsWithCondition<DoorObstacle>(this, b => !b.GetLastDoor(Permissions));
+            doorObstacleBelief = fpcMind.ActionImpactsWithCondition<DoorObstacle>(this, b => !b.GetLastDoor(Permissions));
         }
 
         public void Tick()

@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 {
-    internal class WaitForItemUpgrading : IActivity
+    internal class WaitForItemUpgrading : IAction
     {
         public readonly ItemType InputItemType;
         public readonly IItemBeliefCriteria[] OutputCriterias;
@@ -26,15 +26,15 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            this.itemInIntakeChamber = fpcMind.ActivityEnabledBy<ItemInIntakeChamber<ItemOfType>>(this, b => b.Criteria.Equals(this.InputItemType), b => b.PositionRelative.HasValue);
-            this.runningOnSetting = fpcMind.ActivityEnabledBy<Scp914RunningOnSetting>(this, b => b.RunningKnobSetting == Setting);
+            this.itemInIntakeChamber = fpcMind.ActionEnabledBy<ItemInIntakeChamber<ItemOfType>>(this, b => b.Criteria.Equals(this.InputItemType), b => b.PositionRelative.HasValue);
+            this.runningOnSetting = fpcMind.ActionEnabledBy<Scp914RunningOnSetting>(this, b => b.RunningKnobSetting == Setting);
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
             foreach (var outputCriteria in this.OutputCriterias)
             {
-                var itemInOutakeChamberBelief = fpcMind.ActivityImpacts<ItemInOutakeChamber>(this, b => b.Criteria.Equals(outputCriteria));
+                var itemInOutakeChamberBelief = fpcMind.ActionImpacts<ItemInOutakeChamber>(this, b => b.Criteria.Equals(outputCriteria));
                 this.itemInOutakeChamberBeliefs.Add(itemInOutakeChamberBelief);
             }
         }

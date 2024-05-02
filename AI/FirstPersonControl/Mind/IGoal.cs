@@ -1,6 +1,6 @@
 ﻿namespace SCPSLBot.AI.FirstPersonControl.Mind
 {
-    internal interface IDesire
+    internal interface IGoal
     {
         void SetEnabledByBeliefs(FpcMind fpcMind);
 

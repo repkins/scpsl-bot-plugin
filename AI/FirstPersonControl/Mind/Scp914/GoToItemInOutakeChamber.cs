@@ -5,7 +5,7 @@ using System;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 {
-    internal class GoToItemInOutakeChamber<C> : IActivity where C : IItemBeliefCriteria, IEquatable<C>
+    internal class GoToItemInOutakeChamber<C> : IAction where C : IItemBeliefCriteria, IEquatable<C>
     {
         public C Criteria { get; }
         public GoToItemInOutakeChamber(C criteria, FpcBotPlayer botPlayer) : this(botPlayer)
@@ -18,15 +18,15 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            this.itemInOutakeChamber = fpcMind.ActivityEnabledBy<ItemInOutakeChamber>(this, b => b.Criteria.Equals(this.Criteria), b => b.PositionRelative.HasValue);
-            this.scp914Location = fpcMind.ActivityEnabledBy<Scp914Location>(this, b => b.OutakeChamberPosition.HasValue);
+            this.itemInOutakeChamber = fpcMind.ActionEnabledBy<ItemInOutakeChamber>(this, b => b.Criteria.Equals(this.Criteria), b => b.PositionRelative.HasValue);
+            this.scp914Location = fpcMind.ActionEnabledBy<Scp914Location>(this, b => b.OutakeChamberPosition.HasValue);
 
-            fpcMind.ActivityEnabledBy<DoorObstacle>(this, b => !b.Is(this.scp914Location.OutakeChamberPosition!.Value));
+            fpcMind.ActionEnabledBy<DoorObstacle>(this, b => !b.Is(this.scp914Location.OutakeChamberPosition!.Value));
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityImpacts<ItemSightedLocation<C>>(this, b => b.Criteria.Equals(this.Criteria));
+            fpcMind.ActionImpacts<ItemSightedLocation<C>>(this, b => b.Criteria.Equals(this.Criteria));
         }
 
         private readonly FpcBotPlayer botPlayer;

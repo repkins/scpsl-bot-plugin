@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 {
-    internal class GoToStartScp914OnSetting : IActivity
+    internal class GoToStartScp914OnSetting : IAction
     {
         public readonly Scp914KnobSetting KnobSetting;
         public GoToStartScp914OnSetting(Scp914KnobSetting knobSetting, FpcBotPlayer botPlayer)
@@ -21,15 +21,15 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            scp914Location = fpcMind.ActivityEnabledBy<Scp914Location>(this, b => b.ControlsPosition.HasValue);
-            scp914Controls = fpcMind.ActivityEnabledBy<Scp914Controls>(this, b => true);
+            scp914Location = fpcMind.ActionEnabledBy<Scp914Location>(this, b => b.ControlsPosition.HasValue);
+            scp914Controls = fpcMind.ActionEnabledBy<Scp914Controls>(this, b => true);
 
-            fpcMind.ActivityEnabledBy<DoorObstacle>(this, b => !b.Is(scp914Location.ControlsPosition!.Value));
+            fpcMind.ActionEnabledBy<DoorObstacle>(this, b => !b.Is(scp914Location.ControlsPosition!.Value));
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityImpacts<Scp914RunningOnSetting>(this);
+            fpcMind.ActionImpacts<Scp914RunningOnSetting>(this);
         }
 
         private readonly FpcBotPlayer botPlayer;

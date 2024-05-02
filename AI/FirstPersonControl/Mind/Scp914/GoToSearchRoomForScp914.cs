@@ -4,19 +4,19 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 {
-    internal class GoToSearchRoomForScp914 : IActivity
+    internal class GoToSearchRoomForScp914 : IAction
     {
         private RoomEnterLocation roomEnterLocation;
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            roomEnterLocation = fpcMind.ActivityEnabledBy<RoomEnterLocation>(this, b => b.Position.HasValue);
-            fpcMind.ActivityEnabledBy<DoorObstacle>(this, b => !b.Is(roomEnterLocation.Position!.Value));
+            roomEnterLocation = fpcMind.ActionEnabledBy<RoomEnterLocation>(this, b => b.Position.HasValue);
+            fpcMind.ActionEnabledBy<DoorObstacle>(this, b => !b.Is(roomEnterLocation.Position!.Value));
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActivityImpacts<Scp914Location>(this);
+            fpcMind.ActionImpacts<Scp914Location>(this);
         }
 
         private readonly FpcBotPlayer botPlayer;

@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 namespace SCPSLBot.AI.FirstPersonControl.Attributes
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-    internal class ActivityImpacts : Attribute
+    internal class ActionImpacts : Attribute
     {
-        public ActivityImpacts(Type beliefType)
+        public ActionImpacts(Type beliefType)
         {
             BeliefType = beliefType;
         }
@@ -19,9 +19,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Attributes
         public Predicate<IBelief> Condition { get; }
     }
 
-    internal class ActivityImpacts<B> : ActivityImpacts where B : IBelief
+    internal class ActionImpacts<B> : ActionImpacts where B : IBelief
     {
-        public ActivityImpacts() : base(typeof(B))
+        public ActionImpacts() : base(typeof(B))
         {
         }
     }

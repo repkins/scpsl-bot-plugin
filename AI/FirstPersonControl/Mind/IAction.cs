@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind
 {
-    internal interface IActivity
+    internal interface IAction
     {
         void SetEnabledByBeliefs(FpcMind fpcMind);
         void SetImpactsBeliefs(FpcMind fpcMind);
