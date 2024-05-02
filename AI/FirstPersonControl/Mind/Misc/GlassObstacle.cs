@@ -89,7 +89,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Misc
 
         public override string ToString()
         {
-            return $"{nameof(GlassObstacle)}(){string.Join(",", this.Windows.Values.Select(d => $"\n{d}"))}";
+            return $"{nameof(GlassObstacle)}: {string.Join(", ", this.Windows.Values.Select(d => $"{d.transform.position}"))}";
         }
     }
 }

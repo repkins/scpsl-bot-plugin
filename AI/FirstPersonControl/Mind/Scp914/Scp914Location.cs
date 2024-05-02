@@ -57,7 +57,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
         public override string ToString()
         {
-            return $"{nameof(Scp914Location)}";
+            return $"{nameof(Scp914Location)}: {Position}";
         }
     }
 }

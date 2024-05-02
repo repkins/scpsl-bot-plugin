@@ -45,7 +45,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 
         public override string ToString()
         {
-            return $"{nameof(ItemSightedLocation<C>)}({this.Criteria})";
+            return $"{nameof(ItemSightedLocation<C>)}({this.Criteria}): {this.AccessiblePosition}";
         }
     }
 }

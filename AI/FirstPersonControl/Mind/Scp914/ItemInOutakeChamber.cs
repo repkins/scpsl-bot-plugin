@@ -75,7 +75,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
         public override string ToString()
         {
-            return $"{nameof(ItemInOutakeChamber)}({this.Criteria}, {this.PositionRelative})";
+            return $"{nameof(ItemInOutakeChamber)}({this.Criteria}): {this.PositionRelative}";
         }
     }
 }

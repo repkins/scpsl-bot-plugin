@@ -6,10 +6,12 @@ using PlayerRoles.Spectating;
 using PluginAPI.Core;
 using Scp914;
 using SCPSLBot.AI.FirstPersonControl.Looking;
+using SCPSLBot.AI.FirstPersonControl.Mind;
 using SCPSLBot.AI.FirstPersonControl.Movement;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl
@@ -46,6 +48,19 @@ namespace SCPSLBot.AI.FirstPersonControl
         {
             Perception.Tick(FpcRole);
             MindRunner.Tick();
+
+
+            var debugString = "<size=14><align=left>";
+            debugString += $"Running action: {MindRunner.RunningAction}\n";
+            debugString += "Beliefs: \n";
+            var numLines = 2u;
+            foreach (var belief in MindRunner.Beliefs.SelectMany(b => b.Value))
+            {
+                debugString += $"{belief} \n";
+                numLines++;
+            }
+            debugString += "\n\n\n\n\n\n\n\n";
+            SendTextHintToSpectators(debugString, 10);
         }
 
         public void OnRoleChanged()
@@ -154,13 +169,38 @@ namespace SCPSLBot.AI.FirstPersonControl
             MindRunner.Dump();
         }
 
+        string broadcastMessage = string.Empty;
+
         public void SendBroadcastToSpectators(string message, ushort duration)
         {
+            if (broadcastMessage != message)
+            {
+                broadcastMessage = message;
+
+                var spectatingPlayers = Player.GetPlayers().Where(p => p.RoleBase is OverwatchRole s && s.SyncedSpectatedNetId == this.BotHub.PlayerHub.netId);
+                foreach (var spectatingPlayer in spectatingPlayers)
+                {
+                    spectatingPlayer.SendBroadcast(message, duration, shouldClearPrevious: true);
+                }
+            }
+        }
+
+        string hintText = string.Empty;
+
+        public void SendTextHintToSpectators(string message, float duration)
+        {
+            if (hintText == message)
+            {
+                return;
+            }
+
             var spectatingPlayers = Player.GetPlayers().Where(p => p.RoleBase is OverwatchRole s && s.SyncedSpectatedNetId == this.BotHub.PlayerHub.netId);
             foreach (var spectatingPlayer in spectatingPlayers)
             {
-                spectatingPlayer.SendBroadcast(message, duration);
+                spectatingPlayer.ReceiveHint(message, duration);
             }
+
+            hintText = message;
         }
 
         public IEnumerator<float> MoveToFpcAsync(Vector3 localDirection, int timeAmount) => Move.ToFpcAsync(localDirection, timeAmount);

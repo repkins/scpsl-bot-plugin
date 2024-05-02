@@ -26,7 +26,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
         public override string ToString()
         {
-            return $"{nameof(ItemInIntakeChamber<C>)}({this.Criteria})";
+            return $"{nameof(ItemInIntakeChamber<C>)}({this.Criteria}): {this.PositionRelative}";
         }
     }
 }

@@ -63,7 +63,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs
 
         public override string ToString()
         {
-            return $"{nameof(RoomEnterLocation)}({enteringAreaRoom?.Identifier.Name}, {enteringAreaRoom?.Identifier.Shape}, {enteringAreaRoom?.Identifier.Zone})";
+            return $"{nameof(RoomEnterLocation)}: {enteringAreaRoom?.Identifier.Name}, {enteringAreaRoom?.Identifier.Shape}, {enteringAreaRoom?.Identifier.Zone}";
         }
     }
 }

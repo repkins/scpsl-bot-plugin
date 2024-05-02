@@ -62,7 +62,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
         public override string ToString()
         {
-            return $"{nameof(Scp914RunningOnSetting)}({this.RunningKnobSetting})";
+            return $"{nameof(Scp914RunningOnSetting)}: {this.RunningKnobSetting}";
         }
     }
 }
