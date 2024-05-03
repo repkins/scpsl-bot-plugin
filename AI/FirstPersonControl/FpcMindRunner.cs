@@ -11,7 +11,7 @@ namespace SCPSLBot.AI.FirstPersonControl
     {
         public IAction RunningAction { get; private set; }
 
-        public readonly HashSet<IBelief> EnabledBeliefs = new();
+        public readonly HashSet<IBelief> RelevantBeliefs = new();
         private bool isBeliefsUpdated = false;
 
         public void SubscribeToBeliefUpdates()
@@ -35,7 +35,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             {
                 isBeliefsUpdated = false;
 
-                EnabledBeliefs.Clear();
+                RelevantBeliefs.Clear();
 
                 IEnumerable<IAction> enabledActions = GetEnabledActionsTowardsGoals();
                 SelectActionAndRun(enabledActions);
@@ -75,11 +75,13 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         private void OnBeliefUpdate(IBelief updatedBelief)
         {
-            if (EnabledBeliefs.Contains(updatedBelief))
+            if (!RelevantBeliefs.Contains(updatedBelief))
             {
-                isBeliefsUpdated = true;
-                Log.Debug($"Belief updated: {updatedBelief}");
+                return;
             }
+
+            isBeliefsUpdated = true;
+            Log.Debug($"Belief updated: {updatedBelief}");
         }
 
         private IEnumerable<IAction> GetEnabledActionsTowardsGoals()
@@ -98,9 +100,9 @@ namespace SCPSLBot.AI.FirstPersonControl
                     return d;
                 })
                 .SelectMany(d => GoalsEnabledByBeliefs[d])
-                .Select(b =>
+                .Select(b => 
                 {
-                    EnabledBeliefs.Add(b);
+                    RelevantBeliefs.Add(b);
 
                     return b;
                 })
@@ -128,14 +130,14 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             var beliefsEnabling = ActionsEnabledByBeliefs[actionImpacting];
 
-            foreach (var (belief, _) in beliefsEnabling)
-            {
-                EnabledBeliefs.Add(belief);
-            }
-
             if (beliefsEnabling.All(t => t.Condition(t.Belief)))
             {
                 //Log.Debug($"    Action {actionImpacting} conditions fulfilled.");
+
+                foreach (var (belief, _) in beliefsEnabling)
+                {
+                    RelevantBeliefs.Add(belief);
+                }
 
                 return Enumerable.Repeat(actionImpacting, 1);
             }
@@ -147,6 +149,9 @@ namespace SCPSLBot.AI.FirstPersonControl
                     .Select(t =>
                     {
                         //Log.Debug($"    Belief {t.Belief}...");
+
+                        RelevantBeliefs.Add(t.Belief);
+
                         return t;
                     })
                     .Where(t => !t.Condition(t.Belief))
