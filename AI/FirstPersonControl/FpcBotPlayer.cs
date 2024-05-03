@@ -54,7 +54,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             debugString += $"Running action: {MindRunner.RunningAction}\n";
             debugString += "Beliefs: \n";
             var numLines = 2u;
-            foreach (var belief in MindRunner.Beliefs.SelectMany(b => b.Value))
+            foreach (var belief in MindRunner.EnabledBeliefs)
             {
                 debugString += $"{belief} \n";
                 numLines++;
