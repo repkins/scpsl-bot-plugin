@@ -1,5 +1,6 @@
 ﻿using Interactables.Interobjects;
 using Interactables.Interobjects.DoorUtils;
+using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using System;
 using System.Collections.Generic;
@@ -29,8 +30,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
             var goalPositions = Doors.Where(p => p.Value == door).Select(p => p.Key);
             foreach (var goalPos in goalPositions)
             {
-                var ray = Rays[goalPos];
-                if (!doorColliders.Any(collider => collider.Raycast(ray, out _, 1f)))
+                var s = Segments[goalPos];
+                if (!doorColliders.Any(collider => collider.Raycast(new Ray(s.Start, s.End - s.Start), out _, Vector3.Distance(s.Start, s.End))))
                 {
                     removeQueue.Enqueue(goalPos);
                 }
@@ -44,25 +45,27 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
             // Add door if obstructs current navigation path
 
             var pathOfPoints = navigator.PointsPath;
-            var rays = pathOfPoints.Zip(pathOfPoints.Skip(1), (point, nextPoint) => new Ray(point, nextPoint - point));
+            var segments = pathOfPoints.Zip(pathOfPoints.Skip(1), (point, nextPoint) => (point, nextPoint));
 
-            var hitRay = rays.Where(ray => doorColliders.Any(collider => collider.Raycast(ray, out _, 1f)))
-                .Select(r => new Ray?(r))
+            var hitSegment = segments
+                .Where(s => doorColliders
+                    .Any(collider => collider.Raycast(new Ray(s.point, s.nextPoint - s.point), out _, Vector3.Distance(s.point, s.nextPoint))))
+                .Select(s => new (Vector3, Vector3)?(s))
                 .FirstOrDefault();
 
-            if (hitRay.HasValue)
+            if (hitSegment.HasValue)
             {
                 var newGoalPos = pathOfPoints.Last();
-                Add(door, newGoalPos, hitRay.Value);
+                Add(door, newGoalPos, hitSegment.Value);
             }
         }
 
-        private void Add(DoorVariant door, Vector3 goalPos, Ray ray)
+        private void Add(DoorVariant door, Vector3 goalPos, (Vector3, Vector3) segment)
         {
             if (!Doors.ContainsKey(goalPos) || Doors[goalPos] != door)
             {
                 Doors[goalPos] = door;
-                Rays[goalPos] = ray;
+                Segments[goalPos] = segment;
                 OnUpdate?.Invoke();
             }
         }
@@ -72,14 +75,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
             if (Doors.ContainsKey(goalPos))
             {
                 Doors.Remove(goalPos);
-                Rays.Remove(goalPos);
+                Segments.Remove(goalPos);
                 OnUpdate?.Invoke();
             }
         }
 
         public bool IsAny => Doors.Count > 0;
         public Dictionary<Vector3, DoorVariant> Doors { get; } = new();
-        public Dictionary<Vector3, Ray> Rays { get; } = new();
+        public Dictionary<Vector3, (Vector3 Start, Vector3 End)> Segments { get; } = new();
 
         public event Action OnUpdate;
 
