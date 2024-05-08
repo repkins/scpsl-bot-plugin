@@ -1,13 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+  
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
-	  <Platforms>x64</Platforms>
-	  <AssemblyName>SCPSLBot</AssemblyName>
-	  <RootNamespace>SCPSLBot</RootNamespace>
+    <Platforms>x64</Platforms>
+    <AssemblyName>SCPSLBot</AssemblyName>
+    <RootNamespace>SCPSLBot</RootNamespace>
 
-	  <LangVersion>11.0</LangVersion>
-	  <Nullable>warnings</Nullable>
+    <LangVersion>11.0</LangVersion>
+    <Nullable>warnings</Nullable>
+
+    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+    <ImplicitlyExpandDesignTimeFacades>false</ImplicitlyExpandDesignTimeFacades>
+
+    <AssemblySearchPaths>$(SL_REFERENCES);$(AssemblySearchPaths)</AssemblySearchPaths>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -18,53 +23,49 @@
     <DebugType>portable</DebugType>
   </PropertyGroup>
 
-	
-	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-		<Exec Command="echo Copying output file $(TargetName)&#xD;&#xA;copy $(TargetPath) &quot;C:\Users\repkins\AppData\Roaming\SCP Secret Laboratory\PluginAPI\plugins\global\$(TargetFileName)&quot;" />
-	</Target>
+  
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="echo Copying output file $(TargetName)&#xD;&#xA;copy $(TargetPath) &quot;C:\Users\repkins\AppData\Roaming\SCP Secret Laboratory\PluginAPI\plugins\global\$(TargetFileName)&quot;" />
+  </Target>
 
-	<ItemGroup>
-		<PackageReference Include="Lib.Harmony" Version="2.2.2" />
-		<PackageReference Include="Northwood.PluginAPI" Version="13.1.1" />
-	</ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Lib.Harmony" Version="2.2.2" />
+    <PackageReference Include="Northwood.PluginAPI" Version="13.1.1" />
+  </ItemGroup>
 
-	<ItemGroup>
-		<Reference Include="Assembly-CSharp">
-			<HintPath>$(SL_REFERENCES)\Assembly-CSharp.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="Assembly-CSharp-firstpass">
-			<HintPath>$(SL_REFERENCES)\Assembly-CSharp-firstpass.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="CommandSystem.Core">
-			<HintPath>$(SL_REFERENCES)\CommandSystem.Core.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="Mirror">
-			<HintPath>$(SL_REFERENCES)\Mirror.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="Pooling">
-			<HintPath>$(SL_REFERENCES)\Pooling.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="UnityEngine.CoreModule">
-			<HintPath>$(SL_REFERENCES)\UnityEngine.CoreModule.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="UnityEngine.PhysicsModule">
-			<HintPath>$(SL_REFERENCES)\UnityEngine.PhysicsModule.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
-	</ItemGroup>
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="CommandSystem.Core">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Mirror">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Pooling">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+  </ItemGroup>
 
-	<ItemGroup>
-	  <None Update="Assets\navgraph.slngf">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	  <None Update="Assets\navmesh.slnmf">
-	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-	  </None>
-	</ItemGroup>
+  <ItemGroup>
+    <None Update="Assets\navgraph.slngf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\navmesh.slnmf">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>
