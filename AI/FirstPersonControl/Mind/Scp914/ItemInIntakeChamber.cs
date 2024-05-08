@@ -1,5 +1,6 @@
 ﻿using SCPSLBot.AI.FirstPersonControl.Mind.Item;
 using System;
+using System.Text;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
@@ -26,7 +27,15 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
         public override string ToString()
         {
-            return $"{nameof(ItemInIntakeChamber<C>)}({this.Criteria}): {this.PositionRelative}";
+            var stringBuilder = new StringBuilder();
+            stringBuilder.Append($"{nameof(ItemInOutakeChamber)}({this.Criteria}): ");
+
+            if (this.PositionRelative.HasValue)
+            {
+                stringBuilder.Append($"PositionRelative({this.PositionRelative.Value})");
+            }
+
+            return stringBuilder.ToString();
         }
     }
 }
