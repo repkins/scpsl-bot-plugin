@@ -50,17 +50,20 @@ namespace SCPSLBot.AI.FirstPersonControl
             MindRunner.Tick();
 
 
-            var debugString = "<size=14><align=left>";
-            debugString += $"Running action: <color=yellow>{MindRunner.RunningAction}</color>\n";
-            debugString += "Beliefs: \n";
-            var numLines = 2u;
+            var debugStringBuilder = new StringBuilder("<size=14><align=left>");
+            debugStringBuilder.AppendLine($"Running action: <color=yellow>{MindRunner.RunningAction}</color>");
+            debugStringBuilder.AppendLine("Beliefs:");
+            var numLines = 2;
             //foreach (var belief in MindRunner.Beliefs.Values.SelectMany(bl => bl))
             foreach (var belief in MindRunner.RelevantBeliefs)
             {
-                debugString += $"{belief} \n";
+                debugStringBuilder.AppendLine($"{belief}");
                 numLines++;
             }
-            debugString += "\n\n\n\n\n\n\n\n";
+            debugStringBuilder.Append('\n', Mathf.Max(40 - numLines, 0));
+
+            var debugString = debugStringBuilder.ToString();
+
             SendTextHintToSpectators(debugString, 10);
         }
 
