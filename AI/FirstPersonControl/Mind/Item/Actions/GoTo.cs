@@ -5,19 +5,19 @@ using System;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
 {
-    internal abstract class GoTo<B, C> : IAction where B : ItemLocation<C> where C : IItemBeliefCriteria, IEquatable<C>
+    internal abstract class GoTo<TItemLocation, TCriteria> : IAction where TItemLocation : ItemLocation<TCriteria> where TCriteria : IItemBeliefCriteria, IEquatable<TCriteria>
     {
-        public readonly C Criteria;
-        protected GoTo(C criteria)
+        public readonly TCriteria Criteria;
+        protected GoTo(TCriteria criteria)
         {
             this.Criteria = criteria;
         }
 
-        protected ItemLocation<C> itemLocation;
+        protected TItemLocation itemLocation;
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            this.itemLocation = fpcMind.ActionEnabledBy<B>(this, b => b.Criteria.Equals(Criteria), b => b.AccessiblePosition.HasValue);
+            this.itemLocation = fpcMind.ActionEnabledBy<TItemLocation>(this, b => b.Criteria.Equals(Criteria), b => b.AccessiblePosition.HasValue);
 
             fpcMind.ActionEnabledBy<DoorObstacle>(this, b => !b.Is(this.itemLocation.AccessiblePosition!.Value));
             fpcMind.ActionEnabledBy<GlassObstacle>(this, b => !b.Is(this.itemLocation.AccessiblePosition!.Value));
