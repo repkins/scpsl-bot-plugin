@@ -5,7 +5,9 @@ using System;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
 {
-    internal abstract class GoTo<TItemLocation, TCriteria> : IAction where TItemLocation : ItemLocation<TCriteria> where TCriteria : IItemBeliefCriteria, IEquatable<TCriteria>
+    internal abstract class GoTo<TItemLocation, TCriteria> : IAction 
+        where TItemLocation : ItemLocation<TCriteria> 
+        where TCriteria : IItemBeliefCriteria, IEquatable<TCriteria>
     {
         public readonly TCriteria Criteria;
         protected GoTo(TCriteria criteria)
