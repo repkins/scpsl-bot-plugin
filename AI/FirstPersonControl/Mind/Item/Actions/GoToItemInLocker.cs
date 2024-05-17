@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
 {
-    internal class GoToItemInLocker<C> : GoTo<ItemInLocker<C>, C> where C : IItemBeliefCriteria, IEquatable<C>
+    internal class GoToItemInLocker<C> : GoTo<ItemInSightedLocker<C>, C> where C : IItemBeliefCriteria, IEquatable<C>
     {
         public GoToItemInLocker(C criteria, FpcBotPlayer botPlayer) : base(criteria)
         {

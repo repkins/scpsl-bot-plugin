@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 {
-    internal class LockersWithinSightSense : SightSense, ISense
+    internal class LockersWithinSightSense : SightSense
     {
         public HashSet<Locker> LockersWithinSight { get; } = new();
 
@@ -15,12 +15,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             _fpcBotPlayer = botPlayer;
         }
 
-        public void Reset()
+        public override void Reset()
         {
             LockersWithinSight.Clear();
         }
 
-        public void ProcessSensibility(Collider collider)
+        public override void ProcessSensibility(Collider collider)
         {
             if (collider.GetComponentInParent<Locker>() is Locker locker
                 && !LockersWithinSight.Contains(locker))
@@ -32,8 +32,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             }
         }
 
-        public void ProcessSensedItems()
+        public override void ProcessSensedItems()
         {
+            base.ProcessSensedItems();
+
             //var numLockers = 0u;
             //var lockerWithinSightBelief = _fpcBotPlayer.MindRunner.GetBelief<LockerWithinSight<Locker>>();
             //foreach (var lockerWithinSight in LockersWithinSight)

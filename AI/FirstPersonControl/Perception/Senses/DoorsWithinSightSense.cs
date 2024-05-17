@@ -12,7 +12,7 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 {
-    internal class DoorsWithinSightSense : SightSense, ISense
+    internal class DoorsWithinSightSense : SightSense
     {
         public HashSet<DoorVariant> DoorsWithinSight { get; } = new();
 
@@ -22,15 +22,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 
         public DoorsWithinSightSense(FpcBotPlayer botPlayer) : base(botPlayer)
         {
-            _fpcBotPlayer = botPlayer;
         }
 
-        public void Reset()
+        public override void Reset()
         {
             DoorsWithinSight.Clear();
         }
 
-        public void ProcessSensibility(Collider collider)
+        public override void ProcessSensibility(Collider collider)
         {
             if (collider.GetComponentInParent<DoorVariant>() is DoorVariant door
                 && !DoorsWithinSight.Contains(door))
@@ -42,8 +41,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             }
         }
 
-        public void ProcessSensedItems()
+        public override void ProcessSensedItems()
         {
+            base.ProcessSensedItems();
+
             OnBeforeSensedDoorsWithinSight?.Invoke();
             foreach (var doorWithinSight in DoorsWithinSight)
             {
@@ -51,20 +52,5 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             }
             OnAfterSensedDoorsWithinSight?.Invoke();
         }
-
-        public IEnumerable<DoorVariant> GetDoorsOnPath(IEnumerable<Vector3> pathOfPoints)
-        {
-            var rays = pathOfPoints.Zip(pathOfPoints.Skip(1), (point, nextPoint) => new Ray(point, nextPoint - point));
-
-            var doorsOnPath = rays
-                .Select(ray => DoorsWithinSight
-                    .FirstOrDefault(door => door.GetComponentsInChildren<Collider>()
-                        .Any(collider => collider.Raycast(ray, out _, 1f))))
-                .Where(d => d != null);
-
-            return doorsOnPath;
-        }
-
-        private readonly FpcBotPlayer _fpcBotPlayer;
     }
 }

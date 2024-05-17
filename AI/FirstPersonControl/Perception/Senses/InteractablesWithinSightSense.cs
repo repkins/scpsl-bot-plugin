@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 {
-    internal class InteractablesWithinSightSense : SightSense, ISense
+    internal class InteractablesWithinSightSense : SightSense
     {
         public HashSet<InteractableCollider> InteractableCollidersWithinSight { get; } = new();
 
@@ -17,12 +17,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         {
         }
 
-        public void Reset()
+        public override void Reset()
         {
             InteractableCollidersWithinSight.Clear();
         }
 
-        public void ProcessSensibility(Collider collider)
+        public override void ProcessSensibility(Collider collider)
         {
             if (collider.GetComponent<InteractableCollider>() is InteractableCollider interactableCollider
                 && !InteractableCollidersWithinSight.Contains(interactableCollider))
@@ -34,8 +34,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             }
         }
 
-        public void ProcessSensedItems()
+        public override void ProcessSensedItems()
         {
+            base.ProcessSensedItems();
+
             OnBeforeSensedInteractablesWithinSight?.Invoke();
             foreach (var interactableWithinSight in InteractableCollidersWithinSight)
             {

@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 {
-    internal class RoomSightSense : SightSense, ISense
+    internal class RoomSightSense : SightSense
     {
         public IEnumerable<Area> ForeignRoomsAreas { get; private set; }
         public RoomIdentifier RoomWithin { get; private set; }
@@ -25,14 +25,16 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             _fpcBotPlayer = botPlayer;
         }
 
-        public void ProcessSensibility(Collider collider)
+        public override void ProcessSensibility(Collider collider)
         { }
 
-        public void Reset()
+        public override void Reset()
         { }
 
-        public void ProcessSensedItems()
+        public override void ProcessSensedItems()
         {
+            base.ProcessSensedItems();
+
             var playerPosition = _fpcBotPlayer.FpcRole.transform.position;
             var playerForward = _fpcBotPlayer.FpcRole.transform.forward;
 

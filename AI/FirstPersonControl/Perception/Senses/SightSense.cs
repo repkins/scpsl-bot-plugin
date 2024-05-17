@@ -5,11 +5,20 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 {
-    internal class SightSense
+    internal abstract class SightSense : ISense
     {
+        public event Action OnAfterSightSensing;
+
         public SightSense(FpcBotPlayer botPlayer)
         {
             _fpcBotPlayer = botPlayer;
+        }
+
+        public abstract void Reset();
+        public abstract void ProcessSensibility(Collider collider);
+        public virtual void ProcessSensedItems()
+        {
+            this.OnAfterSightSensing?.Invoke();
         }
 
         public bool IsPositionObstructed(Vector3 targetPosition)

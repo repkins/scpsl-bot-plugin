@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 {
-    internal class ItemsWithinSightSense : SightSense, ISense
+    internal class ItemsWithinSightSense : SightSense
     {
         public HashSet<ItemPickupBase> ItemsWithinSight { get; } = new();
         public HashSet<ItemPickupBase> ItemsWithinPickupDistance { get; } = new();
@@ -23,13 +23,13 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             _fpcBotPlayer = botPlayer;
         }
 
-        public void Reset()
+        public override void Reset()
         {
             ItemsWithinSight.Clear();
             ItemsWithinPickupDistance.Clear();
         }
 
-        public void ProcessSensibility(Collider collider)
+        public override void ProcessSensibility(Collider collider)
         {
             var cameraTransform = _fpcBotPlayer.BotHub.PlayerHub.PlayerCameraReference;
 
@@ -48,8 +48,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             }
         }
 
-        public void ProcessSensedItems()
+        public override void ProcessSensedItems()
         {
+            base.ProcessSensedItems();
+
             OnBeforeSensedItemsWithinSight?.Invoke();
             foreach (var item in ItemsWithinSight)
             {

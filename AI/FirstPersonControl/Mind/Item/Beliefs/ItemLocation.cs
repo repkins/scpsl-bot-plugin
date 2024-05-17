@@ -12,14 +12,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
         public C Criteria { get; }
 
         private readonly FpcBotNavigator navigator;
-        private readonly ItemsWithinSightSense itemsSightSense;
+        private readonly SightSense sightSense;
 
-        public ItemLocation(C criteria, FpcBotNavigator navigator, ItemsWithinSightSense itemsSightSense)
+        public ItemLocation(C criteria, FpcBotNavigator navigator, SightSense sightSense)
         {
             this.Criteria = criteria;
             this.navigator = navigator;
-            this.itemsSightSense = itemsSightSense;
-            this.itemsSightSense.OnAfterSensedItemsWithinSight += this.OnAfterSensedItemsWithinSight;
+            this.sightSense = sightSense;
+            this.sightSense.OnAfterSightSensing += this.OnAfterSensedItemsWithinSight;
         }
 
         private void OnAfterSensedItemsWithinSight()

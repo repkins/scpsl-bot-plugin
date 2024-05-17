@@ -13,35 +13,34 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 
         public GlassSightSense(FpcBotPlayer botPlayer) : base(botPlayer)
         {
-            _fpcBotPlayer = botPlayer;
         }
 
-        public void Reset()
+        public override void Reset()
         {
             WindowsWithinSight.Clear();
         }
 
-        public void ProcessSensibility(Collider collider)
+        public override void ProcessSensibility(Collider collider)
         {
-            if (collider.GetComponentInParent<BreakableWindow>() is BreakableWindow door
-                && !WindowsWithinSight.Contains(door))
+            if (collider.GetComponentInParent<BreakableWindow>() is BreakableWindow window
+                && !WindowsWithinSight.Contains(window))
             {
-                if (IsWithinSight(collider, door))
+                if (IsWithinSight(collider, window))
                 {
-                    WindowsWithinSight.Add(door);
+                    WindowsWithinSight.Add(window);
                 }
             }
         }
 
-        public void ProcessSensedItems()
+        public override void ProcessSensedItems()
         {
+            base.ProcessSensedItems();
+
             foreach (var item in WindowsWithinSight)
             {
                 OnSensedWindowsWithinSight?.Invoke(item);
             }
             OnAfterSensedWindowsWithinSight?.Invoke();
         }
-
-        private readonly FpcBotPlayer _fpcBotPlayer;
     }
 }

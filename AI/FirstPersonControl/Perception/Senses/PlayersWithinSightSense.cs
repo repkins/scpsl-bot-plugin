@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 {
-    internal class PlayersWithinSightSense : SightSense, ISense
+    internal class PlayersWithinSightSense : SightSense
     {
         public HashSet<ReferenceHub> PlayersWithinSight { get; } = new HashSet<ReferenceHub>();
         public IEnumerable<ReferenceHub> EnemiesWithinSight { get; }
@@ -20,12 +20,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             FriendiesWithinSight = PlayersWithinSight.Where(o => o.GetFaction() == botPlayer.BotHub.PlayerHub.GetFaction());
         }
 
-        public void Reset()
+        public override void Reset()
         {
             PlayersWithinSight.Clear();
         }
 
-        public void ProcessSensibility(Collider collider)
+        public override void ProcessSensibility(Collider collider)
         {
             if (collider.GetComponentInParent<ReferenceHub>() is ReferenceHub otherPlayer
                 && otherPlayer != _fpcBotPlayer.BotHub.PlayerHub
@@ -36,10 +36,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
                     PlayersWithinSight.Add(otherPlayer);
                 }
             }
-        }
-
-        public void ProcessSensedItems()
-        {
         }
 
         private readonly FpcBotPlayer _fpcBotPlayer;
