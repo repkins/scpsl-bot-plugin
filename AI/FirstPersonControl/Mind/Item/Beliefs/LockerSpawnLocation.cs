@@ -33,7 +33,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 
                 if (this.sightSense.IsPositionWithinFov(spawnPosition)
                     && (!sightSense.IsPositionObstructed(spawnPosition, out var obstruction)
-                        || obstruction.GetComponentInParent<SpawnableStructure>()))
+                        || Vector3.Distance(obstruction.point, spawnPosition) < 0.5f))
                 {
                     this.visitedLockerSpawnPositions.Add(spawnPosition);
                     SetPosition(null);

@@ -27,18 +27,18 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 
         public bool IsPositionObstructed(Vector3 targetPosition) => this.IsPositionObstructed(targetPosition, out _);
 
-        public bool IsPositionObstructed(Vector3 targetPosition, out Collider outObstructedCollider)
+        public bool IsPositionObstructed(Vector3 targetPosition, out RaycastHit outObstructtionHit)
         {
             var cameraTransform = _fpcBotPlayer.BotHub.PlayerHub.PlayerCameraReference;
 
             var isObstructed = Physics.Linecast(cameraTransform.position, targetPosition, out var hit, ~excludedCollisionLayerMask);
             if (isObstructed)
             {
-                outObstructedCollider = hit.collider;
+                outObstructtionHit = hit;
             }
             else
             {
-                outObstructedCollider = null;
+                outObstructtionHit = default;
             }
 
             return isObstructed;
@@ -120,6 +120,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         private RaycastHit[] _hitsBuffer = new RaycastHit[HitsBufferSize];
         private int _numHits;
 
-        private LayerMask excludedCollisionLayerMask = LayerMask.GetMask("InvisibleCollider");
+        private LayerMask excludedCollisionLayerMask = LayerMask.GetMask("InvisibleCollider", "Hitbox");
     }
 }

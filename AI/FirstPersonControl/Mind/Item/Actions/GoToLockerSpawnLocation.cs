@@ -21,6 +21,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
             this.lockerSpawnLocation = fpcMind.ActionEnabledBy<LockerSpawnLocation>(this, b => true, b => b.Position.HasValue);
+
+            fpcMind.ActionEnabledBy<DoorObstacle>(this, b => !b.Is(this.lockerSpawnLocation.Position!.Value));
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
