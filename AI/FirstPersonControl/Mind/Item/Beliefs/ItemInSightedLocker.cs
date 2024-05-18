@@ -29,7 +29,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
         public bool? LockerOpened { get; private set; }
         public InteractableCollider LockerDoor { get; private set; }
 
-        private readonly HashSet<StructureType> lockerStructureTypes = new() { StructureType.StandardLocker, StructureType.SmallWallCabinet };
+        private static readonly HashSet<StructureType> lockerStructureTypes = new() { StructureType.StandardLocker, StructureType.SmallWallCabinet };
 
         private readonly HashSet<(Vector3 Position, LockerChamber)> itemSpawns = new();
         private readonly HashSet<Vector3> visitedItemSpawnPositions = new();

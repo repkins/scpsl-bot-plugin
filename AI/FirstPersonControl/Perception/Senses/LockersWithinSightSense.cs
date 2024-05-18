@@ -32,10 +32,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             }
         }
 
-        public override void ProcessSensedItems()
+        public override void ProcessSightSensedItems()
         {
-            base.ProcessSensedItems();
-
             //var numLockers = 0u;
             //var lockerWithinSightBelief = _fpcBotPlayer.MindRunner.GetBelief<LockerWithinSight<Locker>>();
             //foreach (var lockerWithinSight in LockersWithinSight)

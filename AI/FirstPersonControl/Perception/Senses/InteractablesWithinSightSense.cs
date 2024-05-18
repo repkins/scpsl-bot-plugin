@@ -34,10 +34,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             }
         }
 
-        public override void ProcessSensedItems()
+        public override void ProcessSightSensedItems()
         {
-            base.ProcessSensedItems();
-
             OnBeforeSensedInteractablesWithinSight?.Invoke();
             foreach (var interactableWithinSight in InteractableCollidersWithinSight)
             {

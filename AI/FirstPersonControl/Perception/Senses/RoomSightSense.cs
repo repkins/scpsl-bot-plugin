@@ -31,10 +31,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         public override void Reset()
         { }
 
-        public override void ProcessSensedItems()
+        public override void ProcessSightSensedItems()
         {
-            base.ProcessSensedItems();
-
             var playerPosition = _fpcBotPlayer.FpcRole.transform.position;
             var playerForward = _fpcBotPlayer.FpcRole.transform.forward;
 

@@ -38,6 +38,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             }
         }
 
+        public override void ProcessSightSensedItems() { }
+
         private readonly FpcBotPlayer _fpcBotPlayer;
     }
 }

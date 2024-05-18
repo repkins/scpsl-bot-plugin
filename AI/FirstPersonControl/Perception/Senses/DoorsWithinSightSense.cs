@@ -41,10 +41,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             }
         }
 
-        public override void ProcessSensedItems()
+        public override void ProcessSightSensedItems()
         {
-            base.ProcessSensedItems();
-
             OnBeforeSensedDoorsWithinSight?.Invoke();
             foreach (var doorWithinSight in DoorsWithinSight)
             {

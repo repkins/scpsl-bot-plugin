@@ -16,9 +16,13 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 
         public abstract void Reset();
         public abstract void ProcessSensibility(Collider collider);
+        public abstract void ProcessSightSensedItems();
+
         public virtual void ProcessSensedItems()
         {
             this.OnAfterSightSensing?.Invoke();
+
+            this.ProcessSightSensedItems();
         }
 
         public bool IsPositionObstructed(Vector3 targetPosition)
