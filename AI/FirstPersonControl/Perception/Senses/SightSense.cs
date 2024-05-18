@@ -25,11 +25,21 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             this.ProcessSightSensedItems();
         }
 
-        public bool IsPositionObstructed(Vector3 targetPosition)
+        public bool IsPositionObstructed(Vector3 targetPosition) => this.IsPositionObstructed(targetPosition, out _);
+
+        public bool IsPositionObstructed(Vector3 targetPosition, out Collider outObstructedCollider)
         {
             var cameraTransform = _fpcBotPlayer.BotHub.PlayerHub.PlayerCameraReference;
 
-            var isObstructed = Physics.Linecast(cameraTransform.position, targetPosition, ~excludedCollisionLayerMask);
+            var isObstructed = Physics.Linecast(cameraTransform.position, targetPosition, out var hit, ~excludedCollisionLayerMask);
+            if (isObstructed)
+            {
+                outObstructedCollider = hit.collider;
+            }
+            else
+            {
+                outObstructedCollider = null;
+            }
 
             return isObstructed;
         }
