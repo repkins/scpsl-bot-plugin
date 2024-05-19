@@ -28,7 +28,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
         public override string ToString()
         {
             var stringBuilder = new StringBuilder();
-            stringBuilder.Append($"{nameof(ItemInOutakeChamber)}({this.Criteria}): ");
+            stringBuilder.Append($"{nameof(ItemInIntakeChamber<C>)}({this.Criteria}): ");
 
             if (this.PositionRelative.HasValue)
             {

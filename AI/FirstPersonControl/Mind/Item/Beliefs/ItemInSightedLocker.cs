@@ -26,7 +26,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
         }
 
         public Vector3? LockerDirection { get; private set; }
-        public bool? LockerOpened { get; private set; }
         public InteractableCollider LockerDoor { get; private set; }
 
         private static readonly HashSet<StructureType> lockerStructureTypes = new() { StructureType.StandardLocker, StructureType.SmallWallCabinet };
@@ -62,14 +61,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
         {
             foreach (var locker in lockersSightSense.LockersWithinSight)
             {
-                //Log.Debug($"locker = {locker}");
-
                 if (!lockerStructureTypes.Contains(locker.StructureType))
                 {
                     continue;
                 }
-
-                //Log.Debug($"locker.StructureType = {locker.StructureType}");
 
                 foreach (var chamber in locker.Chambers)
                 {
@@ -77,8 +72,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
                     {
                         continue;
                     }
-
-                    //Log.Debug($"chamber = {chamber}");
 
                     var itemSpawnPosition = chamber.transform.position;
 
@@ -105,14 +98,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
                     {
                         this.LockerDoor = interactableObstruction;
                     }
-                }
-            }
-
-            if (this.itemSpawns.Count > 0)
-            {
-                foreach (var item in itemSpawns)
-                {
-                    //Log.Debug($"itemSpawn = {item.Item2}");
                 }
             }
 

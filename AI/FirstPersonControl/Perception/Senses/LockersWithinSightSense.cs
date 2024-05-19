@@ -27,8 +27,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             {
                 if (IsWithinSight(collider, locker))
                 {
-                    Log.Debug($"collider = {collider}, layer = {LayerMask.LayerToName(collider.gameObject.layer)}, locker = {locker}");
-
                     LockersWithinSight.Add(locker);
                 }
             }
