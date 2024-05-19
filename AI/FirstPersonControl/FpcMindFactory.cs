@@ -42,7 +42,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
 
             mind.AddBelief(new ItemSpawnLocation<ItemOfType>(ItemType.KeycardZoneManager, new[] { ItemType.KeycardZoneManager }, perception.GetSense<RoomSightSense>(), perception.GetSense<ItemsWithinSightSense>(), botPlayer.Navigator));
-            mind.AddBelief(new ItemInSightedLocker<ItemOfType>(ItemType.KeycardZoneManager, new[] { ItemType.KeycardZoneManager }, perception.GetSense<InteractablesWithinSightSense>(), botPlayer.Navigator));
+            mind.AddBelief(new ItemInSightedLocker<ItemOfType>(ItemType.KeycardZoneManager, new[] { ItemType.KeycardZoneManager }, perception.GetSense<LockersWithinSightSense>(), botPlayer.Navigator));
             mind.AddBelief(new ItemSightedLocation<ItemOfType>(ItemType.KeycardZoneManager, botPlayer.Navigator, perception.GetSense<ItemsWithinSightSense>()));
             mind.AddBelief(new ItemInInventory<ItemOfType>(ItemType.KeycardZoneManager, perception.GetSense<ItemsInInventorySense>()));
 
@@ -54,7 +54,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
 
             mind.AddBelief(new ItemSpawnLocation<ItemOfType>(ItemType.KeycardScientist, new[] { ItemType.KeycardScientist }, perception.GetSense<RoomSightSense>(), perception.GetSense<ItemsWithinSightSense>(), botPlayer.Navigator));
-            mind.AddBelief(new ItemInSightedLocker<ItemOfType>(ItemType.KeycardScientist, new[] { ItemType.KeycardScientist }, perception.GetSense<InteractablesWithinSightSense>(), botPlayer.Navigator));
+            mind.AddBelief(new ItemInSightedLocker<ItemOfType>(ItemType.KeycardScientist, new[] { ItemType.KeycardScientist }, perception.GetSense<LockersWithinSightSense>(), botPlayer.Navigator));
             mind.AddBelief(new ItemSightedLocation<ItemOfType>(ItemType.KeycardScientist, botPlayer.Navigator, perception.GetSense<ItemsWithinSightSense>()));
             mind.AddBelief(new ItemInInventory<ItemOfType>(ItemType.KeycardScientist, perception.GetSense<ItemsInInventorySense>()));
 
@@ -173,7 +173,7 @@ namespace SCPSLBot.AI.FirstPersonControl
                 ItemType.KeycardContainmentEngineer, ItemType.KeycardFacilityManager, ItemType.KeycardO5
             };
             mind.AddBelief(new ItemSpawnLocation<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelOne), spawnItemTypes, perception.GetSense<RoomSightSense>(), perception.GetSense<ItemsWithinSightSense>(), botPlayer.Navigator));
-            mind.AddBelief(new ItemInSightedLocker<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelOne), spawnItemTypes, perception.GetSense<InteractablesWithinSightSense>(), botPlayer.Navigator));
+            mind.AddBelief(new ItemInSightedLocker<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelOne), spawnItemTypes, perception.GetSense<LockersWithinSightSense>(), botPlayer.Navigator));
             
             mind.AddAction(new GoToItemSpawnLocation<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelOne), botPlayer));
             mind.AddAction(new GoToLockerSpawnLocation<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelOne), botPlayer));

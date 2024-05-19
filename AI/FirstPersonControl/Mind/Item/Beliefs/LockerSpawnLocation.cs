@@ -4,6 +4,7 @@ using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
 
@@ -25,6 +26,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 
         private readonly HashSet<Vector3> visitedLockerSpawnPositions = new();
 
+        private readonly Stopwatch stopwatch = new();
+
         private void OnAfterSightSensing()
         {
             if (this.Position.HasValue)
@@ -33,8 +36,16 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 
                 if (this.sightSense.IsPositionWithinFov(spawnPosition)
                     && (!sightSense.IsPositionObstructed(spawnPosition, out var obstruction)
-                        || Vector3.Distance(obstruction.point, spawnPosition) < 0.5f))
+                        || Vector3.Distance(obstruction.point, spawnPosition) < 0.5f)
+                    && !this.stopwatch.IsRunning)
                 {
+                    this.stopwatch.Restart();
+                }
+
+                if (this.stopwatch.IsRunning && this.stopwatch.ElapsedMilliseconds > 500)
+                {
+                    this.stopwatch.Stop();
+
                     this.visitedLockerSpawnPositions.Add(spawnPosition);
                     SetPosition(null);
                 }
