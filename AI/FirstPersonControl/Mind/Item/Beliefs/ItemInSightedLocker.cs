@@ -71,14 +71,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
         {
             foreach (var locker in lockersSightSense.LockersWithinSight)
             {
-                Log.Debug($"locker = {locker}");
+                //Log.Debug($"locker = {locker}");
 
                 if (!lockerStructureTypes.Contains(locker.StructureType))
                 {
                     continue;
                 }
 
-                Log.Debug($"locker.StructureType = {locker.StructureType}");
+                //Log.Debug($"locker.StructureType = {locker.StructureType}");
 
                 foreach (var chamber in locker.Chambers)
                 {
@@ -87,7 +87,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
                         continue;
                     }
 
-                    Log.Debug($"chamber = {chamber}");
+                    //Log.Debug($"chamber = {chamber}");
 
                     var itemSpawnPosition = chamber.transform.position;
 
@@ -115,7 +115,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
             {
                 foreach (var item in itemSpawns)
                 {
-                    Log.Debug($"itemSpawn = {item.Item2}");
+                    //Log.Debug($"itemSpawn = {item.Item2}");
                 }
             }
 

@@ -1,4 +1,5 @@
 ﻿using Interactables;
+using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
 using System;
 using System.Diagnostics;
@@ -32,14 +33,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
             var spawnPosition = itemLocation.AccessiblePosition!.Value;
             var cameraPosition = botPlayer.BotHub.PlayerHub.PlayerCameraReference.position;
 
-            var spawnSightPosition = spawnPosition + itemLocation.LockerDirection!.Value * 2;
-            spawnSightPosition.y = cameraPosition.y;
+            var spawnVisibilityPosition = spawnPosition - itemLocation.LockerDirection!.Value;
+            spawnVisibilityPosition.y = cameraPosition.y;
 
-            var dist = Vector3.Distance(spawnSightPosition, cameraPosition);
+            var dist = Vector3.Distance(spawnVisibilityPosition, cameraPosition);
 
             if (dist > 0.2f)
             {
-                botPlayer.MoveToPosition(spawnSightPosition);
+                botPlayer.MoveToPosition(spawnVisibilityPosition);
                 return;
             }
 
