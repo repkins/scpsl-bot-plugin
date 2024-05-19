@@ -36,11 +36,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 
         private void ProcessSensedInteractableCollider(InteractableCollider interactable)
         {
-            if (interactable.Target is not BreakableDoor)
-            {
-                //Log.Debug($"interactable.Target = {interactable.Target}");
-            }
-
             if (interactable.Target is not Locker locker)
             {
                 return;
@@ -52,15 +47,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
                 return;
             }
 
-            Log.Debug($"locker.StructureType = {locker.StructureType}");
-
             var chamber = locker.Chambers[interactable.ColliderId];
             if (!Array.Exists(chamber.AcceptableItems, type => this.spawnItemTypes.Contains(type)))
             {
                 return;
             }
-
-            Log.Debug($"chamber = {chamber}");
 
             var itemSpawnPosition = chamber.transform.position;
 
@@ -99,15 +90,21 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
             {
                 var itemSpawnPosition = this.AccessiblePosition.Value;
 
-                if (this.lockersSightSense.IsPositionWithinFov(itemSpawnPosition)
-                    && (!lockersSightSense.IsPositionObstructed(itemSpawnPosition)))
+                if (this.lockersSightSense.IsPositionWithinFov(itemSpawnPosition))
                 {
-                    this.visitedItemSpawnPositions.Add(itemSpawnPosition);
+                    if (!lockersSightSense.IsPositionObstructed(itemSpawnPosition, out var obstruction))
+                    {
+                        this.visitedItemSpawnPositions.Add(itemSpawnPosition);
 
-                    ClearPosition();
-                    this.LockerDoor = null;
-                    this.LockerDirection = null;
-                    this.LockerOpened = null;
+                        ClearPosition();
+                        this.LockerDoor = null;
+                        this.LockerDirection = null;
+                    }
+                    else if (obstruction.collider.GetComponent<InteractableCollider>() is InteractableCollider interactableObstruction
+                        && interactableObstruction.Target is Locker)
+                    {
+                        this.LockerDoor = interactableObstruction;
+                    }
                 }
             }
 
@@ -128,12 +125,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
             if (unvisitedItemSpawn.HasValue)
             {
                 var (itemSpawnPosition, chamber) = unvisitedItemSpawn.Value;
-                var interactable = chamber.GetComponentInChildren<InteractableCollider>();
 
                 this.SetAccesablePosition(itemSpawnPosition);
                 this.LockerDirection = chamber.transform.forward;
-                this.LockerOpened = chamber.IsOpen;
-                this.LockerDoor = interactable;
             }
 
             this.itemSpawns.Clear();

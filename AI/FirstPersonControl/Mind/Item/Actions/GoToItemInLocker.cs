@@ -44,11 +44,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
                 return;
             }
 
-            var lockerOpened = itemLocation.LockerOpened!.Value;
-            if (!lockerOpened)
+            var lockerDoor = itemLocation.LockerDoor;
+            if (lockerDoor)
             {
-                var lockerDoor = itemLocation.LockerDoor;
-
                 if (!botPlayer.Interact(lockerDoor))
                 {
                     var posToChamber = lockerDoor.GetComponent<Collider>().bounds.center;
