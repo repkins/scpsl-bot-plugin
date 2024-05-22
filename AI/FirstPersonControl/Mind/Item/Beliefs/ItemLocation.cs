@@ -32,6 +32,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
         protected bool IsAccessible(Vector3 position)
         {
             var pathOfPoints = this.navigator.PointsPath;
+            if (!pathOfPoints.Any())
+            {
+                return true;
+            }
+
             var goalPosition = pathOfPoints.Last();
 
             if (goalPosition != position)

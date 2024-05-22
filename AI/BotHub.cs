@@ -5,7 +5,9 @@ using SCPSLBot.AI.FirstPersonControl;
 using SCPSLBot.LocalNetworking;
 using System;
 using System.Collections.Generic;
+using Unity.Profiling;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace SCPSLBot.AI
 {
@@ -59,10 +61,11 @@ namespace SCPSLBot.AI
 
         public void Update()
         {
-            if (CurrentBotPlayer != null)
-            {
-                CurrentBotPlayer.Update();
-            }
+            Profiler.BeginSample($"{nameof(BotHub)}.{nameof(Update)}");
+
+            CurrentBotPlayer?.Update();
+
+            Profiler.EndSample();
         }
 
         public void OnRoleChanged(PlayerRoleBase prevRole, PlayerRoleBase newRole)
@@ -92,5 +95,10 @@ namespace SCPSLBot.AI
         }
 
         private FpcBotPlayer _fpcPlayer;
+
+        public override string ToString()
+        {
+            return $"{nameof(BotHub)}: {PlayerHub}";
+        }
     }
 }

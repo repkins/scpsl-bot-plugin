@@ -19,7 +19,7 @@ namespace SCPSLBot.AI.FirstPersonControl
         public List<Area> AreasPath = new();
         private int currentPathIdx = -1;
 
-        public IEnumerable<Vector3> PointsPath { get; private set; } = Enumerable.Empty<Vector3>();
+        public List<Vector3> PointsPath { get; } = new();
 
         private bool isGoalOutside;
         private Vector3 targetAreaClosestPositionToGoal;
@@ -132,11 +132,12 @@ namespace SCPSLBot.AI.FirstPersonControl
                 //    Log.Debug($"Area {areaInPath}.");
                 //}
 
-                this.PointsPath = AreasPath.Zip(AreasPath.Skip(1), (area, nextArea) => (area, nextArea))
+                this.PointsPath.Clear();
+                this.PointsPath.AddRange(AreasPath.Zip(AreasPath.Skip(1), (area, nextArea) => (area, nextArea))
                     .Select(t => t.area.ConnectedAreaEdges[t.nextArea])
                     .Select(e => Vector3.Lerp(e.From.Position, e.To.Position, .5f))
                     .Prepend(playerPosition)
-                    .Append(goalPosition);
+                    .Append(goalPosition));
             }
         }
 

@@ -10,7 +10,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 {
     internal class RoomSightSense : SightSense
     {
-        public IEnumerable<Area> ForeignRoomsAreas { get; private set; }
+        public List<Area> ForeignRoomsAreas { get; } = new();
         public RoomIdentifier RoomWithin { get; private set; }
 
         public event Action<Area> OnSensedForeignRoomArea;
@@ -33,13 +33,24 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 
         public override void ProcessSightSensedItems()
         {
-            var playerPosition = _fpcBotPlayer.FpcRole.transform.position;
-            var playerForward = _fpcBotPlayer.FpcRole.transform.forward;
+            UpdateRoomWithin();
+            UpdateForeignRoomsAreas();
+
+            foreach (var sensedForeignRoomArea in ForeignRoomsAreas)
+            {
+                OnSensedForeignRoomArea?.Invoke(sensedForeignRoomArea);
+            }
+            OnAfterSensedForeignRooms?.Invoke();
+        }
+
+        private void UpdateRoomWithin()
+        {
+            var playerPosition = _fpcBotPlayer.PlayerPosition;
 
             var newRoomWithin = RoomIdUtils.RoomAtPositionRaycasts(playerPosition);
             if (newRoomWithin is null)
             {
-                Log.Debug($"Could not determine room bot currently in");
+                Log.Warning($"Could not determine room bot currently in");
                 return;
             }
 
@@ -48,17 +59,22 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
                 OnSensedRoomWithin?.Invoke(newRoomWithin);
             }
             RoomWithin = newRoomWithin;
+        }
 
-            ForeignRoomsAreas = NavigationMesh.Instance.AreasByRoom[RoomWithin.ApiRoom]
-                .Where(a => a.ForeignConnectedAreas.Any())
-                .SelectMany(a => a.ForeignConnectedAreas)
-                .Select(fa => fa.ConnectedAreas.First());
-
-            foreach (var sensedForeignRoomArea in ForeignRoomsAreas)
+        private void UpdateForeignRoomsAreas()
+        {
+            ForeignRoomsAreas.Clear();
+            foreach (var a in NavigationMesh.Instance.AreasByRoom[RoomWithin.ApiRoom])
             {
-                OnSensedForeignRoomArea?.Invoke(sensedForeignRoomArea);
+                if (a.ForeignConnectedAreas.Count > 0)
+                {
+                    foreach (var fa in a.ForeignConnectedAreas)
+                    {
+                        var faa = fa.ConnectedAreas.First();
+                        ForeignRoomsAreas.Add(faa);
+                    }
+                }
             }
-            OnAfterSensedForeignRooms?.Invoke();
         }
     }
 }

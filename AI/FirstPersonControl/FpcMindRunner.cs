@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace SCPSLBot.AI.FirstPersonControl
 {
@@ -31,17 +32,20 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         public void Tick()
         {
+            Profiler.BeginSample($"{nameof(FpcMindRunner)}.{nameof(Tick)}");
+
             if (isBeliefsUpdated)
             {
                 isBeliefsUpdated = false;
 
-                RelevantBeliefs.Clear();
-
                 IEnumerable<IAction> enabledActions = GetEnabledActionsTowardsGoals();
+
                 SelectActionAndRun(enabledActions);
             }
 
             RunningAction?.Tick();
+
+            Profiler.EndSample();
         }
 
         internal void Dump()
@@ -86,6 +90,10 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         private IEnumerable<IAction> GetEnabledActionsTowardsGoals()
         {
+            Profiler.BeginSample($"{nameof(FpcMindRunner)}.{nameof(GetEnabledActionsTowardsGoals)}");
+
+            RelevantBeliefs.Clear();
+
             //Log.Debug($"    Getting enabled Actions towards desires.");
 
             var allGoals = GoalsEnabledByBeliefs.Keys;
@@ -107,6 +115,8 @@ namespace SCPSLBot.AI.FirstPersonControl
                     return b;
                 })
                 .SelectMany(GetClosestActionsImpacting);
+            
+            Profiler.EndSample();
 
             return enabledActions;
         }
@@ -222,6 +232,8 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         private void SelectActionAndRun(IEnumerable<IAction> enabledActions)
         {
+            Profiler.BeginSample($"{nameof(FpcMindRunner)}.{nameof(SelectActionAndRun)}");
+
             var selectedAction = enabledActions//.OrderBy(a => Random.Range(0f, 10f))
                 .FirstOrDefault();  // TODO: cost?
 
@@ -234,6 +246,8 @@ namespace SCPSLBot.AI.FirstPersonControl
                 RunningAction?.Reset();
                 Log.Debug($"New Action for bot: {RunningAction}");
             }
+
+            Profiler.EndSample();
         }
     }
 }

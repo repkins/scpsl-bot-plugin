@@ -87,7 +87,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
                     .SelectMany(spawnPoint => spawnPoint.GetPositionVariants())
                     .Select(positionVariant => positionVariant.position)
                     .ToArray();
+
+                this.roomItemSpawnPositions.Add(room, spawnPositions);
             }
+
             return spawnPositions;
         }
 

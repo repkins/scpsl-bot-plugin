@@ -84,7 +84,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
                     .Where(spawnPoint => Array.Exists(spawnPoint.CompatibleStructures, compatableStructureType => lockerStructureTypes.Contains(compatableStructureType)))
                     .Select(spawnPoint => spawnPoint.transform.position)
                     .ToArray();
+
+                this.roomLockerSpawnPositions.Add(room, spawnPositions);
             }
+
             return spawnPositions;
         }
 

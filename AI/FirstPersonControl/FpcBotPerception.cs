@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace SCPSLBot.AI.FirstPersonControl
 {
@@ -49,6 +50,8 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         public void Tick(IFpcRole fpcRole)
         {
+            Profiler.BeginSample($"{nameof(FpcBotPerception)}.{nameof(Tick)}");
+
             //var fpcTransform = fpcRole.FpcModule.transform;
             var cameraTransform = _fpcBotPlayer.BotHub.PlayerHub.PlayerCameraReference;
 
@@ -79,6 +82,8 @@ namespace SCPSLBot.AI.FirstPersonControl
             {
                 sense.ProcessSensedItems();
             }
+
+            Profiler.EndSample();
         }
 
         public IEnumerable<DoorVariant> GetDoorsOnPath(IEnumerable<Vector3> pathOfPoints)

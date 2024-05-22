@@ -1,7 +1,9 @@
 ﻿using PluginAPI.Core;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Assertions.Comparers;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 {
@@ -29,9 +31,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 
         public bool IsPositionObstructed(Vector3 targetPosition, out RaycastHit outObstructtionHit)
         {
-            var cameraTransform = _fpcBotPlayer.BotHub.PlayerHub.PlayerCameraReference;
+            var cameraPosition = _fpcBotPlayer.CameraPosition;
 
-            var isObstructed = Physics.Linecast(cameraTransform.position, targetPosition, out var hit, ~excludedCollisionLayerMask);
+            var isObstructed = Physics.Linecast(cameraPosition, targetPosition, out var hit, ~excludedCollisionLayerMask);
             if (isObstructed)
             {
                 outObstructtionHit = hit;
@@ -46,41 +48,45 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 
         public bool IsPositionWithinFov(Vector3 targetPosition)
         {
-            var cameraTransform = _fpcBotPlayer.BotHub.PlayerHub.PlayerCameraReference;
-
-            return IsWithinFov(cameraTransform.position, cameraTransform.forward, targetPosition);
+            return IsWithinFov(_fpcBotPlayer.CameraPosition, _fpcBotPlayer.CameraForward, targetPosition);
         }
 
         public float GetDistanceToPosition(Vector3 targetPosition)
         {
-            var cameraTransform = _fpcBotPlayer.BotHub.PlayerHub.PlayerCameraReference;
-
-            return Vector3.Distance(targetPosition, cameraTransform.position);
+            return Vector3.Distance(targetPosition, _fpcBotPlayer.CameraPosition);
         }
 
         protected bool IsWithinSight<T>(Collider collider, T item) where T : Component
         {
             var playerHub = _fpcBotPlayer.BotHub.PlayerHub;
-            var cameraTransform = _fpcBotPlayer.BotHub.PlayerHub.PlayerCameraReference;
 
-            if (IsWithinFov(cameraTransform, collider.transform))
+            var cameraPosition = _fpcBotPlayer.CameraPosition;
+            var cameraForward = _fpcBotPlayer.CameraForward;
+
+            if (IsWithinFov(cameraPosition, cameraForward, collider.transform.position))
             {
-                var relPosToItem = collider.bounds.center - cameraTransform.position;
-                _numHits = Physics.RaycastNonAlloc(cameraTransform.position, relPosToItem, _hitsBuffer, relPosToItem.magnitude, ~excludedCollisionLayerMask);
+                var relPosToItem = collider.bounds.center - cameraPosition;
+                _numHits = Physics.RaycastNonAlloc(cameraPosition, relPosToItem, _hitsBuffer, relPosToItem.magnitude, ~excludedCollisionLayerMask);
 
                 if (_numHits == HitsBufferSize)
                 {
                     Log.Warning($"{nameof(SightSense)} num of hits equal to buffer size, possible cuts.");
                 }
 
-                var hits = _hitsBuffer.Take(_numHits);
-                if (hits.Any())
+                if (_numHits > 0)
                 {
-                    hits = hits.OrderBy(h => h.distance);
+                    Array.Sort(_hitsBuffer, 0, _numHits, distanceComparer);
 
-                    //var hit = hits.First(h => (h.collider.gameObject.layer & LayerMask.GetMask("Hitbox")) <= 0);
-                    var hit = hits.Select(h => new RaycastHit?(h))
-                        .FirstOrDefault(h => h!.Value.collider.GetComponentInParent<ReferenceHub>() is not ReferenceHub otherHub || otherHub != playerHub);
+                    RaycastHit? hit = null;
+                    for (int i = 0; i < _numHits; i++)
+                    {
+                        var h = _hitsBuffer[i];
+                        if (h.collider.GetComponentInParent<ReferenceHub>() is not ReferenceHub otherHub || otherHub != playerHub)
+                        {
+                            hit = h;
+                            break;
+                        }
+                    }
 
                     if (hit.HasValue && hit.Value.collider.GetComponentInParent<T>() is T hitItem
                         && hitItem == item)
@@ -121,5 +127,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         private int _numHits;
 
         private LayerMask excludedCollisionLayerMask = LayerMask.GetMask("InvisibleCollider", "Hitbox");
+
+        private readonly static Comparer<RaycastHit> distanceComparer = Comparer<RaycastHit>.Create((x, y) => x.distance.CompareTo(y.distance));
     }
 }

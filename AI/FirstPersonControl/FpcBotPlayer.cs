@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace SCPSLBot.AI.FirstPersonControl
 {
@@ -28,7 +29,13 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         public FpcLook Look { get; }
         public FpcMove Move { get; }
-        
+
+        public Vector3 PlayerPosition { get; private set; }
+        public Vector3 PlayerForward { get; private set; }
+
+        public Vector3 CameraPosition { get; private set; }
+        public Vector3 CameraForward { get; private set; }
+
         public FpcBotPlayer(BotHub botHub)
         {
             BotHub = botHub;
@@ -46,6 +53,14 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         public void Update()
         {
+            var playerTransform = FpcRole.transform;
+            this.PlayerPosition = playerTransform.position;
+            this.PlayerForward = playerTransform.forward;
+
+            var cameraTransform = BotHub.PlayerHub.PlayerCameraReference;
+            this.CameraPosition = cameraTransform.position;
+            this.CameraForward = cameraTransform.forward;
+
             Perception.Tick(FpcRole);
             MindRunner.Tick();
 
