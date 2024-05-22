@@ -1,6 +1,7 @@
 ﻿using InventorySystem.Items;
 using InventorySystem.Items.Firearms;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
@@ -17,7 +18,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             _fpcBotPlayer = botPlayer;
         }
 
-        public void ProcessSensibility(Collider collider)
+        public void ProcessSensibility(IEnumerable<Collider> colliders)
         { }
 
         public void Reset()

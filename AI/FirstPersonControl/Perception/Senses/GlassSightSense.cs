@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
@@ -20,15 +21,17 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             WindowsWithinSight.Clear();
         }
 
-        public override void ProcessSensibility(Collider collider)
+        public override void ProcessSensibility(IEnumerable<Collider> colliders)
         {
-            if (collider.GetComponentInParent<BreakableWindow>() is BreakableWindow window
-                && !WindowsWithinSight.Contains(window))
+            var collidersOfComponent = colliders
+                .Select(c => (c, Window: c.GetComponentInParent<BreakableWindow>()))
+                .Where(t => t.Window is not null && !WindowsWithinSight.Contains(t.Window));
+
+            var withinSight = this.GetWithinSight(collidersOfComponent);
+
+            foreach (var collider in withinSight)
             {
-                if (IsWithinSight(collider, window))
-                {
-                    WindowsWithinSight.Add(window);
-                }
+                WindowsWithinSight.Add(collider.GetComponentInParent<BreakableWindow>());
             }
         }
 

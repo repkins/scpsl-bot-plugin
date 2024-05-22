@@ -1,6 +1,8 @@
-﻿using InventorySystem.Items.Pickups;
+﻿using Interactables;
+using InventorySystem.Items.Pickups;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
@@ -29,21 +31,23 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             ItemsWithinPickupDistance.Clear();
         }
 
-        public override void ProcessSensibility(Collider collider)
+        public override void ProcessSensibility(IEnumerable<Collider> colliders)
         {
-            var cameraTransform = _fpcBotPlayer.BotHub.PlayerHub.PlayerCameraReference;
+            var collidersOfComponent = colliders
+                .Select(c => (c, Component: c.GetComponentInParent<ItemPickupBase>()))
+                .Where(t => t.Component is not null && t.Component && t.Component.netId != 0 && !ItemsWithinSight.Contains(t.Component));
 
-            if (collider.GetComponentInParent<ItemPickupBase>() is ItemPickupBase item && item.netId != 0 && item
-                   && !ItemsWithinSight.Contains(item))
+            var withinSight = this.GetWithinSight(collidersOfComponent);
+
+            foreach (var collider in withinSight)
             {
-                if (IsWithinSight(collider, item))
-                {
-                    ItemsWithinSight.Add(item);
+                var item = collider.GetComponentInParent<ItemPickupBase>();
 
-                    if (Vector3.Distance(item.transform.position, cameraTransform.position) <= 1.75f) // TODO: constant
-                    {
-                        ItemsWithinPickupDistance.Add(item);
-                    }
+                ItemsWithinSight.Add(item);
+
+                if (Vector3.Distance(item.transform.position, _fpcBotPlayer.CameraPosition) <= 1.75f) // TODO: constant
+                {
+                    ItemsWithinPickupDistance.Add(item);
                 }
             }
         }

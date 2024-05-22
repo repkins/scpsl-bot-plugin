@@ -70,12 +70,9 @@ namespace SCPSLBot.AI.FirstPersonControl
                 sense.Reset();
             }
 
-            foreach (var collider in overlappingColliders)
+            foreach (var sense in Senses)
             {
-                foreach (var sense in Senses)
-                {
-                    sense.ProcessSensibility(collider);
-                }
+                sense.ProcessSensibility(overlappingColliders);
             }
 
             foreach (var sense in Senses)

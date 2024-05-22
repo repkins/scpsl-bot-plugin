@@ -1,4 +1,5 @@
-﻿using PlayerRoles;
+﻿using Interactables;
+using PlayerRoles;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -25,16 +26,17 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             PlayersWithinSight.Clear();
         }
 
-        public override void ProcessSensibility(Collider collider)
+        public override void ProcessSensibility(IEnumerable<Collider> colliders)
         {
-            if (collider.GetComponentInParent<ReferenceHub>() is ReferenceHub otherPlayer
-                && otherPlayer != _fpcBotPlayer.BotHub.PlayerHub
-                && !PlayersWithinSight.Contains(otherPlayer))
+            var collidersOfComponent = colliders
+                .Select(c => (c, Component: c.GetComponentInParent<ReferenceHub>()))
+                .Where(t => t.Component is not null && t.Component != _fpcBotPlayer.BotHub.PlayerHub && !PlayersWithinSight.Contains(t.Component));
+
+            var withinSight = this.GetWithinSight(collidersOfComponent);
+
+            foreach (var collider in withinSight)
             {
-                if (IsWithinSight(collider, otherPlayer))
-                {
-                    PlayersWithinSight.Add(otherPlayer);
-                }
+                PlayersWithinSight.Add(collider.GetComponentInParent<ReferenceHub>());
             }
         }
 

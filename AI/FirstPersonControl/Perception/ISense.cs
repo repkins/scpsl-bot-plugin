@@ -9,7 +9,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception
 {
     internal interface ISense
     {
-        void ProcessSensibility(Collider collider);
+        void ProcessSensibility(IEnumerable<Collider> collider);
         void Reset();
         void ProcessSensedItems();
     }

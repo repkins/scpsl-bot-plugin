@@ -1,7 +1,9 @@
 ﻿using PluginAPI.Core;
+using PluginAPI.Core.Items;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Assertions.Comparers;
 
@@ -17,7 +19,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         }
 
         public abstract void Reset();
-        public abstract void ProcessSensibility(Collider collider);
+        public abstract void ProcessSensibility(IEnumerable<Collider> collider);
         public abstract void ProcessSightSensedItems();
 
         public virtual void ProcessSensedItems()
@@ -54,6 +56,83 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         public float GetDistanceToPosition(Vector3 targetPosition)
         {
             return Vector3.Distance(targetPosition, _fpcBotPlayer.CameraPosition);
+        }
+
+        private const int RaycastMaxHits = 2;
+
+        private NativeArray<RaycastCommand> raycastCommandsBuffer = new(1000, Allocator.Persistent);
+        private NativeArray<RaycastHit> raycastResultsBuffer = new(1000 * RaycastMaxHits, Allocator.Persistent);
+
+        private int numRaycasts;
+
+        private readonly HashSet<Collider> sightColliders = new();
+
+        protected IEnumerable<Collider> GetWithinSight<T>(IEnumerable<(Collider collider, T item)> values) where T : Component
+        {
+            var playerHub = _fpcBotPlayer.BotHub.PlayerHub;
+
+            var cameraPosition = _fpcBotPlayer.CameraPosition;
+            var cameraForward = _fpcBotPlayer.CameraForward;
+
+            numRaycasts = 0;
+
+            foreach (var (collider, item) in values)
+            {
+                if (IsWithinFov(cameraPosition, cameraForward, collider.transform.position))
+                {
+                    var relPosToItem = collider.bounds.center - cameraPosition;
+
+                    raycastCommandsBuffer[numRaycasts] = new RaycastCommand(cameraPosition, relPosToItem, relPosToItem.magnitude, ~excludedCollisionLayerMask, RaycastMaxHits);
+                    numRaycasts++;
+
+                    sightColliders.Add(collider);
+                }
+            }
+
+            var raycastCommands = raycastCommandsBuffer.GetSubArray(0, numRaycasts);
+
+            var raycastsJobHandle = RaycastCommand.ScheduleBatch(raycastCommands, raycastResultsBuffer, 1);
+            raycastsJobHandle.Complete();
+
+            var withinSights = new List<Collider>(numRaycasts);
+
+            for (int i = 0; i < numRaycasts; i++)
+            {
+                var numHits = 0;
+
+                var raycastHitsStart = i * RaycastMaxHits;
+                for (int j = 0; j < RaycastMaxHits; j++)
+                {
+                    var hit = raycastResultsBuffer[raycastHitsStart + j];
+                    if (hit.collider == null)
+                    {
+                        break;
+                    }
+
+                    numHits++;
+                }
+
+                if (numHits > 0)
+                {
+                    RaycastHit? hit = null;
+                    for (int j = 0; j < numHits; j++)
+                    {
+                        var h = raycastResultsBuffer[raycastHitsStart + j];
+                        if (h.collider.GetComponentInParent<ReferenceHub>() is not ReferenceHub otherHub || otherHub != playerHub)
+                        {
+                            hit = h;
+                            break;
+                        }
+                    }
+
+                    if (hit.HasValue && sightColliders.Contains(hit.Value.collider))
+                    {
+                        withinSights.Add(hit.Value.collider);
+                    }
+                }
+            }
+
+            return withinSights;
         }
 
         protected bool IsWithinSight<T>(Collider collider, T item) where T : Component

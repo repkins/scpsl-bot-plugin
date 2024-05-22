@@ -29,15 +29,17 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             DoorsWithinSight.Clear();
         }
 
-        public override void ProcessSensibility(Collider collider)
+        public override void ProcessSensibility(IEnumerable<Collider> colliders)
         {
-            if (collider.GetComponentInParent<DoorVariant>() is DoorVariant door
-                && !DoorsWithinSight.Contains(door))
+            var collidersOfComponent = colliders
+                .Select(c => (c, Door: c.GetComponentInParent<DoorVariant>()))
+                .Where(t => t.Door is not null && !DoorsWithinSight.Contains(t.Door));
+
+            var withinSight = this.GetWithinSight(collidersOfComponent);
+
+            foreach (var collider in withinSight)
             {
-                if (IsWithinSight(collider, door))
-                {
-                    DoorsWithinSight.Add(door);
-                }
+                DoorsWithinSight.Add(collider.GetComponentInParent<DoorVariant>());
             }
         }
 

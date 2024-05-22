@@ -1,7 +1,9 @@
-﻿using Interactables.Interobjects;
+﻿using Interactables;
+using Interactables.Interobjects;
 using MapGeneration.Distributors;
 using PluginAPI.Core;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
@@ -20,15 +22,17 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             LockersWithinSight.Clear();
         }
 
-        public override void ProcessSensibility(Collider collider)
+        public override void ProcessSensibility(IEnumerable<Collider> colliders)
         {
-            if (collider.GetComponentInParent<Locker>() is Locker locker
-                && !LockersWithinSight.Contains(locker))
+            var collidersOfComponent = colliders
+                .Select(c => (c, Component: c.GetComponentInParent<Locker>()))
+                .Where(t => t.Component is not null && !LockersWithinSight.Contains(t.Component));
+
+            var withinSight = this.GetWithinSight(collidersOfComponent);
+
+            foreach (var collider in withinSight)
             {
-                if (IsWithinSight(collider, locker))
-                {
-                    LockersWithinSight.Add(locker);
-                }
+                LockersWithinSight.Add(collider.GetComponentInParent<Locker>());
             }
         }
 

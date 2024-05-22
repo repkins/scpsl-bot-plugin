@@ -1,5 +1,6 @@
 ﻿using PluginAPI.Core.Zones;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
@@ -14,7 +15,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             _botPlayer = botPlayer;
         }
 
-        public void ProcessSensibility(Collider collider)
+        public void ProcessSensibility(IEnumerable<Collider> colliders)
         { }
 
         public void Reset()

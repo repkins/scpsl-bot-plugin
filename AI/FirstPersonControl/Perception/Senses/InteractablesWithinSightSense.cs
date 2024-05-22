@@ -1,6 +1,7 @@
 ﻿using Interactables;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
@@ -22,15 +23,17 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             InteractableCollidersWithinSight.Clear();
         }
 
-        public override void ProcessSensibility(Collider collider)
+        public override void ProcessSensibility(IEnumerable<Collider> colliders)
         {
-            if (collider.GetComponent<InteractableCollider>() is InteractableCollider interactableCollider
-                && !InteractableCollidersWithinSight.Contains(interactableCollider))
+            var collidersOfComponent = colliders
+                .Select(c => (c, Component: c.GetComponentInParent<InteractableCollider>()))
+                .Where(t => t.Component is not null && !InteractableCollidersWithinSight.Contains(t.Component));
+
+            var withinSight = this.GetWithinSight(collidersOfComponent);
+
+            foreach (var collider in withinSight)
             {
-                if (IsWithinSight(collider, interactableCollider))
-                {
-                    InteractableCollidersWithinSight.Add(interactableCollider);
-                }
+                InteractableCollidersWithinSight.Add(collider.GetComponentInParent<InteractableCollider>());
             }
         }
 
