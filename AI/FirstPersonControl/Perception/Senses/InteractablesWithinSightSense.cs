@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 {
@@ -23,19 +24,33 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             InteractableCollidersWithinSight.Clear();
         }
 
+        private Dictionary<Collider, InteractableCollider> collidersOfComponent = new();
+
         public override void ProcessSensibility(IEnumerable<Collider> colliders)
         {
-            var collidersOfComponent = colliders
-                .Select(c => (c, Component: c.GetComponentInParent<InteractableCollider>()))
-                .Where(t => t.Component is not null && !InteractableCollidersWithinSight.Contains(t.Component));
+            Profiler.BeginSample($"{nameof(InteractablesWithinSightSense)}.{nameof(ProcessSensibility)}");
 
-            var withinSight = this.GetWithinSight(collidersOfComponent);
+            collidersOfComponent.Clear();
+
+            foreach (var collider in colliders)
+            {
+                if ((interactableLayerMask & (1 << collider.gameObject.layer)) != 0 && collider.GetComponentInParent<InteractableCollider>() is InteractableCollider interactable)
+                {
+                    collidersOfComponent.Add(collider, interactable);
+                }
+            }
+
+            var withinSight = this.GetWithinSight(collidersOfComponent.Keys);
 
             foreach (var collider in withinSight)
             {
-                InteractableCollidersWithinSight.Add(collider.GetComponentInParent<InteractableCollider>());
+                InteractableCollidersWithinSight.Add(collidersOfComponent[collider]);
             }
+
+            Profiler.EndSample();
         }
+
+        private LayerMask interactableLayerMask = LayerMask.GetMask("InteractableNoPlayerCollision");
 
         public override void ProcessSightSensedItems()
         {

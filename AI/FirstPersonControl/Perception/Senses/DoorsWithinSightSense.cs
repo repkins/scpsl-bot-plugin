@@ -1,4 +1,5 @@
-﻿using Interactables.Interobjects;
+﻿using Interactables;
+using Interactables.Interobjects;
 using Interactables.Interobjects.DoorUtils;
 using InventorySystem.Items.Pickups;
 using MapGeneration;
@@ -9,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 {
@@ -29,19 +31,32 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             DoorsWithinSight.Clear();
         }
 
+        private Dictionary<Collider, DoorVariant> collidersOfComponent = new();
+
         public override void ProcessSensibility(IEnumerable<Collider> colliders)
         {
-            var collidersOfComponent = colliders
-                .Select(c => (c, Door: c.GetComponentInParent<DoorVariant>()))
-                .Where(t => t.Door is not null && !DoorsWithinSight.Contains(t.Door));
+            Profiler.BeginSample($"{nameof(DoorsWithinSightSense)}.{nameof(ProcessSensibility)}");
 
-            var withinSight = this.GetWithinSight(collidersOfComponent);
+            collidersOfComponent.Clear();
+            foreach (var collider in colliders)
+            {
+                if ((doorLayerMask & (1 << collider.gameObject.layer)) != 0 && collider.GetComponentInParent<DoorVariant>() is DoorVariant door)
+                {
+                    collidersOfComponent.Add(collider, door);
+                }
+            }
+
+            var withinSight = this.GetWithinSight(collidersOfComponent.Keys);
 
             foreach (var collider in withinSight)
             {
-                DoorsWithinSight.Add(collider.GetComponentInParent<DoorVariant>());
+                DoorsWithinSight.Add(collidersOfComponent[collider]);
             }
+
+            Profiler.EndSample();
         }
+
+        private LayerMask doorLayerMask = LayerMask.GetMask("Door");
 
         public override void ProcessSightSensedItems()
         {

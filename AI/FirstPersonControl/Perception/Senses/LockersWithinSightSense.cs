@@ -1,10 +1,12 @@
 ﻿using Interactables;
 using Interactables.Interobjects;
+using Interactables.Interobjects.DoorUtils;
 using MapGeneration.Distributors;
 using PluginAPI.Core;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 {
@@ -22,19 +24,33 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             LockersWithinSight.Clear();
         }
 
+
+        private Dictionary<Collider, Locker> collidersOfComponent = new();
+
         public override void ProcessSensibility(IEnumerable<Collider> colliders)
         {
-            var collidersOfComponent = colliders
-                .Select(c => (c, Component: c.GetComponentInParent<Locker>()))
-                .Where(t => t.Component is not null && !LockersWithinSight.Contains(t.Component));
+            Profiler.BeginSample($"{nameof(LockersWithinSightSense)}.{nameof(ProcessSensibility)}");
 
-            var withinSight = this.GetWithinSight(collidersOfComponent);
+            collidersOfComponent.Clear();
+            foreach (var collider in colliders)
+            {
+                if ((interactableLayerMask & (1 << collider.gameObject.layer)) != 0 && collider.GetComponentInParent<Locker>() is Locker locker)
+                {
+                    collidersOfComponent.Add(collider, locker);
+                }
+            }
+
+            var withinSight = this.GetWithinSight(collidersOfComponent.Keys);
 
             foreach (var collider in withinSight)
             {
-                LockersWithinSight.Add(collider.GetComponentInParent<Locker>());
+                LockersWithinSight.Add(collidersOfComponent[collider]);
             }
+
+            Profiler.EndSample();
         }
+
+        private LayerMask interactableLayerMask = LayerMask.GetMask("InteractableNoPlayerCollision");
 
         public override void ProcessSightSensedItems()
         {

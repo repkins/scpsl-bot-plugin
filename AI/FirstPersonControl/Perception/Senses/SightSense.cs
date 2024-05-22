@@ -6,6 +6,7 @@ using System.Linq;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Assertions.Comparers;
+using UnityEngine.Profiling;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 {
@@ -65,18 +66,20 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 
         private int numRaycasts;
 
-        private readonly HashSet<Collider> sightColliders = new();
+        private readonly List<Collider> sightColliders = new();
 
-        protected IEnumerable<Collider> GetWithinSight<T>(IEnumerable<(Collider collider, T item)> values) where T : Component
+        protected IEnumerable<Collider> GetWithinSight(ICollection<Collider> values)
         {
             var playerHub = _fpcBotPlayer.BotHub.PlayerHub;
 
             var cameraPosition = _fpcBotPlayer.CameraPosition;
             var cameraForward = _fpcBotPlayer.CameraForward;
 
+            sightColliders.Clear();
             numRaycasts = 0;
 
-            foreach (var (collider, item) in values)
+            Profiler.BeginSample($"{nameof(SightSense)}.AddRaycastCommands");
+            foreach (var collider in values)
             {
                 if (IsWithinFov(cameraPosition, cameraForward, collider.transform.position))
                 {
@@ -88,14 +91,15 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
                     sightColliders.Add(collider);
                 }
             }
+            Profiler.EndSample();
 
             var raycastCommands = raycastCommandsBuffer.GetSubArray(0, numRaycasts);
 
             var raycastsJobHandle = RaycastCommand.ScheduleBatch(raycastCommands, raycastResultsBuffer, 1);
             raycastsJobHandle.Complete();
 
+            Profiler.BeginSample($"{nameof(SightSense)}.ProcessRaycastResults");
             var withinSights = new List<Collider>(numRaycasts);
-
             for (int i = 0; i < numRaycasts; i++)
             {
                 var numHits = 0;
@@ -125,12 +129,13 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
                         }
                     }
 
-                    if (hit.HasValue && sightColliders.Contains(hit.Value.collider))
+                    if (hit.HasValue && sightColliders[i] == hit.Value.collider)
                     {
                         withinSights.Add(hit.Value.collider);
                     }
                 }
             }
+            Profiler.EndSample();
 
             return withinSights;
         }

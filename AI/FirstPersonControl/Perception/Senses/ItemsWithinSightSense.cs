@@ -1,9 +1,11 @@
 ﻿using Interactables;
+using Interactables.Interobjects.DoorUtils;
 using InventorySystem.Items.Pickups;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 {
@@ -31,17 +33,27 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             ItemsWithinPickupDistance.Clear();
         }
 
+        private Dictionary<Collider, ItemPickupBase> collidersOfComponent = new();
+
         public override void ProcessSensibility(IEnumerable<Collider> colliders)
         {
-            var collidersOfComponent = colliders
-                .Select(c => (c, Component: c.GetComponentInParent<ItemPickupBase>()))
-                .Where(t => t.Component is not null && t.Component && t.Component.netId != 0 && !ItemsWithinSight.Contains(t.Component));
+            Profiler.BeginSample($"{nameof(ItemsWithinSightSense)}.{nameof(ProcessSensibility)}");
 
-            var withinSight = this.GetWithinSight(collidersOfComponent);
+            collidersOfComponent.Clear();
+            foreach (var collider in colliders)
+            {
+                if ((interactableLayerMask & (1 << collider.gameObject.layer)) != 0
+                    && collider.GetComponentInParent<ItemPickupBase>() is ItemPickupBase pickup && pickup && pickup.netId != 0)
+                {
+                    collidersOfComponent.Add(collider, pickup);
+                }
+            }
+
+            var withinSight = this.GetWithinSight(collidersOfComponent.Keys);
 
             foreach (var collider in withinSight)
             {
-                var item = collider.GetComponentInParent<ItemPickupBase>();
+                var item = collidersOfComponent[collider];
 
                 ItemsWithinSight.Add(item);
 
@@ -50,7 +62,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
                     ItemsWithinPickupDistance.Add(item);
                 }
             }
+
+            Profiler.EndSample();
         }
+
+        private LayerMask interactableLayerMask = LayerMask.GetMask("InteractableNoPlayerCollision");
 
         public override void ProcessSightSensedItems()
         {

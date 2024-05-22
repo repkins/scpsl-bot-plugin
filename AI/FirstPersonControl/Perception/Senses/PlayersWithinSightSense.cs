@@ -1,8 +1,10 @@
 ﻿using Interactables;
+using Interactables.Interobjects.DoorUtils;
 using PlayerRoles;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 {
@@ -26,19 +28,34 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             PlayersWithinSight.Clear();
         }
 
+        private Dictionary<Collider, ReferenceHub> collidersOfComponent = new();
+
         public override void ProcessSensibility(IEnumerable<Collider> colliders)
         {
-            var collidersOfComponent = colliders
-                .Select(c => (c, Component: c.GetComponentInParent<ReferenceHub>()))
-                .Where(t => t.Component is not null && t.Component != _fpcBotPlayer.BotHub.PlayerHub && !PlayersWithinSight.Contains(t.Component));
+            Profiler.BeginSample($"{nameof(PlayersWithinSightSense)}.{nameof(ProcessSensibility)}");
 
-            var withinSight = this.GetWithinSight(collidersOfComponent);
+            collidersOfComponent.Clear();
+            foreach (var collider in colliders)
+            {
+                if ((hitboxLayerMask & (1 << collider.gameObject.layer)) != 0 
+                    && collider.GetComponentInParent<ReferenceHub>() is ReferenceHub otherPlayer 
+                    && otherPlayer != _fpcBotPlayer.BotHub.PlayerHub)
+                {
+                    collidersOfComponent.Add(collider, otherPlayer);
+                }
+            }
+
+            var withinSight = this.GetWithinSight(collidersOfComponent.Keys);
 
             foreach (var collider in withinSight)
             {
-                PlayersWithinSight.Add(collider.GetComponentInParent<ReferenceHub>());
+                PlayersWithinSight.Add(collidersOfComponent[collider]);
             }
+
+            Profiler.EndSample();
         }
+
+        private LayerMask hitboxLayerMask = LayerMask.GetMask("Hitbox");
 
         public override void ProcessSightSensedItems() { }
 

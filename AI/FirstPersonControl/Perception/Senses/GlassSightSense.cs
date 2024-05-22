@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Interactables.Interobjects.DoorUtils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 {
@@ -21,19 +23,33 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             WindowsWithinSight.Clear();
         }
 
+        private Dictionary<Collider, BreakableWindow> collidersOfComponent = new();
+
         public override void ProcessSensibility(IEnumerable<Collider> colliders)
         {
-            var collidersOfComponent = colliders
-                .Select(c => (c, Window: c.GetComponentInParent<BreakableWindow>()))
-                .Where(t => t.Window is not null && !WindowsWithinSight.Contains(t.Window));
+            Profiler.BeginSample($"{nameof(GlassSightSense)}.{nameof(ProcessSensibility)}");
 
-            var withinSight = this.GetWithinSight(collidersOfComponent);
+            collidersOfComponent.Clear();
+
+            foreach (var collider in colliders)
+            {
+                if ((glassLayerMask & (1 << collider.gameObject.layer)) != 0 && collider.GetComponentInParent<BreakableWindow>() is BreakableWindow window)
+                {
+                    collidersOfComponent.Add(collider, window);
+                }
+            }
+
+            var withinSight = this.GetWithinSight(collidersOfComponent.Keys);
 
             foreach (var collider in withinSight)
             {
-                WindowsWithinSight.Add(collider.GetComponentInParent<BreakableWindow>());
+                WindowsWithinSight.Add(collidersOfComponent[collider]);
             }
+
+            Profiler.EndSample();
         }
+
+        private LayerMask glassLayerMask = LayerMask.GetMask("Glass");
 
         public override void ProcessSightSensedItems()
         {

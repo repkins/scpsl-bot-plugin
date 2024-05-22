@@ -63,7 +63,7 @@ namespace SCPSLBot.AI.FirstPersonControl
                 Log.Warning($"Num of overlapping colliders is equal to it's buffer size. Possible cuts.");
             }
 
-            var overlappingColliders = _overlappingCollidersBuffer.Take(_numOverlappingColliders);
+            var overlappingColliders = new ArraySegment<Collider>(_overlappingCollidersBuffer, 0, _numOverlappingColliders);
 
             foreach (var sense in Senses)
             {
