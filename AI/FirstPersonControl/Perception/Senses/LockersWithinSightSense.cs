@@ -24,27 +24,38 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             LockersWithinSight.Clear();
         }
 
+        private static Dictionary<Collider, Locker> allCollidersToComponent = new();
 
-        private Dictionary<Collider, Locker> collidersOfComponent = new();
+        private Dictionary<Collider, Locker> validCollidersToComponent = new();
 
         public override void ProcessSensibility(IEnumerable<Collider> colliders)
         {
             Profiler.BeginSample($"{nameof(LockersWithinSightSense)}.{nameof(ProcessSensibility)}");
 
-            collidersOfComponent.Clear();
+            validCollidersToComponent.Clear();
             foreach (var collider in colliders)
             {
-                if ((interactableLayerMask & (1 << collider.gameObject.layer)) != 0 && collider.GetComponentInParent<Locker>() is Locker locker)
+                if ((interactableLayerMask & (1 << collider.gameObject.layer)) != 0)
                 {
-                    collidersOfComponent.Add(collider, locker);
+                    if (!allCollidersToComponent.TryGetValue(collider, out var locker))
+                    {
+                        locker = collider.GetComponentInParent<Locker>();
+
+                        allCollidersToComponent.Add(collider, locker);
+                    }
+
+                    if (locker != null)
+                    {
+                        validCollidersToComponent.Add(collider, locker);
+                    }
                 }
             }
 
-            var withinSight = this.GetWithinSight(collidersOfComponent.Keys);
+            var withinSight = this.GetWithinSight(validCollidersToComponent.Keys);
 
             foreach (var collider in withinSight)
             {
-                LockersWithinSight.Add(collidersOfComponent[collider]);
+                LockersWithinSight.Add(validCollidersToComponent[collider]);
             }
 
             Profiler.EndSample();

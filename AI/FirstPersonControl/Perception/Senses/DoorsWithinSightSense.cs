@@ -3,6 +3,7 @@ using Interactables.Interobjects;
 using Interactables.Interobjects.DoorUtils;
 using InventorySystem.Items.Pickups;
 using MapGeneration;
+using MapGeneration.Distributors;
 using PluginAPI.Core;
 using Scp914;
 using SCPSLBot.AI.FirstPersonControl.Mind.Door;
@@ -31,26 +32,37 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             DoorsWithinSight.Clear();
         }
 
-        private Dictionary<Collider, DoorVariant> collidersOfComponent = new();
+        private static Dictionary<Collider, DoorVariant> allCollidersToComponent = new();
+
+        private Dictionary<Collider, DoorVariant> validCollidersToComponent = new();
 
         public override void ProcessSensibility(IEnumerable<Collider> colliders)
         {
             Profiler.BeginSample($"{nameof(DoorsWithinSightSense)}.{nameof(ProcessSensibility)}");
 
-            collidersOfComponent.Clear();
+            validCollidersToComponent.Clear();
             foreach (var collider in colliders)
             {
-                if ((doorLayerMask & (1 << collider.gameObject.layer)) != 0 && collider.GetComponentInParent<DoorVariant>() is DoorVariant door)
+                if ((doorLayerMask & (1 << collider.gameObject.layer)) != 0)
                 {
-                    collidersOfComponent.Add(collider, door);
+                    if (!allCollidersToComponent.TryGetValue(collider, out var component))
+                    {
+                        component = collider.GetComponentInParent<DoorVariant>();
+                        allCollidersToComponent.Add(collider, component);
+                    }
+
+                    if (component != null)
+                    {
+                        validCollidersToComponent.Add(collider, component);
+                    }
                 }
             }
 
-            var withinSight = this.GetWithinSight(collidersOfComponent.Keys);
+            var withinSight = this.GetWithinSight(validCollidersToComponent.Keys);
 
             foreach (var collider in withinSight)
             {
-                DoorsWithinSight.Add(collidersOfComponent[collider]);
+                DoorsWithinSight.Add(validCollidersToComponent[collider]);
             }
 
             Profiler.EndSample();

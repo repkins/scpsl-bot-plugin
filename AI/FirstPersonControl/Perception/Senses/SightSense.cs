@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections;
+using Unity.Jobs.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.Assertions.Comparers;
 using UnityEngine.Profiling;
@@ -95,7 +96,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 
             var raycastCommands = raycastCommandsBuffer.GetSubArray(0, numRaycasts);
 
-            var raycastsJobHandle = RaycastCommand.ScheduleBatch(raycastCommands, raycastResultsBuffer, 1);
+            var raycastsJobHandle = RaycastCommand.ScheduleBatch(raycastCommands, raycastResultsBuffer, numRaycasts / JobsUtility.JobWorkerCount);
             raycastsJobHandle.Complete();
 
             Profiler.BeginSample($"{nameof(SightSense)}.ProcessRaycastResults");

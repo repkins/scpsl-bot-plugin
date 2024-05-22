@@ -1,4 +1,5 @@
 ﻿using Interactables;
+using Interactables.Interobjects.DoorUtils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,27 +25,37 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             InteractableCollidersWithinSight.Clear();
         }
 
-        private Dictionary<Collider, InteractableCollider> collidersOfComponent = new();
+        private static Dictionary<Collider, InteractableCollider> allCollidersToComponent = new();
+
+        private Dictionary<Collider, InteractableCollider> validCollidersToComponent = new();
 
         public override void ProcessSensibility(IEnumerable<Collider> colliders)
         {
             Profiler.BeginSample($"{nameof(InteractablesWithinSightSense)}.{nameof(ProcessSensibility)}");
 
-            collidersOfComponent.Clear();
-
+            validCollidersToComponent.Clear();
             foreach (var collider in colliders)
             {
-                if ((interactableLayerMask & (1 << collider.gameObject.layer)) != 0 && collider.GetComponentInParent<InteractableCollider>() is InteractableCollider interactable)
+                if ((interactableLayerMask & (1 << collider.gameObject.layer)) != 0)
                 {
-                    collidersOfComponent.Add(collider, interactable);
+                    if (!allCollidersToComponent.TryGetValue(collider, out var interactable))
+                    {
+                        interactable = collider.GetComponentInParent<InteractableCollider>();
+                        allCollidersToComponent.Add(collider, interactable);
+                    }
+
+                    if (interactable != null)
+                    {
+                        validCollidersToComponent.Add(collider, interactable);
+                    }
                 }
             }
 
-            var withinSight = this.GetWithinSight(collidersOfComponent.Keys);
+            var withinSight = this.GetWithinSight(validCollidersToComponent.Keys);
 
             foreach (var collider in withinSight)
             {
-                InteractableCollidersWithinSight.Add(collidersOfComponent[collider]);
+                InteractableCollidersWithinSight.Add(validCollidersToComponent[collider]);
             }
 
             Profiler.EndSample();
