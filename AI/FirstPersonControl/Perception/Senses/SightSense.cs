@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections;
 using Unity.Jobs;
-using Unity.Jobs.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.Assertions.Comparers;
 using UnityEngine.Profiling;
@@ -70,7 +69,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 
         private int numRaycasts;
 
-        private readonly List<Collider> withinFovColliders = new();
+        //private readonly List<Collider> withinFovColliders = new();
 
         protected IEnumerable<Collider> GetWithinSight(ICollection<Collider> values)
         {
@@ -79,7 +78,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             var cameraPosition = _fpcBotPlayer.CameraPosition;
             var cameraForward = _fpcBotPlayer.CameraForward;
 
-            withinFovColliders.Clear();
+            var withinFovColliderInstancedIds = new NativeArray<int>(values.Count, Allocator.Temp);
             numRaycasts = 0;
 
             //var withinFovJob = new WithinFovJob
@@ -111,10 +110,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
                     var relPosToItem = colliderPosition - cameraPosition;
                     //var relPosToItem = withinFovJob.TargetPosition[i] - cameraPosition;
 
-                    raycastCommandsBuffer[numRaycasts] = new RaycastCommand(cameraPosition, relPosToItem, relPosToItem.magnitude, ~excludedCollisionLayerMask, 1);
-                    numRaycasts++;
+                    raycastCommandsBuffer[numRaycasts] = new RaycastCommand(cameraPosition, relPosToItem, relPosToItem.magnitude, ~excludedCollisionLayerMask);
 
-                    withinFovColliders.Add(collider);
+                    withinFovColliderInstancedIds[numRaycasts] = collider.GetInstanceID();
+
+                    numRaycasts++;
                 }
                 //i++;
             }
@@ -124,26 +124,31 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             //withinFovJob.IsWithinFov.Dispose();
 
             var raycastCommands = raycastCommandsBuffer.GetSubArray(0, numRaycasts);
-
             var raycastsJobHandle = RaycastCommand.ScheduleBatch(raycastCommands, raycastResultsBuffer, 1);
-            raycastsJobHandle.Complete();
 
-            Profiler.BeginSample($"{nameof(SightSense)}.ProcessRaycastResults");
+            var isHits = new NativeArray<bool>(numRaycasts, Allocator.Temp);
+
+            var raycastResultJob = new RaycastResultJob()
+            {
+                RaycastHit = raycastResultsBuffer,
+                ColliderInstanceIds = withinFovColliderInstancedIds,
+                IsHit = isHits
+            };
+            var raycastHitJobHandle = raycastResultJob.Schedule(numRaycasts, 4, raycastsJobHandle);
+
+            raycastHitJobHandle.Complete();
+
             var withinSights = new List<Collider>(numRaycasts);
             for (var i = 0; i < numRaycasts; i++)
             {
-                var hit = raycastResultsBuffer[i];
-                if (hit.collider == null)
+                if (raycastResultJob.IsHit[i])
                 {
-                    break;
-                }
-
-                if (withinFovColliders[i] == hit.collider)
-                {
-                    withinSights.Add(hit.collider);
+                    withinSights.Add(raycastResultsBuffer[i].collider);
                 }
             }
-            Profiler.EndSample();
+
+            withinFovColliderInstancedIds.Dispose();
+            isHits.Dispose();
 
             return withinSights;
         }
