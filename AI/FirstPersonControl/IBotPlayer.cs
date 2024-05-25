@@ -1,12 +1,12 @@
-﻿using PlayerRoles;
-using PlayerRoles.FirstPersonControl;
+﻿using System.Collections.Generic;
+using Unity.Jobs;
 
 namespace SCPSLBot.AI.FirstPersonControl
 {
     internal interface IBotPlayer
     {
         void OnRoleChanged();
-        void Update();
+        IEnumerator<JobHandle> Update();
         void DumpMind();
     }
 }

@@ -5,6 +5,8 @@ using PlayerRoles;
 using PluginAPI.Core;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Collections;
+using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.Profiling;
 using LocalConnectionToClient = SCPSLBot.LocalNetworking.LocalConnectionToClient;
@@ -62,11 +64,41 @@ namespace SCPSLBot.AI
 
         public IEnumerator<float> RunPlayerUpdates()
         {
+            var playersUpdates = new List<IEnumerator<JobHandle>>();
+
             while (true)
             {
+                playersUpdates.Clear();
+
+                var playersCount = BotPlayers.Values.Count;
                 foreach (var player in BotPlayers.Values)
                 {
-                    player.Update();
+                    playersUpdates.Add(player.Update());
+                }
+
+                var jobHandlesBuffer = new NativeArray<JobHandle>(playersCount, Allocator.Temp);
+                var jobHandlesCount = 0;
+
+                var completedCount = 0;
+                while (completedCount < playersCount)
+                {
+                    completedCount = 0;
+                    jobHandlesCount = 0;
+                    foreach (var playerUpdate in playersUpdates)
+                    {
+                        if (playerUpdate.MoveNext())
+                        {
+                            jobHandlesBuffer[jobHandlesCount] = playerUpdate.Current;
+                            jobHandlesCount++;
+                        }
+                        else
+                        {
+                            completedCount++;
+                        }
+                    }
+
+                    var jobHandles = jobHandlesBuffer.GetSubArray(0, jobHandlesCount);
+                    JobHandle.CompleteAll(jobHandles);
                 }
 
                 yield return Timing.WaitForOneFrame;

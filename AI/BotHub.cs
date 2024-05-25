@@ -5,6 +5,7 @@ using SCPSLBot.AI.FirstPersonControl;
 using SCPSLBot.LocalNetworking;
 using System;
 using System.Collections.Generic;
+using Unity.Jobs;
 using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -59,11 +60,18 @@ namespace SCPSLBot.AI
             throw new InvalidOperationException("Unsupported current role on bot turn.");
         }
 
-        public void Update()
+        public IEnumerator<JobHandle> Update()
         {
             Profiler.BeginSample($"{nameof(BotHub)}.{nameof(Update)}");
 
-            CurrentBotPlayer?.Update();
+            var botPlayerUpdate = CurrentBotPlayer?.Update();
+            if (botPlayerUpdate != null)
+            {
+                while (botPlayerUpdate.MoveNext())
+                {
+                    yield return botPlayerUpdate.Current;
+                }
+            }
 
             Profiler.EndSample();
         }

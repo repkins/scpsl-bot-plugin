@@ -50,9 +50,9 @@ namespace SCPSLBot.AI.FirstPersonControl
             Senses.Add(new InteractablesWithinSightSense(fpcBotPlayer));
         }
 
-        public void Tick(IFpcRole fpcRole)
+        public IEnumerator<JobHandle> Update()
         {
-            Profiler.BeginSample($"{nameof(FpcBotPerception)}.{nameof(Tick)}");
+            Profiler.BeginSample($"{nameof(FpcBotPerception)}.{nameof(Update)}");
 
             //var fpcTransform = fpcRole.FpcModule.transform;
             var cameraTransform = _fpcBotPlayer.BotHub.PlayerHub.PlayerCameraReference;
@@ -102,7 +102,7 @@ namespace SCPSLBot.AI.FirstPersonControl
                 }
 
                 var jobHandles = jobHandlesBuffer.GetSubArray(0, jobHandlesCount);
-                JobHandle.CompleteAll(jobHandles);
+                yield return JobHandle.CombineDependencies(jobHandles);
             }
 
             jobHandlesBuffer.Dispose();

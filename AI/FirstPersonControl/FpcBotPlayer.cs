@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.Profiling;
 
@@ -51,7 +52,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             MindRunner.SubscribeToBeliefUpdates();
         }
 
-        public void Update()
+        public IEnumerator<JobHandle> Update()
         {
             var playerTransform = FpcRole.transform;
             this.PlayerPosition = playerTransform.position;
@@ -61,7 +62,11 @@ namespace SCPSLBot.AI.FirstPersonControl
             this.CameraPosition = cameraTransform.position;
             this.CameraForward = cameraTransform.forward;
 
-            Perception.Tick(FpcRole);
+            var updatePerceptionHandles = Perception.Update();
+            while (updatePerceptionHandles.MoveNext())
+            {
+                yield return updatePerceptionHandles.Current;
+            }
             MindRunner.Tick();
 
 
