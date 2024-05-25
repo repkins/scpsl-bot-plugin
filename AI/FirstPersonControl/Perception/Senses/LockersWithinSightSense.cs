@@ -5,6 +5,7 @@ using MapGeneration.Distributors;
 using PluginAPI.Core;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.Profiling;
 
@@ -28,7 +29,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 
         private Dictionary<Collider, Locker> validCollidersToComponent = new();
 
-        public override void ProcessSensibility(IEnumerable<Collider> colliders)
+        public override IEnumerator<JobHandle> ProcessSensibility(IEnumerable<Collider> colliders)
         {
             Profiler.BeginSample($"{nameof(LockersWithinSightSense)}.{nameof(ProcessSensibility)}");
 
@@ -51,7 +52,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
                 }
             }
 
-            var withinSight = this.GetWithinSight(validCollidersToComponent.Keys);
+
+            var withinSight = new List<Collider>();
+            var withinSightHandles = this.GetWithinSight(validCollidersToComponent.Keys, withinSight);
+            while (withinSightHandles.MoveNext())
+            {
+                yield return withinSightHandles.Current;
+            }
+
 
             foreach (var collider in withinSight)
             {

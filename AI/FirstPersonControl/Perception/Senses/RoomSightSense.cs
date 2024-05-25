@@ -4,6 +4,7 @@ using SCPSLBot.Navigation.Mesh;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Jobs;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
@@ -25,8 +26,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             _fpcBotPlayer = botPlayer;
         }
 
-        public override void ProcessSensibility(IEnumerable<Collider> colliders)
-        { }
+        public override IEnumerator<JobHandle> ProcessSensibility(IEnumerable<Collider> colliders)
+        { yield break; }
 
         public override void Reset()
         { }

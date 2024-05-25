@@ -21,7 +21,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         }
 
         public abstract void Reset();
-        public abstract void ProcessSensibility(IEnumerable<Collider> collider);
+        public abstract IEnumerator<JobHandle> ProcessSensibility(IEnumerable<Collider> collider);
         public abstract void ProcessSightSensedItems();
 
         public virtual void ProcessSensedItems()
@@ -67,9 +67,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         private NativeArray<RaycastCommand> raycastCommandsBuffer = new(1000, Allocator.Persistent);
         private NativeArray<RaycastHit> raycastResultsBuffer = new(1000 * RaycastMaxHits, Allocator.Persistent);
 
-        //private readonly List<Collider> withinFovColliders = new();
-
-        protected IEnumerable<Collider> GetWithinSight(ICollection<Collider> values)
+        protected IEnumerator<JobHandle> GetWithinSight(ICollection<Collider> values, List<Collider> withinSights)
         {
             var playerHub = _fpcBotPlayer.BotHub.PlayerHub;
 
@@ -95,7 +93,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             }
 
             var withinFovHandle = withinFovJob.Schedule(values.Count, 1);
-            withinFovHandle.Complete();
+
+            yield return withinFovHandle;
 
 
             var withinFovColliderInstancedIds = new NativeArray<int>(values.Count, Allocator.Temp);
@@ -105,11 +104,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             var numRaycasts = 0;
             foreach (var collider in values)
             {
-                //var colliderPosition = collider.bounds.center;
-                //if (IsWithinFov(cameraPosition, cameraForward, colliderPosition))
                 if (withinFovJob.IsWithinFov[colliderIndex])
                 {
-                    //var relPosToItem = colliderPosition - cameraPosition;
                     var relPosToItem = withinFovJob.TargetPosition[colliderIndex] - cameraPosition;
 
                     raycastCommandsBuffer[numRaycasts] = new RaycastCommand(cameraPosition, relPosToItem, relPosToItem.magnitude, ~excludedCollisionLayerMask);
@@ -134,9 +130,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             };
             var raycastHitJobHandle = raycastResultJob.Schedule(numRaycasts, 4, raycastsJobHandle);
 
-            raycastHitJobHandle.Complete();
+            yield return raycastHitJobHandle;
 
-            var withinSights = new List<Collider>(numRaycasts);
             for (var i = 0; i < numRaycasts; i++)
             {
                 if (raycastResultJob.IsHit[i])
@@ -152,8 +147,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             colliderInstancedIds.Dispose();
             withinFovColliderInstancedIds.Dispose();
             isHits.Dispose();
-
-            return withinSights;
         }
 
         protected bool IsWithinSight<T>(Collider collider, T item) where T : Component

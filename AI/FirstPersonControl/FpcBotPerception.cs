@@ -6,6 +6,8 @@ using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Collections;
+using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.Profiling;
 
@@ -70,10 +72,40 @@ namespace SCPSLBot.AI.FirstPersonControl
                 sense.Reset();
             }
 
+            var sensesCount = Senses.Count;
+
+            var processSensesEnumerators = new List<IEnumerator<JobHandle>>(sensesCount);
             foreach (var sense in Senses)
             {
-                sense.ProcessSensibility(overlappingColliders);
+                processSensesEnumerators.Add(sense.ProcessSensibility(overlappingColliders));
             }
+
+            var completedCount = 0;
+            var jobHandlesCount = 0;
+            var jobHandlesBuffer = new NativeArray<JobHandle>(sensesCount, Allocator.Temp);
+            while (completedCount < sensesCount)
+            {
+                completedCount = 0;
+                jobHandlesCount = 0;
+                for (int i = 0; i < sensesCount; i++)
+                {
+                    var processSenses = processSensesEnumerators[i];
+                    if (processSenses.MoveNext())
+                    {
+                        jobHandlesBuffer[jobHandlesCount] = processSenses.Current;
+                        jobHandlesCount++;
+                    }
+                    else
+                    {
+                        completedCount++;
+                    }
+                }
+
+                var jobHandles = jobHandlesBuffer.GetSubArray(0, jobHandlesCount);
+                JobHandle.CompleteAll(jobHandles);
+            }
+
+            jobHandlesBuffer.Dispose();
 
             foreach (var sense in Senses)
             {
