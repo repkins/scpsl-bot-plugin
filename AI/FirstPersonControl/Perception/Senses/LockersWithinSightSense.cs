@@ -12,65 +12,17 @@ using UnityEngine.Profiling;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 {
-    internal class LockersWithinSightSense : SightSense
+    internal class LockersWithinSightSense : SightSense<Locker>
     {
-        public HashSet<Locker> LockersWithinSight { get; } = new();
+        public HashSet<Locker> LockersWithinSight => ComponentsWithinSight;
 
         public LockersWithinSightSense(FpcBotPlayer botPlayer) : base(botPlayer)
         {
             _fpcBotPlayer = botPlayer;
         }
 
-        public override void Reset()
-        {
-            LockersWithinSight.Clear();
-        }
-
-        private static Dictionary<Collider, Locker> allCollidersToComponent = new();
-
-        private Dictionary<Collider, Locker> validCollidersToComponent = new();
-
-        public override IEnumerator<JobHandle> ProcessSensibility(IEnumerable<Collider> colliders)
-        {
-            Profiler.BeginSample($"{nameof(LockersWithinSightSense)}.{nameof(ProcessSensibility)}");
-
-            validCollidersToComponent.Clear();
-            foreach (var collider in colliders)
-            {
-                if ((interactableLayerMask & (1 << collider.gameObject.layer)) != 0)
-                {
-                    if (!allCollidersToComponent.TryGetValue(collider, out var locker))
-                    {
-                        locker = collider.GetComponentInParent<Locker>();
-
-                        allCollidersToComponent.Add(collider, locker);
-                    }
-
-                    if (locker != null)
-                    {
-                        validCollidersToComponent.Add(collider, locker);
-                    }
-                }
-            }
-
-
-            var withinSight = new List<Collider>();
-            var withinSightHandles = this.GetWithinSight(validCollidersToComponent.Keys, withinSight);
-            while (withinSightHandles.MoveNext())
-            {
-                yield return withinSightHandles.Current;
-            }
-
-
-            foreach (var collider in withinSight)
-            {
-                LockersWithinSight.Add(validCollidersToComponent[collider]);
-            }
-
-            Profiler.EndSample();
-        }
-
         private LayerMask interactableLayerMask = LayerMask.GetMask("InteractableNoPlayerCollision");
+        protected override LayerMask layerMask => interactableLayerMask;
 
         public override void ProcessSightSensedItems()
         {

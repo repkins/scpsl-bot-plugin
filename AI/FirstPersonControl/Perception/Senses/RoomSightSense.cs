@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 {
-    internal class RoomSightSense : SightSense
+    internal class RoomSightSense : SightSense, ISense
     {
         public List<Area> ForeignRoomsAreas { get; } = new();
         public RoomIdentifier RoomWithin { get; private set; }
@@ -26,12 +26,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         {
             _fpcBotPlayer = botPlayer;
         }
-
-        public override IEnumerator<JobHandle> ProcessSensibility(IEnumerable<Collider> colliders)
-        { yield break; }
-
-        public override void Reset()
-        { }
 
         public override void ProcessSightSensedItems()
         {
@@ -65,18 +59,34 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 
         private void UpdateForeignRoomsAreas()
         {
-            ForeignRoomsAreas.Clear();
-            foreach (var a in NavigationMesh.Instance.AreasByRoom[RoomWithin.ApiRoom])
+            if (RoomWithin)
             {
-                if (a.ForeignConnectedAreas.Count > 0)
+                ForeignRoomsAreas.Clear();
+                foreach (var a in NavigationMesh.Instance.AreasByRoom[RoomWithin.ApiRoom])
                 {
-                    foreach (var fa in a.ForeignConnectedAreas)
+                    if (a.ForeignConnectedAreas.Count > 0)
                     {
-                        var faa = fa.ConnectedAreas.First();
-                        ForeignRoomsAreas.Add(faa);
+                        foreach (var fa in a.ForeignConnectedAreas)
+                        {
+                            var faa = fa.ConnectedAreas.First();
+                            ForeignRoomsAreas.Add(faa);
+                        }
                     }
                 }
             }
+        }
+
+        public void ProcessEnter(Collider other)
+        {
+        }
+
+        public void ProcessExit(Collider other)
+        {
+        }
+
+        public IEnumerator<JobHandle> ProcessSensibility()
+        {
+            yield break;
         }
     }
 }

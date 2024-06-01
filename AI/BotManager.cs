@@ -3,6 +3,7 @@ using MEC;
 using Mirror;
 using PlayerRoles;
 using PluginAPI.Core;
+using SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections;
@@ -25,12 +26,22 @@ namespace SCPSLBot.AI
             Timing.RunCoroutine(RunPlayerUpdates());
 
             PlayerRoleManager.OnRoleChanged += OnRoleChanged;
+
+            for (int i = 0; i < 32; i++)
+            {
+                Physics.IgnoreLayerCollision(31, i, true);
+            }
+
+            Physics.IgnoreLayerCollision(31, LayerMask.NameToLayer("Door"), false);
+            Physics.IgnoreLayerCollision(31, LayerMask.NameToLayer("InteractableNoPlayerCollision"), false);
+            Physics.IgnoreLayerCollision(31, LayerMask.NameToLayer("Glass"), false);
+            Physics.IgnoreLayerCollision(31, LayerMask.NameToLayer("Hitbox"), false);
         }
 
         public void AddBotPlayer()
         {
-            var gameObject = Object.Instantiate(NetworkManager.singleton.playerPrefab);
-            gameObject.name = string.Format("{0} [bot]", NetworkManager.singleton.playerPrefab.name);
+            var player = Object.Instantiate(NetworkManager.singleton.playerPrefab);
+            player.name = string.Format("{0} [bot]", NetworkManager.singleton.playerPrefab.name);
 
             var connectionToClient = new LocalConnectionToClient(--lastConnNum);
             var connectionToServer = new LocalConnectionToServer() { connectionToClient = connectionToClient };
@@ -40,16 +51,28 @@ namespace SCPSLBot.AI
             //NetworkDiagnostics.InMessageEvent += LogInMessage;
 
             NetworkServer.AddConnection(connectionToClient);
-            NetworkServer.AddPlayerForConnection(connectionToClient, gameObject);
+            NetworkServer.AddPlayerForConnection(connectionToClient, player);
             NetworkServer.OnConnectedEvent?.Invoke(connectionToClient);
 
-            var referenceHub = gameObject.GetComponent<ReferenceHub>();
+            var referenceHub = player.GetComponent<ReferenceHub>();
 
             BotPlayers.Add(referenceHub, new BotHub(connectionToClient, connectionToServer, referenceHub));
 
             Log.Info($"connectionToClient.identity = {connectionToClient.identity}");
 
-            Timing.RunCoroutine(AssignUserIdAsync(gameObject));
+            // add perception
+            var sensing = new GameObject("Bot Sensing");
+            sensing.layer = 31;
+            sensing.transform.parent = player.transform;
+            var perception = sensing.AddComponent<PerceptionComponent>();
+            perception.enabled = false;
+            var sensingTrigger = sensing.AddComponent<SphereCollider>();
+            sensingTrigger.isTrigger = true;
+            sensingTrigger.radius = 32f;
+            var sensingRigid = sensing.AddComponent<Rigidbody>();
+            sensingRigid.isKinematic = true;
+
+            Timing.RunCoroutine(AssignUserIdAsync(player));
         }
 
         private IEnumerator<float> AssignUserIdAsync(GameObject player)

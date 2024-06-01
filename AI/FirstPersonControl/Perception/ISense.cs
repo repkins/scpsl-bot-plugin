@@ -10,8 +10,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception
 {
     internal interface ISense
     {
-        IEnumerator<JobHandle> ProcessSensibility(IEnumerable<Collider> collider);
-        void Reset();
+        void ProcessEnter(Collider other);
+        void ProcessExit(Collider other);
+        IEnumerator<JobHandle> ProcessSensibility();
         void ProcessSensedItems();
     }
 }

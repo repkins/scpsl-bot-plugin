@@ -11,81 +11,21 @@ using UnityEngine.Profiling;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 {
-    internal class ItemsWithinSightSense : SightSense
+    internal class ItemsWithinSightSense : SightSense<ItemPickupBase>
     {
-        public HashSet<ItemPickupBase> ItemsWithinSight { get; } = new();
-        public HashSet<ItemPickupBase> ItemsWithinPickupDistance { get; } = new();
+        public HashSet<ItemPickupBase> ItemsWithinSight => ComponentsWithinSight;
 
         public event Action OnBeforeSensedItemsWithinSight;
         public event Action<ItemPickupBase> OnSensedItemWithinSight;
         public event Action OnAfterSensedItemsWithinSight;
-
-        public event Action OnBeforeSensedItemsWithinPickupDistance;
-        public event Action<ItemPickupBase> OnSensedItemWithinPickupDistance;
-        public event Action OnAfterSensedItemsWithinPickupDistance;
 
         public ItemsWithinSightSense(FpcBotPlayer botPlayer) : base(botPlayer)
         {
             _fpcBotPlayer = botPlayer;
         }
 
-        public override void Reset()
-        {
-            ItemsWithinSight.Clear();
-            ItemsWithinPickupDistance.Clear();
-        }
-
-        private static readonly Dictionary<Collider, ItemPickupBase> allCollidersToComponent = new();
-
-        private Dictionary<Collider, ItemPickupBase> validCollidersToComponent = new();
-
-        public override IEnumerator<JobHandle> ProcessSensibility(IEnumerable<Collider> colliders)
-        {
-            Profiler.BeginSample($"{nameof(ItemsWithinSightSense)}.{nameof(ProcessSensibility)}");
-
-            validCollidersToComponent.Clear();
-            foreach (var collider in colliders)
-            {
-                if ((interactableLayerMask & (1 << collider.gameObject.layer)) != 0)
-                {
-                    if (!allCollidersToComponent.TryGetValue(collider, out var pickup))
-                    {
-                        pickup = collider.GetComponentInParent<ItemPickupBase>();
-                        allCollidersToComponent.Add(collider, pickup);
-                    }
-
-                    if (pickup != null && pickup && pickup.netId != 0)
-                    {
-                        validCollidersToComponent.Add(collider, pickup);
-                    }
-                }
-            }
-
-
-            var withinSight = new List<Collider>();
-            var withinSightHandles = this.GetWithinSight(validCollidersToComponent.Keys, withinSight);
-            while (withinSightHandles.MoveNext())
-            {
-                yield return withinSightHandles.Current;
-            }
-
-
-            foreach (var collider in withinSight)
-            {
-                var item = validCollidersToComponent[collider];
-
-                ItemsWithinSight.Add(item);
-
-                if (Vector3.Distance(item.transform.position, _fpcBotPlayer.CameraPosition) <= 1.75f) // TODO: constant
-                {
-                    ItemsWithinPickupDistance.Add(item);
-                }
-            }
-
-            Profiler.EndSample();
-        }
-
         private LayerMask interactableLayerMask = LayerMask.GetMask("InteractableNoPlayerCollision");
+        protected override LayerMask layerMask => interactableLayerMask;
 
         public override void ProcessSightSensedItems()
         {
@@ -95,13 +35,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
                 OnSensedItemWithinSight?.Invoke(item);
             }
             OnAfterSensedItemsWithinSight?.Invoke();
-
-            OnBeforeSensedItemsWithinPickupDistance?.Invoke();
-            foreach (var item in ItemsWithinPickupDistance)
-            {
-                OnSensedItemWithinPickupDistance?.Invoke(item);
-            }
-            OnAfterSensedItemsWithinPickupDistance?.Invoke();
         }
 
         private readonly FpcBotPlayer _fpcBotPlayer;

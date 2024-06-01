@@ -19,12 +19,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             _fpcBotPlayer = botPlayer;
         }
 
-        public IEnumerator<JobHandle> ProcessSensibility(IEnumerable<Collider> colliders)
-        { yield break; }
-
-        public void Reset()
-        { }
-
         public void ProcessSensedItems()
         {
             var userInventory = _fpcBotPlayer.BotHub.PlayerHub.inventory.UserInventory;
@@ -35,6 +29,19 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
                 HasFirearmInInventory = item is Firearm;
             }
             OnAfterSensedItems?.Invoke();
+        }
+
+        public void ProcessEnter(Collider other)
+        {
+        }
+
+        public void ProcessExit(Collider other)
+        {
+        }
+
+        public IEnumerator<JobHandle> ProcessSensibility()
+        {
+            yield break;
         }
 
         private readonly FpcBotPlayer _fpcBotPlayer;

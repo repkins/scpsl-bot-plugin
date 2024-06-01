@@ -50,34 +50,18 @@ namespace SCPSLBot.AI.FirstPersonControl
             Senses.Add(new InteractablesWithinSightSense(fpcBotPlayer));
         }
 
+        private readonly List<IEnumerator<JobHandle>> processSensesEnumerators = new();
+
         public IEnumerator<JobHandle> Update()
         {
             Profiler.BeginSample($"{nameof(FpcBotPerception)}.{nameof(Update)}");
 
-            //var fpcTransform = fpcRole.FpcModule.transform;
-            var cameraTransform = _fpcBotPlayer.BotHub.PlayerHub.PlayerCameraReference;
-
-            var prevNumOverlappingColliders = _numOverlappingColliders;
-            _numOverlappingColliders = Physics.OverlapSphereNonAlloc(cameraTransform.position, 32f, _overlappingCollidersBuffer, _perceptionLayerMask);
-
-            if (_numOverlappingColliders >= OverlappingCollidersBufferSize && _numOverlappingColliders != prevNumOverlappingColliders)
-            {
-                Log.Warning($"Num of overlapping colliders is equal to it's buffer size. Possible cuts.");
-            }
-
-            var overlappingColliders = new ArraySegment<Collider>(_overlappingCollidersBuffer, 0, _numOverlappingColliders);
-
-            foreach (var sense in Senses)
-            {
-                sense.Reset();
-            }
-
             var sensesCount = Senses.Count;
 
-            var processSensesEnumerators = new List<IEnumerator<JobHandle>>(sensesCount);
+            processSensesEnumerators.Clear();
             foreach (var sense in Senses)
             {
-                processSensesEnumerators.Add(sense.ProcessSensibility(overlappingColliders));
+                processSensesEnumerators.Add(sense.ProcessSensibility());
             }
 
             var completedCount = 0;
@@ -104,7 +88,6 @@ namespace SCPSLBot.AI.FirstPersonControl
                 var jobHandles = jobHandlesBuffer.GetSubArray(0, jobHandlesCount);
                 yield return JobHandle.CombineDependencies(jobHandles);
             }
-
             jobHandlesBuffer.Dispose();
 
             foreach (var sense in Senses)

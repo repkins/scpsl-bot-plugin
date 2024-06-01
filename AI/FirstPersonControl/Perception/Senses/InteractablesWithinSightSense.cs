@@ -10,9 +10,9 @@ using UnityEngine.Profiling;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 {
-    internal class InteractablesWithinSightSense : SightSense
+    internal class InteractablesWithinSightSense : SightSense<InteractableCollider>
     {
-        public HashSet<InteractableCollider> InteractableCollidersWithinSight { get; } = new();
+        public HashSet<InteractableCollider> InteractableCollidersWithinSight => base.ComponentsWithinSight;
 
         public event Action OnBeforeSensedInteractablesWithinSight;
         public event Action<InteractableCollider> OnSensedInteractableColliderWithinSight;
@@ -22,55 +22,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         {
         }
 
-        public override void Reset()
-        {
-            InteractableCollidersWithinSight.Clear();
-        }
-
-        private static Dictionary<Collider, InteractableCollider> allCollidersToComponent = new();
-
-        private Dictionary<Collider, InteractableCollider> validCollidersToComponent = new();
-
-        public override IEnumerator<JobHandle> ProcessSensibility(IEnumerable<Collider> colliders)
-        {
-            Profiler.BeginSample($"{nameof(InteractablesWithinSightSense)}.{nameof(ProcessSensibility)}");
-
-            validCollidersToComponent.Clear();
-            foreach (var collider in colliders)
-            {
-                if ((interactableLayerMask & (1 << collider.gameObject.layer)) != 0)
-                {
-                    if (!allCollidersToComponent.TryGetValue(collider, out var interactable))
-                    {
-                        interactable = collider.GetComponentInParent<InteractableCollider>();
-                        allCollidersToComponent.Add(collider, interactable);
-                    }
-
-                    if (interactable != null)
-                    {
-                        validCollidersToComponent.Add(collider, interactable);
-                    }
-                }
-            }
-
-
-            var withinSight = new List<Collider>();
-            var withinSightHandles = this.GetWithinSight(validCollidersToComponent.Keys, withinSight);
-            while (withinSightHandles.MoveNext())
-            {
-                yield return withinSightHandles.Current;
-            }
-
-
-            foreach (var collider in withinSight)
-            {
-                InteractableCollidersWithinSight.Add(validCollidersToComponent[collider]);
-            }
-
-            Profiler.EndSample();
-        }
-
         private LayerMask interactableLayerMask = LayerMask.GetMask("InteractableNoPlayerCollision");
+        protected override LayerMask layerMask => interactableLayerMask;
 
         public override void ProcessSightSensedItems()
         {

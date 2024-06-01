@@ -16,16 +16,23 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             _botPlayer = botPlayer;
         }
 
-        public IEnumerator<JobHandle> ProcessSensibility(IEnumerable<Collider> colliders)
-        { yield break; }
-
-        public void Reset()
-        { }
-
         public void ProcessSensedItems()
         {
-            var playerPosition = _botPlayer.FpcRole.FpcModule.transform.position;
+            var playerPosition = _botPlayer.PlayerPosition;
             OnSensedPlayerPosition?.Invoke(playerPosition);
+        }
+
+        public void ProcessEnter(Collider other)
+        {
+        }
+
+        public void ProcessExit(Collider other)
+        {
+        }
+
+        public IEnumerator<JobHandle> ProcessSensibility()
+        {
+            yield break;
         }
 
         private readonly FpcBotPlayer _botPlayer;

@@ -9,9 +9,9 @@ using UnityEngine.Profiling;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 {
-    internal class GlassSightSense : SightSense, ISense
+    internal class GlassSightSense : SightSense<BreakableWindow>, ISense
     {
-        public HashSet<BreakableWindow> WindowsWithinSight { get; } = new();
+        public HashSet<BreakableWindow> WindowsWithinSight => ComponentsWithinSight;
 
         public event Action<BreakableWindow> OnSensedWindowsWithinSight;
         public event Action OnAfterSensedWindowsWithinSight;
@@ -20,45 +20,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         {
         }
 
-        public override void Reset()
-        {
-            WindowsWithinSight.Clear();
-        }
-
-        private Dictionary<Collider, BreakableWindow> collidersOfComponent = new();
-
-        public override IEnumerator<JobHandle> ProcessSensibility(IEnumerable<Collider> colliders)
-        {
-            Profiler.BeginSample($"{nameof(GlassSightSense)}.{nameof(ProcessSensibility)}");
-
-            collidersOfComponent.Clear();
-
-            foreach (var collider in colliders)
-            {
-                if ((glassLayerMask & (1 << collider.gameObject.layer)) != 0 && collider.GetComponentInParent<BreakableWindow>() is BreakableWindow window)
-                {
-                    collidersOfComponent.Add(collider, window);
-                }
-            }
-
-
-            var withinSight = new List<Collider>();
-            var withinSightHandles = this.GetWithinSight(collidersOfComponent.Keys, withinSight);
-            while (withinSightHandles.MoveNext())
-            {
-                yield return withinSightHandles.Current;
-            }
-
-
-            foreach (var collider in withinSight)
-            {
-                WindowsWithinSight.Add(collidersOfComponent[collider]);
-            }
-
-            Profiler.EndSample();
-        }
-
         private LayerMask glassLayerMask = LayerMask.GetMask("Glass");
+        protected override LayerMask layerMask => glassLayerMask;
 
         public override void ProcessSightSensedItems()
         {

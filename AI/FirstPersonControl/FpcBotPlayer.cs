@@ -8,6 +8,7 @@ using Scp914;
 using SCPSLBot.AI.FirstPersonControl.Looking;
 using SCPSLBot.AI.FirstPersonControl.Mind;
 using SCPSLBot.AI.FirstPersonControl.Movement;
+using SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,6 +25,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         public BotHub BotHub { get; }
         public FpcBotPerception Perception { get; }
+        public PerceptionComponent PerceptionComponent { get; private set; }
         public FpcMindRunner MindRunner { get; }
 
         public FpcBotNavigator Navigator { get; }
@@ -67,6 +69,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             {
                 yield return updatePerceptionHandles.Current;
             }
+
             MindRunner.Tick();
 
 
@@ -85,11 +88,16 @@ namespace SCPSLBot.AI.FirstPersonControl
             var debugString = debugStringBuilder.ToString();
 
             SendTextHintToSpectators(debugString, 10);
+
+            yield break;
         }
 
         public void OnRoleChanged()
         {
             Log.Info($"Bot got FPC role assigned.");
+
+            PerceptionComponent = BotHub.PlayerHub.GetComponentInChildren<PerceptionComponent>();
+            PerceptionComponent.enabled = true;
 
             MindRunner.EvaluateGoalsToActions();
         }

@@ -1,4 +1,5 @@
-﻿using PluginAPI.Core;
+﻿using Interactables.Interobjects.DoorUtils;
+using PluginAPI.Core;
 using PluginAPI.Core.Items;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,58 @@ using UnityEngine.Profiling;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
 {
-    internal abstract class SightSense : ISense
+    internal abstract class SightSense<TComponent> : SightSense, ISense where TComponent : Component
+    {
+        public HashSet<TComponent> ComponentsWithinSight { get; } = new();
+
+        public SightSense(FpcBotPlayer player) : base(player) { }
+
+        protected abstract LayerMask layerMask { get; }
+
+        private readonly Dictionary<Collider, TComponent> validCollidersToComponent = new();
+
+        public void ProcessEnter(Collider collider)
+        {
+            if ((layerMask & (1 << collider.gameObject.layer)) != 0)
+            {
+                var component = collider.GetComponentInParent<TComponent>();
+                if (component != null)
+                {
+                    validCollidersToComponent.Add(collider, component);
+                }
+            }
+        }
+
+        public void ProcessExit(Collider collider)
+        {
+            if ((layerMask & (1 << collider.gameObject.layer)) != 0)
+            {
+                validCollidersToComponent.Remove(collider);
+            }
+        }
+
+        private readonly List<Collider> withinSight = new();
+
+        public IEnumerator<JobHandle> ProcessSensibility()
+        {
+            ComponentsWithinSight.Clear();
+
+            withinSight.Clear();
+            var withinSightHandles = this.GetWithinSight(validCollidersToComponent.Keys, withinSight);
+            while (withinSightHandles.MoveNext())
+            {
+                yield return withinSightHandles.Current;
+            }
+
+
+            foreach (var collider in withinSight)
+            {
+                ComponentsWithinSight.Add(validCollidersToComponent[collider]);
+            }
+        }
+    }
+
+    internal abstract class SightSense
     {
         public event Action OnAfterSightSensing;
 
@@ -20,11 +72,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
             _fpcBotPlayer = botPlayer;
         }
 
-        public abstract void Reset();
-        public abstract IEnumerator<JobHandle> ProcessSensibility(IEnumerable<Collider> collider);
         public abstract void ProcessSightSensedItems();
 
-        public virtual void ProcessSensedItems()
+        public void ProcessSensedItems()
         {
             this.OnAfterSightSensing?.Invoke();
 
@@ -87,6 +137,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
             var colliderIndex = 0;
             foreach (var collider in values)
             {
+                if (!collider)
+                {
+                    continue;
+                }
                 withinFovJob.TargetPosition[colliderIndex] = collider.bounds.center;
                 colliderInstancedIds[colliderIndex] = collider.GetInstanceID();
                 colliderIndex++;
@@ -104,6 +158,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
             var numRaycasts = 0;
             foreach (var collider in values)
             {
+                if (!collider)
+                {
+                    continue;
+                }
                 if (withinFovJob.IsWithinFov[colliderIndex])
                 {
                     var relPosToItem = withinFovJob.TargetPosition[colliderIndex] - cameraPosition;

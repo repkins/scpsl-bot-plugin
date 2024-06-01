@@ -14,6 +14,8 @@ namespace SCPSLBot.AI
 {
     internal class BotHub
     {
+        public readonly FpcBotPlayer FpcPlayer;
+
         public IBotPlayer CurrentBotPlayer { get; private set; }
         public ReferenceHub PlayerHub { get; }
 
@@ -27,7 +29,7 @@ namespace SCPSLBot.AI
             ConnectionToClient = connectionToClient;
             ConnectionToServer = connectionToServer;
 
-            _fpcPlayer = new FpcBotPlayer(this);
+            FpcPlayer = new FpcBotPlayer(this);
         }
 
         public IEnumerator<float> MoveAsync(Vector3 direction, int timeAmount)
@@ -80,8 +82,8 @@ namespace SCPSLBot.AI
         {
             if (newRole is FpcStandardRoleBase fpcRole)
             {
-                _fpcPlayer.FpcRole = fpcRole;
-                CurrentBotPlayer = _fpcPlayer;
+                FpcPlayer.FpcRole = fpcRole;
+                CurrentBotPlayer = FpcPlayer;
             }
             else
             {
@@ -101,8 +103,6 @@ namespace SCPSLBot.AI
         {
             CurrentBotPlayer?.DumpMind();
         }
-
-        private FpcBotPlayer _fpcPlayer;
 
         public override string ToString()
         {
