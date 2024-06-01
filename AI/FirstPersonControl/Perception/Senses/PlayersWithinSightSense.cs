@@ -1,6 +1,7 @@
 ﻿using Interactables;
 using Interactables.Interobjects.DoorUtils;
 using PlayerRoles;
+using SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Jobs;

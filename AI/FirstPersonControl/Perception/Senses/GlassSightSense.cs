@@ -1,4 +1,5 @@
 ﻿using Interactables.Interobjects.DoorUtils;
+using SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight;
 using System;
 using System.Collections.Generic;
 using System.Linq;

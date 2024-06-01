@@ -1,5 +1,6 @@
 ﻿using MapGeneration;
 using PluginAPI.Core;
+using SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight;
 using SCPSLBot.Navigation.Mesh;
 using System;
 using System.Collections.Generic;

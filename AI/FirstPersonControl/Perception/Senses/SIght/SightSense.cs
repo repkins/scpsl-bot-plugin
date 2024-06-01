@@ -9,7 +9,7 @@ using UnityEngine;
 using UnityEngine.Assertions.Comparers;
 using UnityEngine.Profiling;
 
-namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
+namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
 {
     internal abstract class SightSense : ISense
     {
@@ -28,10 +28,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         {
             this.OnAfterSightSensing?.Invoke();
 
-            this.ProcessSightSensedItems();
+            ProcessSightSensedItems();
         }
 
-        public bool IsPositionObstructed(Vector3 targetPosition) => this.IsPositionObstructed(targetPosition, out _);
+        public bool IsPositionObstructed(Vector3 targetPosition) => IsPositionObstructed(targetPosition, out _);
 
         public bool IsPositionObstructed(Vector3 targetPosition, out RaycastHit outObstructtionHit)
         {
@@ -192,7 +192,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             return false;
         }
 
-        protected static bool IsWithinFov(Transform transform, Transform targetTransform) => 
+        protected static bool IsWithinFov(Transform transform, Transform targetTransform) =>
             IsWithinFov(transform.position, transform.forward, targetTransform.position);
 
         protected static bool IsWithinFov(Vector3 position, Vector3 forward, Vector3 targetPosition)

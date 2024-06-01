@@ -3,7 +3,7 @@ using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
 
-namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
+namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
 {
     internal struct WithinFovJob : IJobParallelFor
     {

@@ -7,6 +7,7 @@ using MapGeneration.Distributors;
 using PluginAPI.Core;
 using Scp914;
 using SCPSLBot.AI.FirstPersonControl.Mind.Door;
+using SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight;
 using System;
 using System.Collections.Generic;
 using System.Linq;

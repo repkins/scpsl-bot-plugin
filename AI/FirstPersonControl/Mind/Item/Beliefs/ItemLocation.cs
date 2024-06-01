@@ -1,5 +1,5 @@
 ﻿using PluginAPI.Core;
-using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
+using SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight;
 using System;
 using System.Collections.Generic;
 using System.Linq;
