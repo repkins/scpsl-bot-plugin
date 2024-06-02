@@ -28,7 +28,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
             {
                 var component = collider.GetComponentInParent<TComponent>();
                 if (component != null)
-                {
+                {                    
                     validCollidersToComponent.Add(collider, component);
                 }
             }
@@ -131,49 +131,43 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
                 Origin = cameraPosition,
                 Direction = cameraForward,
                 TargetPosition = new NativeArray<Vector3>(values.Count, Allocator.Temp),
+
                 IsWithinFov = new NativeArray<bool>(values.Count, Allocator.Temp)
             };
 
-            var colliderIndex = 0;
+            var colliderCount = 0;
             foreach (var collider in values)
             {
                 if (!collider)
                 {
                     continue;
                 }
-                withinFovJob.TargetPosition[colliderIndex] = collider.bounds.center;
-                colliderInstancedIds[colliderIndex] = collider.GetInstanceID();
-                colliderIndex++;
+                withinFovJob.TargetPosition[colliderCount] = collider.bounds.center;
+                colliderInstancedIds[colliderCount] = collider.GetInstanceID();
+                colliderCount++;
             }
 
-            var withinFovHandle = withinFovJob.Schedule(values.Count, 1);
+            var withinFovHandle = withinFovJob.ScheduleParallel(colliderCount, 1, default);
 
-            yield return withinFovHandle;
-
-
-            var withinFovColliderInstancedIds = new NativeArray<int>(values.Count, Allocator.Temp);
-
-            Profiler.BeginSample($"{nameof(SightSense)}.AddRaycastCommands");
-            colliderIndex = 0;
-            var numRaycasts = 0;
-            foreach (var collider in values)
+            var withinFovColliderInstancedIds = new NativeArray<int>(colliderCount, Allocator.Temp);
+            var filterWithinFovJob = new FilterWithinFovResultsJob
             {
-                if (!collider)
-                {
-                    continue;
-                }
-                if (withinFovJob.IsWithinFov[colliderIndex])
-                {
-                    var relPosToItem = withinFovJob.TargetPosition[colliderIndex] - cameraPosition;
+                CameraPosition = cameraPosition,
+                TargetPosition = withinFovJob.TargetPosition,
+                ColliderInstanceIds = colliderInstancedIds,
+                IsWithinFov = withinFovJob.IsWithinFov,
+                ExclusionCollisionMask = excludedCollisionLayerMask,
+                ColliderCount = colliderCount,
 
-                    raycastCommandsBuffer[numRaycasts] = new RaycastCommand(cameraPosition, relPosToItem, relPosToItem.magnitude, ~excludedCollisionLayerMask);
-                    withinFovColliderInstancedIds[numRaycasts] = collider.GetInstanceID();
+                RaycastCommands = raycastCommandsBuffer,
+                WithinFovColliderInstancedIds = withinFovColliderInstancedIds,
+                NumRaycasts = new NativeArray<int>(1, Allocator.Temp),
+            };
 
-                    numRaycasts++;
-                }
-                colliderIndex++;
-            }
-            Profiler.EndSample();
+            var filterWithinFovHandle = filterWithinFovJob.Schedule(withinFovHandle);
+            yield return filterWithinFovHandle;
+
+            var numRaycasts = filterWithinFovJob.NumRaycasts[0];
 
             var raycastCommands = raycastCommandsBuffer.GetSubArray(0, numRaycasts);
             var raycastsJobHandle = RaycastCommand.ScheduleBatch(raycastCommands, raycastResultsBuffer, 1);

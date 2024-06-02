@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
 {
-    internal struct WithinFovJob : IJobParallelFor
+    internal struct WithinFovJob : IJobFor
     {
         [ReadOnly] public Vector3 Origin;
         [ReadOnly] public Vector3 Direction;
