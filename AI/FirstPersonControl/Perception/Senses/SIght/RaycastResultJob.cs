@@ -7,14 +7,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
     internal struct RaycastResultJob : IJobParallelFor
     {
         [ReadOnly] public NativeArray<RaycastHit> RaycastHit;
-        [ReadOnly] public NativeArray<int> ColliderInstanceIds;
+        [ReadOnly] public NativeArray<ColliderData> ColliderDatas;
 
         [WriteOnly] public NativeArray<bool> IsHit;
 
         public void Execute(int i)
         {
             var hit = RaycastHit[i];
-            if (hit.colliderInstanceID == ColliderInstanceIds[i])
+            if (hit.colliderInstanceID == ColliderDatas[i].InstanceId)
             {
                 IsHit[i] = true;
             }

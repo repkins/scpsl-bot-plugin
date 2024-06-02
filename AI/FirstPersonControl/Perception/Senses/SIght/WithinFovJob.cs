@@ -9,14 +9,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
     {
         [ReadOnly] public Vector3 Origin;
         [ReadOnly] public Vector3 Direction;
-        [ReadOnly] public NativeArray<Vector3> TargetPosition;
+        [ReadOnly] public NativeArray<ColliderData> ColliderDatas;
 
         [WriteOnly] public NativeArray<bool> IsWithinFov;
 
         public void Execute(int index)
         {
             var facingDir = Direction;
-            var diff = Vector3.Normalize(TargetPosition[index] - Origin);
+            var diff = Vector3.Normalize(ColliderDatas[index].Center - Origin);
 
             if (Vector3.Dot(facingDir, diff) < 0)
             {

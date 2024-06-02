@@ -9,14 +9,13 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
         [ReadOnly] public Vector3 CameraPosition;
         [ReadOnly] public int ExclusionCollisionMask;
 
-        [ReadOnly] public NativeArray<Vector3> TargetPosition;
         [ReadOnly] public NativeArray<bool> IsWithinFov;
-        [ReadOnly] public NativeArray<int> ColliderInstanceIds;
+        [ReadOnly] public NativeArray<ColliderData> ColliderDatas;
         [ReadOnly] public int ColliderCount;
 
         [WriteOnly] public NativeArray<RaycastCommand> RaycastCommands;
         [WriteOnly] public NativeArray<int> NumRaycasts;
-        [WriteOnly] public NativeArray<int> WithinFovColliderInstancedIds;
+        [WriteOnly] public NativeArray<ColliderData> WithinFovColliderDatas;
 
         public void Execute()
         {
@@ -25,10 +24,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
             {
                 if (IsWithinFov[colliderIndex])
                 {
-                    var relPosToItem = TargetPosition[colliderIndex] - CameraPosition;
+                    var relPosToItem = ColliderDatas[colliderIndex].Center - CameraPosition;
 
                     RaycastCommands[numRaycasts] = new RaycastCommand(CameraPosition, relPosToItem, relPosToItem.magnitude, ~ExclusionCollisionMask);
-                    WithinFovColliderInstancedIds[numRaycasts] = ColliderInstanceIds[colliderIndex];
+                    WithinFovColliderDatas[numRaycasts] = ColliderDatas[colliderIndex];
 
                     numRaycasts++;
                 }
