@@ -1,26 +1,34 @@
-﻿using Unity.Collections;
+﻿using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
 {
-    internal struct RaycastResultJob : IJobParallelFor
+    internal struct RaycastResultJob : IJob
     {
-        [ReadOnly] public NativeArray<RaycastHit> RaycastHit;
+        [ReadOnly] public NativeArray<RaycastHit> RaycastsResult;
+        [ReadOnly] public int RaycastsCount;
         [ReadOnly] public NativeArray<ColliderData> ColliderDatas;
 
-        [WriteOnly] public NativeArray<bool> IsHit;
+        [WriteOnly] public GCHandle WithinSightHandle;
 
-        public void Execute(int i)
+        public void Execute()
         {
-            var hit = RaycastHit[i];
-            if (hit.colliderInstanceID == ColliderDatas[i].InstanceId)
+            var withinSight = (List<ColliderData>)WithinSightHandle.Target;
+            if (withinSight.Count > 0)
             {
-                IsHit[i] = true;
+                withinSight.Clear();
             }
-            else
+
+            for (int i = 0; i < RaycastsCount; i++)
             {
-                IsHit[i] = false;
+                var hit = RaycastsResult[i];
+                if (hit.colliderInstanceID == ColliderDatas[i].InstanceId)
+                {
+                    withinSight.Add(ColliderDatas[i]);
+                }
             }
         }
     }

@@ -1,9 +1,11 @@
 ﻿using Interactables.Interobjects.DoorUtils;
 using PluginAPI.Core;
 using PluginAPI.Core.Items;
+using SCPSLBot.AI.FirstPersonControl.Perception.Senses.SIght;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
@@ -17,8 +19,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
     internal abstract class SightSense<TComponent> : SightSense, ISense where TComponent : Component
     {
         public HashSet<TComponent> ComponentsWithinSight { get; } = new();
-
-        public SightSense(FpcBotPlayer player) : base(player) { }
 
         protected abstract LayerMask layerMask { get; }
 
@@ -46,22 +46,30 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
 
         private readonly List<ColliderData> withinSight = new();
 
+        private GCHandle collidersWithinSightHandle;
+        private GCHandle collidersToComponentHandle;
+        private GCHandle componentsWithinSightHandle;
+
+        protected SightSense(FpcBotPlayer botPlayer) : base(botPlayer)
+        {
+            collidersWithinSightHandle = GCHandle.Alloc(withinSight);
+            collidersToComponentHandle = GCHandle.Alloc(validCollidersToComponent);
+            componentsWithinSightHandle = GCHandle.Alloc(ComponentsWithinSight);
+        }
+
         public IEnumerator<JobHandle> ProcessSensibility()
         {
-            ComponentsWithinSight.Clear();
+            yield return this.GetWithinFovHandle(validCollidersToComponent.Keys);
+            var raycastsResultHandle = this.GetRaycastsResultHandle(collidersWithinSightHandle);
 
-            withinSight.Clear();
-            var withinSightHandles = this.GetWithinSight(validCollidersToComponent.Keys, withinSight);
-            while (withinSightHandles.MoveNext())
+            var componentsWithinSightJob = new ComponentsWithinSightJob<TComponent>
             {
-                yield return withinSightHandles.Current;
-            }
+                CollidersWithinSightHandle = collidersWithinSightHandle,
+                CollidersToComponentHandle = collidersToComponentHandle,
+                ComponentsWithinSightHandle = componentsWithinSightHandle,
+            };
 
-
-            foreach (var colliderData in withinSight)
-            {
-                ComponentsWithinSight.Add(validCollidersToComponent[colliderData]);
-            }
+            yield return componentsWithinSightJob.Schedule(raycastsResultHandle);
         }
     }
 
@@ -112,19 +120,22 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
             return Vector3.Distance(targetPosition, _fpcBotPlayer.CameraPosition);
         }
 
+        private NativeArray<ColliderData> withinFovColliderDatas;
+        private NativeArray<int> numRaycasts;
 
-
-        private NativeArray<RaycastCommand> raycastCommandsBuffer = new(1000, Allocator.Persistent);
-        private NativeArray<RaycastHit> raycastResultsBuffer = new(1000 * 2, Allocator.Persistent);
-
-        protected IEnumerator<JobHandle> GetWithinSight(ICollection<ColliderData> values, List<ColliderData> withinSights)
+        protected JobHandle GetWithinFovHandle(ICollection<ColliderData> values)
         {
-            var playerHub = _fpcBotPlayer.BotHub.PlayerHub;
-
             var cameraPosition = _fpcBotPlayer.CameraPosition;
             var cameraForward = _fpcBotPlayer.CameraForward;
 
             var colliderDatas = new NativeArray<ColliderData>(values.Count, Allocator.Temp);
+
+            var colliderCount = 0;
+            foreach (var colliderData in values)
+            {
+                colliderDatas[colliderCount] = colliderData;
+                colliderCount++;
+            }
 
             var withinFovJob = new WithinFovJob
             {
@@ -135,16 +146,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
                 IsWithinFov = new NativeArray<bool>(values.Count, Allocator.Temp)
             };
 
-            var colliderCount = 0;
-            foreach (var colliderData in values)
-            {
-                colliderDatas[colliderCount] = colliderData;
-                colliderCount++;
-            }
-
             var withinFovHandle = withinFovJob.ScheduleParallel(colliderCount, 8, default);
 
-            var withinFovColliderDatas = new NativeArray<ColliderData>(colliderCount, Allocator.Temp);
+            withinFovColliderDatas = new NativeArray<ColliderData>(colliderCount, Allocator.Temp);
+            numRaycasts = new NativeArray<int>(1, Allocator.Temp);
             var filterWithinFovJob = new FilterWithinFovResultsJob
             {
                 CameraPosition = cameraPosition,
@@ -155,37 +160,31 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
 
                 RaycastCommands = raycastCommandsBuffer,
                 WithinFovColliderDatas = withinFovColliderDatas,
-                NumRaycasts = new NativeArray<int>(1, Allocator.Temp),
+                NumRaycasts = numRaycasts,
             };
+            return filterWithinFovJob.Schedule(withinFovHandle);
+        }
 
-            var filterWithinFovHandle = filterWithinFovJob.Schedule(withinFovHandle);
-            yield return filterWithinFovHandle;
+        private NativeArray<RaycastCommand> raycastCommandsBuffer = new(1000, Allocator.Persistent);
+        private NativeArray<RaycastHit> raycastResultsBuffer = new(1000 * 2, Allocator.Persistent);
 
-            var numRaycasts = filterWithinFovJob.NumRaycasts[0];
+        protected JobHandle GetRaycastsResultHandle(GCHandle withinSightHandle)
+        {
+            var numRaycasts = this.numRaycasts[0];
 
             var raycastCommands = raycastCommandsBuffer.GetSubArray(0, numRaycasts);
             var raycastsJobHandle = RaycastCommand.ScheduleBatch(raycastCommands, raycastResultsBuffer, 1);
 
-            var isHits = new NativeArray<bool>(numRaycasts, Allocator.Temp);
-
             var raycastResultJob = new RaycastResultJob()
             {
-                RaycastHit = raycastResultsBuffer,
+                RaycastsResult = raycastResultsBuffer,
+                RaycastsCount = numRaycasts,
                 ColliderDatas = withinFovColliderDatas,
-                IsHit = isHits
+                WithinSightHandle = withinSightHandle,
             };
-            var raycastHitJobHandle = raycastResultJob.Schedule(numRaycasts, 32, raycastsJobHandle);
 
-            yield return raycastHitJobHandle;
-
-            for (var i = 0; i < numRaycasts; i++)
-            {
-                if (raycastResultJob.IsHit[i])
-                {
-                    withinSights.Add(withinFovColliderDatas[i]);
-                }
-            }
-        }
+            return raycastResultJob.Schedule(raycastsJobHandle);
+        }        
 
         protected static bool IsWithinFov(Transform transform, Transform targetTransform) =>
             IsWithinFov(transform.position, transform.forward, targetTransform.position);
@@ -210,12 +209,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
 
         private readonly FpcBotPlayer _fpcBotPlayer;
 
-        private const int HitsBufferSize = 20;
-        private RaycastHit[] _hitsBuffer = new RaycastHit[HitsBufferSize];
-        private int _numHits;
-
         private LayerMask excludedCollisionLayerMask = LayerMask.GetMask("InvisibleCollider", "Hitbox");
-
-        private readonly static Comparer<RaycastHit> distanceComparer = Comparer<RaycastHit>.Create((x, y) => x.distance.CompareTo(y.distance));
     }
 }

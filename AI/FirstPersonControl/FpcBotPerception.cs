@@ -88,12 +88,13 @@ namespace SCPSLBot.AI.FirstPersonControl
                 var jobHandles = jobHandlesBuffer.GetSubArray(0, jobHandlesCount);
                 yield return JobHandle.CombineDependencies(jobHandles);
             }
-            jobHandlesBuffer.Dispose();
 
+            Profiler.BeginSample($"{nameof(FpcBotPerception)}.ProcessSensedItems");
             foreach (var sense in Senses)
             {
                 sense.ProcessSensedItems();
             }
+            Profiler.EndSample();
 
             Profiler.EndSample();
         }
