@@ -187,49 +187,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
             }
         }
 
-        protected bool IsWithinSight<T>(Collider collider, T item) where T : Component
-        {
-            var playerHub = _fpcBotPlayer.BotHub.PlayerHub;
-
-            var cameraPosition = _fpcBotPlayer.CameraPosition;
-            var cameraForward = _fpcBotPlayer.CameraForward;
-
-            if (IsWithinFov(cameraPosition, cameraForward, collider.transform.position))
-            {
-                var relPosToItem = collider.bounds.center - cameraPosition;
-                _numHits = Physics.RaycastNonAlloc(cameraPosition, relPosToItem, _hitsBuffer, relPosToItem.magnitude, ~excludedCollisionLayerMask);
-
-                if (_numHits == HitsBufferSize)
-                {
-                    Log.Warning($"{nameof(SightSense)} num of hits equal to buffer size, possible cuts.");
-                }
-
-                if (_numHits > 0)
-                {
-                    Array.Sort(_hitsBuffer, 0, _numHits, distanceComparer);
-
-                    RaycastHit? hit = null;
-                    for (int i = 0; i < _numHits; i++)
-                    {
-                        var h = _hitsBuffer[i];
-                        if (h.collider.GetComponentInParent<ReferenceHub>() is not ReferenceHub otherHub || otherHub != playerHub)
-                        {
-                            hit = h;
-                            break;
-                        }
-                    }
-
-                    if (hit.HasValue && hit.Value.collider.GetComponentInParent<T>() is T hitItem
-                        && hitItem == item)
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
         protected static bool IsWithinFov(Transform transform, Transform targetTransform) =>
             IsWithinFov(transform.position, transform.forward, targetTransform.position);
 
