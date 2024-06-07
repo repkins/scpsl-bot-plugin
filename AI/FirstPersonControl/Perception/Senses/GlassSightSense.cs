@@ -21,7 +21,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         }
 
         private LayerMask glassLayerMask = LayerMask.GetMask("Glass");
-        protected override LayerMask layerMask => glassLayerMask;
+        protected override LayerMask LayerMask => glassLayerMask;
 
         public override void ProcessSightSensedItems()
         {

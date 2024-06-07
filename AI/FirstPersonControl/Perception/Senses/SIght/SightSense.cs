@@ -20,25 +20,30 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
     {
         public HashSet<TComponent> ComponentsWithinSight { get; } = new();
 
-        protected abstract LayerMask layerMask { get; }
+        protected abstract LayerMask LayerMask { get; }
 
         private readonly Dictionary<ColliderData, TComponent> validCollidersToComponent = new();
 
+        protected virtual TComponent GetComponent(ref Collider collider)
+        {
+            return collider.GetComponentInParent<TComponent>();
+        }
+
         public void ProcessEnter(Collider collider)
         {
-            if ((layerMask & (1 << collider.gameObject.layer)) != 0)
+            if ((LayerMask & (1 << collider.gameObject.layer)) != 0)
             {
-                var component = collider.GetComponentInParent<TComponent>();
+                var component = GetComponent(ref collider);
                 if (component != null)
-                {                    
-                    validCollidersToComponent.Add(new(collider.GetInstanceID(), collider.bounds.center), component);
+                {
+                    validCollidersToComponent.TryAdd(new(collider.GetInstanceID(), collider.bounds.center), component);
                 }
             }
         }
 
         public void ProcessExit(Collider collider)
         {
-            if ((layerMask & (1 << collider.gameObject.layer)) != 0)
+            if ((LayerMask & (1 << collider.gameObject.layer)) != 0)
             {
                 validCollidersToComponent.Remove(new(collider.GetInstanceID(), collider.bounds.center));
             }

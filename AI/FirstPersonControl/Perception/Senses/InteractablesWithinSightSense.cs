@@ -23,7 +23,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         }
 
         private LayerMask interactableLayerMask = LayerMask.GetMask("InteractableNoPlayerCollision");
-        protected override LayerMask layerMask => interactableLayerMask;
+        protected override LayerMask LayerMask => interactableLayerMask;
 
         public override void ProcessSightSensedItems()
         {

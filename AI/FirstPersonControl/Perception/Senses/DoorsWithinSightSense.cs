@@ -30,7 +30,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         }
 
         private LayerMask doorLayerMask = LayerMask.GetMask("Door");
-        protected override LayerMask layerMask => doorLayerMask;
+        protected override LayerMask LayerMask => doorLayerMask;
 
         public override void ProcessSightSensedItems()
         {

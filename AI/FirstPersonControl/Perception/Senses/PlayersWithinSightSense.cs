@@ -26,7 +26,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         }
 
         private LayerMask hitboxLayerMask = LayerMask.GetMask("Hitbox");
-        protected override LayerMask layerMask => hitboxLayerMask;
+        protected override LayerMask LayerMask => hitboxLayerMask;
 
         public override void ProcessSightSensedItems() { }
 
