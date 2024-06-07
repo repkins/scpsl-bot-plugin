@@ -29,6 +29,16 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
             return collider.GetComponentInParent<TComponent>();
         }
 
+        protected virtual ColliderData GetEnterColliderData(Collider collider)
+        { 
+            return new(collider.GetInstanceID(), collider.bounds.center);
+        }
+
+        protected virtual ColliderData GetExitColliderData(Collider collider)
+        {
+            return new(collider.GetInstanceID(), collider.bounds.center);
+        }
+
         public void ProcessEnter(Collider collider)
         {
             if ((LayerMask & (1 << collider.gameObject.layer)) != 0)
@@ -36,7 +46,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
                 var component = GetComponent(ref collider);
                 if (component != null)
                 {
-                    validCollidersToComponent.TryAdd(new(collider.GetInstanceID(), collider.bounds.center), component);
+                    validCollidersToComponent.TryAdd(GetEnterColliderData(collider), component);
                 }
             }
         }
@@ -45,7 +55,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
         {
             if ((LayerMask & (1 << collider.gameObject.layer)) != 0)
             {
-                validCollidersToComponent.Remove(new(collider.GetInstanceID(), collider.bounds.center));
+                validCollidersToComponent.Remove(GetExitColliderData(collider));
             }
         }
 
@@ -62,8 +72,13 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
             componentsWithinSightHandle = GCHandle.Alloc(ComponentsWithinSight);
         }
 
+        protected virtual void UpdateColliderData(Dictionary<ColliderData, TComponent> data)
+        { }
+
         public IEnumerator<JobHandle> ProcessSensibility()
         {
+            this.UpdateColliderData(validCollidersToComponent);
+
             yield return this.GetWithinFovHandle(validCollidersToComponent.Keys);
             var raycastsResultHandle = this.GetRaycastsResultHandle(collidersWithinSightHandle);
 
