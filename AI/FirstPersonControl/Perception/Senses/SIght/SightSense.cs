@@ -45,7 +45,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
                 var component = GetComponent(ref collider);
                 if (component != null)
                 {
-                    validCollidersToComponent.TryAdd(GetEnterColliderData(collider), component);
+                    validCollidersToComponent[GetEnterColliderData(collider)] = component;
                 }
             }
         }
@@ -54,7 +54,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
         {
             if ((LayerMask & (1 << collider.gameObject.layer)) != 0)
             {
-                validCollidersToComponent.Remove(GetExitColliderData(collider));
+                var component = GetComponent(ref collider);
+                if (component != null)
+                {
+                    validCollidersToComponent.Remove(GetExitColliderData(collider));
+                }
             }
         }
 

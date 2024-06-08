@@ -1,22 +1,29 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
 {
     internal class ColliderDataComponent : MonoBehaviour
     {
-        public ColliderData ColliderData { get; private set; }
+        public Dictionary<Collider, ColliderData> ColliderDatas { get; } = new();
 
-        private Collider collider;
+        private Collider[] colliders;
 
         public void Awake()
         {
-            collider = GetComponent<Collider>();
-            ColliderData = new ColliderData(collider.GetInstanceID(), collider.bounds.center);
+            colliders = GetComponents<Collider>();
+            foreach (var collider in colliders)
+            {
+                ColliderDatas[collider] = new ColliderData(collider.GetInstanceID(), collider.bounds.center);
+            }
         }
 
         public void Update()
         {
-            ColliderData = new ColliderData(ColliderData.InstanceId, collider.bounds.center);
+            foreach (var collider in colliders)
+            {
+                ColliderDatas[collider] = new ColliderData(ColliderDatas[collider].InstanceId, collider.bounds.center);
+            }
         }
     }
 }

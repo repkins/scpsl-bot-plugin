@@ -30,6 +30,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         private readonly HashSet<Collider> colliders = new();
         private readonly Dictionary<Collider, ColliderData> collidersDatas = new();
 
+        protected override ItemPickupBase GetComponent(ref Collider collider)
+        {
+            var pickup = collider.GetComponentInParent<ItemPickupBase>();
+            return pickup != null && pickup && pickup.netId != 0 ? pickup : null;
+        }
+
         protected override ColliderData GetEnterColliderData(Collider collider)
         {
             var colliderDataComponent = collider.GetComponent<ColliderDataComponent>();
@@ -38,9 +44,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
                 colliderDataComponent = collider.gameObject.AddComponent<ColliderDataComponent>();
             }
 
-            var colliderData = colliderDataComponent.ColliderData;
+            var colliderData = colliderDataComponent.ColliderDatas[collider];
             colliders.Add(collider);
-            collidersDatas.TryAdd(collider, colliderData);
+            collidersDatas[collider] = colliderData;
+
             return colliderData;
         }
 
@@ -48,6 +55,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         {
             colliders.Remove(collider);
             collidersDatas.Remove(collider, out var colliderData);
+
             return colliderData;
         }
 
@@ -63,7 +71,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
                 var colliderDataComponent = collider.GetComponent<ColliderDataComponent>();
 
                 var prevData = collidersDatas[collider];
-                var data = colliderDataComponent.ColliderData;
+                var data = colliderDataComponent.ColliderDatas[collider];
+
                 if (prevData.Center != data.Center)
                 {
                     validCollidersComponents.Remove(prevData, out var value);
