@@ -8,7 +8,6 @@ using System.Linq;
 using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.Profiling;
-using Utils.NonAllocLINQ;
 
 namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 {
@@ -33,7 +32,13 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
 
         protected override ColliderData GetEnterColliderData(Collider collider)
         {
-            var colliderData = new ColliderData(collider.GetInstanceID(), collider.bounds.center);
+            var colliderDataComponent = collider.GetComponent<ColliderDataComponent>();
+            if (!colliderDataComponent)
+            {
+                colliderDataComponent = collider.gameObject.AddComponent<ColliderDataComponent>();
+            }
+
+            var colliderData = colliderDataComponent.ColliderData;
             colliders.Add(collider);
             collidersDatas.TryAdd(collider, colliderData);
             return colliderData;
@@ -55,11 +60,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
                     continue; 
                 }
 
+                var colliderDataComponent = collider.GetComponent<ColliderDataComponent>();
+
                 var prevData = collidersDatas[collider];
-                var centerPos = collider.bounds.center;
-                if (prevData.Center != centerPos)
+                var data = colliderDataComponent.ColliderData;
+                if (prevData.Center != data.Center)
                 {
-                    var data = new ColliderData(prevData.InstanceId, centerPos);
                     validCollidersComponents.Remove(prevData, out var value);
                     validCollidersComponents.Add(data, value);
 

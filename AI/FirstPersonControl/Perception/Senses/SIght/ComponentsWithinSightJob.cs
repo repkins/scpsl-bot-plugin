@@ -1,10 +1,9 @@
-﻿using SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Unity.Collections;
 using Unity.Jobs;
 
-namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.SIght
+namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
 {
     internal struct ComponentsWithinSightJob<TComponent> : IJob
     {

@@ -1,7 +1,6 @@
 ﻿using Interactables.Interobjects.DoorUtils;
 using PluginAPI.Core;
 using PluginAPI.Core.Items;
-using SCPSLBot.AI.FirstPersonControl.Perception.Senses.SIght;
 using System;
 using System.Collections.Generic;
 using System.Linq;
