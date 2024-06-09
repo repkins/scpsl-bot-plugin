@@ -11,9 +11,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 {
     internal record struct Segment(Vector3 Start, Vector3 End)
     {
-        public Vector3 EndRelPosition = End - Start;
-        //public Vector3 Extents = Vector3.ClampMagnitude(Vector3.Cross(End - Start, Vector3.up), .125f);
-        public Vector3 Extents = Vector3.zero;
+        public Ray Ray = new(Start, End - Start);
         public float Length = Vector3.Distance(Start, End);
     }
 
@@ -39,12 +37,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
             foreach (var goalPos in goalPositions)
             {
                 var segment = Segments[goalPos];
-                var dirToNextPoint = segment.EndRelPosition;
-                var extents = segment.Extents;
-                var dist = segment.Length;
 
-                if (!doorColliders.Any(collider => collider.Raycast(new Ray(segment.Start - extents, dirToNextPoint), out _, dist)
-                                                || collider.Raycast(new Ray(segment.Start + extents, dirToNextPoint), out _, dist)))
+                if (!doorColliders.Any(collider => collider.Raycast(segment.Ray, out _, segment.Length)))
                 {
                     removeQueue.Enqueue(goalPos);
                 }
@@ -63,8 +57,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
             var hitSegment = segments
                 .Select(s => new Segment(s.point, s.nextPoint))
                 .Where(s => doorColliders
-                    .Any(collider => collider.Raycast(new Ray(s.Start - s.Extents, s.EndRelPosition), out _, s.Length)
-                                    || collider.Raycast(new Ray(s.Start + s.Extents, s.EndRelPosition), out _, s.Length)))
+                    .Any(collider => collider.Raycast(s.Ray, out _, s.Length)))
                 .Select(s => new Segment?(s))
                 .FirstOrDefault();
 
