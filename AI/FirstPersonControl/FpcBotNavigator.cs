@@ -20,6 +20,7 @@ namespace SCPSLBot.AI.FirstPersonControl
         private int currentPathIdx = -1;
 
         public List<Vector3> PointsPath { get; } = new();
+        public IEnumerable<(Vector3 point, Vector3 nextPoint)> PathSegments { get; }
 
         private bool isGoalOutside;
         private Vector3 targetAreaClosestPositionToGoal;
@@ -31,6 +32,8 @@ namespace SCPSLBot.AI.FirstPersonControl
         public FpcBotNavigator(FpcBotPlayer botPlayer)
         {
             this.botPlayer = botPlayer;
+
+            this.PathSegments = PointsPath.Zip(PointsPath.Skip(1), (point, nextPoint) => (point, nextPoint));
         }
 
         public Vector3 GetPositionTowards(Vector3 goalPosition)

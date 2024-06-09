@@ -33,7 +33,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         protected override ItemPickupBase GetComponent(ref Collider collider)
         {
             var pickup = collider.GetComponentInParent<ItemPickupBase>();
-            return pickup != null && pickup && pickup.netId != 0 ? pickup : null;
+            if (pickup && pickup.netId != 0)
+            {
+                return pickup;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         protected override ColliderData GetEnterColliderData(Collider collider)

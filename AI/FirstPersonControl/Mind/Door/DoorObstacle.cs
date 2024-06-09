@@ -9,6 +9,14 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 {
+    internal record struct Segment(Vector3 Start, Vector3 End)
+    {
+        public Vector3 EndRelPosition = End - Start;
+        //public Vector3 Extents = Vector3.ClampMagnitude(Vector3.Cross(End - Start, Vector3.up), .125f);
+        public Vector3 Extents = Vector3.zero;
+        public float Length = Vector3.Distance(Start, End);
+    }
+
     internal class DoorObstacle : IBelief
     {
         private readonly FpcBotNavigator navigator;
@@ -30,8 +38,13 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
             var goalPositions = Doors.Where(p => p.Value == door).Select(p => p.Key);
             foreach (var goalPos in goalPositions)
             {
-                var s = Segments[goalPos];
-                if (!doorColliders.Any(collider => collider.Raycast(new Ray(s.Start, s.End - s.Start), out _, Vector3.Distance(s.Start, s.End))))
+                var segment = Segments[goalPos];
+                var dirToNextPoint = segment.EndRelPosition;
+                var extents = segment.Extents;
+                var dist = segment.Length;
+
+                if (!doorColliders.Any(collider => collider.Raycast(new Ray(segment.Start - extents, dirToNextPoint), out _, dist)
+                                                || collider.Raycast(new Ray(segment.Start + extents, dirToNextPoint), out _, dist)))
                 {
                     removeQueue.Enqueue(goalPos);
                 }
@@ -45,12 +58,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
             // Add door if obstructs current navigation path
 
             var pathOfPoints = navigator.PointsPath;
-            var segments = pathOfPoints.Zip(pathOfPoints.Skip(1), (point, nextPoint) => (point, nextPoint));
+            var segments = navigator.PathSegments;
 
             var hitSegment = segments
+                .Select(s => new Segment(s.point, s.nextPoint))
                 .Where(s => doorColliders
-                    .Any(collider => collider.Raycast(new Ray(s.point, s.nextPoint - s.point), out _, Vector3.Distance(s.point, s.nextPoint))))
-                .Select(s => new (Vector3, Vector3)?(s))
+                    .Any(collider => collider.Raycast(new Ray(s.Start - s.Extents, s.EndRelPosition), out _, s.Length)
+                                    || collider.Raycast(new Ray(s.Start + s.Extents, s.EndRelPosition), out _, s.Length)))
+                .Select(s => new Segment?(s))
                 .FirstOrDefault();
 
             if (hitSegment.HasValue)
@@ -60,7 +75,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
             }
         }
 
-        private void Add(DoorVariant door, Vector3 goalPos, (Vector3, Vector3) segment)
+        private void Add(DoorVariant door, Vector3 goalPos, Segment segment)
         {
             if (!Doors.ContainsKey(goalPos) || Doors[goalPos] != door)
             {
@@ -82,7 +97,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
         public bool IsAny => Doors.Count > 0;
         public Dictionary<Vector3, DoorVariant> Doors { get; } = new();
-        public Dictionary<Vector3, (Vector3 Start, Vector3 End)> Segments { get; } = new();
+        public Dictionary<Vector3, Segment> Segments { get; } = new();
 
         public event Action OnUpdate;
 

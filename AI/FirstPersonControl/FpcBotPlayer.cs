@@ -113,7 +113,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             this.Look.ToPosition(lookPositionTowardsTarget);
 
             this.Move.DesiredLocalDirection = Vector3.forward;
-        } 
+        }
 
         public void LookToPosition(Vector3 targetPosition) => Look.ToPosition(targetPosition);
 
@@ -152,7 +152,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             //        .Any(collider => collider.Raycast(new Ray(playerPosition, hub.PlayerCameraReference.forward), out var hit, 2f))
             if (Physics.Raycast(playerCamera.position, playerCamera.forward, out var hit, maxInteractDistance, LayerMask.GetMask("Door"))
                 && hit.collider.GetComponent<InteractableCollider>() is InteractableCollider interactableCollider
-                && hit.collider.GetComponentInParent<DoorVariant>() is DoorVariant interactable)
+                && interactableCollider.Target is DoorVariant interactable)
             {
                 var colliderId = interactableCollider.ColliderId;
 
@@ -217,22 +217,38 @@ namespace SCPSLBot.AI.FirstPersonControl
             }
         }
 
-        string hintText = string.Empty;
+        private IEnumerable<Player> spectators;
+        public IEnumerable<Player> Spectators
+        {
+            get
+            {
+                spectators ??= Player.GetPlayers().Where(p => p.RoleBase is OverwatchRole s && s.SyncedSpectatedNetId == this.BotHub.PlayerHub.netId);
+                return spectators;
+            }
+        }
+
+        private static readonly Dictionary<Player, string> playersHintTexts = new();
 
         public void SendTextHintToSpectators(string message, float duration)
         {
-            if (hintText == message)
-            {
-                return;
-            }
-
-            var spectatingPlayers = Player.GetPlayers().Where(p => p.RoleBase is OverwatchRole s && s.SyncedSpectatedNetId == this.BotHub.PlayerHub.netId);
+            var spectatingPlayers = Spectators;
             foreach (var spectatingPlayer in spectatingPlayers)
             {
-                spectatingPlayer.ReceiveHint(message, duration);
-            }
+                if (!playersHintTexts.TryGetValue(spectatingPlayer, out var prevHintText))
+                {
+                    prevHintText = string.Empty;
+                    playersHintTexts.Add(spectatingPlayer, prevHintText);
+                }
+    
+                if (prevHintText == message)
+                {
+                    continue;
+                }
 
-            hintText = message;
+                spectatingPlayer.ReceiveHint(message, duration);
+
+                playersHintTexts[spectatingPlayer] = message;
+            }
         }
 
         public IEnumerator<float> MoveToFpcAsync(Vector3 localDirection, int timeAmount) => Move.ToFpcAsync(localDirection, timeAmount);
