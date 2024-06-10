@@ -29,7 +29,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActionImpactsWithCondition<Scp914RunningOnSetting>(this, b => b.RunningKnobSetting == KnobSetting);
+            fpcMind.ActionImpactsWithCondition<Scp914RunningOnSetting>(this, b => b.KnobSetting == KnobSetting);
         }
 
         private readonly FpcBotPlayer botPlayer;
