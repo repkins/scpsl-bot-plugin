@@ -4,6 +4,7 @@ using MapGeneration.Distributors;
 using PlayerRoles.FirstPersonControl;
 using PlayerRoles.Spectating;
 using PluginAPI.Core;
+using PluginAPI.Core.Interfaces;
 using Scp914;
 using SCPSLBot.AI.FirstPersonControl.Looking;
 using SCPSLBot.AI.FirstPersonControl.Mind;
@@ -217,12 +218,16 @@ namespace SCPSLBot.AI.FirstPersonControl
             }
         }
 
+
+        private List<Player> players;
+
         private IEnumerable<Player> spectators;
         public IEnumerable<Player> Spectators
         {
             get
             {
-                spectators ??= Player.GetPlayers().Where(p => p.RoleBase is OverwatchRole s && s.SyncedSpectatedNetId == this.BotHub.PlayerHub.netId);
+                players = Player.GetPlayers();
+                spectators ??= players.Where(p => p.RoleBase is OverwatchRole s && s.SyncedSpectatedNetId == this.BotHub.PlayerHub.netId);
                 return spectators;
             }
         }

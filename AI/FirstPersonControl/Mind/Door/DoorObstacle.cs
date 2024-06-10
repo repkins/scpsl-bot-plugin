@@ -1,7 +1,9 @@
-﻿using Interactables.Interobjects;
+﻿using Hints;
+using Interactables.Interobjects;
 using Interactables.Interobjects.DoorUtils;
 using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
+using SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,86 +13,84 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 {
     internal record struct Segment(Vector3 Start, Vector3 End)
     {
-        public Ray Ray = new(Start, End - Start);
-        public float Length = Vector3.Distance(Start, End);
+        public readonly Ray Ray = new(Start, End - Start);
+        public readonly float Length = Vector3.Distance(Start, End);
     }
 
     internal class DoorObstacle : IBelief
     {
         private readonly FpcBotNavigator navigator;
 
-        public DoorObstacle(DoorsWithinSightSense doorsWithinSightSense, FpcBotNavigator navigator)
+        private readonly SightSense sightSense;
+
+        public DoorObstacle(SightSense sightSense, FpcBotNavigator navigator)
         {
             this.navigator = navigator;
-            doorsWithinSightSense.OnSensedDoorWithinSight += OnSensedDoorWithinSight;
+            this.sightSense = sightSense;
+
+            sightSense.OnAfterSightSensing += OnAfterSightSensing;
         }
 
-        private readonly Queue<Vector3> removeQueue = new();
-
-        private void OnSensedDoorWithinSight(DoorVariant door)
+        private void OnAfterSightSensing()
         {
-            var doorColliders = door.GetComponentsInChildren<Collider>();
-
-            // Remove doors not obstructing paths anymore
-
-            var goalPositions = Doors.Where(p => p.Value == door).Select(p => p.Key);
-            foreach (var goalPos in goalPositions)
+            var pathOfPoints = navigator.PointsPath;
+            if (pathOfPoints.Count == 0)
             {
-                var segment = Segments[goalPos];
+                return;
+            }
 
-                if (!doorColliders.Any(collider => collider.Raycast(segment.Ray, out _, segment.Length)))
+            var goalPos = pathOfPoints.Last();
+
+            DoorVariant obstructingDoor = null;
+
+            foreach (var pathPoint in pathOfPoints)
+            {
+                if (!sightSense.IsPositionWithinFov(pathPoint))
                 {
-                    removeQueue.Enqueue(goalPos);
+                    continue;
+                }
+
+                if (sightSense.IsPositionObstructed(pathPoint, out var hit))
+                {
+                    var door = hit.collider.GetComponentInParent<DoorVariant>();
+                    if (door && !door.IsConsideredOpen())
+                    {
+                        obstructingDoor = door;
+                        break;
+                    }
                 }
             }
 
-            while (removeQueue.Count > 0)
+            if (obstructingDoor)
             {
-                Remove(removeQueue.Dequeue());
+                AddOrReplace(obstructingDoor, goalPos);
             }
-
-            // Add door if obstructs current navigation path
-
-            var pathOfPoints = navigator.PointsPath;
-            var segments = navigator.PathSegments;
-
-            var hitSegment = segments
-                .Select(s => new Segment(s.point, s.nextPoint))
-                .Where(s => doorColliders
-                    .Any(collider => collider.Raycast(s.Ray, out _, s.Length)))
-                .Select(s => new Segment?(s))
-                .FirstOrDefault();
-
-            if (hitSegment.HasValue)
+            else
             {
-                var newGoalPos = pathOfPoints.Last();
-                Add(door, newGoalPos, hitSegment.Value);
+                RemoveIfAdded(goalPos);
             }
         }
 
-        private void Add(DoorVariant door, Vector3 goalPos, Segment segment)
+        private void AddOrReplace(DoorVariant door, Vector3 goalPos)
         {
             if (!Doors.ContainsKey(goalPos) || Doors[goalPos] != door)
             {
                 Doors[goalPos] = door;
-                Segments[goalPos] = segment;
                 OnUpdate?.Invoke();
             }
         }
 
-        private void Remove(Vector3 goalPos)
+        private void RemoveIfAdded(Vector3 goalPos)
         {
             if (Doors.ContainsKey(goalPos))
             {
                 Doors.Remove(goalPos);
-                Segments.Remove(goalPos);
                 OnUpdate?.Invoke();
             }
         }
 
         public bool IsAny => Doors.Count > 0;
         public Dictionary<Vector3, DoorVariant> Doors { get; } = new();
-        public Dictionary<Vector3, Segment> Segments { get; } = new();
 
         public event Action OnUpdate;
 

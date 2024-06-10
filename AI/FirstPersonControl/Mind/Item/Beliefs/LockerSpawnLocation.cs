@@ -37,7 +37,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 
                 if (this.sightSense.IsPositionWithinFov(spawnPosition)
                     && (!sightSense.IsPositionObstructed(spawnPosition, out var obstruction)
-                        || Vector3.Distance(obstruction.point, spawnPosition) < 0.5f)
+                        || Vector3.Distance(obstruction.point, spawnPosition) < 1f)
                     && !this.stopwatch.IsRunning)
                 {
                     this.stopwatch.Restart();
