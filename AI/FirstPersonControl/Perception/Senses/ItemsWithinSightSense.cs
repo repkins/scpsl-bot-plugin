@@ -20,28 +20,15 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         public event Action OnAfterSensedItemsWithinSight;
 
         public ItemsWithinSightSense(FpcBotPlayer botPlayer) : base(botPlayer)
-        {
-            _fpcBotPlayer = botPlayer;
-        }
+        { }
 
         private LayerMask interactableLayerMask = LayerMask.GetMask("InteractableNoPlayerCollision");
         protected override LayerMask LayerMask => interactableLayerMask;
 
-        protected override ItemPickupBase GetComponent(ref Collider collider)
-        {
-            var pickup = collider.GetComponentInParent<ItemPickupBase>();
-            if (pickup && !pickup.Info.Locked)
-            {
-                return pickup;
-            }
-            else
-            {
-                return null;
-            }
-        }
-
         public override void ProcessSightSensedItems()
         {
+            ItemsWithinSight.RemoveWhere(pickup => pickup.Info.Locked);
+
             OnBeforeSensedItemsWithinSight?.Invoke();
             foreach (var item in ItemsWithinSight)
             {
@@ -49,7 +36,5 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
             }
             OnAfterSensedItemsWithinSight?.Invoke();
         }
-
-        private readonly FpcBotPlayer _fpcBotPlayer;
     }
 }
