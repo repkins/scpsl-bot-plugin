@@ -81,11 +81,12 @@ namespace SCPSLBot.AI.FirstPersonControl
         {
             if (!RelevantBeliefs.Contains(updatedBelief))
             {
+                Log.Debug($"[I] Belief updated: {updatedBelief}");
                 return;
             }
 
             isBeliefsUpdated = true;
-            Log.Debug($"Belief updated: {updatedBelief}");
+            Log.Debug($"[R] Belief updated: {updatedBelief}");
         }
 
         private IEnumerable<IAction> GetEnabledActionsTowardsGoals()
@@ -175,59 +176,6 @@ namespace SCPSLBot.AI.FirstPersonControl
                     .SelectMany(GetClosestActionsImpacting);
                 return enabledActions;
             }
-        }
-
-        private IEnumerable<IAction> GetClosestActionsImpacting(IEnumerable<IBelief> beliefs)
-        {
-            var ActionSets = beliefs
-                .Select(b => {
-                    Log.Debug($"    Getting Actions impacting {b.GetType().Name}");
-                    return b;
-                })
-                .Select(b => BeliefsImpactedByActions[b]
-                    .Where(t => !t.Condition(b))
-                    .Select(t => t.Action));
-
-            foreach (var ActionsImpacting in ActionSets)
-            {
-                var enabledActions = ActionsImpacting
-                    .Where(a => ActionsEnabledByBeliefs[a].All(t => t.Condition(t.Belief)));
-
-                if (!enabledActions.Any())
-                {
-                    enabledActions = ActionsImpacting
-                        .Select(a =>
-                        {
-                            Log.Debug($"    Action {a.GetType().Name} needs to be enabled.");
-                            return a;
-                        })
-                        .Select(a => ActionsEnabledByBeliefs[a]
-                            .Select(t => {
-                                Log.Debug($"    Belief {t.Belief.GetType().Name}.");
-                                return t;
-                            })
-                            .Where(t => !t.Condition(t.Belief))
-                            .Select(t => t.Belief)
-                            .Select(b => {
-                                Log.Debug($"    Belief {b.GetType().Name} needs to be satisfied.");
-                                return b;
-                            }))
-                        .SelectMany(GetClosestActionsImpacting);
-                }
-                else
-                {
-                    enabledActions = enabledActions
-                        .Select(a =>
-                        {
-                            Log.Debug($"    Action {a.GetType().Name} conditions fulfilled.");
-                            return a;
-                        });
-                }
-
-                return enabledActions;
-            }
-
-            return Enumerable.Empty<IAction>();
         }
 
         private void SelectActionAndRun(IEnumerable<IAction> enabledActions)

@@ -46,6 +46,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
             }
         }
 
+        private readonly List<Vector3> itemSpawnPositions = new();
+        private IEnumerable<Vector3?> unvisitedSpawnPositions;
+
         private void OnAfterSensedForeignRooms()
         {
             var roomWithin = this.roomSense.RoomWithin;
@@ -55,22 +58,31 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
                 return;
             }
 
-            //if (!this.Position.HasValue)
-            //{
-                var unvisitedSpawnPosition = this.GetItemSpawnPositions(roomWithin)
+            var foreignRooms = this.roomSense.ForeignRooms;
+
+            itemSpawnPositions.Clear();
+            foreach (var foreignRoom in foreignRooms)
+            {
+                itemSpawnPositions.AddRange(this.GetItemSpawnPositions(foreignRoom));
+            }
+            itemSpawnPositions.AddRange(this.GetItemSpawnPositions(roomWithin));
+
+            unvisitedSpawnPositions ??= itemSpawnPositions
                     .Where(spawnPosition => !this.visitedSpawnPositions.Contains(spawnPosition))
                     .Where(spawnPosition => this.IsAccessible(spawnPosition))
-                    .Select(spawnPosition => new Vector3?(spawnPosition))
-                    .FirstOrDefault();
+                .Select(spawnPosition => new Vector3?(spawnPosition));
 
+            var unvisitedSpawnPosition = unvisitedSpawnPositions.FirstOrDefault();
                 if (unvisitedSpawnPosition.HasValue)
                 {
                     this.SetAccesablePosition(unvisitedSpawnPosition.Value);
                 }
-            //}
         }
 
         private readonly Dictionary<RoomIdentifier, Vector3[]> roomItemSpawnPositions = new();
+
+        private readonly List<ItemSpawnpoint> itemSpawnpoints = new();
+        private IEnumerable<Vector3> spawnPositionsQuery;
 
         private Vector3[] GetItemSpawnPositions(RoomIdentifier room)
         {
@@ -82,12 +94,15 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 
             if (!this.roomItemSpawnPositions.TryGetValue(room, out var spawnPositions))
             {
-                spawnPositions = room.GetComponentsInChildren<ItemSpawnpoint>()
-                    .Where(spawnPoint => this.spawnItemTypes.Any(spawnItemType => spawnPoint.InAcceptedItems(spawnItemType)))
-                    //.Where(spawnPoint => this.spawnItemTypes.Any(spawnItemType => spawnPoint.AutospawnItem == spawnItemType || spawnPoint.InAcceptedItems(spawnItemType)))
+                room.GetComponentsInChildren(itemSpawnpoints);
+
+                spawnPositionsQuery ??= itemSpawnpoints
+                    //.Where(spawnPoint => this.spawnItemTypes.Any(spawnItemType => spawnPoint.InAcceptedItems(spawnItemType)))
+                    .Where(spawnPoint => this.spawnItemTypes.Any(spawnItemType => spawnPoint.AutospawnItem == spawnItemType || spawnPoint.InAcceptedItems(spawnItemType)))
                     .SelectMany(spawnPoint => spawnPoint.GetPositionVariants())
-                    .Select(positionVariant => positionVariant.position)
-                    .ToArray();
+                    .Select(positionVariant => positionVariant.position);
+
+                spawnPositions = spawnPositionsQuery.ToArray();
 
                 this.roomItemSpawnPositions.Add(room, spawnPositions);
             }

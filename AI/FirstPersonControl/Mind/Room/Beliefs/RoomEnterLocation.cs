@@ -40,6 +40,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs
             {
                 var foreignRoomAreas = this.roomSightSense.ForeignRoomsAreas;
                 var enteringArea = foreignRoomAreas
+                    .Where(fa => fa.Room.Identifier.Shape != global::MapGeneration.RoomShape.Endroom)
                     .OrderBy(fa => roomsLastVisitTime.TryGetValue(fa.Room, out var time) ? time : -Random.Range(0f, 4f))
                     .FirstOrDefault();
 

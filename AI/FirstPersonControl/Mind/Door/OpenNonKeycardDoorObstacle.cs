@@ -31,7 +31,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
         public void Tick()
         {
-            var doorToOpen = doorObstacleBelief.GetLastDoor(KeycardPermissions.None);
+            var doorToOpen = doorObstacleBelief.GetLastDoor(KeycardPermissions.None, out var goalPos);
             var playerPosition = botPlayer.BotHub.PlayerHub.transform.position;
 
             if (!doorToOpen)
@@ -56,7 +56,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
             if (!isTargetStateOpen || dist > interactDistance)
             {
-                botPlayer.MoveToPosition(doorObstacleBelief.GetLastGoalPosition(doorToOpen));
+                botPlayer.MoveToPosition(goalPos);
             }
         }
 

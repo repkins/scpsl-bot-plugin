@@ -75,6 +75,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
         {
             if (!Doors.ContainsKey(goalPos) || Doors[goalPos] != door)
             {
+                if (Doors.ContainsKey(goalPos))
+                {
+                    GoalPositions.Remove(goalPos);
+                }
+                GoalPositions.Add(goalPos);
                 Doors[goalPos] = door;
                 OnUpdate?.Invoke();
             }
@@ -84,6 +89,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
         {
             if (Doors.ContainsKey(goalPos))
             {
+                GoalPositions.Remove(goalPos);
                 Doors.Remove(goalPos);
                 OnUpdate?.Invoke();
             }
@@ -91,6 +97,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
         public bool IsAny => Doors.Count > 0;
         public Dictionary<Vector3, DoorVariant> Doors { get; } = new();
+        private readonly List<Vector3> GoalPositions = new();
 
         public event Action OnUpdate;
 
@@ -101,17 +108,45 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
         public DoorVariant GetLastUninteractableDoor()
         {
-            return Doors.Values.LastOrDefault(IsUniteractable);
+            if (GoalPositions.Count == 0)
+            {
+                return null;
+            }
+
+            var lastDoor = Doors[GoalPositions.Last()];
+            return lastDoor && IsUniteractable(lastDoor) ? lastDoor : null;
         }
 
         public DoorVariant GetLastDoor(KeycardPermissions keycardPermissions)
         {
-            return Doors.Values.LastOrDefault(d => IsInteractable(d) && ToKeycardPermissions(d.RequiredPermissions) == keycardPermissions);
+            return GetLastDoor(keycardPermissions, out _, true);
         }
 
-        public Vector3 GetLastGoalPosition(DoorVariant door)
+        public DoorVariant GetLastDoor(KeycardPermissions keycardPermissions, out Vector3 goalPos, bool debug = false)
         {
-            return this.Doors.Last(p => p.Value == door).Key;
+            if (GoalPositions.Count == 0)
+            {
+                goalPos = default;
+                return null;
+            }
+
+            goalPos = GoalPositions.Last();
+
+            var lastDoor = Doors[goalPos];
+
+            if (debug)
+            {
+                Log.Debug($"{ToKeycardPermissions(lastDoor.RequiredPermissions)} == {keycardPermissions}");
+            }
+
+            if (lastDoor && IsInteractable(lastDoor) && ToKeycardPermissions(lastDoor.RequiredPermissions) == keycardPermissions)
+            {
+                return lastDoor;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         private static KeycardPermissions ToKeycardPermissions(DoorPermissions doorPermissions)
@@ -126,12 +161,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
         private static bool IsUniteractable(DoorVariant d)
         {
-            return d is DummyDoor or ElevatorDoor;
+            return d is DummyDoor or ElevatorDoor or BasicNonInteractableDoor;
         }
 
         public override string ToString()
         {
-            return $"{nameof(DoorObstacle)}: {string.Join(", ", this.Doors.Values.Select(d => $"Permissions = {d.RequiredPermissions.RequiredPermissions}"))}";
+            return $"{nameof(DoorObstacle)}: {string.Join(", ", GoalPositions.Select(p => $"Permissions = {this.Doors[p].RequiredPermissions.RequiredPermissions}"))}";
         }
     }
 }

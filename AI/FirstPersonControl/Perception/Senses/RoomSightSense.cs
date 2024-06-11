@@ -13,6 +13,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
     internal class RoomSightSense : SightSense, ISense
     {
         public List<Area> ForeignRoomsAreas { get; } = new();
+        public IEnumerable<RoomIdentifier> ForeignRooms { get; }
         public RoomIdentifier RoomWithin { get; private set; }
 
         public event Action<Area> OnSensedForeignRoomArea;
@@ -25,6 +26,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
         public RoomSightSense(FpcBotPlayer botPlayer) : base(botPlayer)
         {
             _fpcBotPlayer = botPlayer;
+
+            ForeignRooms = ForeignRoomsAreas.Select(fa => fa.Room.Identifier).Distinct();
         }
 
         public override void ProcessSightSensedItems()

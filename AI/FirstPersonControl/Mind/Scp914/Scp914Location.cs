@@ -4,6 +4,7 @@ using PluginAPI.Core;
 using RemoteAdmin;
 using Scp914;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
+using SCPSLBot.Navigation.Mesh;
 using System;
 using System.Linq;
 using UnityEngine;
@@ -14,12 +15,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
     {
         public Scp914Location(RoomSightSense roomSightSense)
         {
-            roomSightSense.OnSensedRoomWithin += OnSensedRoomWithin;
+            roomSightSense.OnSensedForeignRoomArea += OnSensedRoom;
         }
 
-        private void OnSensedRoomWithin(RoomIdentifier roomWithin)
+        private void OnSensedRoom(Area foreignRoomArea)
         {
-            if (roomWithin.Name != RoomName.Lcz914)
+            var foreignRoom = foreignRoomArea.Room.Identifier;
+
+            if (foreignRoom.Name != RoomName.Lcz914)
             {
                 return;
             }

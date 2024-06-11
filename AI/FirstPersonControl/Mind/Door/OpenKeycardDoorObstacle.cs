@@ -40,7 +40,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
                 keycard.Owner.inventory.ServerSelectItem(keycard.ItemSerial);
             }
 
-            var doorToOpen = doorObstacleBelief.GetLastDoor(Permissions);
+            var doorToOpen = doorObstacleBelief.GetLastDoor(Permissions, out var goalPos);
             var playerPosition = botPlayer.BotHub.PlayerHub.transform.position;
 
             if (doorToOpen && !doorToOpen.TargetState && Vector3.Distance(doorToOpen.transform.position + Vector3.up, playerPosition) <= interactDistance)
@@ -54,12 +54,17 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
                 }
             }
 
-            botPlayer.MoveToPosition(doorObstacleBelief.GetLastGoalPosition(doorToOpen));
+            botPlayer.MoveToPosition(goalPos);
         }
 
         public void Reset()
         {
 
+        }
+
+        public override string ToString()
+        {
+            return $"{nameof(OpenKeycardDoorObstacle)}({Permissions})";
         }
     }
 }
