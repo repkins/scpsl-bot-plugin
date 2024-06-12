@@ -69,15 +69,15 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
             itemSpawnPositions.AddRange(this.GetItemSpawnPositions(roomWithin));
 
             unvisitedSpawnPositions ??= itemSpawnPositions
-                    .Where(spawnPosition => !this.visitedSpawnPositions.Contains(spawnPosition))
-                    .Where(spawnPosition => this.IsAccessible(spawnPosition))
+                .Where(spawnPosition => !this.visitedSpawnPositions.Contains(spawnPosition))
+                .Where(spawnPosition => this.IsAccessible(spawnPosition))
                 .Select(spawnPosition => new Vector3?(spawnPosition));
 
             var unvisitedSpawnPosition = unvisitedSpawnPositions.FirstOrDefault();
-                if (unvisitedSpawnPosition.HasValue)
-                {
-                    this.SetAccesablePosition(unvisitedSpawnPosition.Value);
-                }
+            if (unvisitedSpawnPosition.HasValue)
+            {
+                this.SetAccesablePosition(unvisitedSpawnPosition.Value);
+            }
         }
 
         private readonly Dictionary<RoomIdentifier, Vector3[]> roomItemSpawnPositions = new();

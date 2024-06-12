@@ -17,12 +17,17 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs
         {
             this.roomSightSense = roomSightSense;
             this.roomSightSense.OnAfterSensedForeignRooms += OnAfterSensedForeignRooms;
+
+            //seed = (int)DateTime.Now.Ticks;
+            //Log.Debug($"seed for room selection: {seed}");
         }
 
         private FacilityRoom enteringAreaRoom;
 
         private readonly Dictionary<FacilityRoom, float> roomsLastVisitTime = new();
         private FacilityRoom prevRoomWithin;
+
+        //private readonly int seed;
 
         private void OnAfterSensedForeignRooms()
         {
@@ -38,6 +43,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs
             // Reached target room check
             if (enteringAreaRoom == roomWithin || enteringAreaRoom == null)
             {
+                //var prevRandomState = Random.state;
+                //Random.InitState(seed);
+
                 var foreignRoomAreas = this.roomSightSense.ForeignRoomsAreas;
                 var enteringArea = foreignRoomAreas
                     .Where(fa => fa.Room.Identifier.Shape != global::MapGeneration.RoomShape.Endroom)
@@ -54,6 +62,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs
 
                 var enterPosition = enteringArea.CenterPosition;
                 Update(enterPosition);
+
+                //Random.state = prevRandomState;
             }
         }
 
