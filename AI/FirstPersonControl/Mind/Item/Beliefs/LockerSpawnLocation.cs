@@ -13,11 +13,15 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 {
     internal class LockerSpawnLocation : IBelief
     {
+        public StructureType StructureType { get; }
+
         private readonly RoomSightSense roomSense;
         private readonly SightSense sightSense;
 
-        public LockerSpawnLocation(RoomSightSense roomSense)
+        public LockerSpawnLocation(StructureType type, RoomSightSense roomSense)
         {
+            this.StructureType = type;
+
             this.roomSense = roomSense;
             this.sightSense = roomSense;
 
@@ -87,8 +91,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 
         private readonly Dictionary<RoomIdentifier, Vector3[]> roomLockerSpawnPositions = new();
 
-        private static readonly HashSet<StructureType> lockerStructureTypes = new() { StructureType.StandardLocker, StructureType.SmallWallCabinet };
-
         private readonly List<StructureSpawnpoint> structureSpawnpoints = new();
         private IEnumerable<Vector3> spawnPositionsQuery;
 
@@ -99,7 +101,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
                 room.GetComponentsInChildren(structureSpawnpoints);
 
                 spawnPositionsQuery ??= structureSpawnpoints
-                    .Where(spawnPoint => Array.Exists(spawnPoint.CompatibleStructures, compatableStructureType => lockerStructureTypes.Contains(compatableStructureType)))
+                    .Where(spawnPoint => Array.Exists(spawnPoint.CompatibleStructures, compatableStructureType => compatableStructureType == this.StructureType))
                     .Select(spawnPoint => spawnPoint.transform.position);
 
                 spawnPositions = spawnPositionsQuery.ToArray();

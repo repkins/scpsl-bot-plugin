@@ -1,6 +1,6 @@
-﻿using SCPSLBot.AI.FirstPersonControl.Mind.Door;
+﻿using MapGeneration.Distributors;
+using SCPSLBot.AI.FirstPersonControl.Mind.Door;
 using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
-using SCPSLBot.AI.FirstPersonControl.Mind.Misc;
 using System;
 using UnityEngine;
 
@@ -9,9 +9,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
     internal class GoToLockerSpawnLocation<C> : IAction where C : IItemBeliefCriteria, IEquatable<C>
     {
         public C Criteria { get; }
-        public GoToLockerSpawnLocation(C criteria, FpcBotPlayer botPlayer)
+        public StructureType StructureType { get; }
+        public GoToLockerSpawnLocation(C criteria, StructureType structureType, FpcBotPlayer botPlayer)
         {
             this.Criteria = criteria;
+            this.StructureType = structureType;
 
             this.botPlayer = botPlayer;
         }
@@ -20,7 +22,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            this.lockerSpawnLocation = fpcMind.ActionEnabledBy<LockerSpawnLocation>(this, b => true, b => b.Position.HasValue);
+            this.lockerSpawnLocation = fpcMind.ActionEnabledBy<LockerSpawnLocation>(this, b => b.StructureType == StructureType, b => b.Position.HasValue);
 
             fpcMind.ActionEnabledBy<DoorObstacle>(this, b => !b.Is(this.lockerSpawnLocation.Position!.Value));
         }
