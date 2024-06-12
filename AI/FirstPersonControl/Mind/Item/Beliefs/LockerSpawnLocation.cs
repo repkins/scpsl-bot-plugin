@@ -53,6 +53,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
             }
         }
 
+        private readonly List<Vector3> spawnPositions = new();
+        private IEnumerable<Vector3?> unvisitedSpawnPositions;
+
         private void OnAfterSensedForeignRooms()
         {
             var roomWithin = this.roomSense.RoomWithin;
@@ -62,11 +65,20 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
                 return;
             }
 
-            var unvisitedSpawnPosition = this.GetLockerSpawnPositions(roomWithin)
-                .Where(spawnPosition => !this.visitedLockerSpawnPositions.Contains(spawnPosition))
-                .Select(spawnPosition => new Vector3?(spawnPosition))
-                .FirstOrDefault();
+            var foreignRooms = this.roomSense.ForeignRooms;
 
+            spawnPositions.Clear();
+            foreach (var foreignRoom in foreignRooms)
+            {
+                spawnPositions.AddRange(this.GetLockerSpawnPositions(foreignRoom));
+            }
+            spawnPositions.AddRange(this.GetLockerSpawnPositions(roomWithin));
+
+            unvisitedSpawnPositions ??= spawnPositions
+                .Where(spawnPosition => !this.visitedLockerSpawnPositions.Contains(spawnPosition))
+                .Select(spawnPosition => new Vector3?(spawnPosition));
+
+            var unvisitedSpawnPosition = unvisitedSpawnPositions.FirstOrDefault();
             if (unvisitedSpawnPosition.HasValue)
             {
                 this.SetPosition(unvisitedSpawnPosition.Value);
@@ -77,14 +89,20 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 
         private static readonly HashSet<StructureType> lockerStructureTypes = new() { StructureType.StandardLocker, StructureType.SmallWallCabinet };
 
+        private readonly List<StructureSpawnpoint> structureSpawnpoints = new();
+        private IEnumerable<Vector3> spawnPositionsQuery;
+
         private Vector3[] GetLockerSpawnPositions(RoomIdentifier room)
         {
             if (!this.roomLockerSpawnPositions.TryGetValue(room, out var spawnPositions))
             {
-                spawnPositions = room.GetComponentsInChildren<StructureSpawnpoint>()
+                room.GetComponentsInChildren(structureSpawnpoints);
+
+                spawnPositionsQuery ??= structureSpawnpoints
                     .Where(spawnPoint => Array.Exists(spawnPoint.CompatibleStructures, compatableStructureType => lockerStructureTypes.Contains(compatableStructureType)))
-                    .Select(spawnPoint => spawnPoint.transform.position)
-                    .ToArray();
+                    .Select(spawnPoint => spawnPoint.transform.position);
+
+                spawnPositions = spawnPositionsQuery.ToArray();
 
                 this.roomLockerSpawnPositions.Add(room, spawnPositions);
             }

@@ -98,7 +98,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
                 room.GetComponentsInChildren(itemSpawnpoints);
 
                 spawnPositionsQuery ??= itemSpawnpoints
-                    //.Where(spawnPoint => this.spawnItemTypes.Any(spawnItemType => spawnPoint.InAcceptedItems(spawnItemType)))
                     .Where(spawnPoint => this.spawnItemTypes.Any(spawnItemType => spawnPoint.AutospawnItem == spawnItemType || spawnPoint.InAcceptedItems(spawnItemType)))
                     .SelectMany(spawnPoint => spawnPoint.GetPositionVariants())
                     .Select(positionVariant => positionVariant.position);
