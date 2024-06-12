@@ -1,4 +1,5 @@
 ﻿using InventorySystem.Items.Pickups;
+using SCPSLBot.AI.FirstPersonControl.Mind.Door;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using System;
 using UnityEngine;
@@ -9,7 +10,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
     {
         private readonly ItemsWithinSightSense itemsSightSense;
 
-        public ItemSightedLocation(C criteria, FpcBotNavigator navigator, ItemsWithinSightSense itemsSightSense) : base(criteria, navigator, itemsSightSense)
+        public ItemSightedLocation(C criteria, ItemsWithinSightSense itemsSightSense, DoorObstacle doorObstacle) : base(criteria, doorObstacle)
         {
             this.itemsSightSense = itemsSightSense;
             this.itemsSightSense.OnSensedItemWithinSight += ProcessSensedItem;

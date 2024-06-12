@@ -1,5 +1,6 @@
 ﻿using InventorySystem.Items;
 using InventorySystem.Items.Pickups;
+using SCPSLBot.AI.FirstPersonControl.Mind.Door;
 using System;
 using UnityEngine;
 
@@ -10,6 +11,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item
         bool EvaluateItem(ItemPickupBase item);
         bool EvaluateItem(ItemBase item);
 
-        bool CanOvercome(Collider collider);
+        bool CanReach(Vector3 goalPosition, DoorObstacle doorObstacle);
     }
 }

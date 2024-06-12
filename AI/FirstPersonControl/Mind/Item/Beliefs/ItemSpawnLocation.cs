@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using HarmonyLib;
+using SCPSLBot.AI.FirstPersonControl.Mind.Door;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 {
@@ -17,8 +18,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
         private readonly RoomSightSense roomSense;
         private readonly ItemsWithinSightSense itemsSightSense;
 
-        public ItemSpawnLocation(C criteria, ItemType[] spawnItemTypes, RoomSightSense roomSense, ItemsWithinSightSense itemsSightSense, FpcBotNavigator navigator) 
-            : base(criteria, navigator, itemsSightSense)
+        public ItemSpawnLocation(C criteria, ItemType[] spawnItemTypes, RoomSightSense roomSense, ItemsWithinSightSense itemsSightSense, DoorObstacle doorObstacle) 
+            : base(criteria, doorObstacle)
         {
             this.spawnItemTypes = spawnItemTypes;
             this.itemsSightSense = itemsSightSense;

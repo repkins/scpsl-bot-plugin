@@ -119,10 +119,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
         public DoorVariant GetLastDoor(KeycardPermissions keycardPermissions)
         {
-            return GetLastDoor(keycardPermissions, out _, true);
+            return GetLastDoor(keycardPermissions, out _);
         }
 
-        public DoorVariant GetLastDoor(KeycardPermissions keycardPermissions, out Vector3 goalPos, bool debug = false)
+        public DoorVariant GetLastDoor(KeycardPermissions keycardPermissions, out Vector3 goalPos)
         {
             if (GoalPositions.Count == 0)
             {
@@ -133,12 +133,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
             goalPos = GoalPositions.Last();
 
             var lastDoor = Doors[goalPos];
-
-            if (debug)
-            {
-                Log.Debug($"{ToKeycardPermissions(lastDoor.RequiredPermissions)} == {keycardPermissions}");
-            }
-
             if (lastDoor && IsInteractable(lastDoor) && ToKeycardPermissions(lastDoor.RequiredPermissions) == keycardPermissions)
             {
                 return lastDoor;

@@ -3,6 +3,7 @@ using Interactables.Interobjects;
 using MapGeneration;
 using MapGeneration.Distributors;
 using PluginAPI.Core;
+using SCPSLBot.AI.FirstPersonControl.Mind.Door;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using System;
 using System.Collections.Generic;
@@ -16,8 +17,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
         private readonly ItemType[] spawnItemTypes;
         private readonly LockersWithinSightSense lockersSightSense;
 
-        public ItemInSightedLocker(C criteria, ItemType[] spawnItemTypes, LockersWithinSightSense lockersSightSense, FpcBotNavigator navigator) 
-            : base(criteria, navigator, lockersSightSense)
+        public ItemInSightedLocker(C criteria, ItemType[] spawnItemTypes, LockersWithinSightSense lockersSightSense, DoorObstacle doorObstacle) 
+            : base(criteria, doorObstacle)
         {
             this.spawnItemTypes = spawnItemTypes;
             this.lockersSightSense = lockersSightSense;

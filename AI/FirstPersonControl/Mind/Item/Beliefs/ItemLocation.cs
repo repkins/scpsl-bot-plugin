@@ -1,8 +1,7 @@
 ﻿using PluginAPI.Core;
-using SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight;
+using SCPSLBot.AI.FirstPersonControl.Mind.Door;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
@@ -10,19 +9,19 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
     internal class ItemLocation<C> : IBelief where C : IItemBeliefCriteria
     {
         public C Criteria { get; }
-
-        private readonly FpcBotNavigator navigator;
-        private readonly SightSense sightSense;
-
-        public ItemLocation(C criteria, FpcBotNavigator navigator, SightSense sightSense)
+        private ItemLocation(C criteria)
         {
             this.Criteria = criteria;
-            this.navigator = navigator;
-            this.sightSense = sightSense;
-            this.sightSense.OnAfterSightSensing += this.OnAfterSensedItemsWithinSight;
         }
 
-        private void OnAfterSensedItemsWithinSight()
+        private readonly DoorObstacle doorObstacle;
+        public ItemLocation(C criteria, DoorObstacle doorObstacle) : this(criteria)
+        {
+            this.doorObstacle = doorObstacle;
+            this.doorObstacle.OnUpdate += OnObstaclesUpdated;
+        }
+
+        private void OnObstaclesUpdated()
         {
             this.EvaluateSetAccesablePosition();
         }
@@ -31,36 +30,15 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 
         protected bool IsAccessible(Vector3 position)
         {
-            var pathOfPoints = this.navigator.PointsPath;
-            if (!pathOfPoints.Any())
+            if (this.Criteria.CanReach(position, this.doorObstacle))
             {
                 return true;
             }
-
-            var goalPosition = pathOfPoints.Last();
-
-            if (goalPosition != position)
-            {
-                return !this.inaccessiblePositions.Contains(position);
-            }
-
-            var pathSegments = pathOfPoints.Zip(pathOfPoints.Skip(1), (point, nextPoint) => (point, nextPoint));
-
-            var hits = pathSegments.Select(segment => (isHit: Physics.Linecast(segment.point, segment.nextPoint, out var hit), hit))
-                .Where(t => t.isHit);
-
-            if (hits.All(t => this.Criteria.CanOvercome(t.hit.collider)))
-            {
-                return true;
-            }
-
-            Log.Debug($"{this}: cannot overcome");
 
             return false;
         }
 
         public Vector3? AccessiblePosition;
-
         public event Action OnUpdate;
 
         protected void SetAccesablePosition(Vector3 newPosition)
@@ -87,6 +65,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
                 this.inaccessiblePositions.Add(this.AccessiblePosition.Value);
 
                 ClearPosition();
+
+                Log.Debug($"{this}: not accessable anymore");
             }
         }
     }

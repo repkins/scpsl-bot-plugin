@@ -147,6 +147,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
             goal.SetEnabledByBeliefs(this);
         }
 
+        public B GetBelief<B>() where B : class, IBelief
+        {
+            var beliefsOfType = Beliefs[typeof(B)];
+            var belief = beliefsOfType.Single();
+
+            return belief as B;
+        }
+
         public B GetBelief<B>(Predicate<B> predicate) where B : class, IBelief
         {
             var beliefsOfType = Beliefs[typeof(B)];

@@ -5,6 +5,7 @@ using InventorySystem.Items.Pickups;
 using InventorySystem.Items;
 using System;
 using UnityEngine;
+using SCPSLBot.AI.FirstPersonControl.Mind.Door;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Keycard
 {
@@ -28,16 +29,18 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Keycard
                 && keycard.Permissions.HasFlag(Permissions);
         }
 
-        public bool CanOvercome(Collider hitCollider)
+        public bool CanReach(Vector3 goalPosition, DoorObstacle doorObstacle)
         {
-            var door = hitCollider.GetComponentInParent<DoorVariant>();
-            if (door is not null)
+            if (doorObstacle.Doors.ContainsKey(goalPosition))
             {
-                var doorPermissions = door.RequiredPermissions.RequiredPermissions;
-                var doorKeycardPermissions = doorPermissions & ~KeycardPermissions.ScpOverride;
-                if (doorKeycardPermissions == this.Permissions)
+                var knownObstructingDoors = doorObstacle.Doors.Values;
+                foreach (var obstructingDoor in knownObstructingDoors)
                 {
-                    return false;
+                    var obstructingDoorPermissions = obstructingDoor.RequiredPermissions.RequiredPermissions & ~KeycardPermissions.ScpOverride;
+                    if (obstructingDoorPermissions == this.Permissions)
+                    {
+                        return false;
+                    }
                 }
             }
 

@@ -1,5 +1,6 @@
 ﻿using InventorySystem.Items;
 using InventorySystem.Items.Pickups;
+using SCPSLBot.AI.FirstPersonControl.Mind.Door;
 using System;
 using UnityEngine;
 
@@ -23,7 +24,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item
             return item.ItemTypeId == ItemType;
         }
 
-        public bool CanOvercome(Collider collider)
+        public bool CanReach(Vector3 goalPosition, DoorObstacle doorObstacle)
         {
             return true;
         }
