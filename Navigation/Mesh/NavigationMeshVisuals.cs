@@ -23,6 +23,7 @@ namespace SCPSLBot.Navigation.Mesh
 
         public RoomKindArea NearestArea { get; set; }
         public RoomKindArea FacingArea { get; set; }
+        public RoomKindArea CachedArea { get; set; }
 
         public List<Area> Path { get; } = new ();
 
@@ -124,6 +125,28 @@ namespace SCPSLBot.Navigation.Mesh
                     //var connectedIdsStr = string.Join(", ", NearestArea.ConnectedAreas.Select(c => $"#{c.Id}"));
                     var NearestAreaId = NavigationMesh.AreasByRoomKind[NearestArea.RoomKind].IndexOf(NearestArea);
                     VisualsMessages[0] = $"Area #{NearestAreaId} in {NearestArea.RoomKind}";
+                }
+
+                if (CachedArea != null)
+                {
+                    var cachedAreaId = NavigationMesh.AreasByRoomKind[CachedArea.RoomKind].IndexOf(CachedArea);
+                    VisualsMessages[1] = $"Cached area #{cachedAreaId} in {CachedArea.RoomKind}";
+
+                    if (NearestArea != null)
+                    {
+                        if (NearestArea.ConnectedRoomKindAreas.Contains(CachedArea) && CachedArea.ConnectedRoomKindAreas.Contains(NearestArea))
+                        {
+                            VisualsMessages[1] += $" <color=green>(bi-connected)";
+                        }
+                        else if (NearestArea.ConnectedRoomKindAreas.Contains(CachedArea))
+                        {
+                            VisualsMessages[1] += $" <color=green>(connected to)";
+                        }
+                        else if (CachedArea.ConnectedRoomKindAreas.Contains(NearestArea))
+                        {
+                            VisualsMessages[1] += $" <color=green>(connected from)";
+                        }
+                    }
                 }
 
                 if (FacingArea != null)

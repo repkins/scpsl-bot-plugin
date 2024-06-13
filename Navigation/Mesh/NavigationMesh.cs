@@ -316,13 +316,17 @@ namespace SCPSLBot.Navigation.Mesh
             {
                 var area = roomOfKind.Value.Find(n => n.RoomKindArea == roomKindArea);
                 roomOfKind.Value.Remove(area);
-
-                foreach (var connectedArea in area.ConnectedAreas)
-                {
-                    var connectedConnectedArea = connectedArea.ConnectedAreas as List<Area>;
-                    //connectedConnectedArea.Remove(area);
-                }
             }
+        }
+
+        public void CreateConnection(RoomKindArea fromArea, RoomKindArea toArea)
+        {
+            fromArea.ConnectedRoomKindAreas.Add(toArea);
+        }
+
+        public void DeleteConnection(RoomKindArea fromArea, RoomKindArea toArea)
+        {
+            fromArea.ConnectedRoomKindAreas.Remove(toArea);
         }
 
         public void ReadMesh(BinaryReader binaryReader)
@@ -615,9 +619,6 @@ namespace SCPSLBot.Navigation.Mesh
             {
                 var newRoomArea = new Area(roomKindArea, room);
                 areas.Add(newRoomArea);
-
-                var connectedAreas = roomKindArea.ConnectedRoomKindAreas.Select(c => AreasByRoom[room].Find(a => a.RoomKindArea == c));
-                //newRoomArea.ConnectedAreas.AddRange(connectedAreas);
             }
         }
 

@@ -42,6 +42,7 @@ namespace SCPSLBot.Navigation.Mesh
             Timing.RunCoroutine(RunEachFrame(UpdateVertexAutoSelect));
 
             Timing.RunCoroutine(RunEachFrame(UpdateNearestArea));
+            Timing.RunCoroutine(RunEachFrame(UpdateCachedArea));
             Timing.RunCoroutine(RunEachFrame(UpdateFacingArea));
 
             Timing.RunCoroutine(RunEachFrame(Visuals.UpdateBroadcastMessage));
@@ -415,6 +416,42 @@ namespace SCPSLBot.Navigation.Mesh
             return true;
         }
 
+        public bool CreateConnection(Vector3 position)
+        {
+            if (CachedArea == null)
+            {
+                return false;
+            }
+
+            var targetArea = NavigationMesh.GetAreaWithin(position);
+            if (targetArea == null)
+            {
+                return false;
+            }
+
+            NavigationMesh.CreateConnection(CachedArea.RoomKindArea, targetArea.RoomKindArea);
+
+            return true;
+        }
+
+        public bool DeleteConnection(Vector3 position)
+        {
+            if (CachedArea == null)
+            {
+                return false;
+            }
+
+            var targetArea = NavigationMesh.GetAreaWithin(position);
+            if (targetArea == null)
+            {
+                return false;
+            }
+
+            NavigationMesh.DeleteConnection(CachedArea.RoomKindArea, targetArea.RoomKindArea);
+
+            return true;
+        }
+
         private void UpdateEditing()
         {
             if (PlayerEditing != LastPlayerEditing)
@@ -454,6 +491,14 @@ namespace SCPSLBot.Navigation.Mesh
             {
                 var playerPosition = PlayerEditing.Position;
                 Visuals.NearestArea = NavigationMesh.GetAreaWithin(playerPosition)?.RoomKindArea ?? FindClosestAreaByCenter(playerPosition, .25f);
+            }
+        }
+
+        private void UpdateCachedArea()
+        {
+            if (PlayerEditing != null)
+            {
+                Visuals.CachedArea = CachedArea?.RoomKindArea;
             }
         }
 
