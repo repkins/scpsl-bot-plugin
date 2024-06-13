@@ -177,7 +177,8 @@ namespace SCPSLBot.Navigation.Mesh
                         // NetworkServer.Spawn(visual.gameObject);
 
                         visual.transform.position = vertex.Position;
-                        visual.transform.localScale = -Vector3.one * 0.125f;
+                        visual.transform.localScale = Vector3.one * 0.125f;
+                        visual.NetworkPrimitiveFlags &= ~PrimitiveFlags.Collidable;
 
                         VertexVisuals.Add(vertex, visual);
                     }
@@ -246,8 +247,9 @@ namespace SCPSLBot.Navigation.Mesh
 
                         visual.NetworkPrimitiveType = PrimitiveType.Quad;
 
-                        visual.transform.RotateAround(visual.transform.position, visual.transform.right, -90f);
-                        visual.transform.localScale = -Vector3.one * .25f;
+                        visual.transform.RotateAround(visual.transform.position, visual.transform.right, 90f);
+                        visual.transform.localScale = Vector3.one * .25f;
+                        visual.NetworkPrimitiveFlags &= ~PrimitiveFlags.Collidable;
 
                         // NetworkServer.Spawn(visual.gameObject);
 
@@ -336,8 +338,9 @@ namespace SCPSLBot.Navigation.Mesh
                             newEdgeVisual.transform.position = Vector3.Lerp(room.Transform.TransformPoint(edge.From.LocalPosition), room.Transform.TransformPoint(edge.To.LocalPosition), 0.5f);
                             newEdgeVisual.transform.LookAt(room.Transform.TransformPoint(edge.To.LocalPosition));
                             newEdgeVisual.transform.RotateAround(newEdgeVisual.transform.position, newEdgeVisual.transform.right, 90f);
-                            newEdgeVisual.transform.localScale = -Vector3.forward * 0.01f + -Vector3.right * 0.01f;
-                            newEdgeVisual.transform.localScale += -Vector3.up * Vector3.Distance(room.Transform.TransformPoint(edge.From.LocalPosition), room.Transform.TransformPoint(edge.To.LocalPosition)) * 0.5f;
+                            newEdgeVisual.transform.localScale = Vector3.forward * 0.01f + Vector3.right * 0.01f;
+                            newEdgeVisual.transform.localScale += Vector3.up * Vector3.Distance(room.Transform.TransformPoint(edge.From.LocalPosition), room.Transform.TransformPoint(edge.To.LocalPosition)) * 0.5f;
+                            newEdgeVisual.NetworkPrimitiveFlags &= ~PrimitiveFlags.Collidable;
 
                             // NetworkServer.Spawn(newEdgeVisual.gameObject);
 
@@ -434,8 +437,9 @@ namespace SCPSLBot.Navigation.Mesh
                             newConnectionVisual.transform.position = Vector3.Lerp(roomFrom.Transform.TransformPoint(fromAreaEdgeLocalPos), roomTo.Transform.TransformPoint(toAreaEdgeLocalPos), 0.5f);
                             newConnectionVisual.transform.LookAt(roomTo.Transform.TransformPoint(toAreaEdgeLocalPos));
                             newConnectionVisual.transform.RotateAround(newConnectionVisual.transform.position, newConnectionVisual.transform.right, 90f);
-                            newConnectionVisual.transform.localScale = -Vector3.forward * 0.01f + -Vector3.right * 0.01f;
-                            newConnectionVisual.transform.localScale += -Vector3.up * Vector3.Distance(roomFrom.Transform.TransformPoint(fromAreaEdgeLocalPos), roomTo.Transform.TransformPoint(toAreaEdgeLocalPos)) * 0.5f;
+                            newConnectionVisual.transform.localScale = Vector3.forward * 0.01f + Vector3.right * 0.01f;
+                            newConnectionVisual.transform.localScale += Vector3.up * Vector3.Distance(roomFrom.Transform.TransformPoint(fromAreaEdgeLocalPos), roomTo.Transform.TransformPoint(toAreaEdgeLocalPos)) * 0.5f;
+                            newConnectionVisual.NetworkPrimitiveFlags &= ~PrimitiveFlags.Collidable;
 
                             NetworkServer.Spawn(newConnectionVisual.gameObject);
 
