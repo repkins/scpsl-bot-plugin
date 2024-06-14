@@ -405,7 +405,10 @@ namespace SCPSLBot.Navigation.Mesh
                         var area = nextArea;
                         nextArea = pathEnumerator.Current;
 
-                        var connectedEdge = area.ConnectedAreaEdges[nextArea];
+                        if (!area.ConnectedAreaEdges.TryGetValue(nextArea, out var connectedEdge))
+                        {
+                            continue;
+                        }
 
                         var roomKindEdge = new RoomKindEdge(connectedEdge.From.RoomKindVertex, connectedEdge.To.RoomKindVertex);
                         var (edgeVisual, _) = EdgeVisuals[(roomKindEdge, nextArea.Room)];
