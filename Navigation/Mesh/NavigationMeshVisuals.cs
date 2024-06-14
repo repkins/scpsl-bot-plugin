@@ -448,21 +448,32 @@ namespace SCPSLBot.Navigation.Mesh
 
                         if (!ConnectionVisuals.TryGetValue((areaFrom, areaTo), out var connectionVisual))
                         {
-                            var fromAreaEdge = areaTo.ConnectedAreaEdges[areaFrom];
-                            var fromAreaEdgeLocalPos = Vector3.Lerp(fromAreaEdge.From.LocalPosition, fromAreaEdge.To.LocalPosition, .5f);
-
-                            var toAreaEdge = areaFrom.ConnectedAreaEdges[areaTo];
-                            var toAreaEdgeLocalPos = Vector3.Lerp(toAreaEdge.From.LocalPosition, toAreaEdge.To.LocalPosition, .5f);
-
                             var newConnectionVisual = UnityEngine.Object.Instantiate(this.primPrefab);
-
-                            newConnectionVisual.NetworkPrimitiveType = PrimitiveType.Cylinder;
-                            newConnectionVisual.transform.position = Vector3.Lerp(roomFrom.Transform.TransformPoint(fromAreaEdgeLocalPos), roomTo.Transform.TransformPoint(toAreaEdgeLocalPos), 0.5f);
-                            newConnectionVisual.transform.LookAt(roomTo.Transform.TransformPoint(toAreaEdgeLocalPos));
-                            newConnectionVisual.transform.RotateAround(newConnectionVisual.transform.position, newConnectionVisual.transform.right, 90f);
-                            newConnectionVisual.transform.localScale = Vector3.forward * 0.01f + Vector3.right * 0.01f;
-                            newConnectionVisual.transform.localScale += Vector3.up * Vector3.Distance(roomFrom.Transform.TransformPoint(fromAreaEdgeLocalPos), roomTo.Transform.TransformPoint(toAreaEdgeLocalPos)) * 0.5f;
                             newConnectionVisual.NetworkPrimitiveFlags &= ~PrimitiveFlags.Collidable;
+
+                            if (areaTo.ConnectedAreaEdges.TryGetValue(areaFrom, out var fromAreaEdge)
+                                && areaFrom.ConnectedAreaEdges.TryGetValue(areaTo, out var toAreaEdge))
+                            {
+                                // Adjacent rooms connection
+                                var fromAreaEdgeLocalPos = Vector3.Lerp(fromAreaEdge.From.LocalPosition, fromAreaEdge.To.LocalPosition, .5f);
+                                var toAreaEdgeLocalPos = Vector3.Lerp(toAreaEdge.From.LocalPosition, toAreaEdge.To.LocalPosition, .5f);
+
+                                newConnectionVisual.NetworkPrimitiveType = PrimitiveType.Cylinder;
+                                newConnectionVisual.transform.position = Vector3.Lerp(roomFrom.Transform.TransformPoint(fromAreaEdgeLocalPos), roomTo.Transform.TransformPoint(toAreaEdgeLocalPos), 0.5f);
+                                newConnectionVisual.transform.LookAt(roomTo.Transform.TransformPoint(toAreaEdgeLocalPos));
+                                newConnectionVisual.transform.RotateAround(newConnectionVisual.transform.position, newConnectionVisual.transform.right, 90f);
+                                newConnectionVisual.transform.localScale = Vector3.forward * 0.01f + Vector3.right * 0.01f;
+                                newConnectionVisual.transform.localScale += Vector3.up * Vector3.Distance(roomFrom.Transform.TransformPoint(fromAreaEdgeLocalPos), roomTo.Transform.TransformPoint(toAreaEdgeLocalPos)) * 0.5f;
+                            }
+                            else
+                            {
+                                // Elevator/warping connection
+                                var fromAreaCenterPosition = areaFrom.CenterPosition;
+
+                                newConnectionVisual.NetworkPrimitiveType = PrimitiveType.Cylinder;
+                                newConnectionVisual.transform.position = fromAreaCenterPosition;
+                                newConnectionVisual.transform.localScale *= 0.01f;
+                            }
 
                             NetworkServer.Spawn(newConnectionVisual.gameObject);
 

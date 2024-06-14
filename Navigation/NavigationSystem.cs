@@ -1,4 +1,5 @@
-﻿using MapGeneration;
+﻿using Interactables.Interobjects;
+using MapGeneration;
 using MEC;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
@@ -51,7 +52,6 @@ namespace SCPSLBot.Navigation
                 if (door.OriginalObject.Rooms.Length == 2)
                 {
                     var doorPosition = door.Position;
-                    var doorForward = door.Transform.forward;
 
                     var edgeInFront = NavigationMesh.GetNearestEdge(doorPosition, door.OriginalObject.Rooms[0]);
                     var edgeInBack = NavigationMesh.GetNearestEdge(doorPosition, door.OriginalObject.Rooms[1]);
@@ -71,6 +71,33 @@ namespace SCPSLBot.Navigation
                         areaInBack.ForeignConnectedAreas.Add(areaInFront);
                         areaInBack.ConnectedAreaEdges.Add(areaInFront, edgeInFront.Value);
                     }
+                }
+            }
+            Log.Info($"Connecting areas between elevator destinations.");
+            Log.Debug($"Num elevator groups: {ElevatorDoor.AllElevatorDoors.Count}");
+            foreach (var (group, elevatorDoors) in ElevatorDoor.AllElevatorDoors)
+            {
+                if (elevatorDoors.Count != 2)
+                {
+                    Log.Warning($"Irregular elevator level count ({elevatorDoors.Count}) of group {group}");
+                    continue;
+                }
+
+                var doorTransform = elevatorDoors[0].transform;
+                var doorPosition = doorTransform.position;
+                var doorForward = doorTransform.forward;
+                var area0InShaft = NavigationMesh.GetAreaWithin(doorPosition - doorForward + Vector3.up);
+
+                doorTransform = elevatorDoors[1].transform;
+                doorPosition = doorTransform.position;
+                doorForward = doorTransform.forward;
+                var area1InShaft = NavigationMesh.GetAreaWithin(doorPosition - doorForward + Vector3.up);
+
+                if (area0InShaft != null && area1InShaft != null)
+                {
+                    // Connect
+                    area0InShaft.ForeignConnectedAreas.Add(area1InShaft);
+                    area1InShaft.ForeignConnectedAreas.Add(area0InShaft);
                 }
             }
             Log.Info($"Connecting areas finished.");
