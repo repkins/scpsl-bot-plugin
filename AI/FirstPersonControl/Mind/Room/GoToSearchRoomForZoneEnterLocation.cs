@@ -27,7 +27,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActionImpacts<ZoneEnterLocation>(this, b => b.Zone == TargetZone);
+            fpcMind.ActionImpacts<ZoneEnterLocation>(this, b => b.Zone == TargetZone && b.FromZone == ZoneFrom);
         }
 
         private readonly FpcBotPlayer botPlayer;
@@ -49,6 +49,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room
                 botPlayer.MoveToPosition(enterPosition);
                 return;
             }
+        }
+
+        public override string ToString()
+        {
+            return $"{nameof(GoToSearchRoomForZoneEnterLocation)}({TargetZone} from {ZoneFrom})";
         }
     }
 }

@@ -8,23 +8,25 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room
     internal class GoToZoneEnterLocation : IAction
     {
         public FacilityZone Zone { get; }
-        public GoToZoneEnterLocation(FacilityZone zone, FpcBotPlayer botPlayer) : this(botPlayer)
+        public FacilityZone FromZone { get; }
+        public GoToZoneEnterLocation(FacilityZone zone, FacilityZone fromZone, FpcBotPlayer botPlayer) : this(botPlayer)
         {
             Zone = zone;
+            FromZone = fromZone;
         }
 
         private ZoneEnterLocation zoneEnterLocation;
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            zoneEnterLocation = fpcMind.ActionEnabledBy<ZoneEnterLocation>(this, b => b.Zone == Zone, b => b.Position.HasValue);
+            zoneEnterLocation = fpcMind.ActionEnabledBy<ZoneEnterLocation>(this, b => b.Zone == Zone && b.FromZone == FromZone, b => b.Position.HasValue);
 
             fpcMind.ActionEnabledBy<DoorObstacle>(this, b => !b.Is(zoneEnterLocation.Position!.Value));
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActionImpactsWithCondition<ZoneWithin>(this, b => !b.HasTarget(Zone));
+            fpcMind.ActionImpactsWithCondition<ZoneWithin>(this, b => !b.HasTargetWithin(Zone, FromZone));
         }
 
         public void Reset()
@@ -46,6 +48,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room
                 botPlayer.MoveToPosition(enterPosition);
                 return;
             }
+        }
+
+        public override string ToString()
+        {
+            return $"{nameof(GoToZoneEnterLocation)}({Zone} from {FromZone})";
         }
     }
 }

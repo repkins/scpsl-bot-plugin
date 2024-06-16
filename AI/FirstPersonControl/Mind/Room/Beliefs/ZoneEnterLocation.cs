@@ -1,7 +1,6 @@
 ﻿using MapGeneration;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using System;
-using System.Linq;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs
@@ -9,13 +8,15 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs
     internal class ZoneEnterLocation : IBelief
     {
         public FacilityZone Zone { get; }
-        private ZoneEnterLocation(FacilityZone zone)
+        public FacilityZone FromZone { get; }
+        public ZoneEnterLocation(FacilityZone zone, FacilityZone fromZone, RoomSightSense roomSightSense) : this(roomSightSense)
         {
             Zone = zone;
+            FromZone = fromZone;
         }
 
         private readonly RoomSightSense roomSightSense;
-        public ZoneEnterLocation(FacilityZone zone, RoomSightSense roomSightSense) : this(zone)
+        private ZoneEnterLocation(RoomSightSense roomSightSense)
         {
             this.roomSightSense = roomSightSense;
             this.roomSightSense.OnAfterSensedForeignRooms += OnAfterSensedForeignRooms;
