@@ -1,4 +1,5 @@
-﻿using PluginAPI.Core;
+﻿using MapGeneration;
+using PluginAPI.Core;
 using PluginAPI.Core.Zones;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using System;
@@ -48,7 +49,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs
 
                 var foreignRoomAreas = this.roomSightSense.ForeignRoomsAreas;
                 var enteringArea = foreignRoomAreas
-                    .Where(fa => fa.Room.Identifier.Shape != global::MapGeneration.RoomShape.Endroom)
+                    .Where(fa => fa.Room.Identifier.Shape != global::MapGeneration.RoomShape.Endroom || checkpointRoomNames.Contains(fa.Room.Identifier.Name))
                     .OrderBy(fa => roomsLastVisitTime.TryGetValue(fa.Room, out var time) ? time : -Random.Range(0f, 4f))
                     .FirstOrDefault();
 
@@ -66,6 +67,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs
                 //Random.state = prevRandomState;
             }
         }
+
+        private readonly HashSet<RoomName> checkpointRoomNames = new()
+        {
+            RoomName.LczCheckpointA,
+            RoomName.LczCheckpointB,
+            RoomName.HczCheckpointA,
+            RoomName.HczCheckpointB,
+        };
 
         public Vector3? Position { get; private set; }
         public event Action OnUpdate;
