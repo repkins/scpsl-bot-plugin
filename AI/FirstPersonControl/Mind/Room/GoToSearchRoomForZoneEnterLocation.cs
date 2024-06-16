@@ -3,15 +3,23 @@ using SCPSLBot.AI.FirstPersonControl.Mind.Door;
 using SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs;
 using UnityEngine;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Room
 {
-    internal class GoToSearchRoomForScp914 : IAction
+    internal class GoToSearchRoomForZoneEnterLocation : IAction
     {
+        public FacilityZone TargetZone { get; }
+        public FacilityZone ZoneFrom { get; }
+        public GoToSearchRoomForZoneEnterLocation(FacilityZone targetZone, FacilityZone zoneFrom, FpcBotPlayer botPlayer) : this(botPlayer)
+        {
+            TargetZone = targetZone;
+            ZoneFrom = zoneFrom;
+        }
+
         private RoomEnterLocation roomEnterLocation;
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActionEnabledBy<ZoneWithin>(this, b => b.Is(FacilityZone.LightContainment));
+            fpcMind.ActionEnabledBy<ZoneWithin>(this, b => b.Is(ZoneFrom));
             roomEnterLocation = fpcMind.ActionEnabledBy<RoomEnterLocation>(this, b => b.Position.HasValue);
 
             fpcMind.ActionEnabledBy<DoorObstacle>(this, b => !b.Is(roomEnterLocation.Position!.Value));
@@ -19,14 +27,17 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActionImpacts<Scp914Location>(this);
+            fpcMind.ActionImpacts<ZoneEnterLocation>(this, b => b.Zone == TargetZone);
         }
 
         private readonly FpcBotPlayer botPlayer;
-        public GoToSearchRoomForScp914(FpcBotPlayer botPlayer)
+        private GoToSearchRoomForZoneEnterLocation(FpcBotPlayer botPlayer)
         {
             this.botPlayer = botPlayer;
         }
+
+        public void Reset()
+        { }
 
         public void Tick()
         {
@@ -38,15 +49,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
                 botPlayer.MoveToPosition(enterPosition);
                 return;
             }
-        }
-
-        public void Reset()
-        {
-        }
-
-        public override string ToString()
-        {
-            return $"{nameof(GoToSearchRoomForScp914)}";
         }
     }
 }

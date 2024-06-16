@@ -11,6 +11,8 @@ using SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs;
 using SCPSLBot.AI.FirstPersonControl.Mind.Scp914;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using MapGeneration.Distributors;
+using MapGeneration;
+using SCPSLBot.AI.FirstPersonControl.Mind.Room;
 
 namespace SCPSLBot.AI.FirstPersonControl
 {
@@ -24,11 +26,23 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         public static void BuildMind(FpcMind mind, FpcBotPlayer botPlayer, FpcBotPerception perception)
         {
-            mind.AddBelief(new RoomEnterLocation(perception.GetSense<RoomSightSense>()));
-
-
             mind.AddBelief(new DoorObstacle(perception.GetSense<DoorsWithinSightSense>(), botPlayer.Navigator));
             mind.AddBelief(new GlassObstacle(perception.GetSense<GlassSightSense>(), botPlayer.Navigator));
+
+
+            mind.AddBelief(new RoomEnterLocation(perception.GetSense<RoomSightSense>()));
+            mind.AddBelief(new ZoneEnterLocation(FacilityZone.LightContainment, perception.GetSense<RoomSightSense>()));
+            mind.AddBelief(new ZoneEnterLocation(FacilityZone.HeavyContainment, perception.GetSense<RoomSightSense>()));
+            mind.AddBelief(new ZoneEnterLocation(FacilityZone.Entrance, perception.GetSense<RoomSightSense>()));
+            mind.AddBelief(new ZoneWithin(perception.GetSense<RoomSightSense>()));
+
+            mind.AddAction(new GoToZoneEnterLocation(FacilityZone.LightContainment, botPlayer));
+            mind.AddAction(new GoToZoneEnterLocation(FacilityZone.HeavyContainment, botPlayer));
+            mind.AddAction(new GoToZoneEnterLocation(FacilityZone.Entrance, botPlayer));
+            mind.AddAction(new GoToSearchRoomForZoneEnterLocation(FacilityZone.LightContainment, FacilityZone.HeavyContainment, botPlayer));
+            mind.AddAction(new GoToSearchRoomForZoneEnterLocation(FacilityZone.HeavyContainment, FacilityZone.LightContainment, botPlayer));
+            mind.AddAction(new GoToSearchRoomForZoneEnterLocation(FacilityZone.HeavyContainment, FacilityZone.Entrance, botPlayer));
+            mind.AddAction(new GoToSearchRoomForZoneEnterLocation(FacilityZone.Entrance, FacilityZone.HeavyContainment, botPlayer));
 
 
             mind.AddBelief(new Scp914Location(perception.GetSense<RoomSightSense>()));
@@ -285,6 +299,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             mind.AddBelief(new ItemSightedLocation<ItemOfType>(new(ItemType.Medkit), perception.GetSense<ItemsWithinSightSense>(), mind.GetBelief<DoorObstacle>()));
 
             //mind.AddGoal(new GetResearchSupervisorKeycard());
+            mind.AddGoal(new EscapeTheFacility());
             mind.AddGoal(new GetO5Keycard());
         }
     }
