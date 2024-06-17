@@ -53,11 +53,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
                 if (sightSense.IsPositionObstructed(pathPoint, out var hit))
                 {
-                    var interactable = hit.collider.GetComponent<InteractableCollider>();
-                    var target = interactable?.Target;
-                    if (target is DoorVariant door && !door.IsConsideredOpen())
+                    var hitDoor = hit.collider.GetComponentInParent<DoorVariant>();
+                    if (hitDoor && !hitDoor.IsConsideredOpen())
                     {
-                        obstuctingEntry = new(hit.collider.GetComponentInParent<DoorVariant>(), door.RequiredPermissions.RequiredPermissions);
+                        var interactable = hit.collider.GetComponent<InteractableCollider>();
+                        var target = interactable?.Target;
+                        obstuctingEntry = target is DoorVariant interactableDoorTarget
+                            ? new(hitDoor, interactableDoorTarget.RequiredPermissions.RequiredPermissions)
+                            : new(hitDoor, hitDoor.RequiredPermissions.RequiredPermissions);
                         break;
                     }
                 }
