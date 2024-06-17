@@ -34,9 +34,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Keycard
             if (doorObstacle.Doors.ContainsKey(goalPosition))
             {
                 var knownObstructingDoors = doorObstacle.Doors.Values;
-                foreach (var obstructingDoor in knownObstructingDoors)
+                foreach (var (_, permissions) in knownObstructingDoors)
                 {
-                    var obstructingDoorPermissions = obstructingDoor.RequiredPermissions.RequiredPermissions & ~KeycardPermissions.ScpOverride;
+                    var obstructingDoorPermissions = permissions & ~KeycardPermissions.ScpOverride;
                     if (obstructingDoorPermissions == this.Permissions)
                     {
                         return false;

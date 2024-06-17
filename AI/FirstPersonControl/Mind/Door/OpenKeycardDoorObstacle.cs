@@ -1,4 +1,6 @@
-﻿using Interactables.Interobjects.DoorUtils;
+﻿using Interactables;
+using Interactables.Interobjects;
+using Interactables.Interobjects.DoorUtils;
 using InventorySystem.Items.Keycards;
 using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
@@ -43,14 +45,19 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
             var doorToOpen = doorObstacleBelief.GetLastDoor(Permissions, out var goalPos);
             var playerPosition = botPlayer.BotHub.PlayerHub.transform.position;
 
-            if (doorToOpen && !doorToOpen.TargetState && Vector3.Distance(doorToOpen.transform.position + Vector3.up, playerPosition) <= interactDistance)
+            if (doorToOpen && !doorToOpen.TargetState)
             {
-                Log.Debug($"{doorToOpen} is within interactable distance");
+                var interactablePosition = doorToOpen.transform.position + Vector3.up;
 
-                if (!botPlayer.OpenDoor(doorToOpen, interactDistance))
+                if (Vector3.Distance(interactablePosition, playerPosition) <= interactDistance)
                 {
-                    botPlayer.LookToPosition(doorToOpen.transform.position + Vector3.up);
-                    //Log.Debug($"Looking towards door interactable");
+                    Log.Debug($"{doorToOpen} is within interactable distance");
+
+                    if (!botPlayer.OpenDoor(doorToOpen, interactDistance))
+                    {
+                        botPlayer.LookToPosition(interactablePosition);
+                        //Log.Debug($"Looking towards door interactable");
+                    }
                 }
             }
 

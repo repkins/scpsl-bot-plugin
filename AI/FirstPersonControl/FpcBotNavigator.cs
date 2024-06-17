@@ -19,6 +19,7 @@ namespace SCPSLBot.AI.FirstPersonControl
         public List<Area> AreasPath = new();
         private int currentPathIdx = -1;
 
+        public Vector3 GoalPosition { get; private set; }
         public List<Vector3> PointsPath { get; } = new();
         public IEnumerable<(Vector3 point, Vector3 nextPoint)> PathSegments { get; }
 
@@ -54,21 +55,6 @@ namespace SCPSLBot.AI.FirstPersonControl
 
                 return goalPosition;
             }
-        }
-
-        public IEnumerable<Vector3> GetPathTowards(Vector3 goalPosition)
-        {
-            this.UpdateNavigationTo(goalPosition);
-
-            var playerPosition = botPlayer.FpcRole.FpcModule.transform.position;
-
-            var points = botPlayer.Navigator.AreasPath.Zip(botPlayer.Navigator.AreasPath.Skip(1), (area, nextArea) => (area, nextArea))
-                    .Select(t => t.area.ConnectedAreaEdges[t.nextArea])
-                    .Select(e => Vector3.Lerp(e.From.Position, e.To.Position, .5f))
-                    .Prepend(playerPosition)
-                    .Append(goalPosition);
-
-            return points;
         }
 
         private void UpdateNavigationTo(Vector3 goalPosition)
@@ -135,12 +121,26 @@ namespace SCPSLBot.AI.FirstPersonControl
                 //    Log.Debug($"Area {areaInPath}.");
                 //}
 
+                this.GoalPosition = goalPosition;
+
                 this.PointsPath.Clear();
-                this.PointsPath.AddRange(AreasPath.Zip(AreasPath.Skip(1), (area, nextArea) => (area, nextArea))
-                    .Select(t => t.area.ConnectedAreaEdges[t.nextArea])
-                    .Select(e => Vector3.Lerp(e.From.Position, e.To.Position, .5f))
-                    .Prepend(playerPosition)
-                    .Append(goalPosition));
+                this.PointsPath.Add(playerPosition);
+
+                var partialPath = false;
+                foreach (var (area, nextArea) in AreasPath.Zip(AreasPath.Skip(1), (area, nextArea) => (area, nextArea)))
+                {
+                    if (!area.ConnectedAreaEdges.TryGetValue(nextArea, out var e))
+                    {
+                        partialPath = true;
+                        break;
+                    }
+                    this.PointsPath.Add(Vector3.Lerp(e.From.Position, e.To.Position, .5f));
+                }
+
+                if (!partialPath) 
+                {
+                    this.PointsPath.Add(goalPosition);
+                }
             }
         }
 
@@ -156,7 +156,10 @@ namespace SCPSLBot.AI.FirstPersonControl
             var playerPosition = botPlayer.FpcRole.FpcModule.transform.position;
 
             var nextTargetArea = this.AreasPath[this.currentPathIdx + 1];
-            var targetAreaEdge = currentArea.ConnectedAreaEdges[nextTargetArea];
+            if (!currentArea.ConnectedAreaEdges.TryGetValue(nextTargetArea, out var targetAreaEdge))
+            {
+                return currentArea.CenterPosition;
+            }
             var nextTargetEdgeMiddlePosition = Vector3.Lerp(targetAreaEdge.From.Position, targetAreaEdge.To.Position, 0.5f);
 
             var nextTargetPosition = nextTargetEdgeMiddlePosition;
@@ -172,7 +175,11 @@ namespace SCPSLBot.AI.FirstPersonControl
                     to: targetAreaEdge.To.Position - playerPosition);
 
                 var aheadTargetArea = this.AreasPath[aheadPathIdx];
-                var aheadTargetAreaEdge = nextTargetArea.ConnectedAreaEdges[aheadTargetArea];
+                if (!nextTargetArea.ConnectedAreaEdges.TryGetValue(aheadTargetArea, out var aheadTargetAreaEdge))
+                {
+                    goalPosition = nextTargetArea.CenterPosition;
+                    break;
+                }
 
                 var relAheadTargetEdgePos = (
                     from: aheadTargetAreaEdge.From.Position - playerPosition,

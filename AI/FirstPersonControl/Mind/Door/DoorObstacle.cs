@@ -1,4 +1,5 @@
 ﻿using Hints;
+using Interactables;
 using Interactables.Interobjects;
 using Interactables.Interobjects.DoorUtils;
 using PluginAPI.Core;
@@ -16,6 +17,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
         public readonly Ray Ray = new(Start, End - Start);
         public readonly float Length = Vector3.Distance(Start, End);
     }
+
+    internal record struct DoorEntry(DoorVariant Door, KeycardPermissions Permissions);
 
     internal class DoorObstacle : IBelief
     {
@@ -39,9 +42,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
                 return;
             }
 
-            var goalPos = pathOfPoints.Last();
-
-            DoorVariant obstructingDoor = null;
+            DoorEntry? obstuctingEntry = null;
 
             foreach (var pathPoint in pathOfPoints)
             {
@@ -52,18 +53,21 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
                 if (sightSense.IsPositionObstructed(pathPoint, out var hit))
                 {
-                    var door = hit.collider.GetComponentInParent<DoorVariant>();
-                    if (door && !door.IsConsideredOpen())
+                    var interactable = hit.collider.GetComponent<InteractableCollider>();
+                    var target = interactable?.Target;
+                    if (target is DoorVariant door && !door.IsConsideredOpen())
                     {
-                        obstructingDoor = door;
+                        obstuctingEntry = new(hit.collider.GetComponentInParent<DoorVariant>(), door.RequiredPermissions.RequiredPermissions);
                         break;
                     }
                 }
             }
 
-            if (obstructingDoor)
+            var goalPos = navigator.GoalPosition;
+
+            if (obstuctingEntry.HasValue)
             {
-                AddOrReplace(obstructingDoor, goalPos);
+                AddOrReplace(obstuctingEntry.Value, goalPos);
             }
             else
             {
@@ -71,16 +75,16 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
             }
         }
 
-        private void AddOrReplace(DoorVariant door, Vector3 goalPos)
+        private void AddOrReplace(DoorEntry doorEntry, Vector3 goalPos)
         {
-            if (!Doors.ContainsKey(goalPos) || Doors[goalPos] != door)
+            if (!Doors.ContainsKey(goalPos) || Doors[goalPos] != doorEntry)
             {
                 if (Doors.ContainsKey(goalPos))
                 {
                     GoalPositions.Remove(goalPos);
                 }
                 GoalPositions.Add(goalPos);
-                Doors[goalPos] = door;
+                Doors[goalPos] = doorEntry;
                 OnUpdate?.Invoke();
             }
         }
@@ -96,7 +100,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
         }
 
         public bool IsAny => Doors.Count > 0;
-        public Dictionary<Vector3, DoorVariant> Doors { get; } = new();
+        public Dictionary<Vector3, DoorEntry> Doors { get; } = new();
         private readonly List<Vector3> GoalPositions = new();
 
         public event Action OnUpdate;
@@ -113,7 +117,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
                 return null;
             }
 
-            var lastDoor = Doors[GoalPositions.Last()];
+            var lastDoor = Doors[GoalPositions.Last()].Door;
             return lastDoor && IsUniteractable(lastDoor) ? lastDoor : null;
         }
 
@@ -132,8 +136,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
             goalPos = GoalPositions.Last();
 
-            var lastDoor = Doors[goalPos];
-            if (lastDoor && IsInteractable(lastDoor) && ToKeycardPermissions(lastDoor.RequiredPermissions) == keycardPermissions)
+            var (lastDoor, permissions) = Doors[goalPos];
+            if (lastDoor && IsInteractable(lastDoor) && ToKeycardPermissions(permissions) == keycardPermissions)
             {
                 return lastDoor;
             }
@@ -143,9 +147,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
             }
         }
 
-        private static KeycardPermissions ToKeycardPermissions(DoorPermissions doorPermissions)
+        private static KeycardPermissions ToKeycardPermissions(KeycardPermissions doorPermissions)
         {
-            return doorPermissions.RequiredPermissions & ~KeycardPermissions.ScpOverride;
+            return doorPermissions & ~KeycardPermissions.ScpOverride;
         }
 
         private static bool IsInteractable(DoorVariant d)
@@ -160,7 +164,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
         public override string ToString()
         {
-            return $"{nameof(DoorObstacle)}: {string.Join(", ", GoalPositions.Select(p => $"Permissions = {this.Doors[p].RequiredPermissions.RequiredPermissions}"))}";
+            return $"{nameof(DoorObstacle)}: {string.Join(", ", GoalPositions.Select(p => $"Permissions = {this.Doors[p].Permissions}"))}";
         }
     }
 }

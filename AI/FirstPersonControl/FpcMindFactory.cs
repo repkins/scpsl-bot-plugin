@@ -292,9 +292,29 @@ namespace SCPSLBot.AI.FirstPersonControl
             mind.AddAction(new GoToSearchRoom<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelTwo), botPlayer));
 
 
+            mind.AddBelief(new ItemSightedLocation<KeycardWithPermissions>(new(KeycardPermissions.Checkpoints), perception.GetSense<ItemsWithinSightSense>(), mind.GetBelief<DoorObstacle>()));
+            mind.AddBelief(new ItemInInventory<KeycardWithPermissions>(new(KeycardPermissions.Checkpoints), perception.GetSense<ItemsInInventorySense>()));
+            mind.AddAction(new GoToPickupItem<KeycardWithPermissions>(new(KeycardPermissions.Checkpoints), botPlayer));
+
+            var checkpointsSpawnItemTypes = new ItemType[]
+            {
+                ItemType.KeycardZoneManager, ItemType.KeycardResearchCoordinator,
+                ItemType.KeycardGuard, ItemType.KeycardMTFPrivate, ItemType.KeycardMTFOperative, ItemType.KeycardMTFCaptain, ItemType.KeycardChaosInsurgency,
+                ItemType.KeycardContainmentEngineer, ItemType.KeycardFacilityManager, ItemType.KeycardO5
+            };
+            mind.AddBelief(new ItemSpawnLocation<KeycardWithPermissions>(new(KeycardPermissions.Checkpoints), checkpointsSpawnItemTypes, perception.GetSense<RoomSightSense>(), perception.GetSense<ItemsWithinSightSense>(), mind.GetBelief<DoorObstacle>()));
+            mind.AddBelief(new ItemInSightedLocker<KeycardWithPermissions>(new(KeycardPermissions.Checkpoints), checkpointsSpawnItemTypes, perception.GetSense<LockersWithinSightSense>(), mind.GetBelief<DoorObstacle>()));
+
+            mind.AddAction(new GoToItemSpawnLocation<KeycardWithPermissions>(new(KeycardPermissions.Checkpoints), botPlayer));
+            mind.AddAction(new GoToLockerSpawnLocation<KeycardWithPermissions>(new(KeycardPermissions.Checkpoints), StructureType.StandardLocker, botPlayer));
+            mind.AddAction(new GoToItemInLocker<KeycardWithPermissions>(new(KeycardPermissions.Checkpoints), botPlayer));
+            mind.AddAction(new GoToSearchRoom<KeycardWithPermissions>(new(KeycardPermissions.Checkpoints), botPlayer));
+
+
             mind.AddAction(new OpenNonKeycardDoorObstacle(botPlayer));
             mind.AddAction(new OpenKeycardDoorObstacle(KeycardPermissions.ContainmentLevelOne, botPlayer));
             mind.AddAction(new OpenKeycardDoorObstacle(KeycardPermissions.ContainmentLevelTwo, botPlayer));
+            mind.AddAction(new OpenKeycardDoorObstacle(KeycardPermissions.Checkpoints, botPlayer));
             mind.AddAction(new WaitForDoorOpening(botPlayer));
 
 
