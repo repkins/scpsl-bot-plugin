@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 {
-    internal class LockerSpawnLocation : IBelief
+    internal class LockerSpawnLocation : Belief<bool>
     {
         public StructureType StructureType { get; }
 
@@ -118,14 +118,13 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
         }
 
         public Vector3? Position { get; private set; }
-        public event Action OnUpdate;
 
         private void SetPosition(Vector3? newPosition)
         {
             if (newPosition != this.Position)
             {
                 this.Position = newPosition;
-                this.OnUpdate?.Invoke();
+                this.InvokeOnUpdate();
             }
         }
     }

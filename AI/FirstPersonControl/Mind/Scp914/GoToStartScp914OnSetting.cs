@@ -22,14 +22,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
             scp914Location = fpcMind.ActionEnabledBy<Scp914Location>(this, b => b.ControlsPosition.HasValue);
-            scp914Controls = fpcMind.ActionEnabledBy<Scp914Controls>(this, b => true);
+            scp914Controls = fpcMind.GetBelief<Scp914Controls>();
 
             fpcMind.ActionEnabledBy<DoorObstacle>(this, b => !b.Is(scp914Location.ControlsPosition!.Value));
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActionImpactsWithCondition<Scp914RunningOnSetting>(this, b => b.TargetSetting != KnobSetting);
+            fpcMind.ActionImpacts<Scp914RunningOnSetting, Scp914KnobSetting?>(this, b => KnobSetting);
         }
 
         private readonly FpcBotPlayer botPlayer;

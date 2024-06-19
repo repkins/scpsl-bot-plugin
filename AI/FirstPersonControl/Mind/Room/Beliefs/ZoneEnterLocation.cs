@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs
 {
-    internal class ZoneEnterLocation : IBelief
+    internal class ZoneEnterLocation : Belief<bool>
     {
         public FacilityZone Zone { get; }
         public FacilityZone FromZone { get; }
@@ -33,14 +33,13 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs
         }
 
         public Vector3? Position { get; private set; }
-        public event Action OnUpdate;
 
         protected void Update(Vector3? position)
         {
             if (position != Position)
             {
                 Position = position;
-                OnUpdate?.Invoke();
+                InvokeOnUpdate();
             }
         }
 

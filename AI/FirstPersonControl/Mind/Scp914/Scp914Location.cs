@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 {
-    internal class Scp914Location : IBelief
+    internal class Scp914Location : Belief<bool>
     {
         public Scp914Location(RoomSightSense roomSightSense)
         {
@@ -36,7 +36,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
         public Vector3? ControlsPosition { get; private set; }
         public Vector3? SettingKnobPosition { get; private set; }
         public Vector3? StartKnobPosition { get; private set; }
-        public event Action OnUpdate;
 
         private void Update(Scp914Controller controller)
         {
@@ -54,7 +53,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
                 this.StartKnobPosition = interactableColliderPositions[Scp914InteractCode.Activate];
                 this.ControlsPosition = this.StartKnobPosition;
 
-                this.OnUpdate?.Invoke();
+                this.InvokeOnUpdate();
             }
         }
 

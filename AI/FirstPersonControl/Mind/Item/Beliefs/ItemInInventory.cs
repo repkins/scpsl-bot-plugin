@@ -4,14 +4,7 @@ using System;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 {
-    internal class ItemInInventory<C> : ItemInInventory<C, ItemBase> where C : IItemBeliefCriteria
-    {
-        public ItemInInventory(C criteria, ItemsInInventorySense inventorySense) : base(criteria, inventorySense)
-        {
-        }
-    }
-
-    internal class ItemInInventory<C, T> : ItemInInventoryBase, IBelief<C> where C : IItemBeliefCriteria where T : ItemBase
+    internal class ItemInInventory<C> : Belief<bool> where C : IItemBeliefCriteria
     {
         public C Criteria { get; }
         public ItemInInventory(C criteria, ItemsInInventorySense inventorySense)
@@ -51,23 +44,17 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
             numItems = 0;
         }
 
-        public override string ToString()
-        {
-            return $"{nameof(ItemInInventory<C>)}({Criteria}): {Item}";
-        }
-
-        public new T Item => base.Item as T;
-    }
-
-    internal class ItemInInventoryBase : IBelief
-    {
-        public event Action OnUpdate;
         public ItemBase Item { get; private set; }
 
         public void Update(ItemBase item)
         {
             Item = item;
-            OnUpdate?.Invoke();
+            InvokeOnUpdate();
+        }
+
+        public override string ToString()
+        {
+            return $"{nameof(ItemInInventory<C>)}({Criteria}): {Item}";
         }
     }
 }

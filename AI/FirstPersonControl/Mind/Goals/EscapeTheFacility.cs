@@ -15,7 +15,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Goals
 
         public bool Condition()
         {
-            return zoneWithin.Is(FacilityZone.Entrance);
+            return zoneWithin.Zone == FacilityZone.Entrance;
         }
     }
 }

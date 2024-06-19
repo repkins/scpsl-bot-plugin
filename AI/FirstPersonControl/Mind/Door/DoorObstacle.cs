@@ -20,7 +20,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
     internal record struct DoorEntry(DoorVariant Door, KeycardPermissions Permissions);
 
-    internal class DoorObstacle : Belief<DoorObstacle, bool>
+    internal class DoorObstacle : Belief<bool>
     {
         private readonly FpcBotNavigator navigator;
 

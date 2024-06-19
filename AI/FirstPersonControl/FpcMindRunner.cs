@@ -67,12 +67,12 @@ namespace SCPSLBot.AI.FirstPersonControl
                 Log.Debug($"{prefix}Belief: {enablingBelief}");
 
                 var Actions = BeliefsImpactedByActions[enablingBelief];
-                foreach (var (Action, _) in Actions)
+                foreach (var Action in Actions)
                 {
                     Log.Debug($"{prefix}  Action: {Action}");
 
                     var enablingBeliefs = ActionsEnabledByBeliefs[Action];
-                    DumpBeliefsActions(enablingBeliefs.Select(t => t.Belief), $"{prefix}    ");
+                    DumpBeliefsActions(enablingBeliefs, $"{prefix}    ");
                 }
             }
         }
@@ -95,17 +95,17 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             RelevantBeliefs.Clear();
 
-            //Log.Debug($"    Getting enabled Actions towards desires.");
+            Log.Debug($"    Getting enabled Actions towards goals.");
 
             var allGoals = GoalsEnabledByBeliefs.Keys;
             var enabledActions = allGoals
                 .Select(d => { 
-                    //Log.Debug($"    Evaluating desire {d.GetType().Name}"); 
+                    Log.Debug($"    Evaluating goal {d.GetType().Name}"); 
                     return d;
                 })
                 .Where(d => !d.Condition())
                 .Select(d => {
-                    //Log.Debug($"    Goal {d.GetType().Name} not fulfilled");
+                    Log.Debug($"    Goal {d.GetType().Name} not fulfilled");
                     return d;
                 })
                 .SelectMany(d => GoalsEnabledByBeliefs[d])
@@ -115,7 +115,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
                     return b;
                 })
-                .SelectMany(GetClosestActionsImpacting);
+                .SelectMany(b => GetClosestActionsImpacting(b));
             
             Profiler.EndSample();
 
@@ -124,58 +124,66 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         private IEnumerable<IAction> GetClosestActionsImpacting(IBelief belief)
         {
-            //Log.Debug($"    Getting Actions impacting {belief}");
+            Log.Debug($"    Getting Actions impacting {belief}");
 
-            var actionsImpacting = BeliefsImpactedByActions[belief]
-                .Where(t => !t.Condition(belief))
-                .Select(t => t.Action);
+            var actionsImpacting = BeliefsImpactedByActions[belief];
 
             var enabledActions = actionsImpacting.SelectMany(GetClosestEnablingActions);
 
             return enabledActions;
         }
 
-        private IEnumerable<IAction> GetClosestEnablingActions(IAction actionImpacting)
+        private IEnumerable<IAction> GetClosestEnablingActions(IAction actionToEnable)
         {
-            //Log.Debug($"    Action {actionImpacting}...");
+            Log.Debug($"    Action {actionToEnable}...");
 
-            var beliefsEnabling = ActionsEnabledByBeliefs[actionImpacting];
-
-            if (beliefsEnabling.All(t => t.Condition(t.Belief)))
+            var beliefsEnabling = ActionsEnabledByBeliefs[actionToEnable];
+            if (beliefsEnabling.All(b => b.EvaluateEnabling(actionToEnable)))
             {
-                //Log.Debug($"    Action {actionImpacting} conditions fulfilled.");
+                Log.Debug($"    Action {actionToEnable} conditions fulfilled.");
 
-                foreach (var (belief, _) in beliefsEnabling)
+                foreach (var belief in beliefsEnabling)
                 {
                     RelevantBeliefs.Add(belief);
                 }
 
-                return Enumerable.Repeat(actionImpacting, 1);
+                return Enumerable.Repeat(actionToEnable, 1);
             }
             else
             {
-                //Log.Debug($"    Action {actionImpacting} needs to be enabled.");
+                Log.Debug($"    Action {actionToEnable} needs to be enabled.");
 
                 var enabledActions = beliefsEnabling
-                    .Select(t =>
-                    {
-                        //Log.Debug($"    Belief {t.Belief}...");
-
-                        RelevantBeliefs.Add(t.Belief);
-
-                        return t;
-                    })
-                    .Where(t => !t.Condition(t.Belief))
-                    .Take(1)
-                    .Select(t => t.Belief)
                     .Select(b =>
                     {
-                        //Log.Debug($"    Belief {b} needs to be satisfied.");
+                        Log.Debug($"    Belief {b}...");
+
+                        RelevantBeliefs.Add(b);
+
                         return b;
                     })
-                    .SelectMany(GetClosestActionsImpacting);
+                    .Where(b => !b.EvaluateEnabling(actionToEnable))
+                    .Take(1)
+                    .Select(b =>
+                    {
+                        Log.Debug($"    Belief {b} needs to be satisfied.");
+                        return b;
+                    })
+                    .SelectMany(b => GetClosestActionsImpacting(b, actionToEnable));
                 return enabledActions;
             }
+        }
+
+        private IEnumerable<IAction> GetClosestActionsImpacting(IBelief belief, IAction actionToEnable)
+        {
+            Log.Debug($"    Getting Actions impacting {belief} to enable {actionToEnable}");
+
+            var actionsImpacting = BeliefsImpactedByActions[belief]
+                .Where(a => belief.EvaluateImpact(a, actionToEnable));
+
+            var enabledActions = actionsImpacting.SelectMany(GetClosestEnablingActions);
+
+            return enabledActions;
         }
 
         private void SelectActionAndRun(IEnumerable<IAction> enabledActions)

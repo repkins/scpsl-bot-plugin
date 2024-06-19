@@ -12,7 +12,7 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 {
-    internal class Scp914RunningOnSetting : IBelief
+    internal class Scp914RunningOnSetting : Belief<Scp914KnobSetting?>
     {
         private readonly RoomSightSense roomSightSense;
 
@@ -46,25 +46,15 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
             this.Update(null);
         }
 
-        public Scp914KnobSetting? TargetSetting { get; private set; }
-        public bool IsRunningOn(Scp914KnobSetting knobSetting)
-        {
-            this.TargetSetting = knobSetting;
-            return knobSetting == RunningKnobSetting;
-        }
-
         public Scp914KnobSetting? RunningKnobSetting { get; private set; }
         public float? ItemsTransformedTime { get; private set; }
-
-        public event Action OnUpdate;
 
         private void Update(Scp914KnobSetting? newSetting)
         {
             if (newSetting != this.RunningKnobSetting)
             {
-                this.TargetSetting = null;
                 this.RunningKnobSetting = newSetting;
-                this.OnUpdate?.Invoke();
+                this.InvokeOnUpdate();
             }
         }
 

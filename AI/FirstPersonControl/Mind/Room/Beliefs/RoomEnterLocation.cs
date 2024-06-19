@@ -10,7 +10,7 @@ using Random = UnityEngine.Random;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs
 {
-    internal class RoomEnterLocation : Belief<RoomEnterLocation, bool>
+    internal class RoomEnterLocation : Belief<bool>
     {
         private readonly RoomSightSense roomSightSense;
 

@@ -17,7 +17,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Elevator
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            elevatorObstacle = fpcMind.ActionImpactsWithCondition<ElevatorObstacle>(this, b => !b.Has());
+            elevatorObstacle = fpcMind.ActionImpacts<ElevatorObstacle, bool>(this, b => !b.Has());
         }
 
         private readonly FpcBotPlayer botPlayer;

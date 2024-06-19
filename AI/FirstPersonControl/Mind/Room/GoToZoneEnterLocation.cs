@@ -26,7 +26,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActionImpactsWithCondition<ZoneWithin>(this, b => !b.HasTargetWithin(Zone, FromZone));
+            fpcMind.ActionImpacts<ZoneWithin, FacilityZone?>(this, b => Zone);
         }
 
         public void Reset()

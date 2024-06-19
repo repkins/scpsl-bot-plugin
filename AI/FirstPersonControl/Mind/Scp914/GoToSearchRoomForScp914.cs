@@ -11,7 +11,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActionEnabledBy<ZoneWithin>(this, b => b.Is(FacilityZone.LightContainment));
+            fpcMind.ActionEnabledBy<ZoneWithin, FacilityZone?>(this, b => FacilityZone.LightContainment, b => b.Zone);
             roomEnterLocation = fpcMind.ActionEnabledBy<RoomEnterLocation>(this, b => b.Position.HasValue);
 
             fpcMind.ActionEnabledBy<DoorObstacle>(this, b => !b.Is(roomEnterLocation.Position!.Value));

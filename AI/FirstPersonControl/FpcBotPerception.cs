@@ -117,10 +117,6 @@ namespace SCPSLBot.AI.FirstPersonControl
             return Senses.Find(s => s is T) as T;
         }
 
-        private const int OverlappingCollidersBufferSize = 1000;
-        private static readonly Collider[] _overlappingCollidersBuffer = new Collider[OverlappingCollidersBufferSize];
-        private static int _numOverlappingColliders;
-
         private FpcBotPlayer _fpcBotPlayer;
 
         private LayerMask _perceptionLayerMask = LayerMask.GetMask("Hitbox", "Door", "InteractableNoPlayerCollision", "Glass");

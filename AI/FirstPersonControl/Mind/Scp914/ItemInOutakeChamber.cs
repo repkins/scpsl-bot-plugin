@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 {
-    internal class ItemInOutakeChamber : IBelief
+    internal class ItemInOutakeChamber : Belief<bool>
     {
         public IItemBeliefCriteria Criteria { get; }
 
@@ -63,14 +63,13 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
         }
 
         public Vector3? PositionRelative { get; private set; }
-        public event Action OnUpdate;
 
         public void Update(Vector3? newRelativePosition)
         {
             if (newRelativePosition != this.PositionRelative)
             {
                 this.PositionRelative = newRelativePosition;
-                this.OnUpdate?.Invoke();
+                this.InvokeOnUpdate();
             }
         }
 

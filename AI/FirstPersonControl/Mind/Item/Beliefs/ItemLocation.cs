@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 {
-    internal class ItemLocation<C> : IBelief where C : IItemBeliefCriteria
+    internal class ItemLocation<C> : Belief<bool> where C : IItemBeliefCriteria
     {
         public C Criteria { get; }
         private ItemLocation(C criteria)
@@ -39,7 +39,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
         }
 
         public Vector3? AccessiblePosition;
-        public event Action OnUpdate;
 
         protected void SetAccesablePosition(Vector3 newPosition)
         {
@@ -48,14 +47,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
                 this.inaccessiblePositions.Remove(newPosition);
 
                 this.AccessiblePosition = newPosition;
-                this.OnUpdate?.Invoke();
+                this.InvokeOnUpdate();
             }
         }
 
         protected void ClearPosition()
         {
             this.AccessiblePosition = null;
-            this.OnUpdate?.Invoke();
+            this.InvokeOnUpdate();
         }
 
         private void EvaluateSetAccesablePosition()

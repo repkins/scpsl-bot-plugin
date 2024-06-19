@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Misc
 {
-    internal class GlassObstacle : IBelief
+    internal class GlassObstacle : Belief<bool>
     {
         private readonly FpcBotNavigator navigator;
 
@@ -62,7 +62,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Misc
             {
                 Windows[goalPos] = window;
                 Rays[goalPos] = ray;
-                OnUpdate?.Invoke();
+                InvokeOnUpdate();
             }
         }
 
@@ -72,15 +72,13 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Misc
             {
                 Windows.Remove(goalPos);
                 Rays.Remove(goalPos);
-                OnUpdate?.Invoke();
+                InvokeOnUpdate();
             }
         }
 
         public bool IsAny => Windows.Count > 0;
         public Dictionary<Vector3, BreakableWindow> Windows { get; } = new();
         public Dictionary<Vector3, Ray> Rays { get; } = new();
-
-        public event Action OnUpdate;
 
         public bool Is(Vector3 goalPos)
         {
