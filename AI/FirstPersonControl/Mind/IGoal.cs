@@ -3,7 +3,5 @@
     internal interface IGoal
     {
         void SetEnabledByBeliefs(FpcMind fpcMind);
-
-        bool Condition();
     }
 }

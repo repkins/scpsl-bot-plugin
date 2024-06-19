@@ -89,24 +89,30 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
             return belief;
         }
 
-        public B GoalEnabledBy<B>(IGoal goal) where B : class, IBelief
+        public B GoalEnabledBy<B, S>(IGoal goal, Func<B, S> targetGetter, Func<B, S> currentGetter) where B : class, IBelief<S>
         {
             var beliefsOfType = Beliefs[typeof(B)];
-            var belief = beliefsOfType.First();
+            var belief = beliefsOfType.Single();
 
-            GoalEnabledBy(goal, belief);
-
-            return belief as B;
+            return GoalEnabledBy(goal, belief as B, targetGetter, currentGetter);
         }
 
-        public B GoalEnabledBy<B>(IGoal goal, Predicate<B> predicate) where B : class, IBelief
+        public B GoalEnabledBy<B, S>(IGoal goal, Predicate<B> predicate, Func<B, S> targetGetter, Func<B, S> currentGetter) where B : class, IBelief<S>
         {
             var beliefsOfType = Beliefs[typeof(B)];
             var belief = beliefsOfType.Find(b => predicate(b as B));
 
-            GoalEnabledBy(goal, belief);
+            return GoalEnabledBy(goal, belief as B, targetGetter, currentGetter);
+        }
 
-            return belief as B;
+        public B GoalEnabledBy<B, S>(IGoal goal, B belief, Func<B, S> targetGetter, Func<B, S> currentGetter) where B : class, IBelief<S>
+        {
+            belief.AddEnablingGoal(goal, targetGetter, currentGetter);
+
+            BeliefsEnablingGoals[belief].Add(goal);
+            GoalsEnabledByBeliefs[goal].Add(belief);
+
+            return belief;
         }
 
         public FpcMind AddAction(IAction action)
@@ -163,15 +169,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
         public IEnumerable<B> GetBeliefs<B>() where B : class, IBelief
         {
             return Beliefs[typeof(B)].Select(b => b as B);
-        }
-
-        private void GoalEnabledBy(IGoal goal, IBelief belief)
-        {
-            var enablesGoals = BeliefsEnablingGoals[belief];
-            enablesGoals.Add(goal);
-
-            var enabledBy = GoalsEnabledByBeliefs[goal];
-            enabledBy.Add(belief);
         }
     }
 }

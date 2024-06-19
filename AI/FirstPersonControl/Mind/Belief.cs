@@ -17,6 +17,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
             actionsImpactingGetters.Add(action, b => impactGetter(b as B));
         }
 
+        private readonly Dictionary<IGoal, (Func<IBelief, S>, Func<IBelief, S>)> goalsEnabledByGetters = new();
+        public void AddEnablingGoal<B>(IGoal goal, Func<B, S> targetGetter, Func<B, S> currentGetter) where B : class, IBelief
+        {
+            goalsEnabledByGetters.Add(goal, (b => targetGetter(b as B), b => currentGetter(b as B)));
+        }
+
         public bool EvaluateEnabling(IAction action)
         {
             var (targetGetter, currentGetter) = actionsEnabledByGetters[action];
@@ -29,6 +35,26 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
         public bool EvaluateImpact(IAction actionImpacting, IAction actionToEnable)
         {
             var (targetGetter, _) = actionsEnabledByGetters[actionToEnable];
+            var impactGetter = actionsImpactingGetters[actionImpacting];
+
+            var targetState = targetGetter(this);
+            var impactState = impactGetter(this);
+
+            return EqualityComparer<S>.Default.Equals(targetState, impactState);
+        }
+
+        public bool EvaluateEnabling(IGoal goal)
+        {
+            var (targetGetter, currentGetter) = goalsEnabledByGetters[goal];
+            var targetState = targetGetter(this);
+            var currentState = currentGetter(this);
+
+            return EqualityComparer<S>.Default.Equals(targetState, currentState);
+        }
+
+        public bool EvaluateImpact(IAction actionImpacting, IGoal goalToEnable)
+        {
+            var (targetGetter, _) = goalsEnabledByGetters[goalToEnable];
             var impactGetter = actionsImpactingGetters[actionImpacting];
 
             var targetState = targetGetter(this);

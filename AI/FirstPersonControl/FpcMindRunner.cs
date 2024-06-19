@@ -98,35 +98,41 @@ namespace SCPSLBot.AI.FirstPersonControl
             Log.Debug($"    Getting enabled Actions towards goals.");
 
             var allGoals = GoalsEnabledByBeliefs.Keys;
-            var enabledActions = allGoals
-                .Select(d => { 
-                    Log.Debug($"    Evaluating goal {d.GetType().Name}"); 
-                    return d;
-                })
-                .Where(d => !d.Condition())
-                .Select(d => {
-                    Log.Debug($"    Goal {d.GetType().Name} not fulfilled");
-                    return d;
-                })
-                .SelectMany(d => GoalsEnabledByBeliefs[d])
-                .Select(b => 
-                {
-                    RelevantBeliefs.Add(b);
-
-                    return b;
-                })
-                .SelectMany(b => GetClosestActionsImpacting(b));
-            
-            Profiler.EndSample();
+            var enabledActions = allGoals.SelectMany(GetEnabledActionsTowardsGoal);
 
             return enabledActions;
         }
 
-        private IEnumerable<IAction> GetClosestActionsImpacting(IBelief belief)
+        private IEnumerable<IAction> GetEnabledActionsTowardsGoal(IGoal goal)
         {
-            Log.Debug($"    Getting Actions impacting {belief}");
+            Log.Debug($"    Goal {goal.GetType().Name}...");            
 
-            var actionsImpacting = BeliefsImpactedByActions[belief];
+            var enabledActions = GoalsEnabledByBeliefs[goal]
+                .Select(b =>
+                {
+                    Log.Debug($"    Belief {b}...");
+
+                    RelevantBeliefs.Add(b);
+                    return b;
+                })
+                .Where(b => !b.EvaluateEnabling(goal))
+                .Select(b =>
+                {
+                    Log.Debug($"    Belief {b} needs to be satisfied.");
+
+                    return b;
+                })
+                .SelectMany(b => GetClosestActionsImpacting(b, goal));
+
+            return enabledActions;
+        }
+
+        private IEnumerable<IAction> GetClosestActionsImpacting(IBelief belief, IGoal goalToEnable)
+        {
+            Log.Debug($"    Getting Actions impacting {belief} to enable {goalToEnable}");
+
+            var actionsImpacting = BeliefsImpactedByActions[belief]
+                .Where(a => belief.EvaluateImpact(a, goalToEnable));
 
             var enabledActions = actionsImpacting.SelectMany(GetClosestEnablingActions);
 
@@ -136,6 +142,8 @@ namespace SCPSLBot.AI.FirstPersonControl
         private IEnumerable<IAction> GetClosestEnablingActions(IAction actionToEnable)
         {
             Log.Debug($"    Action {actionToEnable}...");
+
+            visitedActions.Add(actionToEnable);
 
             var beliefsEnabling = ActionsEnabledByBeliefs[actionToEnable];
             if (beliefsEnabling.All(b => b.EvaluateEnabling(actionToEnable)))
@@ -174,12 +182,15 @@ namespace SCPSLBot.AI.FirstPersonControl
             }
         }
 
+        private readonly HashSet<IAction> visitedActions = new HashSet<IAction>();
+
         private IEnumerable<IAction> GetClosestActionsImpacting(IBelief belief, IAction actionToEnable)
         {
             Log.Debug($"    Getting Actions impacting {belief} to enable {actionToEnable}");
 
             var actionsImpacting = BeliefsImpactedByActions[belief]
-                .Where(a => belief.EvaluateImpact(a, actionToEnable));
+                .Where(a => belief.EvaluateImpact(a, actionToEnable))
+                .Where(a => !visitedActions.Contains(a));
 
             var enabledActions = actionsImpacting.SelectMany(GetClosestEnablingActions);
 

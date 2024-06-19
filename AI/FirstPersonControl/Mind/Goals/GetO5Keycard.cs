@@ -9,12 +9,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Goals
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            _keycardO5InInventory = fpcMind.GoalEnabledBy<ItemInInventory<ItemOfType>>(this, b => b.Criteria.Equals(ItemType.KeycardO5));
-        }
-
-        public bool Condition()
-        {
-            return _keycardO5InInventory.Item;
+            _keycardO5InInventory = fpcMind.GoalEnabledBy<ItemInInventory<ItemOfType>, bool>(this, b => b.Criteria.Equals(ItemType.KeycardO5), b => true, b => b.Item);
         }
     }
 }

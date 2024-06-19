@@ -10,12 +10,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Goals
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
             //entranceZoneEnterLocation = fpcMind.GoalEnabledBy<ZoneEnterLocation>(this, b => b.Zone == FacilityZone.Entrance);
-            zoneWithin = fpcMind.GoalEnabledBy<ZoneWithin>(this);
-        }
-
-        public bool Condition()
-        {
-            return zoneWithin.Zone == FacilityZone.Entrance;
+            zoneWithin = fpcMind.GoalEnabledBy<ZoneWithin, FacilityZone?>(this, b => FacilityZone.Entrance, b => b.Zone);
         }
     }
 }

@@ -9,7 +9,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
     internal class SpatialSense : ISense
     {
         public event Action<Vector3> OnSensedPlayerPosition;
-        public FacilityRoom RoomPlayerAt;
 
         public SpatialSense(FpcBotPlayer botPlayer)
         {

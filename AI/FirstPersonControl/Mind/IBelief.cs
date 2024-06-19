@@ -10,6 +10,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
     {
         void AddEnablingAction<B>(IAction action, Func<B, S> targetGetter, Func<B, S> currentGetter) where B : class, IBelief;
         void AddActionImpacting<B>(IAction action, Func<B, S> impactGetter) where B : class, IBelief;
+        void AddEnablingGoal<B>(IGoal goal, Func<B, S> targetGetter, Func<B, S> currentGetter) where B : class, IBelief;
     }
 
     internal interface IBelief
@@ -17,6 +18,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
         event Action OnUpdate;
 
         bool EvaluateEnabling(IAction action);
+        bool EvaluateEnabling(IGoal goal);
         bool EvaluateImpact(IAction actionImpacting, IAction actionToEnable);
+        bool EvaluateImpact(IAction actionImpacting, IGoal goalToEnable);
     }
 }
