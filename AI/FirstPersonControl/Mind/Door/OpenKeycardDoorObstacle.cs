@@ -31,7 +31,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            doorObstacleBelief = fpcMind.ActionImpactsWithCondition<DoorObstacle>(this, b => !b.GetLastDoor(Permissions));
+            doorObstacleBelief = fpcMind.ActionImpacts<DoorObstacle, bool>(this, b => !b.GetLastDoor(Permissions));
         }
 
         public void Tick()

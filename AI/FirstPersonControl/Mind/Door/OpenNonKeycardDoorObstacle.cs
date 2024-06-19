@@ -1,10 +1,5 @@
 ﻿using Interactables.Interobjects.DoorUtils;
 using PluginAPI.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
@@ -26,7 +21,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            doorObstacleBelief = fpcMind.ActionImpactsWithCondition<DoorObstacle>(this, b => !b.GetLastDoor(KeycardPermissions.None));
+            doorObstacleBelief = fpcMind.ActionImpacts<DoorObstacle, bool>(this, b => !b.GetLastDoor(KeycardPermissions.None));
         }
 
         public void Tick()

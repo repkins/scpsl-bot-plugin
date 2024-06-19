@@ -13,12 +13,32 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
 
         public Dictionary<IGoal, List<IBelief>> GoalsEnabledByBeliefs { get; } = new Dictionary<IGoal, List<IBelief>>();
 
-        public Dictionary<IAction, Predicate<IBelief>> ActionEnablingConditions { get; } = new Dictionary<IAction, Predicate<IBelief>>();
+        //public Dictionary<IAction, Predicate<IBelief>> ActionEnablingConditions { get; } = new Dictionary<IAction, Predicate<IBelief>>();
 
         public Dictionary<Type, List<IBelief>> Beliefs { get; } = new Dictionary<Type, List<IBelief>>();
         public Dictionary<IBelief, List<IAction>> BeliefsEnablingActions { get; } = new Dictionary<IBelief, List<IAction>>();
         public Dictionary<IBelief, List<(IAction Action, Predicate<IBelief> Condition)>> BeliefsImpactedByActions { get; } = new ();
         public Dictionary<IBelief, List<IGoal>> BeliefsEnablingGoals { get; } = new Dictionary<IBelief, List<IGoal>>();
+
+        public B ActionEnabledBy<B, S>(IAction action, Func<B, S> targetGetter, Func<B, S> currentGetter) where B : class, IBelief<B, S>
+        {
+            var beliefsOfType = Beliefs[typeof(B)];
+            var belief = beliefsOfType.First() as B;
+
+            belief!.AddEnablingAction(action, targetGetter, currentGetter);
+
+            return belief as B;
+        }
+
+        public B ActionImpacts<B, S>(IAction action, Func<B, S> impactGetter) where B : class, IBelief<B, S>
+        {
+            var beliefsOfType = Beliefs[typeof(B)];
+            var belief = beliefsOfType.First() as B;
+
+            belief!.AddActionImpacting(action, impactGetter);
+
+            return belief as B;
+        }
 
         public B ActionEnabledBy<B>(IAction action, Predicate<B> condition) where B : class, IBelief
         {

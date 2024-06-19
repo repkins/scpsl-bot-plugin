@@ -10,7 +10,7 @@ using Random = UnityEngine.Random;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs
 {
-    internal class RoomEnterLocation : IBelief
+    internal class RoomEnterLocation : Belief<RoomEnterLocation, bool>
     {
         private readonly RoomSightSense roomSightSense;
 
@@ -78,14 +78,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs
         };
 
         public Vector3? Position { get; private set; }
-        public event Action OnUpdate;
-
         protected void Update(Vector3? position)
         {
             if (position != Position)
             {
                 Position = position;
-                OnUpdate?.Invoke();
+                InvokeOnUpdate();
             }
         }
 

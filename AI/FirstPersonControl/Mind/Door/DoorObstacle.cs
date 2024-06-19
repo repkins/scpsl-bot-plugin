@@ -20,7 +20,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
     internal record struct DoorEntry(DoorVariant Door, KeycardPermissions Permissions);
 
-    internal class DoorObstacle : IBelief
+    internal class DoorObstacle : Belief<DoorObstacle, bool>
     {
         private readonly FpcBotNavigator navigator;
 
@@ -88,7 +88,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
                 }
                 GoalPositions.Add(goalPos);
                 Doors[goalPos] = doorEntry;
-                OnUpdate?.Invoke();
+                InvokeOnUpdate();
             }
         }
 
@@ -98,15 +98,13 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
             {
                 GoalPositions.Remove(goalPos);
                 Doors.Remove(goalPos);
-                OnUpdate?.Invoke();
+                InvokeOnUpdate();
             }
         }
 
         public bool IsAny => Doors.Count > 0;
         public Dictionary<Vector3, DoorEntry> Doors { get; } = new();
         private readonly List<Vector3> GoalPositions = new();
-
-        public event Action OnUpdate;
 
         public bool Is(Vector3 goalPos)
         {
