@@ -23,7 +23,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            doorObstacleBelief = fpcMind.ActionImpacts<DoorObstacle, bool>(this, b => !b.GetLastUninteractableDoor());
+            doorObstacleBelief = fpcMind.ActionImpacts<DoorObstacle, bool>(this, b => b.GetLastUninteractableDoor());
         }
 
         public void Tick()
