@@ -17,9 +17,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
     {
         event Action OnUpdate;
 
-        bool EvaluateEnabling(IAction action);
+        bool IsEnabledAction(IAction action);
         bool EvaluateEnabling(IGoal goal);
-        bool EvaluateImpact(IAction actionImpacting, IAction actionToEnable);
-        bool EvaluateImpact(IAction actionImpacting, IGoal goalToEnable);
+        bool CanImpactedByAction(IAction actionImpacting, IAction actionToEnable);
+        bool CanImpactedByAction(IAction actionImpacting, IGoal goalToEnable);
     }
 }

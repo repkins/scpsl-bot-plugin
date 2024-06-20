@@ -23,7 +23,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
             goalsEnabledByGetters.Add(goal, (b => targetGetter(b as B), b => currentGetter(b as B)));
         }
 
-        public bool EvaluateEnabling(IAction action)
+        public bool IsEnabledAction(IAction action)
         {
             var (targetGetter, currentGetter) = actionsEnabledByGetters[action];
             var targetState = targetGetter(this);
@@ -32,7 +32,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
             return EqualityComparer<S>.Default.Equals(targetState, currentState);
         }
 
-        public bool EvaluateImpact(IAction actionImpacting, IAction actionToEnable)
+        public bool CanImpactedByAction(IAction actionImpacting, IAction actionToEnable)
         {
             var (targetGetter, _) = actionsEnabledByGetters[actionToEnable];
             var impactGetter = actionsImpactingGetters[actionImpacting];
@@ -52,7 +52,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
             return EqualityComparer<S>.Default.Equals(targetState, currentState);
         }
 
-        public bool EvaluateImpact(IAction actionImpacting, IGoal goalToEnable)
+        public bool CanImpactedByAction(IAction actionImpacting, IGoal goalToEnable)
         {
             var (targetGetter, _) = goalsEnabledByGetters[goalToEnable];
             var impactGetter = actionsImpactingGetters[actionImpacting];
