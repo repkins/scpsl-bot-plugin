@@ -33,6 +33,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
         private readonly HashSet<Vector3> visitedLockerSpawnPositions = new();
 
         private readonly Stopwatch stopwatch = new();
+        private readonly HashSet<Vector3> absentPositions = new();
 
         private void OnAfterSightSensing()
         {
@@ -51,9 +52,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
                     this.stopwatch.Stop();
 
                     this.visitedLockerSpawnPositions.Add(spawnPosition);
-                    RemovePosition(spawnPosition);
+                    absentPositions.Add(spawnPosition);
                 }
             }
+
+            RemoveAllPositions(absentPositions.Remove);
         }
 
         private readonly List<Vector3> spawnPositions = new();

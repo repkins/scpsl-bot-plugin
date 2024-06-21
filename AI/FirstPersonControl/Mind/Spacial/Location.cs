@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Spacial
@@ -26,10 +27,47 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Spacial
 
         protected void SetPositions(IEnumerable<Vector3> newPositions)
         {
-            Positions.Clear();
-            Positions.AddRange(newPositions);
+            var changed = false;
 
-            InvokeOnUpdate();
+            var posCount = Positions.Count;
+            var i = 0;
+            foreach (var pos in newPositions)
+            {
+                if (posCount > i)
+                {
+                    if (Positions[i] != pos)
+                    {
+                        Positions[i] = pos;
+                        changed = true;
+                    }
+                }
+                else
+                {
+                    Positions.Add(pos);
+                    changed = true;
+                }
+
+                i++;
+            }
+
+            if (posCount > i)
+            {
+                Positions.RemoveRange(i, posCount - i);
+                changed = true;
+            }
+
+            if (changed)
+            {
+                InvokeOnUpdate();
+            }
+        }
+
+        protected void RemoveAllPositions(Predicate<Vector3> predicate)
+        {
+            if (Positions.RemoveAll(predicate) > 0)
+            {
+                InvokeOnUpdate(); 
+            }
         }
     }
 }

@@ -5,6 +5,7 @@ using SCPSLBot.AI.FirstPersonControl.Mind.Item;
 using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -47,6 +48,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
             }
         }
 
+        private readonly HashSet<Vector3> absentPositions = new();
+
         private void OnAfterSensedItemsWithinSight()
         {
             if (this.Positions.Any() && numItemsWithinSight < this.Positions.Count)
@@ -56,9 +59,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
                     if (this.itemsSightSense.IsPositionWithinFov(itemPosition)
                         && (!this.itemsSightSense.IsPositionObstructed(itemPosition)))
                     {
-                        RemovePosition(itemPosition);
+                        absentPositions.Add(itemPosition);
                     }
                 }
+                RemoveAllPositions(absentPositions.Remove);
             }
 
             numItemsWithinSight = 0;

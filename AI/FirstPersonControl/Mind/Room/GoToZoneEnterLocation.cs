@@ -1,6 +1,7 @@
 ﻿using MapGeneration;
 using SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs;
 using SCPSLBot.AI.FirstPersonControl.Mind.Spacial;
+using System;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Room
@@ -15,6 +16,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room
             FromZone = fromZone;
 
             this.botPlayer = botPlayer;
+        }
+
+        protected override ZoneEnterLocation SetEnabledByLocation(FpcMind fpcMind, Func<ZoneEnterLocation, bool> currentGetter)
+        {
+            return fpcMind.ActionEnabledBy<ZoneEnterLocation>(this, b => b.Zone == Zone && b.FromZone == FromZone, currentGetter);
         }
 
         public override void SetImpactsBeliefs(FpcMind fpcMind)

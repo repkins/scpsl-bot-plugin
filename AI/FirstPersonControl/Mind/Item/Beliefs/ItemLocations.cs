@@ -1,5 +1,4 @@
 ﻿using SCPSLBot.AI.FirstPersonControl.Mind.Spacial;
-using System;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 {

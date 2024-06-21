@@ -54,6 +54,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
             this.itemSpawns.Add((itemSpawnPosition, chamber));
         }
 
+        private readonly HashSet<Vector3> absentPositions = new();
+
         private void OnAfterSensedLockersWithinSight()
         {
             foreach (var locker in lockersSightSense.LockersWithinSight)
@@ -83,8 +85,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
                     if (!lockersSightSense.IsPositionObstructed(itemSpawnPosition, out var obstruction))
                     {
                         this.visitedItemSpawnPositions.Add(itemSpawnPosition);
+                        absentPositions.Add(itemSpawnPosition);
 
-                        RemovePosition(itemSpawnPosition);
                         this.LockerDoors.Remove(itemSpawnPosition);
                         this.LockerDirections.Remove(itemSpawnPosition);
                     }
@@ -95,6 +97,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
                     }
                 }
             }
+
+            RemoveAllPositions(absentPositions.Remove);
 
             var unvisitedItemSpawns = this.itemSpawns
                 .Where(itemSpawn => !this.visitedItemSpawnPositions.Contains(itemSpawn.Position));

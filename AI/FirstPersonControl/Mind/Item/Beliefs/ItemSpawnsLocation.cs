@@ -29,6 +29,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
         }
 
         private readonly HashSet<Vector3> visitedSpawnPositions = new();
+        private readonly HashSet<Vector3> absentPositions = new();
 
         private void OnAfterSensedItemsWithinSight()
         {
@@ -39,9 +40,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
                     && (!itemsSightSense.IsPositionObstructed(spawnPosition)))
                 {
                     this.visitedSpawnPositions.Add(spawnPosition);
-                    RemovePosition(spawnPosition);
+                    absentPositions.Add(spawnPosition);
                 }
             }
+
+            RemoveAllPositions(absentPositions.Remove);
         }
 
         private readonly List<Vector3> itemSpawnPositions = new();

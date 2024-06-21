@@ -31,6 +31,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
             }
         }
 
+        private readonly HashSet<Vector3> absentPositions = new();
+
         private void HandleAfterSensedItems()
         {
             // Evaluate item positions out of sight
@@ -41,10 +43,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
                     if (itemsSightSense.IsPositionWithinFov(sightedPosition)
                         && (!itemsSightSense.IsPositionObstructed(sightedPosition) || itemsSightSense.GetDistanceToPosition(sightedPosition) < 1.5f))
                     {
-                        RemovePosition(sightedPosition);
+                        absentPositions.Add(sightedPosition);
                     }
                 }
+                RemoveAllPositions(absentPositions.Remove);
             }
+
             numItemsWithinSight = 0;
         }
 
