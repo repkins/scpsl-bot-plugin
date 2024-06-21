@@ -23,12 +23,18 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs
             //Log.Debug($"seed for room selection: {seed}");
         }
 
-        private FacilityRoom enteringAreaRoom;
-
         private readonly Dictionary<FacilityRoom, float> roomsLastVisitTime = new();
         private FacilityRoom prevRoomWithin;
 
         //private readonly int seed;
+
+        private readonly static HashSet<RoomName> checkpointRoomNames = new()
+        {
+            RoomName.LczCheckpointA,
+            RoomName.LczCheckpointB,
+            RoomName.HczCheckpointA,
+            RoomName.HczCheckpointB,
+        };
 
         private void OnAfterSensedForeignRooms()
         {
@@ -39,57 +45,38 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs
             {
                 roomsLastVisitTime[prevRoomWithin] = Time.time;
             }
-            prevRoomWithin = roomWithin;
 
-            // Reached target room check
-            if (enteringAreaRoom == roomWithin || enteringAreaRoom == null)
+            // Reached different room check
+            if (roomWithin != prevRoomWithin)
             {
                 //var prevRandomState = Random.state;
                 //Random.InitState(seed);
 
                 var foreignRoomAreas = this.roomSightSense.ForeignRoomsAreas;
-                var enteringArea = foreignRoomAreas
+                var enteringAreas = foreignRoomAreas
                     .Where(fa => fa.Room.Identifier.Zone == roomWithin.Identifier.Zone)
                     .Where(fa => fa.Room.Identifier.Shape != RoomShape.Endroom || checkpointRoomNames.Contains(fa.Room.Identifier.Name))
-                    .OrderBy(fa => roomsLastVisitTime.TryGetValue(fa.Room, out var time) ? time : -Random.Range(0f, 4f))
-                    .FirstOrDefault();
+                    .OrderBy(fa => roomsLastVisitTime.TryGetValue(fa.Room, out var time) ? time : -Random.Range(0f, 4f));
 
-                if (enteringArea is null)
-                {
-                    Log.Warning($"No entering foreign area found. Current room within {this.roomSightSense.RoomWithin.Name}");
-                    return;
-                }
-
-                enteringAreaRoom = enteringArea.Room;
-
-                var enterPosition = enteringArea.CenterPosition;
-                Update(enterPosition);
+                Update(enteringAreas.Select(a => a.CenterPosition));
 
                 //Random.state = prevRandomState;
             }
+
+            prevRoomWithin = roomWithin;
         }
 
-        private readonly HashSet<RoomName> checkpointRoomNames = new()
+        public List<Vector3> Positions { get; } = new();
+        private void Update(IEnumerable<Vector3> enteringAreas)
         {
-            RoomName.LczCheckpointA,
-            RoomName.LczCheckpointB,
-            RoomName.HczCheckpointA,
-            RoomName.HczCheckpointB,
-        };
-
-        public Vector3? Position { get; private set; }
-        protected void Update(Vector3? position)
-        {
-            if (position != Position)
-            {
-                Position = position;
-                InvokeOnUpdate();
-            }
+            Positions.Clear();
+            Positions.AddRange(enteringAreas);
+            InvokeOnUpdate();
         }
 
         public override string ToString()
         {
-            return $"{nameof(RoomEnterLocation)}: {enteringAreaRoom?.Identifier.Name}, {enteringAreaRoom?.Identifier.Shape}, {enteringAreaRoom?.Identifier.Zone}";
+            return $"{nameof(RoomEnterLocation)}s: {Positions.Count}";
         }
     }
 }

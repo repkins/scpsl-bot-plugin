@@ -9,18 +9,20 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
     internal class GoToSearchRoom<C> : IAction where C : IItemBeliefCriteria, IEquatable<C>
     {
         public readonly C Criteria;
-        public GoToSearchRoom(C criteria, FpcBotPlayer botPlayer) : this(botPlayer)
+        public int Idx;
+        public GoToSearchRoom(C criteria, int idx, FpcBotPlayer botPlayer) : this(botPlayer)
         {
             this.Criteria = criteria;
+            this.Idx = idx;
         }
 
         private RoomEnterLocation roomEnterLocation;
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            roomEnterLocation = fpcMind.ActionEnabledBy<RoomEnterLocation, bool>(this, b => true, b => b.Position.HasValue);
+            roomEnterLocation = fpcMind.ActionEnabledBy<RoomEnterLocation>(this, b => b.Positions.Count > Idx);
 
-            fpcMind.ActionEnabledBy<DoorObstacle, bool>(this, b => true, b => !b.Is(roomEnterLocation.Position!.Value));
+            fpcMind.ActionEnabledBy<DoorObstacle>(this, b => !b.Is(roomEnterLocation.Positions[Idx]));
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
@@ -35,7 +37,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
 
         public void Tick()
         {
-            var enterPosition = roomEnterLocation.Position!.Value;
+            var enterPosition = roomEnterLocation.Positions[Idx];
             var cameraPosition = botPlayer.BotHub.PlayerHub.PlayerCameraReference.position;
 
             if (Vector3.Distance(enterPosition, cameraPosition) > 1.25f)
@@ -51,7 +53,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
 
         public override string ToString()
         {
-            return $"{nameof(GoToSearchRoom<C>)}({this.Criteria})";
+            return $"{nameof(GoToSearchRoom<C>)}({this.Criteria}, {Idx})";
         }
 
         protected readonly FpcBotPlayer botPlayer;

@@ -41,17 +41,17 @@ namespace SCPSLBot.AI.FirstPersonControl
             mind.AddAction(new GoToZoneEnterLocation(FacilityZone.HeavyContainment, FacilityZone.LightContainment, botPlayer));
             mind.AddAction(new GoToZoneEnterLocation(FacilityZone.HeavyContainment, FacilityZone.Entrance, botPlayer));
             mind.AddAction(new GoToZoneEnterLocation(FacilityZone.Entrance, FacilityZone.HeavyContainment, botPlayer));
-            mind.AddAction(new GoToSearchRoomForZoneEnterLocation(FacilityZone.LightContainment, FacilityZone.HeavyContainment, botPlayer));
-            mind.AddAction(new GoToSearchRoomForZoneEnterLocation(FacilityZone.HeavyContainment, FacilityZone.LightContainment, botPlayer));
-            mind.AddAction(new GoToSearchRoomForZoneEnterLocation(FacilityZone.HeavyContainment, FacilityZone.Entrance, botPlayer));
-            mind.AddAction(new GoToSearchRoomForZoneEnterLocation(FacilityZone.Entrance, FacilityZone.HeavyContainment, botPlayer));
+            mind.AddActions(idx => new GoToSearchRoomForZoneEnterLocation(FacilityZone.LightContainment, FacilityZone.HeavyContainment, idx, botPlayer));
+            mind.AddActions(idx => new GoToSearchRoomForZoneEnterLocation(FacilityZone.HeavyContainment, FacilityZone.LightContainment, idx, botPlayer));
+            mind.AddActions(idx => new GoToSearchRoomForZoneEnterLocation(FacilityZone.HeavyContainment, FacilityZone.Entrance, idx, botPlayer));
+            mind.AddActions(idx => new GoToSearchRoomForZoneEnterLocation(FacilityZone.Entrance, FacilityZone.HeavyContainment, idx, botPlayer));
 
 
             mind.AddBelief(new Scp914Location(perception.GetSense<RoomSightSense>()));
             mind.AddBelief(new Scp914Controls(perception.GetSense<InteractablesWithinSightSense>()));
             mind.AddBelief(new Scp914RunningOnSetting(perception.GetSense<RoomSightSense>()));
 
-            mind.AddAction(new GoToSearchRoomForScp914(botPlayer));
+            mind.AddActions(idx => new GoToSearchRoomForScp914(idx, botPlayer));
             mind.AddAction(new GoToStartScp914OnSetting(Scp914.Scp914KnobSetting.Fine, botPlayer));
             mind.AddAction(new GoToStartScp914OnSetting(Scp914.Scp914KnobSetting.OneToOne, botPlayer));
 
@@ -229,7 +229,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             mind.AddAction(new GoToItemSpawnLocation<ItemOfType>(ItemType.KeycardScientist, botPlayer));
             mind.AddAction(new GoToLockerSpawnLocation<ItemOfType>(ItemType.KeycardScientist, StructureType.StandardLocker, botPlayer));
             mind.AddAction(new GoToItemInLocker<ItemOfType>(ItemType.KeycardScientist, botPlayer));
-            mind.AddAction(new GoToSearchRoom<ItemOfType>(ItemType.KeycardScientist, botPlayer));
+            mind.AddActions(idx => new GoToSearchRoom<ItemOfType>(ItemType.KeycardScientist, idx, botPlayer));
             #endregion
 
 
@@ -240,7 +240,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             mind.AddAction(new GoToItemSpawnLocation<ItemOfType>(ItemType.KeycardZoneManager, botPlayer));
             mind.AddAction(new GoToLockerSpawnLocation<ItemOfType>(ItemType.KeycardZoneManager, StructureType.StandardLocker, botPlayer));
             mind.AddAction(new GoToItemInLocker<ItemOfType>(ItemType.KeycardZoneManager, botPlayer));
-            mind.AddAction(new GoToSearchRoom<ItemOfType>(ItemType.KeycardZoneManager, botPlayer));
+            mind.AddActions(idx => new GoToSearchRoom<ItemOfType>(ItemType.KeycardZoneManager, idx, botPlayer));
             #endregion
 
             #region KeycardJanitor searching
@@ -250,7 +250,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             mind.AddAction(new GoToItemSpawnLocation<ItemOfType>(ItemType.KeycardJanitor, botPlayer));
             mind.AddAction(new GoToLockerSpawnLocation<ItemOfType>(ItemType.KeycardJanitor, StructureType.StandardLocker, botPlayer));
             mind.AddAction(new GoToItemInLocker<ItemOfType>(ItemType.KeycardJanitor, botPlayer));
-            mind.AddAction(new GoToSearchRoom<ItemOfType>(ItemType.KeycardJanitor, botPlayer));
+            mind.AddActions(idx => new GoToSearchRoom<ItemOfType>(ItemType.KeycardJanitor, idx, botPlayer));
             #endregion
 
 
@@ -270,7 +270,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             mind.AddAction(new GoToItemSpawnLocation<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelOne), botPlayer));
             mind.AddAction(new GoToLockerSpawnLocation<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelOne), StructureType.StandardLocker, botPlayer));
             mind.AddAction(new GoToItemInLocker<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelOne), botPlayer));
-            mind.AddAction(new GoToSearchRoom<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelOne), botPlayer));
+            mind.AddActions(idx => new GoToSearchRoom<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelOne), idx, botPlayer));
 
 
             mind.AddBelief(new ItemSightedLocation<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelTwo), perception.GetSense<ItemsWithinSightSense>(), mind.GetBelief<DoorObstacle>()));
@@ -289,7 +289,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             mind.AddAction(new GoToItemSpawnLocation<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelTwo), botPlayer));
             mind.AddAction(new GoToLockerSpawnLocation<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelTwo), StructureType.StandardLocker, botPlayer));
             mind.AddAction(new GoToItemInLocker<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelTwo), botPlayer));
-            mind.AddAction(new GoToSearchRoom<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelTwo), botPlayer));
+            mind.AddActions(idx => new GoToSearchRoom<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelTwo), idx, botPlayer));
 
 
             mind.AddBelief(new ItemSightedLocation<KeycardWithPermissions>(new(KeycardPermissions.Checkpoints), perception.GetSense<ItemsWithinSightSense>(), mind.GetBelief<DoorObstacle>()));
@@ -308,7 +308,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             mind.AddAction(new GoToItemSpawnLocation<KeycardWithPermissions>(new(KeycardPermissions.Checkpoints), botPlayer));
             mind.AddAction(new GoToLockerSpawnLocation<KeycardWithPermissions>(new(KeycardPermissions.Checkpoints), StructureType.StandardLocker, botPlayer));
             mind.AddAction(new GoToItemInLocker<KeycardWithPermissions>(new(KeycardPermissions.Checkpoints), botPlayer));
-            mind.AddAction(new GoToSearchRoom<KeycardWithPermissions>(new(KeycardPermissions.Checkpoints), botPlayer));
+            mind.AddActions(idx => new GoToSearchRoom<KeycardWithPermissions>(new(KeycardPermissions.Checkpoints), idx, botPlayer));
 
 
             mind.AddAction(new OpenNonKeycardDoorObstacle(botPlayer));

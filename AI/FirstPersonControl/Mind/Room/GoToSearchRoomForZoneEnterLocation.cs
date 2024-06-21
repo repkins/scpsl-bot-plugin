@@ -9,10 +9,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room
     {
         public FacilityZone TargetZone { get; }
         public FacilityZone ZoneFrom { get; }
-        public GoToSearchRoomForZoneEnterLocation(FacilityZone targetZone, FacilityZone zoneFrom, FpcBotPlayer botPlayer) : this(botPlayer)
+        public int Idx { get; }
+        public GoToSearchRoomForZoneEnterLocation(FacilityZone targetZone, FacilityZone zoneFrom, int idx, FpcBotPlayer botPlayer) : this(botPlayer)
         {
             TargetZone = targetZone;
             ZoneFrom = zoneFrom;
+            Idx = idx;
         }
 
         private RoomEnterLocation roomEnterLocation;
@@ -20,9 +22,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
             fpcMind.ActionEnabledBy<ZoneWithin, FacilityZone?>(this, b => ZoneFrom, b => b.Zone);
-            roomEnterLocation = fpcMind.ActionEnabledBy<RoomEnterLocation>(this, b => b.Position.HasValue);
+            roomEnterLocation = fpcMind.ActionEnabledBy<RoomEnterLocation>(this, b => b.Positions.Count > Idx);
 
-            fpcMind.ActionEnabledBy<DoorObstacle>(this, b => !b.Is(roomEnterLocation.Position!.Value));
+            fpcMind.ActionEnabledBy<DoorObstacle>(this, b => !b.Is(roomEnterLocation.Positions[Idx]));
         }
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
@@ -41,7 +43,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room
 
         public void Tick()
         {
-            var enterPosition = roomEnterLocation.Position!.Value;
+            var enterPosition = roomEnterLocation.Positions[Idx];
             var cameraPosition = botPlayer.BotHub.PlayerHub.PlayerCameraReference.position;
 
             if (Vector3.Distance(enterPosition, cameraPosition) > 1.25f)
@@ -53,7 +55,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room
 
         public override string ToString()
         {
-            return $"{nameof(GoToSearchRoomForZoneEnterLocation)}({TargetZone} from {ZoneFrom})";
+            return $"{nameof(GoToSearchRoomForZoneEnterLocation)}({TargetZone} <- {ZoneFrom}, {Idx})";
         }
     }
 }

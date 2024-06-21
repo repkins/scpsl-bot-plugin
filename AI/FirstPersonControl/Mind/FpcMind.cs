@@ -126,6 +126,22 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
             return this;
         }
 
+        public FpcMind AddActions(Func<int, IAction> actionFactory, int count = 3)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                var action = actionFactory.Invoke(i);
+
+                ActionsImpactingBeliefs.Add(action, new());
+                ActionsEnabledByBeliefs.Add(action, new());
+
+                action.SetImpactsBeliefs(this);
+                action.SetEnabledByBeliefs(this);
+            }
+
+            return this;
+        }
+
         public FpcMind AddBelief(IBelief belief)
         {
             if (!Beliefs.TryGetValue(belief.GetType(), out var beliefsOfType))
