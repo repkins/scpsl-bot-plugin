@@ -1,6 +1,7 @@
 ﻿using MapGeneration;
 using MapGeneration.Distributors;
 using PluginAPI.Core;
+using SCPSLBot.AI.FirstPersonControl.Mind.Spacial;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight;
 using System;
@@ -11,14 +12,14 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 {
-    internal class LockerSpawnLocation : Belief<bool>
+    internal class LockerSpawnsLocation : Location
     {
         public StructureType StructureType { get; }
 
         private readonly RoomSightSense roomSense;
         private readonly SightSense sightSense;
 
-        public LockerSpawnLocation(StructureType type, RoomSightSense roomSense)
+        public LockerSpawnsLocation(StructureType type, RoomSightSense roomSense)
         {
             this.StructureType = type;
 
@@ -35,10 +36,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 
         private void OnAfterSightSensing()
         {
-            if (this.Position.HasValue)
+            foreach (var spawnPosition in Positions)
             {
-                var spawnPosition = this.Position.Value;
-
                 if (this.sightSense.IsPositionWithinFov(spawnPosition)
                     && (!sightSense.IsPositionObstructed(spawnPosition, out var obstruction)
                         || Vector3.Distance(obstruction.point, spawnPosition) < 1f)
@@ -52,13 +51,13 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
                     this.stopwatch.Stop();
 
                     this.visitedLockerSpawnPositions.Add(spawnPosition);
-                    SetPosition(null);
+                    RemovePosition(spawnPosition);
                 }
             }
         }
 
         private readonly List<Vector3> spawnPositions = new();
-        private IEnumerable<Vector3?> unvisitedSpawnPositions;
+        private IEnumerable<Vector3> unvisitedSpawnPositions;
 
         private void OnAfterSensedForeignRooms()
         {
@@ -79,14 +78,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
             spawnPositions.AddRange(this.GetLockerSpawnPositions(roomWithin));
 
             unvisitedSpawnPositions ??= spawnPositions
-                .Where(spawnPosition => !this.visitedLockerSpawnPositions.Contains(spawnPosition))
-                .Select(spawnPosition => new Vector3?(spawnPosition));
+                .Where(spawnPosition => !this.visitedLockerSpawnPositions.Contains(spawnPosition));
 
-            var unvisitedSpawnPosition = unvisitedSpawnPositions.FirstOrDefault();
-            if (unvisitedSpawnPosition.HasValue)
-            {
-                this.SetPosition(unvisitedSpawnPosition.Value);
-            }
+            this.SetPositions(unvisitedSpawnPositions);
         }
 
         private readonly Dictionary<RoomIdentifier, Vector3[]> roomLockerSpawnPositions = new();
@@ -114,18 +108,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 
         public override string ToString()
         {
-            return $"{nameof(LockerSpawnLocation)}: {this.Position}";
-        }
-
-        public Vector3? Position { get; private set; }
-
-        private void SetPosition(Vector3? newPosition)
-        {
-            if (newPosition != this.Position)
-            {
-                this.Position = newPosition;
-                this.InvokeOnUpdate();
-            }
+            return $"{nameof(LockerSpawnsLocation)}: {this.Positions.Count}";
         }
     }
 }

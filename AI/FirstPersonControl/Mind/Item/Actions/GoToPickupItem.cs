@@ -8,16 +8,11 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
 {
-    internal class GoToPickupItem<C> : GoTo<ItemSightedLocation<C>, C> where C : IItemBeliefCriteria, IEquatable<C>
+    internal class GoToPickupItem<C> : GoTo<ItemSightedLocations<C>, C> where C : IItemBeliefCriteria, IEquatable<C>
     {
-        public GoToPickupItem(C criteria, FpcBotPlayer botPlayer) : base(criteria)
+        public GoToPickupItem(C criteria, FpcBotPlayer botPlayer) : base(criteria, 0)
         {
             _botPlayer = botPlayer;
-        }
-
-        public new void SetEnabledByBeliefs(FpcMind fpcMind)
-        {
-            base.SetEnabledByBeliefs(fpcMind);
         }
 
         public override void SetImpactsBeliefs(FpcMind fpcMind)
@@ -48,7 +43,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
                 pickupCooldown = 0f;
             }
 
-            var itemPosition = itemLocation.AccessiblePosition!.Value;
+            var itemPosition = location.Positions[Idx];
             var cameraPosition = _botPlayer.BotHub.PlayerHub.PlayerCameraReference.position;
 
             if (Vector3.Distance(itemPosition, cameraPosition) > 1.75f)

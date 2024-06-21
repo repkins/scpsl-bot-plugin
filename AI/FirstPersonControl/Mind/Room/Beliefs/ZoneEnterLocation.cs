@@ -1,11 +1,13 @@
 ﻿using MapGeneration;
+using SCPSLBot.AI.FirstPersonControl.Mind.Spacial;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using System;
+using System.Linq;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs
 {
-    internal class ZoneEnterLocation : Belief<bool>
+    internal class ZoneEnterLocation : Location
     {
         public FacilityZone Zone { get; }
         public FacilityZone FromZone { get; }
@@ -25,23 +27,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs
         private void OnAfterSensedForeignRooms()
         {
             var foreignRoomAreaOfTargetZone = this.roomSightSense.ForeignRoomsAreas.Find(r => r.Room.Identifier.Zone == Zone);
-            if (foreignRoomAreaOfTargetZone != null)
+            if (foreignRoomAreaOfTargetZone != null && foreignRoomAreaOfTargetZone.Room.Identifier.Zone != this.roomSightSense.RoomWithin.Zone)
             {
                 var enterPosition = foreignRoomAreaOfTargetZone.CenterPosition;
-                Update(enterPosition);
+                AddPosition(enterPosition);
             }
         }
 
-        public Vector3? Position { get; private set; }
-
-        protected void Update(Vector3? position)
-        {
-            if (position != Position)
-            {
-                Position = position;
-                InvokeOnUpdate();
-            }
-        }
+        public Vector3? Position => this.Positions.Any() ? this.Positions.First() : null;
 
         public override string ToString()
         {

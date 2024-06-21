@@ -22,7 +22,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
         private ItemInIntakeChamber<ItemOfType> itemInIntakeChamber;
         private Scp914RunningOnSetting runningOnSetting;
-        private List<ItemInOutakeChamber> itemInOutakeChamberBeliefs = new();
+        private List<ItemsInOutakeChamber> itemInOutakeChamberBeliefs = new();
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
@@ -34,7 +34,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
         {
             foreach (var outputCriteria in this.OutputCriterias)
             {
-                var itemInOutakeChamberBelief = fpcMind.ActionImpacts<ItemInOutakeChamber>(this, b => b.Criteria.Equals(outputCriteria));
+                var itemInOutakeChamberBelief = fpcMind.ActionImpacts<ItemsInOutakeChamber>(this, b => b.Criteria.Equals(outputCriteria));
                 this.itemInOutakeChamberBeliefs.Add(itemInOutakeChamberBelief);
             }
         }
@@ -56,10 +56,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
                     return;
                 }
 
-                var itemRelativePosition = this.itemInIntakeChamber.PositionRelative;
-                foreach (var itemInOutakeChamberBelief in this.itemInOutakeChamberBeliefs)
+                var itemRelativePosition = this.itemInIntakeChamber.PositionRelative.Value;
+                foreach (var itemsInOutakeChamberBelief in this.itemInOutakeChamberBeliefs)
                 {
-                    itemInOutakeChamberBelief.Update(itemRelativePosition);
+                    itemsInOutakeChamberBelief.AddRelativePosition(itemRelativePosition);
                 }
 
                 this.itemInIntakeChamber.Update(null);

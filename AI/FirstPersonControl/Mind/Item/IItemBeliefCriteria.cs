@@ -10,7 +10,5 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item
     {
         bool EvaluateItem(ItemPickupBase item);
         bool EvaluateItem(ItemBase item);
-
-        bool CanReach(Vector3 goalPosition, DoorObstacle doorObstacle);
     }
 }

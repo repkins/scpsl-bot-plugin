@@ -1,15 +1,12 @@
-﻿using Interactables;
-using PluginAPI.Core;
-using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
+﻿using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
 using System;
-using System.Diagnostics;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
 {
-    internal class GoToItemInLocker<C> : GoTo<ItemInSightedLocker<C>, C> where C : IItemBeliefCriteria, IEquatable<C>
+    internal class GoToItemSpawnInLocker<C> : GoTo<ItemSpawnsInSightedLocker<C>, C> where C : IItemBeliefCriteria, IEquatable<C>
     {
-        public GoToItemInLocker(C criteria, FpcBotPlayer botPlayer) : base(criteria)
+        public GoToItemSpawnInLocker(C criteria, FpcBotPlayer botPlayer) : base(criteria, 0)
         {
             this.botPlayer = botPlayer;
         }
@@ -21,7 +18,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
 
         public override void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActionImpacts<ItemSightedLocation<C>>(this, b => b.Criteria.Equals(Criteria));
+            fpcMind.ActionImpacts<ItemSightedLocations<C>>(this, b => b.Criteria.Equals(Criteria));
         }
 
         public override void Reset()
@@ -30,10 +27,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
 
         public override void Tick()
         {
-            var spawnPosition = itemLocation.AccessiblePosition!.Value;
+            var spawnPosition = location.Positions[Idx];
             var cameraPosition = botPlayer.BotHub.PlayerHub.PlayerCameraReference.position;
 
-            var spawnVisibilityPosition = spawnPosition - itemLocation.LockerDirection!.Value;
+            var spawnVisibilityPosition = spawnPosition - location.LockerDirections[spawnPosition];
             spawnVisibilityPosition.y = cameraPosition.y;
 
             var dist = Vector3.Distance(spawnVisibilityPosition, cameraPosition);
@@ -44,7 +41,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
                 return;
             }
 
-            var lockerDoor = itemLocation.LockerDoor;
+            var lockerDoor = location.LockerDoors[spawnPosition];
             if (lockerDoor)
             {
                 if (!botPlayer.Interact(lockerDoor))
@@ -68,7 +65,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
 
         public override string ToString()
         {
-            return $"{nameof(GoToItemInLocker<C>)}({this.Criteria})";
+            return $"{nameof(GoToItemSpawnInLocker<C>)}({this.Criteria})";
         }
 
         protected readonly FpcBotPlayer botPlayer;

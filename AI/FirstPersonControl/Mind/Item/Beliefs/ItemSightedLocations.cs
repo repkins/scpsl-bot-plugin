@@ -2,15 +2,17 @@
 using SCPSLBot.AI.FirstPersonControl.Mind.Door;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 {
-    internal partial class ItemSightedLocation<C> : ItemLocation<C> where C : IItemBeliefCriteria
+    internal partial class ItemSightedLocations<C> : ItemLocations<C> where C : IItemBeliefCriteria
     {
         private readonly ItemsWithinSightSense itemsSightSense;
 
-        public ItemSightedLocation(C criteria, ItemsWithinSightSense itemsSightSense, DoorObstacle doorObstacle) : base(criteria, doorObstacle)
+        public ItemSightedLocations(C criteria, ItemsWithinSightSense itemsSightSense) : base(criteria)
         {
             this.itemsSightSense = itemsSightSense;
             this.itemsSightSense.OnSensedItemWithinSight += ProcessSensedItem;
@@ -21,9 +23,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 
         private void ProcessSensedItem(ItemPickupBase item)
         {
-            if (Criteria.EvaluateItem(item) && IsAccessible(item.Position))
+            if (Criteria.EvaluateItem(item))
             {
-                SetAccesablePosition(item.Position);
+                AddPosition(item.Position);
 
                 numItemsWithinSight++;
             }
@@ -31,14 +33,16 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 
         private void HandleAfterSensedItems()
         {
-            // Evaluate item position out of sight
-            if (AccessiblePosition.HasValue && numItemsWithinSight == 0)
+            // Evaluate item positions out of sight
+            if (numItemsWithinSight < Positions.Count)
             {
-                var sightedPosition = AccessiblePosition.Value;
-                if (itemsSightSense.IsPositionWithinFov(sightedPosition)
-                    && (!itemsSightSense.IsPositionObstructed(sightedPosition) || itemsSightSense.GetDistanceToPosition(sightedPosition) < 1.5f))
+                foreach (var sightedPosition in Positions)
                 {
-                    ClearPosition();
+                    if (itemsSightSense.IsPositionWithinFov(sightedPosition)
+                        && (!itemsSightSense.IsPositionObstructed(sightedPosition) || itemsSightSense.GetDistanceToPosition(sightedPosition) < 1.5f))
+                    {
+                        RemovePosition(sightedPosition);
+                    }
                 }
             }
             numItemsWithinSight = 0;
@@ -46,7 +50,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 
         public override string ToString()
         {
-            return $"{nameof(ItemSightedLocation<C>)}({this.Criteria}): {this.AccessiblePosition}";
+            return $"{nameof(ItemSightedLocations<C>)}({this.Criteria}): {this.Positions.Count}";
         }
     }
 }

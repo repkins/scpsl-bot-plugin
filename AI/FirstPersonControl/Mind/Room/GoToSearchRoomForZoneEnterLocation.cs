@@ -1,49 +1,44 @@
 ﻿using MapGeneration;
-using SCPSLBot.AI.FirstPersonControl.Mind.Door;
 using SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs;
+using SCPSLBot.AI.FirstPersonControl.Mind.Spacial;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Room
 {
-    internal class GoToSearchRoomForZoneEnterLocation : IAction
+    internal class GoToSearchRoomForZoneEnterLocation : GoTo<RoomEnterLocation>
     {
         public FacilityZone TargetZone { get; }
         public FacilityZone ZoneFrom { get; }
-        public int Idx { get; }
-        public GoToSearchRoomForZoneEnterLocation(FacilityZone targetZone, FacilityZone zoneFrom, int idx, FpcBotPlayer botPlayer) : this(botPlayer)
+        public GoToSearchRoomForZoneEnterLocation(FacilityZone targetZone, FacilityZone zoneFrom, FpcBotPlayer botPlayer) : this(botPlayer)
         {
             TargetZone = targetZone;
             ZoneFrom = zoneFrom;
-            Idx = idx;
         }
 
-        private RoomEnterLocation roomEnterLocation;
-
-        public void SetEnabledByBeliefs(FpcMind fpcMind)
+        public override void SetEnabledByBeliefs(FpcMind fpcMind)
         {
             fpcMind.ActionEnabledBy<ZoneWithin, FacilityZone?>(this, b => ZoneFrom, b => b.Zone);
-            roomEnterLocation = fpcMind.ActionEnabledBy<RoomEnterLocation>(this, b => b.Positions.Count > Idx);
 
-            fpcMind.ActionEnabledBy<DoorObstacle>(this, b => !b.Is(roomEnterLocation.Positions[Idx]));
+            base.SetEnabledByBeliefs(fpcMind);
         }
 
-        public void SetImpactsBeliefs(FpcMind fpcMind)
+        public override void SetImpactsBeliefs(FpcMind fpcMind)
         {
             fpcMind.ActionImpacts<ZoneEnterLocation>(this, b => b.Zone == TargetZone && b.FromZone == ZoneFrom);
         }
 
         private readonly FpcBotPlayer botPlayer;
-        private GoToSearchRoomForZoneEnterLocation(FpcBotPlayer botPlayer)
+        private GoToSearchRoomForZoneEnterLocation(FpcBotPlayer botPlayer) : base(0)
         {
             this.botPlayer = botPlayer;
         }
 
-        public void Reset()
+        public override void Reset()
         { }
 
-        public void Tick()
+        public override void Tick()
         {
-            var enterPosition = roomEnterLocation.Positions[Idx];
+            var enterPosition = location.Positions[Idx];
             var cameraPosition = botPlayer.BotHub.PlayerHub.PlayerCameraReference.position;
 
             if (Vector3.Distance(enterPosition, cameraPosition) > 1.25f)
@@ -55,7 +50,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room
 
         public override string ToString()
         {
-            return $"{nameof(GoToSearchRoomForZoneEnterLocation)}({TargetZone} <- {ZoneFrom}, {Idx})";
+            return $"{nameof(GoToSearchRoomForZoneEnterLocation)}({TargetZone} <- {ZoneFrom})";
         }
     }
 }

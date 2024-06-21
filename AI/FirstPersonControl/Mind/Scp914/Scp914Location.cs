@@ -1,17 +1,15 @@
 ﻿using Interactables;
 using MapGeneration;
-using PluginAPI.Core;
-using RemoteAdmin;
 using Scp914;
+using SCPSLBot.AI.FirstPersonControl.Mind.Spacial;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using SCPSLBot.Navigation.Mesh;
-using System;
 using System.Linq;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 {
-    internal class Scp914Location : Belief<bool>
+    internal class Scp914Location : Location
     {
         public Scp914Location(RoomSightSense roomSightSense)
         {
@@ -21,7 +19,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
         private void OnSensedRoom(Area foreignRoomArea)
         {
             var foreignRoom = foreignRoomArea.Room.Identifier;
-
             if (foreignRoom.Name != RoomName.Lcz914)
             {
                 return;
@@ -30,7 +27,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
             this.Update(Scp914Controller.Singleton);
         }
 
-        public Vector3? Position { get; private set; }
         public Vector3? IntakeChamberPosition { get; private set; }
         public Vector3? OutakeChamberPosition { get; private set; }
         public Vector3? ControlsPosition { get; private set; }
@@ -39,10 +35,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
         private void Update(Scp914Controller controller)
         {
-            var newPosition = controller.transform.position;
-            if (newPosition != this.Position)
+            var scp914position = controller.transform.position;
+            if (!this.Positions.Contains(scp914position))
             {
-                this.Position = newPosition;
+                this.AddPosition(scp914position);
                 this.IntakeChamberPosition = controller.IntakeChamber.position;
                 this.OutakeChamberPosition = controller.OutputChamber.position;
 
@@ -52,14 +48,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
                 this.SettingKnobPosition = interactableColliderPositions[Scp914InteractCode.ChangeMode];
                 this.StartKnobPosition = interactableColliderPositions[Scp914InteractCode.Activate];
                 this.ControlsPosition = this.StartKnobPosition;
-
-                this.InvokeOnUpdate();
             }
         }
 
         public override string ToString()
         {
-            return $"{nameof(Scp914Location)}: {Position}";
+            return $"{nameof(Scp914Location)}: {Positions.Count > 0}";
         }
     }
 }

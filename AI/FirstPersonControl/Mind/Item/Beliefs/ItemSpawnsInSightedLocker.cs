@@ -1,9 +1,5 @@
 ﻿using Interactables;
-using Interactables.Interobjects;
-using MapGeneration;
 using MapGeneration.Distributors;
-using PluginAPI.Core;
-using SCPSLBot.AI.FirstPersonControl.Mind.Door;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using System;
 using System.Collections.Generic;
@@ -12,13 +8,13 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 {
-    internal class ItemInSightedLocker<C> : ItemLocation<C> where C : IItemBeliefCriteria
+    internal class ItemSpawnsInSightedLocker<C> : ItemLocations<C> where C : IItemBeliefCriteria
     {
         private readonly ItemType[] spawnItemTypes;
         private readonly LockersWithinSightSense lockersSightSense;
 
-        public ItemInSightedLocker(C criteria, ItemType[] spawnItemTypes, LockersWithinSightSense lockersSightSense, DoorObstacle doorObstacle) 
-            : base(criteria, doorObstacle)
+        public ItemSpawnsInSightedLocker(C criteria, ItemType[] spawnItemTypes, LockersWithinSightSense lockersSightSense) 
+            : base(criteria)
         {
             this.spawnItemTypes = spawnItemTypes;
             this.lockersSightSense = lockersSightSense;
@@ -26,8 +22,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
             this.lockersSightSense.OnAfterSightSensing += OnAfterSensedLockersWithinSight;
         }
 
-        public Vector3? LockerDirection { get; private set; }
-        public InteractableCollider LockerDoor { get; private set; }
+        public Dictionary<Vector3, Vector3> LockerDirections { get; } = new();
+        public Dictionary<Vector3, InteractableCollider> LockerDoors { get; } = new();
 
         private static readonly HashSet<StructureType> lockerStructureTypes = new() { StructureType.StandardLocker, StructureType.SmallWallCabinet };
 
@@ -80,40 +76,33 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
                 }
             }
 
-            if (this.AccessiblePosition.HasValue)
+            foreach (var itemSpawnPosition in this.Positions)
             {
-                var itemSpawnPosition = this.AccessiblePosition.Value;
-
                 if (this.lockersSightSense.IsPositionWithinFov(itemSpawnPosition))
                 {
                     if (!lockersSightSense.IsPositionObstructed(itemSpawnPosition, out var obstruction))
                     {
                         this.visitedItemSpawnPositions.Add(itemSpawnPosition);
 
-                        ClearPosition();
-                        this.LockerDoor = null;
-                        this.LockerDirection = null;
+                        RemovePosition(itemSpawnPosition);
+                        this.LockerDoors.Remove(itemSpawnPosition);
+                        this.LockerDirections.Remove(itemSpawnPosition);
                     }
                     else if (obstruction.collider.GetComponent<InteractableCollider>() is InteractableCollider interactableObstruction
                         && interactableObstruction.Target is Locker)
                     {
-                        this.LockerDoor = interactableObstruction;
+                        this.LockerDoors[itemSpawnPosition] = interactableObstruction;
                     }
                 }
             }
 
-            var unvisitedItemSpawn = this.itemSpawns
-                .Where(itemSpawn => !this.visitedItemSpawnPositions.Contains(itemSpawn.Position))
-                .Where(itemSpawn => this.IsAccessible(itemSpawn.Position))
-                .Select(itemSpawn => new (Vector3, LockerChamber)?(itemSpawn))
-                .FirstOrDefault();
+            var unvisitedItemSpawns = this.itemSpawns
+                .Where(itemSpawn => !this.visitedItemSpawnPositions.Contains(itemSpawn.Position));
 
-            if (unvisitedItemSpawn.HasValue)
+            SetPositions(unvisitedItemSpawns.Select(s => s.Position));
+            foreach (var (position, chamber) in unvisitedItemSpawns)
             {
-                var (itemSpawnPosition, chamber) = unvisitedItemSpawn.Value;
-
-                this.SetAccesablePosition(itemSpawnPosition);
-                this.LockerDirection = chamber.transform.forward;
+                this.LockerDirections[position] = chamber.transform.forward;
             }
 
             this.itemSpawns.Clear();
@@ -121,7 +110,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 
         public override string ToString()
         {
-            return $"{nameof(ItemInSightedLocker<C>)}({this.Criteria}): {this.AccessiblePosition}";
+            return $"{nameof(ItemSpawnsInSightedLocker<C>)}({this.Criteria}): {this.Positions.Count}";
         }
     }
 }

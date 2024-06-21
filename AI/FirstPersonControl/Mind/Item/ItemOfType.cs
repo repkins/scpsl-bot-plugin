@@ -24,11 +24,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item
             return item.ItemTypeId == ItemType;
         }
 
-        public bool CanReach(Vector3 goalPosition, DoorObstacle doorObstacle)
-        {
-            return true;
-        }
-
         public bool Matches(ItemType inItemType)
         {
             return inItemType == this.ItemType;

@@ -2,42 +2,41 @@
 using PluginAPI.Core;
 using Scp914;
 using SCPSLBot.AI.FirstPersonControl.Mind.Door;
+using SCPSLBot.AI.FirstPersonControl.Mind.Spacial;
 using System.Linq;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 {
-    internal class GoToStartScp914OnSetting : IAction
+    internal class GoToStartScp914OnSetting : GoTo<Scp914Location>
     {
         public readonly Scp914KnobSetting KnobSetting;
-        public GoToStartScp914OnSetting(Scp914KnobSetting knobSetting, FpcBotPlayer botPlayer)
+        public GoToStartScp914OnSetting(Scp914KnobSetting knobSetting, FpcBotPlayer botPlayer) : base(0)
         {
             this.KnobSetting = knobSetting;
             this.botPlayer = botPlayer;
         }
 
-        private Scp914Location scp914Location;
         private Scp914Controls scp914Controls;
 
-        public void SetEnabledByBeliefs(FpcMind fpcMind)
+        public override void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            scp914Location = fpcMind.ActionEnabledBy<Scp914Location>(this, b => b.ControlsPosition.HasValue);
             scp914Controls = fpcMind.GetBelief<Scp914Controls>();
 
-            fpcMind.ActionEnabledBy<DoorObstacle>(this, b => !b.Is(scp914Location.ControlsPosition!.Value));
+            base.SetEnabledByBeliefs(fpcMind);
         }
 
-        public void SetImpactsBeliefs(FpcMind fpcMind)
+        public override void SetImpactsBeliefs(FpcMind fpcMind)
         {
             fpcMind.ActionImpacts<Scp914RunningOnSetting, Scp914KnobSetting?>(this, b => KnobSetting);
         }
 
         private readonly FpcBotPlayer botPlayer;
 
-        public void Tick()
+        public override void Tick()
         {
             var playerPosition = this.botPlayer.BotHub.PlayerHub.transform.position;
-            var controlsPosition = this.scp914Location.ControlsPosition!.Value;
+            var controlsPosition = this.location.ControlsPosition!.Value;
 
             if (Vector3.Distance(playerPosition, controlsPosition) > 1f)
             {
@@ -51,7 +50,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
                 var settingKnob = this.scp914Controls.SettingKnob;
                 if (!settingKnob || !this.botPlayer.Interact(settingKnob))
                 {
-                    var knobSettingPosition = this.scp914Location.SettingKnobPosition!.Value;
+                    var knobSettingPosition = this.location.SettingKnobPosition!.Value;
                     this.botPlayer.LookToPosition(knobSettingPosition);
                 }
                 return;
@@ -60,13 +59,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
             var startKnob = this.scp914Controls.StartKnob;
             if (!startKnob || !this.botPlayer.Interact(startKnob))
             {
-                var startKnobPosition = this.scp914Location.StartKnobPosition!.Value;
+                var startKnobPosition = this.location.StartKnobPosition!.Value;
                 this.botPlayer.LookToPosition(startKnobPosition);
             }
         }
 
-        public void Reset()
-        {
-        }
+        public override void Reset()
+        { }
     }
 }

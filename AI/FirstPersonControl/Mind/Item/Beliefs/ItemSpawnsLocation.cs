@@ -8,18 +8,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using HarmonyLib;
-using SCPSLBot.AI.FirstPersonControl.Mind.Door;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 {
-    internal class ItemSpawnLocation<C> : ItemLocation<C> where C : IItemBeliefCriteria
+    internal class ItemSpawnsLocation<C> : ItemLocations<C> where C : IItemBeliefCriteria
     {
         private readonly ItemType[] spawnItemTypes;
         private readonly RoomSightSense roomSense;
         private readonly ItemsWithinSightSense itemsSightSense;
 
-        public ItemSpawnLocation(C criteria, ItemType[] spawnItemTypes, RoomSightSense roomSense, ItemsWithinSightSense itemsSightSense, DoorObstacle doorObstacle) 
-            : base(criteria, doorObstacle)
+        public ItemSpawnsLocation(C criteria, ItemType[] spawnItemTypes, RoomSightSense roomSense, ItemsWithinSightSense itemsSightSense) 
+            : base(criteria)
         {
             this.spawnItemTypes = spawnItemTypes;
             this.itemsSightSense = itemsSightSense;
@@ -33,22 +32,20 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 
         private void OnAfterSensedItemsWithinSight()
         {
-            if (this.AccessiblePosition.HasValue)
+            foreach (var spawnPosition in Positions)
             {
-                var spawnPosition = this.AccessiblePosition.Value;
-
                 if (this.itemsSightSense.IsPositionWithinFov(spawnPosition)
-                //    && (!itemsSightSense.IsPositionObstructed(Position.Value) || itemsSightSense.GetDistanceToPosition(Position.Value) < 1.5f))
+                    //    && (!itemsSightSense.IsPositionObstructed(Position.Value) || itemsSightSense.GetDistanceToPosition(Position.Value) < 1.5f))
                     && (!itemsSightSense.IsPositionObstructed(spawnPosition)))
                 {
                     this.visitedSpawnPositions.Add(spawnPosition);
-                    ClearPosition();
+                    RemovePosition(spawnPosition);
                 }
             }
         }
 
         private readonly List<Vector3> itemSpawnPositions = new();
-        private IEnumerable<Vector3?> unvisitedSpawnPositions;
+        private IEnumerable<Vector3> unvisitedSpawnPositions;
 
         private void OnAfterSensedForeignRooms()
         {
@@ -69,15 +66,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
             itemSpawnPositions.AddRange(this.GetItemSpawnPositions(roomWithin));
 
             unvisitedSpawnPositions ??= itemSpawnPositions
-                .Where(spawnPosition => !this.visitedSpawnPositions.Contains(spawnPosition))
-                .Where(spawnPosition => this.IsAccessible(spawnPosition))
-                .Select(spawnPosition => new Vector3?(spawnPosition));
+                .Where(spawnPosition => !this.visitedSpawnPositions.Contains(spawnPosition));
 
-            var unvisitedSpawnPosition = unvisitedSpawnPositions.FirstOrDefault();
-            if (unvisitedSpawnPosition.HasValue)
-            {
-                this.SetAccesablePosition(unvisitedSpawnPosition.Value);
-            }
+            SetPositions(unvisitedSpawnPositions);
         }
 
         private readonly Dictionary<RoomIdentifier, Vector3[]> roomItemSpawnPositions = new();
@@ -112,7 +103,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 
         public override string ToString()
         {
-            return $"{nameof(ItemSpawnLocation<C>)}({this.Criteria}): {this.AccessiblePosition}";
+            return $"{nameof(ItemSpawnsLocation<C>)}({this.Criteria}): {this.Positions.Count}";
         }
     }
 

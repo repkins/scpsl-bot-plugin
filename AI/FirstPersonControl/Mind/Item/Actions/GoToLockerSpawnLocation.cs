@@ -1,16 +1,16 @@
 ﻿using MapGeneration.Distributors;
-using SCPSLBot.AI.FirstPersonControl.Mind.Door;
 using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
+using SCPSLBot.AI.FirstPersonControl.Mind.Spacial;
 using System;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
 {
-    internal class GoToLockerSpawnLocation<C> : IAction where C : IItemBeliefCriteria, IEquatable<C>
+    internal class GoToLockerSpawnLocation<C> : GoTo<LockerSpawnsLocation> where C : IItemBeliefCriteria, IEquatable<C>
     {
         public C Criteria { get; }
         public StructureType StructureType { get; }
-        public GoToLockerSpawnLocation(C criteria, StructureType structureType, FpcBotPlayer botPlayer)
+        public GoToLockerSpawnLocation(C criteria, StructureType structureType, FpcBotPlayer botPlayer) : base(0)
         {
             this.Criteria = criteria;
             this.StructureType = structureType;
@@ -18,27 +18,16 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
             this.botPlayer = botPlayer;
         }
 
-        private LockerSpawnLocation lockerSpawnLocation;
-
-        public void SetEnabledByBeliefs(FpcMind fpcMind)
+        public override void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            this.lockerSpawnLocation = fpcMind.ActionEnabledBy<LockerSpawnLocation>(this, b => b.StructureType == StructureType, b => b.Position.HasValue);
-
-            fpcMind.ActionEnabledBy<DoorObstacle>(this, b => !b.Is(this.lockerSpawnLocation.Position!.Value));
+            fpcMind.ActionImpacts<ItemSpawnsInSightedLocker<C>>(this, b => b.Criteria.Equals(Criteria));
         }
 
-        public void SetImpactsBeliefs(FpcMind fpcMind)
-        {
-            fpcMind.ActionImpacts<ItemInSightedLocker<C>>(this, b => b.Criteria.Equals(Criteria));
-        }
+        protected readonly FpcBotPlayer botPlayer;
 
-        public void Reset()
+        public override void Tick()
         {
-        }
-
-        public void Tick()
-        {
-            var spawnPosition = lockerSpawnLocation.Position!.Value;
+            var spawnPosition = location.Positions[Idx];
             var cameraPosition = botPlayer.BotHub.PlayerHub.PlayerCameraReference.position;
 
             var dist = Vector3.Distance(spawnPosition, cameraPosition);
@@ -58,11 +47,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
             }
         }
 
+        public override void Reset()
+        { }
+
         public override string ToString()
         {
             return $"{nameof(GoToLockerSpawnLocation<C>)}({this.Criteria})";
         }
-
-        protected readonly FpcBotPlayer botPlayer;
     }
 }

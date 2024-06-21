@@ -1,6 +1,7 @@
 ﻿using MapGeneration;
 using PluginAPI.Core;
 using PluginAPI.Core.Zones;
+using SCPSLBot.AI.FirstPersonControl.Mind.Spacial;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ using Random = UnityEngine.Random;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs
 {
-    internal class RoomEnterLocation : Belief<bool>
+    internal class RoomEnterLocation : Location
     {
         private readonly RoomSightSense roomSightSense;
 
@@ -58,20 +59,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs
                     .Where(fa => fa.Room.Identifier.Shape != RoomShape.Endroom || checkpointRoomNames.Contains(fa.Room.Identifier.Name))
                     .OrderBy(fa => roomsLastVisitTime.TryGetValue(fa.Room, out var time) ? time : -Random.Range(0f, 4f));
 
-                Update(enteringAreas.Select(a => a.CenterPosition));
+                SetPositions(enteringAreas.Select(a => a.CenterPosition));
 
                 //Random.state = prevRandomState;
             }
 
             prevRoomWithin = roomWithin;
-        }
-
-        public List<Vector3> Positions { get; } = new();
-        private void Update(IEnumerable<Vector3> enteringAreas)
-        {
-            Positions.Clear();
-            Positions.AddRange(enteringAreas);
-            InvokeOnUpdate();
         }
 
         public override string ToString()
