@@ -6,14 +6,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
 {
     internal class GoToItemSpawnInLocker<C> : GoTo<ItemSpawnsInSightedLocker<C>, C> where C : IItemBeliefCriteria, IEquatable<C>
     {
-        public GoToItemSpawnInLocker(C criteria, FpcBotPlayer botPlayer) : base(criteria, 0)
+        public GoToItemSpawnInLocker(C criteria, FpcBotPlayer botPlayer) : base(criteria, 0, botPlayer)
         {
             this.botPlayer = botPlayer;
-        }
-
-        public new void SetEnabledByBeliefs(FpcMind fpcMind)
-        {
-            base.SetEnabledByBeliefs(fpcMind);
         }
 
         public override void SetImpactsBeliefs(FpcMind fpcMind)
@@ -21,9 +16,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
             fpcMind.ActionImpacts<ItemSightedLocations<C>>(this, b => b.Criteria.Equals(Criteria));
         }
 
-        public override void Reset()
-        {
-        }
+        public override float Weight { get; } = 1.2f;
 
         public override void Tick()
         {
@@ -61,6 +54,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
                 botPlayer.LookToPosition(spawnPosition);
                 return;
             }
+        }
+
+        public override void Reset()
+        {
         }
 
         public override string ToString()

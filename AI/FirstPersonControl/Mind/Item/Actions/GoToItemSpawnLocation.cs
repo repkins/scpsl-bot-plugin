@@ -6,14 +6,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
 {
     internal class GoToItemSpawnLocation<C> : GoTo<ItemSpawnsLocation<C>, C> where C : IItemBeliefCriteria, IEquatable<C>
     {
-        public GoToItemSpawnLocation(C criteria, FpcBotPlayer botPlayer) : base(criteria, 0)
+        public GoToItemSpawnLocation(C criteria, FpcBotPlayer botPlayer) : base(criteria, 0, botPlayer)
         {
             this.botPlayer = botPlayer;
-        }
-
-        public new void SetEnabledByBeliefs(FpcMind fpcMind)
-        {
-            base.SetEnabledByBeliefs(fpcMind);
         }
 
         public override void SetImpactsBeliefs(FpcMind fpcMind)
@@ -21,12 +16,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
             fpcMind.ActionImpacts<ItemSightedLocations<C>>(this, b => b.Criteria.Equals(Criteria));
         }
 
-        private float closestDist;
+        public override float Weight { get; } = 1.2f;
 
         public override void Reset()
-        {
-            closestDist = float.MaxValue;
-        }
+        { }
 
         public override void Tick()
         {
@@ -34,9 +27,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
             var cameraPosition = botPlayer.BotHub.PlayerHub.PlayerCameraReference.position;
 
             var dist = Vector3.Distance(spawnPosition, cameraPosition);
-
-            closestDist = dist < closestDist ? dist : closestDist;
-
             if (dist > 1.75f)
             {
                 botPlayer.MoveToPosition(spawnPosition);

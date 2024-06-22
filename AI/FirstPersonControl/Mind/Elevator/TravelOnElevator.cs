@@ -20,6 +20,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Elevator
             elevatorObstacle = fpcMind.ActionImpacts<ElevatorObstacle, bool>(this, b => !b.Has());
         }
 
+        public float Cost { get; } = 1f;
+
         private readonly FpcBotPlayer botPlayer;
 
         private TravelOnElevator(FpcBotPlayer botPlayer)

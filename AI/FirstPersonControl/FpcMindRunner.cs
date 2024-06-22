@@ -11,6 +11,7 @@ namespace SCPSLBot.AI.FirstPersonControl
     internal class FpcMindRunner : FpcMind
     {
         public IAction RunningAction { get; private set; }
+        public float RunningActionCost { get; private set; }
 
         public readonly HashSet<IBelief> RelevantBeliefs = new();
         private bool isBeliefsUpdated = false;
@@ -191,7 +192,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             if (actionEnabled)
             {
-                Debug.Log($"{prefix}Action {actionToEnable} conditions fulfilled.");
+                Debug.Log($"{prefix}Action {actionToEnable} conditions fulfilled with cost {actionToEnable.Cost}");
 
                 yield return actionToEnable;
             }
@@ -227,14 +228,15 @@ namespace SCPSLBot.AI.FirstPersonControl
         {
             Profiler.BeginSample($"{nameof(FpcMindRunner)}.{nameof(SelectActionAndRun)}");
 
-            var selectedAction = enabledActions//.OrderBy(a => Random.Range(0f, 10f))
+            var selectedAction = enabledActions.OrderBy(a => a.Cost)
                 .FirstOrDefault();  // TODO: cost?
 
             var prevAction = RunningAction;
 
             RunningAction = selectedAction ?? null;
+            RunningActionCost = selectedAction?.Cost ?? 0;
 
-            Log.Debug($"New Action for bot: {RunningAction}");
+            Log.Debug($"New Action for bot: {RunningAction} (Cost: {RunningActionCost})");
 
             if (RunningAction != prevAction)
             {

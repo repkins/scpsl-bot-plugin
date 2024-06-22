@@ -34,6 +34,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
             doorObstacleBelief = fpcMind.ActionImpacts<DoorObstacle, bool>(this, b => b.GetLastDoor(Permissions));
         }
 
+        public float Weight = 1f;
+        public float Cost => Vector3.Distance(doorObstacleBelief.GetLastDoor(Permissions).transform.position, botPlayer.CameraPosition) + Weight;
+
         public void Tick()
         {
             var keycard = keycardInInventory.Item;

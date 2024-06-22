@@ -1,6 +1,4 @@
-﻿using PluginAPI.Core;
-using SCPSLBot.AI.FirstPersonControl.Mind.Door;
-using SCPSLBot.AI.FirstPersonControl.Mind.Item;
+﻿using SCPSLBot.AI.FirstPersonControl.Mind.Item;
 using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
 using SCPSLBot.AI.FirstPersonControl.Mind.Spacial;
 using System;
@@ -11,7 +9,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
     internal class GoToDropItemInIntakeChamber<C> : GoTo<Scp914Location> where C : IItemBeliefCriteria, IEquatable<C>
     {
         public C Criteria { get; }
-        public GoToDropItemInIntakeChamber(C criteria, FpcBotPlayer botPlayer) : base(0)
+        public GoToDropItemInIntakeChamber(C criteria, FpcBotPlayer botPlayer) : base(0, botPlayer)
         {
             this.Criteria = criteria;
             this.botPlayer = botPlayer;
@@ -24,7 +22,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
         {
             this.itemInInventoryBelief = fpcMind.ActionEnabledBy<ItemInInventory<C>>(this, b => b.Criteria.Equals(this.Criteria), b => b.Item);
 
-            base.SetEnabledByBeliefs(fpcMind);
+            base.SetEnabledByBeliefs(fpcMind, () => this.location.IntakeChamberPosition!.Value);
         }
 
         public override void SetImpactsBeliefs(FpcMind fpcMind)
@@ -32,14 +30,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
             this.itemInIntakeChamber = fpcMind.ActionImpacts<ItemInIntakeChamber<C>>(this, b => b.Criteria.Equals(this.Criteria));
         }
 
+        public override float Weight { get; } = 0f;
+
         private readonly FpcBotPlayer botPlayer;
 
         public override void Tick()
         {
-            var playerPosition = botPlayer.BotHub.PlayerHub.transform.position;
-
             var itemDropPosition = location.IntakeChamberPosition!.Value;
-            playerPosition.y = itemDropPosition.y;
+            var playerPosition = botPlayer.PlayerPosition with { y = itemDropPosition.y };
 
 
             if (Vector3.Distance(playerPosition, itemDropPosition) > 0.4f)

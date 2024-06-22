@@ -39,6 +39,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
             }
         }
 
+        public float Cost => 15f;   // scp914 running total time
+
         private float? lastItemsTransformedTime;
 
         public void Reset()

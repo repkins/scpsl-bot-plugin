@@ -10,7 +10,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room
     {
         public FacilityZone Zone { get; }
         public FacilityZone FromZone { get; }
-        public GoToZoneEnterLocation(FacilityZone zone, FacilityZone fromZone, FpcBotPlayer botPlayer) : base(0)
+        public GoToZoneEnterLocation(FacilityZone zone, FacilityZone fromZone, FpcBotPlayer botPlayer) : base(0, botPlayer)
         {
             Zone = zone;
             FromZone = fromZone;
@@ -27,6 +27,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room
         {
             fpcMind.ActionImpacts<ZoneWithin, FacilityZone?>(this, b => Zone);
         }
+
+        public override float Weight { get; } = 0f;
 
         private readonly FpcBotPlayer botPlayer;
 

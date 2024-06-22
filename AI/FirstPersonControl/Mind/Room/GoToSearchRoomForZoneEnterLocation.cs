@@ -15,6 +15,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room
             ZoneFrom = zoneFrom;
         }
 
+        private readonly FpcBotPlayer botPlayer;
+        private GoToSearchRoomForZoneEnterLocation(FpcBotPlayer botPlayer) : base(0, botPlayer)
+        {
+            this.botPlayer = botPlayer;
+        }
+
         public override void SetEnabledByBeliefs(FpcMind fpcMind)
         {
             fpcMind.ActionEnabledBy<ZoneWithin, FacilityZone?>(this, b => ZoneFrom, b => b.Zone);
@@ -27,14 +33,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room
             fpcMind.ActionImpacts<ZoneEnterLocation>(this, b => b.Zone == TargetZone && b.FromZone == ZoneFrom);
         }
 
-        private readonly FpcBotPlayer botPlayer;
-        private GoToSearchRoomForZoneEnterLocation(FpcBotPlayer botPlayer) : base(0)
-        {
-            this.botPlayer = botPlayer;
-        }
-
-        public override void Reset()
-        { }
+        public override float Weight { get; } = 10f / 2; // num of target zone enter locations over num of zone within rooms, 2/10 = 1/5
+        public override float Cost => Weight * 10;
 
         public override void Tick()
         {
@@ -47,6 +47,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room
                 return;
             }
         }
+
+        public override void Reset()
+        { }
 
         public override string ToString()
         {

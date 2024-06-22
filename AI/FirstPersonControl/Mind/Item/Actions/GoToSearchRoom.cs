@@ -19,8 +19,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
             fpcMind.ActionImpacts<ItemSightedLocations<C>>(this, b => b.Criteria.Equals(Criteria));
         }
 
+        public override float Weight => 20f;    // to make this action as last resort as possible
+        public override float Cost => Weight * 10;
+
         private readonly FpcBotPlayer botPlayer;
-        public GoToSearchRoom(int idx, FpcBotPlayer botPlayer) : base(idx)
+        public GoToSearchRoom(int idx, FpcBotPlayer botPlayer) : base(idx, botPlayer)
         {
             this.botPlayer = botPlayer;
         }
@@ -42,7 +45,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
 
         public override string ToString()
         {
-            return $"{nameof(GoToSearchRoom<C>)}({this.Criteria}, {Idx})";
+            return $"{nameof(GoToSearchRoom<C>)}({this.Criteria}, #{Idx})";
         }
     }
 }

@@ -1,9 +1,4 @@
-﻿using Interactables.Interobjects.DoorUtils;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 {
@@ -25,6 +20,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
         {
             doorObstacleBelief = fpcMind.ActionImpacts<DoorObstacle, bool>(this, b => b.GetLastUninteractableDoor());
         }
+
+        public float Weight = 1f;
+        public float Cost => Vector3.Distance(doorObstacleBelief.GetLastUninteractableDoor().transform.position, botPlayer.CameraPosition) + Weight;
 
         public void Tick()
         {

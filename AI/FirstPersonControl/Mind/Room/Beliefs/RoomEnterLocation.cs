@@ -71,5 +71,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs
         {
             return $"{nameof(RoomEnterLocation)}s: {Positions.Count}";
         }
+
+        internal float GetLastVisitTime(Vector3 vector3)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

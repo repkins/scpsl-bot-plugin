@@ -10,7 +10,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
 {
     internal class GoToPickupItem<C> : GoTo<ItemSightedLocations<C>, C> where C : IItemBeliefCriteria, IEquatable<C>
     {
-        public GoToPickupItem(C criteria, FpcBotPlayer botPlayer) : base(criteria, 0)
+        public GoToPickupItem(C criteria, FpcBotPlayer botPlayer) : base(criteria, 0, botPlayer)
         {
             _botPlayer = botPlayer;
         }
@@ -19,6 +19,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
         {
             fpcMind.ActionImpacts<ItemInInventory<C>>(this, b => b.Criteria.Equals(Criteria));
         }
+
+        public override float Weight { get; } = 1f;
 
         private bool isPickingUp;
         private float pickupCooldown;

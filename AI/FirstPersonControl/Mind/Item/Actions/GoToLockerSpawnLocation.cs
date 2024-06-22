@@ -10,7 +10,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
     {
         public C Criteria { get; }
         public StructureType StructureType { get; }
-        public GoToLockerSpawnLocation(C criteria, StructureType structureType, FpcBotPlayer botPlayer) : base(0)
+        public GoToLockerSpawnLocation(C criteria, StructureType structureType, FpcBotPlayer botPlayer) : base(0, botPlayer)
         {
             this.Criteria = criteria;
             this.StructureType = structureType;
@@ -22,6 +22,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
         {
             fpcMind.ActionImpacts<ItemSpawnsInSightedLocker<C>>(this, b => b.Criteria.Equals(Criteria));
         }
+
+        public override float Weight { get; } = 1f / ((1f / 4f) * 3f - Mathf.Pow(1f / 4f, 3f));
 
         protected readonly FpcBotPlayer botPlayer;
 

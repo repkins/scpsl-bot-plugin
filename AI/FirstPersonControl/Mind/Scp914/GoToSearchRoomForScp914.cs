@@ -7,6 +7,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 {
     internal class GoToSearchRoomForScp914 : GoTo<RoomEnterLocation>
     {
+        private readonly FpcBotPlayer botPlayer;
+        public GoToSearchRoomForScp914(FpcBotPlayer botPlayer) : base(0, botPlayer)
+        {
+            this.botPlayer = botPlayer;
+        }
+
         public override void SetEnabledByBeliefs(FpcMind fpcMind)
         {
             fpcMind.ActionEnabledBy<ZoneWithin, FacilityZone?>(this, b => FacilityZone.LightContainment, b => b.Zone);
@@ -19,11 +25,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
             fpcMind.ActionImpacts<Scp914Location>(this);
         }
 
-        private readonly FpcBotPlayer botPlayer;
-        public GoToSearchRoomForScp914(FpcBotPlayer botPlayer) : base(0)
-        {
-            this.botPlayer = botPlayer;
-        }
+        public override float Weight { get; } = 10f;    // of number of light containment rooms
+        public override float Cost => Weight * 10f;
 
         public override void Tick()
         {

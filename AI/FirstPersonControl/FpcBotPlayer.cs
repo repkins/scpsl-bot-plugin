@@ -74,8 +74,9 @@ namespace SCPSLBot.AI.FirstPersonControl
             MindRunner.Tick();
 
 
-            var debugStringBuilder = new StringBuilder("<size=14><align=left>");
-            debugStringBuilder.AppendLine($"Running action: <color=yellow>{MindRunner.RunningAction}</color>");
+            debugStringBuilder.Clear();
+            debugStringBuilder.AppendLine("<size=14><align=left>");
+            debugStringBuilder.AppendLine($"Running action: <color=yellow>{MindRunner.RunningAction} (Cost: {MindRunner.RunningActionCost})</color>");
             debugStringBuilder.AppendLine("Beliefs:");
             var numLines = 2;
             //foreach (var belief in MindRunner.Beliefs.Values.SelectMany(bl => bl))
@@ -197,6 +198,8 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         #region Debug functions
 
+        private readonly StringBuilder debugStringBuilder = new();
+
         public void DumpMind()
         {
             MindRunner.Dump();
@@ -222,6 +225,7 @@ namespace SCPSLBot.AI.FirstPersonControl
         private List<Player> players;
 
         private IEnumerable<Player> spectators;
+
         public IEnumerable<Player> Spectators
         {
             get

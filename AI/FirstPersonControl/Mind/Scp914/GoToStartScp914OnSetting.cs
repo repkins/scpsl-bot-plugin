@@ -1,9 +1,6 @@
-﻿using Interactables;
-using PluginAPI.Core;
-using Scp914;
-using SCPSLBot.AI.FirstPersonControl.Mind.Door;
+﻿using Scp914;
 using SCPSLBot.AI.FirstPersonControl.Mind.Spacial;
-using System.Linq;
+using System;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
@@ -11,7 +8,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
     internal class GoToStartScp914OnSetting : GoTo<Scp914Location>
     {
         public readonly Scp914KnobSetting KnobSetting;
-        public GoToStartScp914OnSetting(Scp914KnobSetting knobSetting, FpcBotPlayer botPlayer) : base(0)
+        public GoToStartScp914OnSetting(Scp914KnobSetting knobSetting, FpcBotPlayer botPlayer) : base(0, botPlayer)
         {
             this.KnobSetting = knobSetting;
             this.botPlayer = botPlayer;
@@ -23,13 +20,15 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
         {
             scp914Controls = fpcMind.GetBelief<Scp914Controls>();
 
-            base.SetEnabledByBeliefs(fpcMind);
+            base.SetEnabledByBeliefs(fpcMind, () => this.location.ControlsPosition!.Value);
         }
 
         public override void SetImpactsBeliefs(FpcMind fpcMind)
         {
             fpcMind.ActionImpacts<Scp914RunningOnSetting, Scp914KnobSetting?>(this, b => KnobSetting);
         }
+
+        public override float Weight { get; } = 0.5f;   // "average" effort to target knob setting
 
         private readonly FpcBotPlayer botPlayer;
 

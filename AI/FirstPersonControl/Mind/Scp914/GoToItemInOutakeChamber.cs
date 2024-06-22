@@ -7,7 +7,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 {
     internal class GoToItemInOutakeChamber<C> : GoTo<ItemsInOutakeChamber, IItemBeliefCriteria> where C : IItemBeliefCriteria, IEquatable<C>
     {
-        public GoToItemInOutakeChamber(C criteria, FpcBotPlayer botPlayer) : base(criteria, 0)
+        public GoToItemInOutakeChamber(C criteria, FpcBotPlayer botPlayer) : base(criteria, 0, botPlayer)
         { 
             this.botPlayer = botPlayer;
         }
@@ -18,7 +18,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
         {
             this.scp914Location = fpcMind.GetBelief<Scp914Location>();
 
-            base.SetEnabledByBeliefs(fpcMind);
+            base.SetEnabledByBeliefs(fpcMind, () => scp914Location.OutakeChamberPosition!.Value);
         }
 
         public override void SetImpactsBeliefs(FpcMind fpcMind)
@@ -26,14 +26,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
             fpcMind.ActionImpacts<ItemSightedLocations<C>>(this, b => b.Criteria.Equals(this.Criteria));
         }
 
+        public override float Weight { get; } = 0f;
+
         private readonly FpcBotPlayer botPlayer;
 
         public override void Tick()
         {
-            var playerPosition = botPlayer.BotHub.PlayerHub.transform.position;
-
             var outakeChamberPosition = scp914Location.OutakeChamberPosition!.Value;
-            outakeChamberPosition.y = playerPosition.y;
+            var playerPosition = botPlayer.PlayerPosition with { y = outakeChamberPosition.y };
 
             botPlayer.MoveToPosition(outakeChamberPosition);
 
