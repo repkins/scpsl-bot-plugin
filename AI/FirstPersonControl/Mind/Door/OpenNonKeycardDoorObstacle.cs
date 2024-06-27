@@ -25,7 +25,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
         }
 
         public float Weight = 1f;
-        public float Cost => Vector3.Distance(doorObstacleBelief.GetLastDoor(KeycardPermissions.None).transform.position, botPlayer.CameraPosition) + Weight;
+        public float Cost => Vector3.Distance(doorObstacleBelief.GetLastDoor(KeycardPermissions.None).transform.position, botPlayer.CameraPosition) * Weight;
 
         public void Tick()
         {

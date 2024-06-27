@@ -37,10 +37,16 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Spacial
 
         private readonly FpcBotPlayer botPlayer;
 
-        public abstract float Weight { get; }
-        public virtual float Cost => Vector3.Distance(location.Positions[Idx], botPlayer.CameraPosition) + Weight;
-
         public abstract void SetImpactsBeliefs(FpcMind fpcMind);
+
+        private const float DefaultDistance = 10f;
+
+        private float Distance => location.Positions.Count > Idx ? 
+            Vector3.Distance(location.Positions[Idx], botPlayer.CameraPosition) :
+            DefaultDistance;
+
+        public abstract float Weight { get; }
+        public virtual float Cost => Distance * Weight;
 
         public abstract void Reset();
 

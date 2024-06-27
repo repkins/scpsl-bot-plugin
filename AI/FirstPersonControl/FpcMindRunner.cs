@@ -198,11 +198,15 @@ namespace SCPSLBot.AI.FirstPersonControl
             }
         }
 
+        private readonly Dictionary<IBelief, IEnumerable<IAction>> beliefsImpactedByActionsOrdered = new();
+
         private IEnumerable<IAction> GetClosestActionsImpacting(IBelief belief, IAction actionToEnable, int level)
         {
             var prefix = new string(' ', level * 2);
 
-            foreach (var actionImpacting in BeliefsImpactedByActions[belief])
+            beliefsImpactedByActionsOrdered[belief] ??= BeliefsImpactedByActions[belief].OrderBy(a => a.Cost);
+
+            foreach (var actionImpacting in beliefsImpactedByActionsOrdered[belief])
             {
                 if (!belief.CanImpactedByAction(actionImpacting, actionToEnable))
                 {
@@ -220,6 +224,7 @@ namespace SCPSLBot.AI.FirstPersonControl
                 foreach (var enabledAction in GetClosestEnabledActionsImpacting(actionImpacting, level+1))
                 {
                     yield return enabledAction;
+                    yield break;
                 }
             }
         }
@@ -229,7 +234,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             Profiler.BeginSample($"{nameof(FpcMindRunner)}.{nameof(SelectActionAndRun)}");
 
             var selectedAction = enabledActions.OrderBy(a => a.Cost)
-                .FirstOrDefault();  // TODO: cost?
+                .FirstOrDefault();
 
             var prevAction = RunningAction;
 
