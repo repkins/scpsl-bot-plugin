@@ -29,6 +29,13 @@
     <Exec Command="echo Copying output file $(TargetName)&#xD;&#xA;copy $(TargetPath) &quot;C:\Users\repkins\AppData\Roaming\SCP Secret Laboratory\PluginAPI\plugins\global\$(TargetFileName)&quot;" />
   </Target>
 
+  
+  <ItemGroup>
+    <None Remove=".editorconfig" />
+    <None Remove=".gitattributes" />
+    <None Remove=".gitignore" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Lib.Harmony" Version="2.2.2" />
     <PackageReference Include="Northwood.PluginAPI" Version="13.1.1" />
