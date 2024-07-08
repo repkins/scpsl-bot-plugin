@@ -204,23 +204,30 @@ namespace SCPSLBot.AI.FirstPersonControl
         {
             var prefix = new string(' ', level * 2);
 
-            beliefsImpactedByActionsOrdered[belief] ??= BeliefsImpactedByActions[belief].OrderBy(a => a.Cost);
-
-            foreach (var actionImpacting in beliefsImpactedByActionsOrdered[belief])
+            if (!beliefsImpactedByActionsOrdered.TryGetValue(belief, out var actionsImpacting))
             {
-                if (!belief.CanImpactedByAction(actionImpacting, actionToEnable))
-                {
-                    Debug.Log($"{prefix}  Action {actionImpacting} cannot impact belief.");
-                    continue;
-                }
-                else if (visitedActions.Contains(actionImpacting))
-                {
-                    Debug.Log($"{prefix}  Action {actionImpacting} can impact but already visited.");
-                    continue;
-                }
+                beliefsImpactedByActionsOrdered[belief] = actionsImpacting = BeliefsImpactedByActions[belief]
+                    .Where(actionImpacting => 
+                    {
+                        if (!belief.CanImpactedByAction(actionImpacting, actionToEnable))
+                        {
+                            Debug.Log($"{prefix}  Action {actionImpacting} cannot impact belief.");
+                            return false;
+                        }
+                        else if (visitedActions.Contains(actionImpacting))
+                        {
+                            Debug.Log($"{prefix}  Action {actionImpacting} can impact but already visited.");
+                            return false;
+                        }
 
-                Debug.Log($"{prefix}  Action {actionImpacting} can impact belief.");
+                        Debug.Log($"{prefix}  Action {actionImpacting} can impact belief.");
+                        return true;
+                    })
+                    .OrderBy(a => a.Cost);
+            }
 
+            foreach (var actionImpacting in actionsImpacting)
+            {
                 foreach (var enabledAction in GetClosestEnabledActionsImpacting(actionImpacting, level+1))
                 {
                     yield return enabledAction;
