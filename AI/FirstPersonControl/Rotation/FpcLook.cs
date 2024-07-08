@@ -14,7 +14,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Looking
         public Quaternion DesiredHorizontalRotation { get; set; } = Quaternion.identity;
         public Quaternion DesiredVerticalRotation { get; set; } = Quaternion.identity;
 
-        public Vector3 TargetPosition { get; private set; } = Vector3.zero;
+        public Quaternion TargetHorizontalRotation { get; set; } = Quaternion.identity;
 
         private const float MaxSteeringForceDegrees = 640f;
 
@@ -27,8 +27,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Looking
 
         public void ToPosition(Vector3 targetPosition)
         {
-            TargetPosition = targetPosition;
-
             var playerTransform = botPlayer.FpcRole.FpcModule.transform;
             var cameraTransform = botPlayer.BotHub.PlayerHub.PlayerCameraReference;
 
@@ -47,6 +45,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Looking
             var vLocalDirToTarget = playerTransform.InverseTransformDirection(vDirectionToTarget);
 
             var vRotation = Quaternion.FromToRotation(vLocalForward, vLocalDirToTarget);
+
+            TargetHorizontalRotation = hRotation;
 
             hRotation = Quaternion.Slerp(Quaternion.identity, hRotation, .075f);
             vRotation = Quaternion.Slerp(Quaternion.identity, vRotation, .075f);

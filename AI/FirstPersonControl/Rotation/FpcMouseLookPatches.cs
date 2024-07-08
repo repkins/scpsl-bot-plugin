@@ -36,6 +36,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Rotation
 
                 fpcPlayer.Look.DesiredHorizontalRotation = Quaternion.identity;
                 fpcPlayer.Look.DesiredVerticalRotation = Quaternion.identity;
+                fpcPlayer.Look.TargetHorizontalRotation = Quaternion.identity;
 
                 return false;
             }

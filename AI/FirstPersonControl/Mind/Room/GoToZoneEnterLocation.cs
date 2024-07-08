@@ -28,7 +28,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room
             fpcMind.ActionImpacts<ZoneWithin, FacilityZone?>(this, b => Zone);
         }
 
-        public override float Weight { get; } = 0f;
+        public override float Weight { get; } = 1f;
 
         private readonly FpcBotPlayer botPlayer;
 

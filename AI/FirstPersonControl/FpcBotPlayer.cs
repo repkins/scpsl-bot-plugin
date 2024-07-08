@@ -110,14 +110,20 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             var relativePos = positionTowardsTarget - this.FpcRole.CameraPosition;
             var relativeHorizontalPos = Vector3.ProjectOnPlane(relativePos, Vector3.up);
-            var lookPositionTowardsTarget = relativeHorizontalPos + this.FpcRole.CameraPosition;
+            var turnPosition = relativeHorizontalPos + this.FpcRole.CameraPosition;
 
-            this.Look.ToPosition(lookPositionTowardsTarget);
-
+            this.Look.ToPosition(turnPosition);
             this.Move.DesiredLocalDirection = Vector3.forward;
         }
 
-        public void LookToPosition(Vector3 targetPosition) => Look.ToPosition(targetPosition);
+        public void LookToPosition(Vector3 targetPosition)
+        {
+            var prevHorizontalRotation = Look.TargetHorizontalRotation;
+
+            Look.ToPosition(targetPosition);
+
+            Move.DesiredLocalDirection = prevHorizontalRotation * Move.DesiredLocalDirection;
+        }
 
         public bool Interact(InteractableCollider interactableCollider)
         {

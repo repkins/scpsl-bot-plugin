@@ -51,7 +51,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
             if (Vector3.Distance(itemPosition, cameraPosition) > 1.75f)
             {
                 _botPlayer.MoveToPosition(itemPosition);
-                return;
             }
 
             var cameraDirection = _botPlayer.BotHub.PlayerHub.PlayerCameraReference.forward;
