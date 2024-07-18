@@ -64,5 +64,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
         public override void Reset()
         { }
+
+        public override string ToString()
+        {
+            return $"{nameof(GoToStartScp914OnSetting)}({KnobSetting})";
+        }
     }
 }

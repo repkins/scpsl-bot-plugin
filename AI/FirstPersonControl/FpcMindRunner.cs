@@ -198,15 +198,15 @@ namespace SCPSLBot.AI.FirstPersonControl
             }
         }
 
-        private readonly Dictionary<IBelief, IEnumerable<IAction>> beliefsImpactedByActionsOrdered = new();
+        private readonly Dictionary<(IBelief, IAction), IEnumerable<IAction>> beliefsImpactedByActionsOrdered = new();
 
         private IEnumerable<IAction> GetClosestActionsImpacting(IBelief belief, IAction actionToEnable, int level)
         {
             var prefix = new string(' ', level * 2);
 
-            if (!beliefsImpactedByActionsOrdered.TryGetValue(belief, out var actionsImpacting))
+            if (!beliefsImpactedByActionsOrdered.TryGetValue((belief, actionToEnable), out var actionsImpacting))
             {
-                beliefsImpactedByActionsOrdered[belief] = actionsImpacting = BeliefsImpactedByActions[belief]
+                beliefsImpactedByActionsOrdered[(belief, actionToEnable)] = actionsImpacting = BeliefsImpactedByActions[belief]
                     .Where(actionImpacting => 
                     {
                         if (!belief.CanImpactedByAction(actionImpacting, actionToEnable))

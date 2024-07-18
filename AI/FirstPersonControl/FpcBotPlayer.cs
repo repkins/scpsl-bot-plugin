@@ -113,7 +113,18 @@ namespace SCPSLBot.AI.FirstPersonControl
             var turnPosition = relativeHorizontalPos + this.FpcRole.CameraPosition;
 
             this.Look.ToPosition(turnPosition);
-            this.Move.DesiredLocalDirection = Vector3.forward;
+
+            var playerDirection = FpcRole.FpcModule.transform.forward;
+            var dirTowardsTarget = Vector3.Normalize(relativeHorizontalPos);
+
+            if (Vector3.Dot(playerDirection, dirTowardsTarget) < 0f)
+            {
+                this.Move.DesiredLocalDirection = FpcRole.FpcModule.transform.InverseTransformDirection(dirTowardsTarget);
+            }
+            else
+            {
+                this.Move.DesiredLocalDirection = Vector3.forward;
+            }
         }
 
         public void LookToPosition(Vector3 targetPosition)
