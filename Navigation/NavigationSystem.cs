@@ -74,7 +74,6 @@ namespace SCPSLBot.Navigation
                 }
             }
             Log.Info($"Connecting areas between elevator destinations.");
-            Log.Debug($"Num elevator groups: {ElevatorDoor.AllElevatorDoors.Count}");
             foreach (var (group, elevatorDoors) in ElevatorDoor.AllElevatorDoors)
             {
                 if (elevatorDoors.Count != 2)

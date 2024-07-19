@@ -5,11 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SCPSLBot.AI.FirstPersonControl.Mind.Elevator
+namespace SCPSLBot.AI.FirstPersonControl.Mind.Elevation
 {
     internal class TravelOnElevator : IAction
     {
-        private ElevatorObstacle elevatorObstacle;
+        private ElevationObstacle elevatorObstacle;
 
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
@@ -17,7 +17,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Elevator
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            elevatorObstacle = fpcMind.ActionImpacts<ElevatorObstacle, bool>(this, b => !b.Has());
+            elevatorObstacle = fpcMind.ActionImpacts<ElevationObstacle, bool>(this, b => !b.Has());
         }
 
         public float Cost { get; } = 1f;
