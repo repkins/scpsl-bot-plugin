@@ -23,7 +23,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
     internal class DoorObstacle : Belief<bool>
     {
         private readonly FpcBotNavigator navigator;
-
         private readonly SightSense sightSense;
 
         public DoorObstacle(SightSense sightSense, FpcBotNavigator navigator)
@@ -104,22 +103,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
         public bool IsAny => Doors.Count > 0;
         public Dictionary<Vector3, DoorEntry> Doors { get; } = new();
-        private readonly List<Vector3> GoalPositions = new();
+        public readonly List<Vector3> GoalPositions = new();
 
         public bool Is(Vector3 goalPos)
         {
             return Doors.ContainsKey(goalPos);
-        }
-
-        public DoorVariant GetLastUninteractableDoor()
-        {
-            if (GoalPositions.Count == 0)
-            {
-                return null;
-            }
-
-            var lastDoor = Doors[GoalPositions.Last()].Door;
-            return lastDoor && IsUniteractable(lastDoor) ? lastDoor : null;
         }
 
         public DoorVariant GetLastDoor(KeycardPermissions keycardPermissions)

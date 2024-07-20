@@ -316,7 +316,8 @@ namespace SCPSLBot.AI.FirstPersonControl
             mind.AddAction(new OpenKeycardDoorObstacle(KeycardPermissions.ContainmentLevelOne, botPlayer));
             mind.AddAction(new OpenKeycardDoorObstacle(KeycardPermissions.ContainmentLevelTwo, botPlayer));
             mind.AddAction(new OpenKeycardDoorObstacle(KeycardPermissions.Checkpoints, botPlayer));
-            mind.AddAction(new WaitForDoorOpening(botPlayer));
+            
+            mind.AddAction(new WaitForChamberDoorOpening(botPlayer));
 
 
             mind.AddBelief(new ItemSightedLocations<ItemOfType>(new(ItemType.Medkit), perception.GetSense<ItemsWithinSightSense>()));
