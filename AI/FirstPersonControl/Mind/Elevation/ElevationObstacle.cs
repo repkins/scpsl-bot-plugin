@@ -1,8 +1,5 @@
-﻿using Interactables;
-using Interactables.Interobjects;
-using Interactables.Interobjects.DoorUtils;
+﻿using Interactables.Interobjects;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight;
-using System;
 using System.Linq;
 using UnityEngine;
 

@@ -43,13 +43,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
     {
         public static DoorVariant GetLastScp914ChamberDoor(this DoorObstacle doorObstacle)
         {
-            if (doorObstacle.GoalPositions.Count == 0)
-            {
-                return null;
-            }
-
-            var lastDoor = doorObstacle.Doors[doorObstacle.GoalPositions.Last()].Door;
-            return lastDoor && lastDoor is BasicNonInteractableDoor ? lastDoor : null;
+            return doorObstacle.GetLastDoor(d => d is BasicNonInteractableDoor);
         }
     }
 }

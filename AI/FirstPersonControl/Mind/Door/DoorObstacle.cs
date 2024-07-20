@@ -110,12 +110,17 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
             return Doors.ContainsKey(goalPos);
         }
 
-        public DoorVariant GetLastDoor(KeycardPermissions keycardPermissions)
+        public TDoor GetLastDoor<TDoor>() where TDoor : DoorVariant
         {
-            return GetLastDoor(keycardPermissions, out _);
+            return GetLastDoor((d, _) => d is TDoor, out _) as TDoor;
         }
 
-        public DoorVariant GetLastDoor(KeycardPermissions keycardPermissions, out Vector3 goalPos)
+        public DoorVariant GetLastDoor(Predicate<DoorVariant> predicate)
+        {
+            return GetLastDoor((b, _) => predicate(b), out _);
+        }
+
+        public DoorVariant GetLastDoor(Func<DoorVariant, KeycardPermissions, bool> predicate, out Vector3 goalPos)
         {
             if (GoalPositions.Count == 0)
             {
@@ -125,15 +130,18 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
             goalPos = GoalPositions.Last();
 
-            var (lastDoor, permissions) = Doors[goalPos];
-            if (lastDoor && IsInteractable(lastDoor) && ToKeycardPermissions(permissions) == keycardPermissions)
-            {
-                return lastDoor;
-            }
-            else
-            {
-                return null;
-            }
+            var (lastDoor, permissions) = Doors[GoalPositions.Last()];
+            return lastDoor && predicate(lastDoor, permissions) ? lastDoor: null;
+        }
+
+        public DoorVariant GetLastDoor(KeycardPermissions keycardPermissions)
+        {
+            return GetLastDoor(keycardPermissions, out _);
+        }
+
+        public DoorVariant GetLastDoor(KeycardPermissions keycardPermissions, out Vector3 goalPos)
+        {
+            return GetLastDoor((d, p) => IsInteractable(d) && ToKeycardPermissions(p) == keycardPermissions, out goalPos);
         }
 
         private static KeycardPermissions ToKeycardPermissions(KeycardPermissions doorPermissions)
