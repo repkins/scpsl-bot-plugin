@@ -53,6 +53,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Elevation
                 return;
             }
 
+            var directionToPanel = Vector3.Normalize(panelPosition - playerPosition);
+            var playerDirection = botPlayer.BotHub.PlayerHub.transform.forward;
+            if (Vector3.Dot(playerDirection, directionToPanel) < .99f)
+            {
+                botPlayer.LookToPosition(panelPosition);
+                return;
+            }
+
             if (!ElevatorDoor.AllElevatorDoors.TryGetValue(chamber.AssignedGroup, out var groupElevatorDoors))
             {
                 Log.Warning($"Elevator chamber group not added to all elevator doors");

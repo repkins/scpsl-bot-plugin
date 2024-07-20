@@ -1,4 +1,5 @@
 ﻿using SCPSLBot.AI.FirstPersonControl.Mind.Door;
+using SCPSLBot.AI.FirstPersonControl.Mind.Elevation;
 using SCPSLBot.AI.FirstPersonControl.Mind.Misc;
 using System;
 using UnityEngine;
@@ -33,6 +34,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Spacial
 
             fpcMind.ActionEnabledBy<DoorObstacle>(this, b => !b.Is(targetPositionGetter()));
             fpcMind.ActionEnabledBy<GlassObstacle>(this, b => !b.Is(targetPositionGetter()));
+            fpcMind.ActionEnabledBy<ElevationObstacle>(this, b => !b.Has(targetPositionGetter()));
         }
 
         private readonly FpcBotPlayer botPlayer;

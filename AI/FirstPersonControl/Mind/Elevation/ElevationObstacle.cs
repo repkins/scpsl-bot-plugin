@@ -32,7 +32,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Elevation
 
             if (lastPoint == goalPosition)
             {
-                Update(null);
+                if (goalPosition == GoalPosition)
+                {
+                    Update(null, null);
+                }
                 return;
             }
 
@@ -53,19 +56,21 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Elevation
                 var elevator = hit.collider.GetComponentInParent<ElevatorChamber>();
                 if (elevator)
                 {
-                    Update(elevator);
+                    Update(elevator, goalPosition);
                 }
             }
         }
 
-        public bool Has() => Elevator;
+        public bool Has(Vector3 goalPos) => GoalPosition == goalPos;
         public ElevatorChamber Elevator { get; private set; }
+        public Vector3? GoalPosition { get; private set; }
 
-        private void Update(ElevatorChamber newChamberValue)
+        private void Update(ElevatorChamber newChamberValue, Vector3? goalPos)
         {
             if (newChamberValue != Elevator) 
             { 
                 Elevator = newChamberValue;
+                GoalPosition = goalPos;
                 InvokeOnUpdate();
             }
         }
