@@ -10,7 +10,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Elevation
         private readonly FpcBotNavigator navigator;
         private readonly SightSense sightSense;
 
-        public ElevationObstacle(FpcBotNavigator botNavigator, SightSense sightSense) 
+        public ElevationObstacle(SightSense sightSense, FpcBotNavigator botNavigator) 
         {
             this.navigator = botNavigator;
             this.sightSense = sightSense;
@@ -73,6 +73,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Elevation
                 GoalPosition = goalPos;
                 InvokeOnUpdate();
             }
+        }
+
+        public override string ToString()
+        {
+            return $"{nameof(ElevationObstacle)}: {Elevator?.GetType().Name}";
         }
     }
 }

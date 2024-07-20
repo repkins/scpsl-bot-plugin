@@ -32,7 +32,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Elevation
 
         public void Tick()
         {
-            var elevatorDoor = doorObstacle.GetLastDoor<ElevatorDoor>();
+            var elevatorDoor = doorObstacle.GetLastDoor<ElevatorDoor>(out var goalPos);
             var isTargetStateOpen = elevatorDoor.TargetState;
             var panel = elevatorDoor.TargetPanel;
             var chamber = panel.AssignedChamber;
@@ -45,17 +45,16 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Elevation
 
             var playerPosition = botPlayer.BotHub.PlayerHub.transform.position;
             var panelPosition = panel.GetComponent<Collider>().bounds.center;
-            var dist = Vector3.Distance(panelPosition, playerPosition);
 
+            var dist = Vector3.Distance(panelPosition, playerPosition);
             if (dist > interactDistance)
             {
-                botPlayer.MoveToPosition(panelPosition);
-                return;
+                botPlayer.MoveToPosition(goalPos);
             }
 
             var directionToPanel = Vector3.Normalize(panelPosition - playerPosition);
             var playerDirection = botPlayer.BotHub.PlayerHub.transform.forward;
-            if (Vector3.Dot(playerDirection, directionToPanel) < .99f)
+            if (Vector3.Dot(playerDirection, directionToPanel) < .98f)
             {
                 botPlayer.LookToPosition(panelPosition);
                 return;
@@ -74,6 +73,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Elevation
 
         public void Reset()
         {
+        }
+
+        public override string ToString()
+        {
+            return $"{nameof(CallAndWaitForElevator)}";
         }
     }
 }

@@ -13,6 +13,7 @@ using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using MapGeneration.Distributors;
 using MapGeneration;
 using SCPSLBot.AI.FirstPersonControl.Mind.Room;
+using SCPSLBot.AI.FirstPersonControl.Mind.Elevation;
 
 namespace SCPSLBot.AI.FirstPersonControl
 {
@@ -28,6 +29,11 @@ namespace SCPSLBot.AI.FirstPersonControl
         {
             mind.AddBelief(new DoorObstacle(perception.GetSense<DoorsWithinSightSense>(), botPlayer.Navigator));
             mind.AddBelief(new GlassObstacle(perception.GetSense<GlassSightSense>(), botPlayer.Navigator));
+
+
+            mind.AddAction(new CallAndWaitForElevator(botPlayer));
+            mind.AddBelief(new ElevationObstacle(perception.GetSense<DoorsWithinSightSense>(), botPlayer.Navigator));
+            mind.AddAction(new TravelOnElevator(botPlayer));
 
 
             mind.AddBelief(new RoomEnterLocation(perception.GetSense<RoomSightSense>()));
@@ -54,6 +60,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             mind.AddAction(new GoToSearchRoomForScp914(botPlayer));
             mind.AddAction(new GoToStartScp914OnSetting(Scp914.Scp914KnobSetting.Fine, botPlayer));
             mind.AddAction(new GoToStartScp914OnSetting(Scp914.Scp914KnobSetting.OneToOne, botPlayer));
+            mind.AddAction(new WaitForChamberDoorOpening(botPlayer));
 
 
             mind.AddBelief(new LockerSpawnsLocation(StructureType.StandardLocker, perception.GetSense<RoomSightSense>()));
@@ -317,14 +324,12 @@ namespace SCPSLBot.AI.FirstPersonControl
             mind.AddAction(new OpenKeycardDoorObstacle(KeycardPermissions.ContainmentLevelTwo, botPlayer));
             mind.AddAction(new OpenKeycardDoorObstacle(KeycardPermissions.Checkpoints, botPlayer));
             
-            mind.AddAction(new WaitForChamberDoorOpening(botPlayer));
-
 
             mind.AddBelief(new ItemSightedLocations<ItemOfType>(new(ItemType.Medkit), perception.GetSense<ItemsWithinSightSense>()));
 
             //mind.AddGoal(new GetResearchSupervisorKeycard());
             mind.AddGoal(new EscapeTheFacility());
-            mind.AddGoal(new GetO5Keycard());
+            //mind.AddGoal(new GetO5Keycard());
         }
     }
 }

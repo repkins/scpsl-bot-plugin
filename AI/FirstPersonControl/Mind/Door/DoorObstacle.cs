@@ -115,6 +115,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
             return GetLastDoor((d, _) => d is TDoor, out _) as TDoor;
         }
 
+        public TDoor GetLastDoor<TDoor>(out Vector3 goalPos) where TDoor : DoorVariant
+        {
+            return GetLastDoor((d, _) => d is TDoor, out goalPos) as TDoor;
+        }
+
         public DoorVariant GetLastDoor(Predicate<DoorVariant> predicate)
         {
             return GetLastDoor((b, _) => predicate(b), out _);
@@ -161,7 +166,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
         public override string ToString()
         {
-            return $"{nameof(DoorObstacle)}: {string.Join(", ", GoalPositions.Select(p => $"Permissions = {this.Doors[p].Permissions}"))}";
+            return $"{nameof(DoorObstacle)}: {string.Join(", ", GoalPositions.Select(p => $"{this.Doors[p].Door.GetType().Name}: Permissions = {this.Doors[p].Permissions}"))}";
         }
     }
 }
