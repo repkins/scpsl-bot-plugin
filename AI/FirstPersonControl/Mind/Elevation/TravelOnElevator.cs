@@ -41,7 +41,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Elevation
 
             var directionToPanel = Vector3.Normalize(panelPosition - playerPosition);
             var playerDirection = botPlayer.BotHub.PlayerHub.transform.forward;
-            if (Vector3.Dot(playerDirection, directionToPanel) < .98f)
+            if (Vector3.Dot(playerDirection, directionToPanel) < .989f)
             {
                 botPlayer.LookToPosition(panelPosition);
                 return;

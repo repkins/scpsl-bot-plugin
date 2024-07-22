@@ -5,14 +5,20 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs
 {
     internal class ZoneWithin : Belief<FacilityZone?>
     {
-        public ZoneWithin(RoomSightSense roomSightSense)
+        private readonly FpcBotNavigator navigator;
+
+        public ZoneWithin(RoomSightSense roomSightSense, FpcBotNavigator navigator)
         {
+            this.navigator = navigator;
             roomSightSense.OnSensedRoomWithin += OnSensedRoomWithin;
         }
 
         private void OnSensedRoomWithin(RoomIdentifier room)
         {
-            Update(room.Zone);
+            if (navigator.GetAreaWithin() != null)
+            {
+                Update(room.Zone);
+            }
         }
 
         public FacilityZone? Zone { get; private set; }

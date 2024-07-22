@@ -1,22 +1,21 @@
 ﻿using MapGeneration;
 using PluginAPI.Core;
 using SCPSLBot.Navigation.Mesh;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl
 {
     internal class FpcBotNavigator
     {
-        public Area AreaWithin { get; }
+        private Vector3 lastPlayerPosition;
+        private Area areaWithin;
 
         private Area currentArea;
         private Area goalArea;
-        public List<Area> AreasPath = new();
+        public List<Area> AreasPath { get; } = new();
+        public IEnumerable<(Area Area, Area NextArea)> AreaPathSegments { get; }
         private int currentPathIdx = -1;
 
         public Vector3 GoalPosition { get; private set; }
@@ -35,6 +34,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             this.botPlayer = botPlayer;
 
             this.PathSegments = PointsPath.Zip(PointsPath.Skip(1), (point, nextPoint) => (point, nextPoint));
+            this.AreaPathSegments = AreasPath.Zip(AreasPath.Skip(1), (area, nextArea) => (area, nextArea));
         }
 
         public Vector3 GetPositionTowards(Vector3 goalPosition)
@@ -112,7 +112,7 @@ namespace SCPSLBot.AI.FirstPersonControl
                 //Log.Debug($"New start area {withinArea}.");
                 //Log.Debug($"New goal area {targetArea}.");
 
-                this.AreasPath = navMesh.GetShortestPath(this.currentArea, this.goalArea);
+                navMesh.FindShortestPath(this.currentArea, this.goalArea, this.AreasPath);
                 this.currentPathIdx = 0;
 
                 //Log.Debug($"New path of {this.AreasPath.Count} areas:");
@@ -127,7 +127,7 @@ namespace SCPSLBot.AI.FirstPersonControl
                 this.PointsPath.Add(playerPosition);
 
                 var partialPath = false;
-                foreach (var (area, nextArea) in AreasPath.Zip(AreasPath.Skip(1), (area, nextArea) => (area, nextArea)))
+                foreach (var (area, nextArea) in AreaPathSegments)
                 {
                     if (!area.ConnectedAreaEdges.TryGetValue(nextArea, out var e))
                     {
@@ -146,14 +146,19 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         public Area GetAreaWithin()
         {
-            var playerPosition = botPlayer.FpcRole.FpcModule.transform.position;
+            var playerPosition = botPlayer.PlayerPosition;
+            if (playerPosition != lastPlayerPosition)
+            {
+                areaWithin = navMesh.GetAreaWithin(playerPosition);
+                lastPlayerPosition = playerPosition;
+            }
 
-            return navMesh.GetAreaWithin(playerPosition);
+            return areaWithin;
         }
 
         private Vector3 GetNextCorner(Vector3 goalPosition)
         {
-            var playerPosition = botPlayer.FpcRole.FpcModule.transform.position;
+            var playerPosition = botPlayer.PlayerPosition;
 
             var nextTargetArea = this.AreasPath[this.currentPathIdx + 1];
             if (!currentArea.ConnectedAreaEdges.TryGetValue(nextTargetArea, out var targetAreaEdge))

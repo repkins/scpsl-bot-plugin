@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -111,7 +112,7 @@ namespace SCPSLBot.Navigation.Mesh
             return planeClosestPoint;
         }
 
-        public List<Area> GetShortestPath(Area startingArea, Area endArea)
+        public void FindShortestPath(Area startingArea, Area endArea, List<Area> results)
         {
             var areasWithPriorityToEvaluate = new Dictionary<Area, float>();
             var cameFromAreas = new Dictionary<Area, Area>();
@@ -164,7 +165,8 @@ namespace SCPSLBot.Navigation.Mesh
             }
             while (areasWithPriorityToEvaluate.Any());
 
-            var shortestPath = new List<Area>();
+            results.Clear();
+            var shortestPath = results;
 
             if (cameFromAreas.ContainsKey(endArea))
             {
@@ -176,8 +178,6 @@ namespace SCPSLBot.Navigation.Mesh
                 }
                 shortestPath.Reverse();
             }
-
-            return shortestPath;
         }
 
         public RoomVertex GetNearbyVertex(Vector3 position, float radius = 1f)

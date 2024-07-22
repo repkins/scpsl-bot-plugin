@@ -404,7 +404,8 @@ namespace SCPSLBot.Navigation.Mesh
                 return false;
             }
 
-            var path = NavigationMesh.GetShortestPath(CachedArea, targetArea);
+            var path = new List<Area>();
+            NavigationMesh.FindShortestPath(CachedArea, targetArea, path);
             if (path.Count == 0)
             {
                 Log.Warning($"No path found.");

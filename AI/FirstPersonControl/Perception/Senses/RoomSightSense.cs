@@ -53,10 +53,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
                 return;
             }
 
-            if (newRoomWithin != RoomWithin)
-            {
-                OnSensedRoomWithin?.Invoke(newRoomWithin);
-            }
+            OnSensedRoomWithin?.Invoke(newRoomWithin);
             RoomWithin = newRoomWithin;
         }
 
@@ -67,13 +64,15 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
                 ForeignRoomsAreas.Clear();
                 foreach (var a in NavigationMesh.Instance.AreasByRoom[RoomWithin.ApiRoom])
                 {
-                    if (a.ForeignConnectedAreas.Count > 0)
+                    foreach (var fa in a.ForeignConnectedAreas)
                     {
-                        foreach (var fa in a.ForeignConnectedAreas)
+                        if (fa.RoomKindArea.RoomKind == a.RoomKindArea.RoomKind)
                         {
-                            var faa = fa.ConnectedAreas.First();
-                            ForeignRoomsAreas.Add(faa);
+                            continue;
                         }
+
+                        var faa = fa.ConnectedAreas.First();
+                        ForeignRoomsAreas.Add(faa);
                     }
                 }
             }

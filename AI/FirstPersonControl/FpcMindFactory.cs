@@ -37,7 +37,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
 
             mind.AddBelief(new RoomEnterLocation(perception.GetSense<RoomSightSense>()));
-            mind.AddBelief(new ZoneWithin(perception.GetSense<RoomSightSense>()));
+            mind.AddBelief(new ZoneWithin(perception.GetSense<RoomSightSense>(), botPlayer.Navigator));
             mind.AddBelief(new ZoneEnterLocation(FacilityZone.LightContainment, FacilityZone.HeavyContainment, perception.GetSense<RoomSightSense>()));
             mind.AddBelief(new ZoneEnterLocation(FacilityZone.HeavyContainment, FacilityZone.LightContainment, perception.GetSense<RoomSightSense>()));
             mind.AddBelief(new ZoneEnterLocation(FacilityZone.HeavyContainment, FacilityZone.Entrance, perception.GetSense<RoomSightSense>()));
