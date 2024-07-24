@@ -1,17 +1,14 @@
 ﻿using Interactables.Interobjects;
+using Interactables.Interobjects.DoorUtils;
 using MapGeneration;
 using MEC;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Events;
 using SCPSLBot.Navigation.Mesh;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace SCPSLBot.Navigation
@@ -45,16 +42,16 @@ namespace SCPSLBot.Navigation
         private IEnumerator<float> ConnectForeignAreasAsync()
         {
             yield return Timing.WaitUntilTrue(() => SeedSynchronizer.MapGenerated);
-
+            
             Log.Info($"Connecting areas between rooms.");
-            foreach (var door in Facility.Doors)
+            foreach (var door in DoorVariant.AllDoors)
             {
-                if (door.OriginalObject.Rooms.Length == 2)
+                if (door.Rooms.Length == 2)
                 {
-                    var doorPosition = door.Position;
+                    var doorPosition = door.transform.position;
 
-                    var edgeInFront = NavigationMesh.GetNearestEdge(doorPosition, door.OriginalObject.Rooms[0]);
-                    var edgeInBack = NavigationMesh.GetNearestEdge(doorPosition, door.OriginalObject.Rooms[1]);
+                    var edgeInFront = NavigationMesh.GetNearestEdge(doorPosition, door.Rooms[0]);
+                    var edgeInBack = NavigationMesh.GetNearestEdge(doorPosition, door.Rooms[1]);
                     
                     if (edgeInFront != null && edgeInBack != null)
                     {
