@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
 {
-    internal class GoToPickupItem<C> : GoTo<ItemSightedLocations<C>, C> where C : IItemBeliefCriteria, IEquatable<C>
+    internal class GoToPickupItem<C> : GoTo<ItemSightedLocation<C>, C> where C : IItemBeliefCriteria, IEquatable<C>
     {
         public GoToPickupItem(C criteria, FpcBotPlayer botPlayer) : base(criteria, 0, botPlayer)
         {

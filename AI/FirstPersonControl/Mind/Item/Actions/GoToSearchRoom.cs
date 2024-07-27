@@ -16,7 +16,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
 
         public override void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActionImpacts<ItemSightedLocations<C>>(this, b => b.Criteria.Equals(Criteria));
+            fpcMind.ActionImpacts<ItemSightedLocation<C>>(this, b => b.Criteria.Equals(Criteria));
         }
 
         public override float Weight => 20f;    // to make this action as last resort as possible

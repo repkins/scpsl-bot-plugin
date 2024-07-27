@@ -8,11 +8,11 @@ using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 {
-    internal partial class ItemSightedLocations<C> : ItemLocations<C> where C : IItemBeliefCriteria
+    internal partial class ItemSightedLocation<C> : ItemLocations<C> where C : IItemBeliefCriteria
     {
         private readonly ItemsWithinSightSense itemsSightSense;
 
-        public ItemSightedLocations(C criteria, ItemsWithinSightSense itemsSightSense) : base(criteria)
+        public ItemSightedLocation(C criteria, ItemsWithinSightSense itemsSightSense) : base(criteria)
         {
             this.itemsSightSense = itemsSightSense;
             this.itemsSightSense.OnSensedItemWithinSight += ProcessSensedItem;
@@ -54,7 +54,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 
         public override string ToString()
         {
-            return $"{nameof(ItemSightedLocations<C>)}({this.Criteria}): {this.Positions.Count}";
+            return $"{nameof(ItemSightedLocation<C>)}({this.Criteria}): {this.Positions.Count}";
         }
     }
 }

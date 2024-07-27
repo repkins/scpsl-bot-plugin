@@ -23,7 +23,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
         public override void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActionImpacts<ItemSightedLocations<C>>(this, b => b.Criteria.Equals(this.Criteria));
+            fpcMind.ActionImpacts<ItemSightedLocation<C>>(this, b => b.Criteria.Equals(this.Criteria));
         }
 
         public override float Weight { get; } = 0f;
