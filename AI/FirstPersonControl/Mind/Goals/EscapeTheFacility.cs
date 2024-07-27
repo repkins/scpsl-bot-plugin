@@ -1,14 +1,16 @@
-﻿using MapGeneration;
-using SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs;
+﻿using SCPSLBot.AI.FirstPersonControl.Mind.Escape;
+using System.Linq;
+using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Goals
 {
     internal class EscapeTheFacility : IGoal
     {
+        private readonly FpcBotPlayer player;
+
         public void SetEnabledByBeliefs(FpcMind fpcMind)
         {
-            //entranceZoneEnterLocation = fpcMind.GoalEnabledBy<ZoneEnterLocation>(this, b => b.Zone == FacilityZone.Entrance);
-            fpcMind.GoalEnabledBy<ZoneWithin, FacilityZone?>(this, b => FacilityZone.Entrance, b => b.Zone);
+            fpcMind.GoalEnabledBy<PlayerEscaped, bool>(this, b => true, b => false);
         }
     }
 }

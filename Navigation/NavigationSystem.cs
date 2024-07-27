@@ -48,10 +48,10 @@ namespace SCPSLBot.Navigation
             {
                 if (door.Rooms.Length == 2)
                 {
-                    var doorPosition = door.transform.position;
+                    var doorCenterPosition = door.transform.position + Vector3.up;  // assuming pivot point is located at the bottom of all doors
 
-                    var edgeInFront = NavigationMesh.GetNearestEdge(doorPosition, door.Rooms[0]);
-                    var edgeInBack = NavigationMesh.GetNearestEdge(doorPosition, door.Rooms[1]);
+                    var edgeInFront = NavigationMesh.GetNearestEdge(doorCenterPosition, door.Rooms[0]);
+                    var edgeInBack = NavigationMesh.GetNearestEdge(doorCenterPosition, door.Rooms[1]);
                     
                     if (edgeInFront != null && edgeInBack != null)
                     {

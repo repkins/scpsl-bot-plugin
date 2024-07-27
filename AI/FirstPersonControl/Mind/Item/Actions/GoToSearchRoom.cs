@@ -1,4 +1,5 @@
-﻿using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
+﻿using MapGeneration;
+using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
 using SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs;
 using SCPSLBot.AI.FirstPersonControl.Mind.Spacial;
 using System;
@@ -9,9 +10,27 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
     internal class GoToSearchRoom<C> : GoTo<RoomEnterLocation> where C : IItemBeliefCriteria, IEquatable<C>
     {
         public readonly C Criteria;
+        public FacilityZone? Zone;
+
+        public GoToSearchRoom(C criteria, FacilityZone zone, int idx, FpcBotPlayer botPlayer) : this(idx, botPlayer)
+        {
+            this.Criteria = criteria;
+            this.Zone = zone;
+        }
+
         public GoToSearchRoom(C criteria, int idx, FpcBotPlayer botPlayer) : this(idx, botPlayer)
         {
             this.Criteria = criteria;
+        }
+
+        public override void SetEnabledByBeliefs(FpcMind fpcMind)
+        {
+            if (Zone.HasValue)
+            {
+                fpcMind.ActionEnabledBy<ZoneWithin, FacilityZone?>(this, b => Zone.Value, b => b.Zone);
+            }
+
+            base.SetEnabledByBeliefs(fpcMind);
         }
 
         public override void SetImpactsBeliefs(FpcMind fpcMind)

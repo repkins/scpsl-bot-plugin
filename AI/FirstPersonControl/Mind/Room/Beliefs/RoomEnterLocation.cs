@@ -29,12 +29,15 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs
 
         //private readonly int seed;
 
-        private readonly static HashSet<RoomName> checkpointRoomNames = new()
+        private readonly static HashSet<RoomName> zoneTransitionRoomNames = new()
         {
             RoomName.LczCheckpointA,
             RoomName.LczCheckpointB,
             RoomName.HczCheckpointA,
             RoomName.HczCheckpointB,
+            RoomName.EzGateA,
+            RoomName.EzGateB,
+            RoomName.Outside,
         };
 
         private void OnAfterSensedForeignRooms()
@@ -56,7 +59,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs
                 var foreignRoomAreas = this.roomSightSense.ForeignRoomsAreas;
                 var enteringAreas = foreignRoomAreas
                     .Where(fa => fa.Room.Identifier.Zone == roomWithin.Identifier.Zone)
-                    .Where(fa => fa.Room.Identifier.Shape != RoomShape.Endroom || checkpointRoomNames.Contains(fa.Room.Identifier.Name))
+                    //.Where(fa => fa.Room.Identifier.Shape != RoomShape.Endroom || zoneTransitionRoomNames.Contains(fa.Room.Identifier.Name))
                     .OrderBy(fa => roomsLastVisitTime.TryGetValue(fa.Room, out var time) ? time : -Random.Range(0f, 4f));
 
                 SetPositions(enteringAreas.Select(a => a.CenterPosition));

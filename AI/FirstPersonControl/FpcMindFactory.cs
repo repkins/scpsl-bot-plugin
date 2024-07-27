@@ -14,6 +14,7 @@ using MapGeneration.Distributors;
 using MapGeneration;
 using SCPSLBot.AI.FirstPersonControl.Mind.Room;
 using SCPSLBot.AI.FirstPersonControl.Mind.Elevation;
+using SCPSLBot.AI.FirstPersonControl.Mind.Escape;
 
 namespace SCPSLBot.AI.FirstPersonControl
 {
@@ -42,15 +43,20 @@ namespace SCPSLBot.AI.FirstPersonControl
             mind.AddBelief(new ZoneEnterLocation(FacilityZone.HeavyContainment, FacilityZone.LightContainment, perception.GetSense<RoomSightSense>()));
             mind.AddBelief(new ZoneEnterLocation(FacilityZone.HeavyContainment, FacilityZone.Entrance, perception.GetSense<RoomSightSense>()));
             mind.AddBelief(new ZoneEnterLocation(FacilityZone.Entrance, FacilityZone.HeavyContainment, perception.GetSense<RoomSightSense>()));
+            mind.AddBelief(new ZoneEnterLocation(FacilityZone.Entrance, FacilityZone.Surface, perception.GetSense<RoomSightSense>()));
+            mind.AddBelief(new ZoneEnterLocation(FacilityZone.Surface, FacilityZone.Entrance, perception.GetSense<RoomSightSense>()));
 
             mind.AddAction(new GoToZoneEnterLocation(FacilityZone.LightContainment, FacilityZone.HeavyContainment, botPlayer));
             mind.AddAction(new GoToZoneEnterLocation(FacilityZone.HeavyContainment, FacilityZone.LightContainment, botPlayer));
             mind.AddAction(new GoToZoneEnterLocation(FacilityZone.HeavyContainment, FacilityZone.Entrance, botPlayer));
             mind.AddAction(new GoToZoneEnterLocation(FacilityZone.Entrance, FacilityZone.HeavyContainment, botPlayer));
+            mind.AddAction(new GoToZoneEnterLocation(FacilityZone.Entrance, FacilityZone.Surface, botPlayer));
+            mind.AddAction(new GoToZoneEnterLocation(FacilityZone.Surface, FacilityZone.Entrance, botPlayer));
             mind.AddAction(new GoToSearchRoomForZoneEnterLocation(FacilityZone.LightContainment, FacilityZone.HeavyContainment, botPlayer));
             mind.AddAction(new GoToSearchRoomForZoneEnterLocation(FacilityZone.HeavyContainment, FacilityZone.LightContainment, botPlayer));
             mind.AddAction(new GoToSearchRoomForZoneEnterLocation(FacilityZone.HeavyContainment, FacilityZone.Entrance, botPlayer));
             mind.AddAction(new GoToSearchRoomForZoneEnterLocation(FacilityZone.Entrance, FacilityZone.HeavyContainment, botPlayer));
+            mind.AddAction(new GoToSearchRoomForZoneEnterLocation(FacilityZone.Surface, FacilityZone.Entrance, botPlayer));
 
 
             mind.AddBelief(new Scp914Location(perception.GetSense<RoomSightSense>()));
@@ -89,6 +95,21 @@ namespace SCPSLBot.AI.FirstPersonControl
             mind.AddBelief(new ItemSightedLocation<ItemOfType>(ItemType.KeycardFacilityManager, perception.GetSense<ItemsWithinSightSense>()));
             mind.AddBelief(new ItemInInventory<ItemOfType>(ItemType.KeycardFacilityManager, perception.GetSense<ItemsInInventorySense>()));
             mind.AddAction(new GoToPickupItem<ItemOfType>(ItemType.KeycardFacilityManager, botPlayer));
+
+
+            mind.AddBelief(new ItemSightedLocation<ItemOfType>(ItemType.KeycardMTFOperative, perception.GetSense<ItemsWithinSightSense>()));
+            mind.AddBelief(new ItemInInventory<ItemOfType>(ItemType.KeycardMTFOperative, perception.GetSense<ItemsInInventorySense>()));
+            mind.AddAction(new GoToPickupItem<ItemOfType>(ItemType.KeycardMTFOperative, botPlayer));
+
+
+            mind.AddBelief(new ItemSightedLocation<ItemOfType>(ItemType.KeycardMTFCaptain, perception.GetSense<ItemsWithinSightSense>()));
+            mind.AddBelief(new ItemInInventory<ItemOfType>(ItemType.KeycardMTFCaptain, perception.GetSense<ItemsInInventorySense>()));
+            mind.AddAction(new GoToPickupItem<ItemOfType>(ItemType.KeycardMTFCaptain, botPlayer));
+
+
+            mind.AddBelief(new ItemSightedLocation<ItemOfType>(ItemType.KeycardChaosInsurgency, perception.GetSense<ItemsWithinSightSense>()));
+            mind.AddBelief(new ItemInInventory<ItemOfType>(ItemType.KeycardChaosInsurgency, perception.GetSense<ItemsInInventorySense>()));
+            mind.AddAction(new GoToPickupItem<ItemOfType>(ItemType.KeycardChaosInsurgency, botPlayer));
 
 
             mind.AddBelief(new ItemSightedLocation<ItemOfType>(ItemType.KeycardO5, perception.GetSense<ItemsWithinSightSense>()));
@@ -230,6 +251,13 @@ namespace SCPSLBot.AI.FirstPersonControl
             #endregion
 
 
+            #region KeycardMTFOperative searching
+            mind.AddBelief(new ItemSpawnsLocation<ItemOfType>(ItemType.KeycardMTFOperative, new[] { ItemType.KeycardMTFOperative }, perception.GetSense<RoomSightSense>(), perception.GetSense<ItemsWithinSightSense>()));
+            
+            mind.AddAction(new GoToItemSpawnLocation<ItemOfType>(ItemType.KeycardMTFOperative, botPlayer));
+            mind.AddActions(idx => new GoToSearchRoom<ItemOfType>(ItemType.KeycardMTFOperative, FacilityZone.HeavyContainment, idx, botPlayer));
+            #endregion
+
             #region KeycardScientist searching
             mind.AddBelief(new ItemSpawnsLocation<ItemOfType>(ItemType.KeycardScientist, new[] { ItemType.KeycardScientist }, perception.GetSense<RoomSightSense>(), perception.GetSense<ItemsWithinSightSense>()));
             mind.AddBelief(new ItemSpawnsInSightedLocker<ItemOfType>(ItemType.KeycardScientist, new[] { ItemType.KeycardScientist }, perception.GetSense<LockersWithinSightSense>()));
@@ -239,7 +267,6 @@ namespace SCPSLBot.AI.FirstPersonControl
             mind.AddAction(new GoToItemSpawnInLocker<ItemOfType>(ItemType.KeycardScientist, botPlayer));
             mind.AddActions(idx => new GoToSearchRoom<ItemOfType>(ItemType.KeycardScientist, idx, botPlayer));
             #endregion
-
 
             #region KeycardZoneManager searching
             mind.AddBelief(new ItemSpawnsLocation<ItemOfType>(ItemType.KeycardZoneManager, new[] { ItemType.KeycardZoneManager }, perception.GetSense<RoomSightSense>(), perception.GetSense<ItemsWithinSightSense>()));
@@ -262,6 +289,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             #endregion
 
 
+            #region ContainmentLevelOne keycard picking up and searching
             mind.AddBelief(new ItemSightedLocation<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelOne), perception.GetSense<ItemsWithinSightSense>()));
             mind.AddBelief(new ItemInInventory<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelOne), perception.GetSense<ItemsInInventorySense>()));
             mind.AddAction(new GoToPickupItem<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelOne), botPlayer));
@@ -279,8 +307,9 @@ namespace SCPSLBot.AI.FirstPersonControl
             mind.AddAction(new GoToLockerSpawnLocation<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelOne), StructureType.StandardLocker, botPlayer));
             mind.AddAction(new GoToItemSpawnInLocker<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelOne), botPlayer));
             mind.AddActions(idx => new GoToSearchRoom<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelOne), idx, botPlayer));
+            #endregion
 
-
+            #region ContainmentLevelTwo keycard picking up and searching
             mind.AddBelief(new ItemSightedLocation<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelTwo), perception.GetSense<ItemsWithinSightSense>()));
             mind.AddBelief(new ItemInInventory<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelTwo), perception.GetSense<ItemsInInventorySense>()));
             mind.AddAction(new GoToPickupItem<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelTwo), botPlayer));
@@ -298,8 +327,9 @@ namespace SCPSLBot.AI.FirstPersonControl
             mind.AddAction(new GoToLockerSpawnLocation<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelTwo), StructureType.StandardLocker, botPlayer));
             mind.AddAction(new GoToItemSpawnInLocker<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelTwo), botPlayer));
             mind.AddActions(idx => new GoToSearchRoom<KeycardWithPermissions>(new(KeycardPermissions.ContainmentLevelTwo), idx, botPlayer));
+            #endregion
 
-
+            #region Checkpoints keycard picking up and searching
             mind.AddBelief(new ItemSightedLocation<KeycardWithPermissions>(new(KeycardPermissions.Checkpoints), perception.GetSense<ItemsWithinSightSense>()));
             mind.AddBelief(new ItemInInventory<KeycardWithPermissions>(new(KeycardPermissions.Checkpoints), perception.GetSense<ItemsInInventorySense>()));
             mind.AddAction(new GoToPickupItem<KeycardWithPermissions>(new(KeycardPermissions.Checkpoints), botPlayer));
@@ -317,18 +347,40 @@ namespace SCPSLBot.AI.FirstPersonControl
             mind.AddAction(new GoToLockerSpawnLocation<KeycardWithPermissions>(new(KeycardPermissions.Checkpoints), StructureType.StandardLocker, botPlayer));
             mind.AddAction(new GoToItemSpawnInLocker<KeycardWithPermissions>(new(KeycardPermissions.Checkpoints), botPlayer));
             mind.AddActions(idx => new GoToSearchRoom<KeycardWithPermissions>(new(KeycardPermissions.Checkpoints), idx, botPlayer));
+            #endregion
+
+            #region ExitGates keycard picking up and searching
+            mind.AddBelief(new ItemSightedLocation<KeycardWithPermissions>(new(KeycardPermissions.ExitGates), perception.GetSense<ItemsWithinSightSense>()));
+            mind.AddBelief(new ItemInInventory<KeycardWithPermissions>(new(KeycardPermissions.ExitGates), perception.GetSense<ItemsInInventorySense>()));
+            mind.AddAction(new GoToPickupItem<KeycardWithPermissions>(new(KeycardPermissions.ExitGates), botPlayer));
+
+            var exitGatesSpawnItemTypes = new ItemType[]
+            {
+                ItemType.KeycardMTFOperative, ItemType.KeycardMTFCaptain, ItemType.KeycardChaosInsurgency,
+                ItemType.KeycardFacilityManager, ItemType.KeycardO5
+            };
+            mind.AddBelief(new ItemSpawnsLocation<KeycardWithPermissions>(new(KeycardPermissions.ExitGates), exitGatesSpawnItemTypes, perception.GetSense<RoomSightSense>(), perception.GetSense<ItemsWithinSightSense>()));
+            
+            mind.AddAction(new GoToItemSpawnLocation<KeycardWithPermissions>(new(KeycardPermissions.ExitGates), botPlayer));
+            mind.AddActions(idx => new GoToSearchRoom<KeycardWithPermissions>(new(KeycardPermissions.ExitGates), FacilityZone.HeavyContainment, idx, botPlayer));
+            #endregion
 
 
             mind.AddAction(new OpenNonKeycardDoorObstacle(botPlayer));
             mind.AddAction(new OpenKeycardDoorObstacle(KeycardPermissions.ContainmentLevelOne, botPlayer));
             mind.AddAction(new OpenKeycardDoorObstacle(KeycardPermissions.ContainmentLevelTwo, botPlayer));
             mind.AddAction(new OpenKeycardDoorObstacle(KeycardPermissions.Checkpoints, botPlayer));
-            
+            mind.AddAction(new OpenKeycardDoorObstacle(KeycardPermissions.ExitGates, botPlayer));
+
+
+            mind.AddBelief(new FacilityEscapeLocation(perception.GetSense<RoomSightSense>()));
+            mind.AddBelief(new PlayerEscaped());
+            mind.AddAction(new GoToEscapeLocation(botPlayer));
 
 
             mind.AddBelief(new ItemSightedLocation<ItemOfType>(new(ItemType.Medkit), perception.GetSense<ItemsWithinSightSense>()));
 
-            //mind.AddGoal(new GetResearchSupervisorKeycard());
+
             mind.AddGoal(new EscapeTheFacility());
             //mind.AddGoal(new GetO5Keycard());
         }

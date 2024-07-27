@@ -169,7 +169,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             //if (firstDoorOnPath.GetComponentsInChildren<Collider>()
             //        .Any(collider => collider.Raycast(new Ray(playerPosition, hub.PlayerCameraReference.forward), out var hit, 2f))
-            if (Physics.Raycast(playerCamera.position, playerCamera.forward, out var hit, maxInteractDistance, LayerMask.GetMask("Door"))
+            if (Physics.Raycast(playerCamera.position, playerCamera.forward, out var hit, maxInteractDistance, LayerMask.GetMask("Door", "Glass"))
                 && hit.collider.GetComponent<InteractableCollider>() is InteractableCollider interactableCollider
                 && interactableCollider.Target is DoorVariant interactable)
             {
