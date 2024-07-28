@@ -21,8 +21,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Movement
                 __result = fpcModule!.transform.TransformDirection(fpcPlayer.Move.DesiredLocalDirection);
                 fpcPlayer.Move.DesiredLocalDirection = Vector3.zero;
 
-                //__result = fpcPlayer.Move.DesiredDirection;
-                //fpcPlayer.Move.DesiredDirection = Vector3.zero;
+
                 return false;
             }
 
@@ -31,12 +30,21 @@ namespace SCPSLBot.AI.FirstPersonControl.Movement
 
         [HarmonyPatch("GetFrameMove")]
         [HarmonyPrefix()]
-        public static bool GetBotFrameMoveIfBot(FpcMotor __instance, ref Vector3 __result)
+        public static bool AssignNewReceivedPositionIfBot(FpcMotor __instance, ref Vector3 __result)
         {
+            var fpcModule = MainModuleField.GetValue(__instance) as FirstPersonMovementModule;
+            var hub = HubGetter.Invoke(fpcModule, null) as ReferenceHub;
+
+            if (BotManager.Instance.BotPlayers.TryGetValue(hub, out var botHub)
+                && botHub.CurrentBotPlayer is FpcBotPlayer)
+            { 
+                __instance.ReceivedPosition = new RelativePositioning.RelativePosition(fpcModule!.Position + __instance.MoveDirection);
+            }
+
             return true;
         }
 
-        private static FieldInfo MainModuleField = AccessTools.Field(typeof(FpcMotor), "MainModule");
-        private static MethodInfo HubGetter = AccessTools.PropertyGetter(typeof(FirstPersonMovementModule), "Hub");
+        private static readonly FieldInfo MainModuleField = AccessTools.Field(typeof(FpcMotor), "MainModule");
+        private static readonly MethodInfo HubGetter = AccessTools.PropertyGetter(typeof(FirstPersonMovementModule), "Hub");
     }
 }
