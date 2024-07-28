@@ -48,16 +48,27 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
             var itemPosition = location.Positions[Idx];
             var cameraPosition = _botPlayer.BotHub.PlayerHub.PlayerCameraReference.position;
 
-            if (Vector3.Distance(itemPosition, cameraPosition) > 1.75f)
+            bool isNotWithinPickup = false;
+
+            var itemRelativePos = itemPosition - cameraPosition;
+
+            var dist = itemRelativePos.magnitude;
+            if (dist > 1.75f)
             {
                 _botPlayer.MoveToPosition(itemPosition);
+                isNotWithinPickup = true;
             }
 
             var cameraDirection = _botPlayer.BotHub.PlayerHub.PlayerCameraReference.forward;
 
-            if (Vector3.Dot((itemPosition - cameraPosition).normalized, cameraDirection) <= 1f - .0001f)
+            if (dist < 3f && Vector3.Dot(itemRelativePos.normalized, cameraDirection) <= 1f - .0001f)
             {
                 _botPlayer.LookToPosition(itemPosition);
+                isNotWithinPickup = true;
+            }
+
+            if (isNotWithinPickup)
+            {
                 return;
             }
 

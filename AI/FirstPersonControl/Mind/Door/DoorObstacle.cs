@@ -35,33 +35,34 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
         private void OnAfterSightSensing()
         {
-            var pathOfPoints = navigator.PointsPath;
-            if (pathOfPoints.Count == 0)
-            {
-                return;
-            }
-
             DoorEntry? obstuctingEntry = null;
 
-            foreach (var pathPoint in pathOfPoints)
+            foreach (var (point, nextPoint) in navigator.PathSegments)
             {
-                if (!sightSense.IsPositionWithinFov(pathPoint))
+                if (!sightSense.IsPositionWithinFov(nextPoint))
                 {
                     continue;
                 }
 
-                if (sightSense.IsPositionObstructed(pathPoint, out var hit))
+                if (sightSense.IsPositionObstructed(point))
                 {
-                    var hitDoor = hit.collider.GetComponentInParent<DoorVariant>();
-                    if (hitDoor && !hitDoor.IsConsideredOpen())
-                    {
-                        var interactable = hit.collider.GetComponent<InteractableCollider>();
-                        var target = interactable?.Target;
-                        obstuctingEntry = target is DoorVariant interactableDoorTarget
-                            ? new(hitDoor, interactableDoorTarget.RequiredPermissions.RequiredPermissions)
-                            : new(hitDoor, hitDoor.RequiredPermissions.RequiredPermissions);
-                        break;
-                    }
+                    continue;
+                }
+
+                if (!Physics.Linecast(point, nextPoint, out var hit, LayerMask.GetMask("Door")))
+                {
+                    continue;
+                }
+
+                var hitDoor = hit.collider.GetComponentInParent<DoorVariant>();
+                if (hitDoor && !hitDoor.IsConsideredOpen())
+                {
+                    var interactable = hit.collider.GetComponent<InteractableCollider>();
+                    var target = interactable?.Target;
+                    obstuctingEntry = target is DoorVariant interactableDoorTarget
+                        ? new(hitDoor, interactableDoorTarget.RequiredPermissions.RequiredPermissions)
+                        : new(hitDoor, hitDoor.RequiredPermissions.RequiredPermissions);
+                    break;
                 }
             }
 

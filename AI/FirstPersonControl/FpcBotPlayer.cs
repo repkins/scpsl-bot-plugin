@@ -104,11 +104,12 @@ namespace SCPSLBot.AI.FirstPersonControl
             MindRunner.EvaluateGoalsToActions();
         }
 
-        public void MoveToPosition(Vector3 targetPosition)
+        public void MoveToPosition(Vector3 goalPosition) => MoveToPosition(goalPosition, out _);
+        public void MoveToPosition(Vector3 goalPosition, out Vector3 positionTowardsGoal)
         {
-            var positionTowardsTarget = Navigator.GetPositionTowards(targetPosition);
+            positionTowardsGoal = Navigator.GetPositionTowards(goalPosition);
 
-            var relativePos = positionTowardsTarget - this.FpcRole.CameraPosition;
+            var relativePos = positionTowardsGoal - this.FpcRole.CameraPosition;
             var relativeHorizontalPos = Vector3.ProjectOnPlane(relativePos, Vector3.up);
             var turnPosition = relativeHorizontalPos + this.FpcRole.CameraPosition;
 
