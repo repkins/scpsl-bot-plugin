@@ -38,5 +38,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Escape
         }
 
         private static readonly Vector3 RoughEscapePosition = new(124f, 989f, 20f);
+
+        public override string ToString()
+        {
+            return $"{nameof(FacilityEscapeLocation)}(s): {Positions.Count}";
+        }
     }
 }

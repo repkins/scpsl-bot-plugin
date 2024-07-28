@@ -8,6 +8,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Escape
 {
     internal class PlayerEscaped : Belief<bool>
     {
-
+        public override string ToString()
+        {
+            return $"{nameof(PlayerEscaped)}";
+        }
     }
 }

@@ -23,7 +23,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Elevation
             elevatorObstacle = fpcMind.ActionImpacts<ElevationObstacle, bool>(this, b => b.Elevator);
         }
 
-        public float Cost { get; } = 1f;
+        public float Cost { get; } = 10f;
 
         public void Tick()
         {

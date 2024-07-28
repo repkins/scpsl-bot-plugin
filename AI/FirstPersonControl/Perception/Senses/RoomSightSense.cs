@@ -66,11 +66,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses
                 {
                     foreach (var fa in a.ForeignConnectedAreas)
                     {
-                        if (fa.RoomKindArea.RoomKind == a.RoomKindArea.RoomKind)
-                        {
-                            continue;
-                        }
-
                         var faa = fa.ConnectedAreas.First();
                         ForeignRoomsAreas.Add(faa);
                     }

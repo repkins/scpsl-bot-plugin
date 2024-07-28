@@ -81,8 +81,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
 
         private Vector3[] GetItemSpawnPositions(RoomIdentifier room)
         {
-            // TODO: remove when remaining nav mesh added in room
-            if (room.Name == RoomName.LczGreenhouse)
+            // TODO: remove when remaining nav mesh added in rooms
+            if (room.Name == RoomName.LczGreenhouse || room.Name == RoomName.Hcz079)
             {
                 return Array.Empty<Vector3>();
             }

@@ -1,4 +1,5 @@
 ﻿using Interactables;
+using InventorySystem.Items.Pickups;
 using MapGeneration.Distributors;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using System;
@@ -82,7 +83,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs
             {
                 if (this.lockersSightSense.IsPositionWithinFov(itemSpawnPosition))
                 {
-                    if (!lockersSightSense.IsPositionObstructed(itemSpawnPosition, out var obstruction))
+                    if (!lockersSightSense.IsPositionObstructed(itemSpawnPosition, out var obstruction)
+                        || obstruction.collider.GetComponent<ItemPickupBase>())
                     {
                         this.visitedItemSpawnPositions.Add(itemSpawnPosition);
                         absentPositions.Add(itemSpawnPosition);

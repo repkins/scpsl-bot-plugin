@@ -43,5 +43,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Escape
         public override void Reset()
         {
         }
+
+        public override string ToString()
+        {
+            return $"{nameof(GoToEscapeLocation)}";
+        }
     }
 }
