@@ -28,7 +28,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
             fpcMind.ActionImpacts<Scp914RunningOnSetting, Scp914KnobSetting?>(this, b => KnobSetting);
         }
 
-        public override float Weight { get; } = 0.5f;   // "average" effort to target knob setting
+        public override float Weight { get; } = 1.5f;   // "average" effort to target knob setting
 
         private readonly FpcBotPlayer botPlayer;
 

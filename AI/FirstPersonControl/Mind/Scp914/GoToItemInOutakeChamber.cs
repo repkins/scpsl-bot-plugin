@@ -26,7 +26,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
             fpcMind.ActionImpacts<ItemSightedLocation<C>>(this, b => b.Criteria.Equals(this.Criteria));
         }
 
-        public override float Weight { get; } = 0f;
+        public override float Weight { get; } = 1f;
 
         private readonly FpcBotPlayer botPlayer;
 

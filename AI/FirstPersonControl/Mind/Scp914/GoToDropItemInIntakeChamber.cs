@@ -30,7 +30,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
             this.itemInIntakeChamber = fpcMind.ActionImpacts<ItemInIntakeChamber<C>>(this, b => b.Criteria.Equals(this.Criteria));
         }
 
-        public override float Weight { get; } = 0f;
+        public override float Weight { get; } = 1f;
 
         private readonly FpcBotPlayer botPlayer;
 
