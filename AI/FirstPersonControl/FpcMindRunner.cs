@@ -244,7 +244,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             var prevAction = RunningAction;
 
             RunningAction = selectedAction ?? null;
-            RunningActionCost = selectedAction?.Cost ?? 0;
+            RunningActionCost = selectedAction?.Cost ?? 0f;
 
             Log.Debug($"New Action for bot: {RunningAction} (Cost: {RunningActionCost})");
 
