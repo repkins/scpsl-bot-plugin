@@ -16,7 +16,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Item.Actions
             fpcMind.ActionImpacts<ItemSightedLocation<C>>(this, b => b.Criteria.Equals(Criteria));
         }
 
-        public override float Weight => 1f / location.ItemSpawnProbability[location.Positions[Idx]];
+        public override float Weight => location.Positions.Count > Idx 
+            ? 1f / location.ItemSpawnProbability[location.Positions[Idx]] 
+            : 1f;
 
         public override void Reset()
         { }

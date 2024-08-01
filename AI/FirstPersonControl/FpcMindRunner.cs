@@ -26,9 +26,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         public void EvaluateGoalsToActions()
         {
-            IEnumerable<IAction> enabledActions = GetEnabledActionsTowardsGoals();
-
-            SelectActionAndRun(enabledActions);
+            isBeliefsUpdated = true;
         }
 
         public void Tick()
@@ -90,12 +88,16 @@ namespace SCPSLBot.AI.FirstPersonControl
             Log.Debug($"[R] Belief updated: {updatedBelief}");
         }
 
+        private readonly Dictionary<IAction, float> actionsCosts = new();
+        private readonly Dictionary<IAction, float> remainingActionsPriorities = new();
+
         private IEnumerable<IAction> GetEnabledActionsTowardsGoals()
         {
             Profiler.BeginSample($"{nameof(FpcMindRunner)}.{nameof(GetEnabledActionsTowardsGoals)}");
 
             RelevantBeliefs.Clear();
-            visitingActions.Clear();
+            actionsCosts.Clear();
+            remainingActionsPriorities.Clear();
 
             Debug.Log($"Getting enabled Actions towards goals.");
 
@@ -130,6 +132,7 @@ namespace SCPSLBot.AI.FirstPersonControl
                 {
                     yield return enabledAction;
                 }
+                break;
             }
         }
 
@@ -141,31 +144,42 @@ namespace SCPSLBot.AI.FirstPersonControl
                 {
                     Debug.Log($"      Action {actionImpacting} cannot impact belief.");
                     continue;
-                } 
-                else if (visitingActions.Contains(actionImpacting))
-                {
-                    Debug.Log($"      Action {actionImpacting} can impact but already visited.");
-                    continue;
                 }
 
-                Debug.Log($"      Action {actionImpacting} can impact belief.");
+                var actionImpactingCost = actionImpacting.Cost;
+                actionsCosts.Add(actionImpacting, actionImpactingCost);
+                remainingActionsPriorities.Add(actionImpacting, actionImpactingCost);
 
-                foreach (var enabledAction in GetClosestEnabledActionsEnabling(actionImpacting, 3))
+                Debug.Log($"      Action {actionImpacting} can impact belief with cost {actionImpactingCost}.");
+            }
+
+            while (remainingActionsPriorities.Any())
+            {
+                var actionImpacting = remainingActionsPriorities.Aggregate((a, c) => c.Value < a.Value ? c : a).Key;
+                remainingActionsPriorities.Remove(actionImpacting);
+
+                var foundEnabledAction = false;
+
+                Debug.Log($"      Evaluating action {actionImpacting}.");
+                foreach (var enabledAction in GetEnabledActionsEnabling(actionImpacting, 3))
                 {
                     yield return enabledAction;
+                    foundEnabledAction = true;
+                    break;
+                }
+
+                if (foundEnabledAction)
+                {
+                    break;
                 }
             }
         }
 
-        private readonly HashSet<IAction> visitingActions = new();
-
-        private IEnumerable<IAction> GetClosestEnabledActionsEnabling(IAction actionToEnable, int level)
+        private IEnumerable<IAction> GetEnabledActionsEnabling(IAction actionToEnable, int level)
         {
             var prefix = new string(' ', level * 2);
 
             var beliefsEnabling = ActionsEnabledByBeliefs[actionToEnable];
-            
-            visitingActions.Add(actionToEnable);
 
             var actionEnabled = true;
             foreach (var b in beliefsEnabling)
@@ -179,60 +193,45 @@ namespace SCPSLBot.AI.FirstPersonControl
                 }
 
                 Debug.Log($"{prefix}  Belief {b} needs to satisfy action.");
-
-                foreach (var impactingEnabledAction in GetClosestActionsImpacting(b, actionToEnable, level+1))
-                {
-                    yield return impactingEnabledAction;
-                }
                 actionEnabled = false;
+
+                ProcessActionsImpacting(b, actionToEnable, level+1);
                 break;
             }
 
-            visitingActions.Remove(actionToEnable);
-
             if (actionEnabled)
             {
-                Debug.Log($"{prefix}Action {actionToEnable} conditions fulfilled with cost {actionToEnable.Cost}");
+                Debug.Log($"{prefix}Action {actionToEnable} conditions fulfilled.");
 
                 yield return actionToEnable;
             }
         }
 
-        private readonly Dictionary<(IBelief, IAction), IEnumerable<IAction>> beliefsImpactedByActionsOrdered = new();
-
-        private IEnumerable<IAction> GetClosestActionsImpacting(IBelief belief, IAction actionToEnable, int level)
+        private void ProcessActionsImpacting(IBelief belief, IAction actionToEnable, int level)
         {
             var prefix = new string(' ', level * 2);
 
-            if (!beliefsImpactedByActionsOrdered.TryGetValue((belief, actionToEnable), out var actionsImpacting))
-            {
-                beliefsImpactedByActionsOrdered[(belief, actionToEnable)] = actionsImpacting = BeliefsImpactedByActions[belief]
-                    .Where(actionImpacting => 
-                    {
-                        if (!belief.CanImpactedByAction(actionImpacting, actionToEnable))
-                        {
-                            Debug.Log($"{prefix}  Action {actionImpacting} cannot impact belief.");
-                            return false;
-                        }
-                        else if (visitingActions.Contains(actionImpacting))
-                        {
-                            Debug.Log($"{prefix}  Action {actionImpacting} can impact but already visited.");
-                            return false;
-                        }
+            var actionToEnableCostToGoal = actionsCosts[actionToEnable];
 
-                        Debug.Log($"{prefix}  Action {actionImpacting} can impact belief.");
-                        return true;
-                    })
-                    .OrderBy(a => a.Cost);
-            }
-
-            foreach (var actionImpacting in actionsImpacting)
+            foreach (var actionImpacting in BeliefsImpactedByActions[belief])
             {
-                foreach (var enabledAction in GetClosestEnabledActionsEnabling(actionImpacting, level+1))
+                if (!belief.CanImpactedByAction(actionImpacting, actionToEnable))
                 {
-                    yield return enabledAction;
-                    yield break;
+                    Debug.Log($"{prefix}  Action {actionImpacting} cannot impact belief.");
+                    continue;
                 }
+
+                var actionImpactingCostToGoal = actionToEnableCostToGoal + actionImpacting.Cost;
+                if (actionsCosts.ContainsKey(actionImpacting) && actionsCosts[actionImpacting] < actionImpactingCostToGoal)
+                {
+                    Debug.Log($"{prefix}  Action {actionImpacting} can impact belief but cost takes more ({actionsCosts[actionImpacting]} < {actionImpactingCostToGoal}).");
+                    continue;
+                }
+
+                Debug.Log($"{prefix}  Action {actionImpacting} can impact belief with least total cost {actionImpactingCostToGoal}.");
+
+                actionsCosts[actionImpacting] = actionImpactingCostToGoal;
+                remainingActionsPriorities[actionImpacting] = actionImpactingCostToGoal;
             }
         }
 
@@ -240,8 +239,7 @@ namespace SCPSLBot.AI.FirstPersonControl
         {
             Profiler.BeginSample($"{nameof(FpcMindRunner)}.{nameof(SelectActionAndRun)}");
 
-            var selectedAction = enabledActions.OrderBy(a => a.Cost)
-                .FirstOrDefault();
+            var selectedAction = enabledActions.FirstOrDefault();
 
             var prevAction = RunningAction;
 
