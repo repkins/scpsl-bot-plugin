@@ -26,6 +26,11 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Room.Beliefs
 
         private void OnAfterSensedForeignRooms()
         {
+            if (this.roomSightSense.RoomWithin.Zone != FromZone)
+            {
+                return;
+            }
+
             var foreignRoomAreaOfTargetZone = this.roomSightSense.ForeignRoomsAreas.Find(r => r.Room.Identifier.Zone == Zone);
             if (foreignRoomAreaOfTargetZone != null && foreignRoomAreaOfTargetZone.Room.Identifier.Zone != this.roomSightSense.RoomWithin.Zone)
             {
