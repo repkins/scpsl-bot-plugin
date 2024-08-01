@@ -129,7 +129,7 @@ namespace SCPSLBot.Navigation.Mesh
 
             do
             {
-                area = areasWithPriorityToEvaluate.OrderBy(p => p.Value).First().Key;
+                area = areasWithPriorityToEvaluate.Aggregate((a, c) => c.Value < a.Value ? c : a).Key;
 
                 //var areaIdx = AreasByRoom[area.Room].IndexOf(area);
                 //Log.Debug($"Evaluating connections for area #{areaIdx} with priority value {areasWithPriorityToEvaluate[area]} {area.RoomKindArea.RoomKind}");

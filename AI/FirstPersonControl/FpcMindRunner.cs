@@ -95,7 +95,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             Profiler.BeginSample($"{nameof(FpcMindRunner)}.{nameof(GetEnabledActionsTowardsGoals)}");
 
             RelevantBeliefs.Clear();
-            visitedActions.Clear();
+            visitingActions.Clear();
 
             Debug.Log($"Getting enabled Actions towards goals.");
 
@@ -142,7 +142,7 @@ namespace SCPSLBot.AI.FirstPersonControl
                     Debug.Log($"      Action {actionImpacting} cannot impact belief.");
                     continue;
                 } 
-                else if (visitedActions.Contains(actionImpacting))
+                else if (visitingActions.Contains(actionImpacting))
                 {
                     Debug.Log($"      Action {actionImpacting} can impact but already visited.");
                     continue;
@@ -150,22 +150,22 @@ namespace SCPSLBot.AI.FirstPersonControl
 
                 Debug.Log($"      Action {actionImpacting} can impact belief.");
 
-                foreach (var enabledAction in GetClosestEnabledActionsImpacting(actionImpacting, 3))
+                foreach (var enabledAction in GetClosestEnabledActionsEnabling(actionImpacting, 3))
                 {
                     yield return enabledAction;
                 }
             }
         }
 
-        private readonly HashSet<IAction> visitedActions = new();
+        private readonly HashSet<IAction> visitingActions = new();
 
-        private IEnumerable<IAction> GetClosestEnabledActionsImpacting(IAction actionToEnable, int level)
+        private IEnumerable<IAction> GetClosestEnabledActionsEnabling(IAction actionToEnable, int level)
         {
             var prefix = new string(' ', level * 2);
 
             var beliefsEnabling = ActionsEnabledByBeliefs[actionToEnable];
             
-            visitedActions.Add(actionToEnable);
+            visitingActions.Add(actionToEnable);
 
             var actionEnabled = true;
             foreach (var b in beliefsEnabling)
@@ -188,7 +188,7 @@ namespace SCPSLBot.AI.FirstPersonControl
                 break;
             }
 
-            visitedActions.Remove(actionToEnable);
+            visitingActions.Remove(actionToEnable);
 
             if (actionEnabled)
             {
@@ -214,7 +214,7 @@ namespace SCPSLBot.AI.FirstPersonControl
                             Debug.Log($"{prefix}  Action {actionImpacting} cannot impact belief.");
                             return false;
                         }
-                        else if (visitedActions.Contains(actionImpacting))
+                        else if (visitingActions.Contains(actionImpacting))
                         {
                             Debug.Log($"{prefix}  Action {actionImpacting} can impact but already visited.");
                             return false;
@@ -228,7 +228,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             foreach (var actionImpacting in actionsImpacting)
             {
-                foreach (var enabledAction in GetClosestEnabledActionsImpacting(actionImpacting, level+1))
+                foreach (var enabledAction in GetClosestEnabledActionsEnabling(actionImpacting, level+1))
                 {
                     yield return enabledAction;
                     yield break;
