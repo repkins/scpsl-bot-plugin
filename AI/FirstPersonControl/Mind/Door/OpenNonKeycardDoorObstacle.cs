@@ -38,7 +38,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
                 return;
             }
 
-            var dist = Vector3.Distance(doorToOpen.transform.position + Vector3.up, playerPosition);
+            var doorPlane = new Plane(doorToOpen.transform.forward, doorToOpen.transform.position);
+            var dist = Mathf.Abs(doorPlane.GetDistanceToPoint(playerPosition));
             var isTargetStateOpen = doorToOpen.TargetState;
 
             if (!isTargetStateOpen && dist <= interactDistance)
