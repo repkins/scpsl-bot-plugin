@@ -232,6 +232,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
 
         private readonly FpcBotPlayer _fpcBotPlayer;
 
-        private LayerMask collisionLayerMask = LayerMask.GetMask("Default", "Door", "InteractableNoPlayerCollision");
+        private LayerMask collisionLayerMask = LayerMask.GetMask("Default", "Door", "InteractableNoPlayerCollision", "Glass");
     }
 }

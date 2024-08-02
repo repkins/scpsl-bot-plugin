@@ -77,41 +77,50 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             debugStringBuilder.Clear();
             debugStringBuilder.AppendLine("<size=14><align=left>");
-            debugStringBuilder.AppendLine("Actions/Beliefs:");
-            var numLines = 2;
+            var numLines = 0;
             //foreach (var belief in MindRunner.Beliefs.Values.SelectMany(bl => bl))
 
-            var action = MindRunner.RunningAction;
-
-            debugStringBuilder.AppendLine($"{action}");
-            numLines++;
-
-            while (action != null)
+            foreach (var (goal, actionImpactingGoal) in MindRunner.VisitedActionsImpactingGoals)
             {
-                var beliefsEnabling = MindRunner.ActionsEnabledByBeliefs[action];
+                debugStringBuilder.AppendLine($"Goal: {goal.GetType().Name}");
+                numLines++;
 
-                foreach (var belief in beliefsEnabling)
+                var action = actionImpactingGoal;
+                while (action != null)
                 {
-                    if (MindRunner.VisitedActionsEnabledBy.TryGetValue(belief, out var visitedActionEnabledBy)
-                        && visitedActionEnabledBy == action)
+                    var beliefsEnabling = MindRunner.ActionsEnabledByBeliefs[action];
+
+                    foreach (var belief in beliefsEnabling)
                     {
-                        debugStringBuilder.AppendLine($"  {belief}");
+                        if (MindRunner.VisitedActionsEnabledBy.TryGetValue(belief, out var visitedActionEnabledBy)
+                            && visitedActionEnabledBy == action)
+                        {
+                            debugStringBuilder.AppendLine($"  {belief}");
+                            numLines++;
+                        }
+                    }
+
+                    if (MindRunner.VisitedActionsImpacting.TryGetValue(action, out var actionImpacting))
+                    {
+                        if (actionImpacting == MindRunner.RunningAction)
+                        {
+                            debugStringBuilder.AppendLine($"<color=yellow>{actionImpacting}");
+                        }
+                        else
+                        {
+                            debugStringBuilder.AppendLine($"{actionImpacting}");
+                        }
                         numLines++;
+
+                        action = actionImpacting;
+                    }
+                    else
+                    {
+                        action = null;
                     }
                 }
-
-                if (MindRunner.VisitedActionsImpactedBy.TryGetValue(action, out var actionImpacting))
-                {
-                    debugStringBuilder.AppendLine($"{actionImpacting}");
-                    numLines++;
-
-                    action = actionImpacting;
-                }
-                else
-                {
-                    action = null;
-                }
             }
+            
             debugStringBuilder.Append('\n', Mathf.Max(40 - numLines, 0));
 
             var debugString = debugStringBuilder.ToString();
@@ -278,7 +287,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             }
         }
 
-        private int numSpectators;
+        private int numSpectators = 0;
 
         private static readonly Dictionary<Player, string> playersHintTexts = new();
 

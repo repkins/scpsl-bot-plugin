@@ -94,6 +94,10 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         public readonly Dictionary<IBelief, IAction> VisitedActionsEnabledBy = new();
         public readonly Dictionary<IAction, IAction> VisitedActionsImpactedBy = new();
+        public readonly Dictionary<IAction, IGoal> VisitedGoalsImpactedBy = new();
+
+        public readonly Dictionary<IAction, IAction> VisitedActionsImpacting = new();
+        public readonly Dictionary<IGoal, IAction> VisitedActionsImpactingGoals = new();
 
         private IEnumerable<IAction> GetEnabledActionsTowardsGoals()
         {
@@ -101,13 +105,27 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             RelevantBeliefs.Clear();
 
-            VisitedActionsEnabledBy.Clear();
-            VisitedActionsImpactedBy.Clear();
-
             foreach (var goal in GoalsEnabledByBeliefs.Keys)
             {
+                VisitedActionsEnabledBy.Clear();
+                VisitedActionsImpactedBy.Clear();
+                VisitedGoalsImpactedBy.Clear();
+
                 foreach (var enabledAction in FindEnabledActions(goal))
                 {
+                    VisitedActionsImpacting.Clear();
+                    VisitedActionsImpactingGoals.Clear();
+
+                    var actionImpacting = enabledAction;
+                    while (VisitedActionsImpactedBy.TryGetValue(actionImpacting, out var actionImpactedBy))
+                    {
+                        VisitedActionsImpacting[actionImpactedBy] = actionImpacting;
+
+                        actionImpacting = actionImpactedBy;
+                    }
+
+                    VisitedActionsImpactingGoals[goal] = actionImpacting;
+
                     yield return enabledAction;
                     break;
                 }
@@ -155,6 +173,8 @@ namespace SCPSLBot.AI.FirstPersonControl
         {
             foreach (var actionImpacting in BeliefsImpactedByActions[belief])
             {
+                VisitedGoalsImpactedBy[actionImpacting] = goalToEnable;
+
                 if (!belief.CanImpactedByAction(actionImpacting, goalToEnable))
                 {
                     Debug.Log($"      Action {actionImpacting} cannot impact belief.");
