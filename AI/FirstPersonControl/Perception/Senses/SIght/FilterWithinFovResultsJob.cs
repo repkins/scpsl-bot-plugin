@@ -7,7 +7,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
     internal struct FilterWithinFovResultsJob : IJob
     {
         [ReadOnly] public Vector3 CameraPosition;
-        [ReadOnly] public int ExclusionCollisionMask;
+        [ReadOnly] public int CollisionMask;
 
         [ReadOnly] public NativeArray<bool> IsWithinFov;
         [ReadOnly] public NativeArray<ColliderData> ColliderDatas;
@@ -26,7 +26,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
                 {
                     var relPosToItem = ColliderDatas[colliderIndex].Center - CameraPosition;
 
-                    RaycastCommands[numRaycasts] = new RaycastCommand(CameraPosition, relPosToItem, relPosToItem.magnitude, ~ExclusionCollisionMask);
+                    RaycastCommands[numRaycasts] = new RaycastCommand(CameraPosition, relPosToItem, relPosToItem.magnitude, CollisionMask);
                     WithinFovColliderDatas[numRaycasts] = ColliderDatas[colliderIndex];
 
                     numRaycasts++;

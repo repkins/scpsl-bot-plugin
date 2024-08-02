@@ -120,7 +120,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
         {
             var cameraPosition = _fpcBotPlayer.CameraPosition;
 
-            var isObstructed = Physics.Linecast(cameraPosition, targetPosition, out var hit, ~excludedCollisionLayerMask);
+            var isObstructed = Physics.Linecast(cameraPosition, targetPosition, out var hit, collisionLayerMask);
             if (isObstructed)
             {
                 outObstructtionHit = hit;
@@ -178,7 +178,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
                 CameraPosition = cameraPosition,
                 ColliderDatas = colliderDatas,
                 IsWithinFov = withinFovJob.IsWithinFov,
-                ExclusionCollisionMask = excludedCollisionLayerMask,
+                CollisionMask = collisionLayerMask,
                 ColliderCount = colliderCount,
 
                 RaycastCommands = raycastCommandsBuffer,
@@ -232,6 +232,6 @@ namespace SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight
 
         private readonly FpcBotPlayer _fpcBotPlayer;
 
-        private LayerMask excludedCollisionLayerMask = LayerMask.GetMask("InvisibleCollider", "Hitbox");
+        private LayerMask collisionLayerMask = LayerMask.GetMask("Default", "Door", "InteractableNoPlayerCollision");
     }
 }
