@@ -1,6 +1,5 @@
 ﻿using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Mind;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -78,7 +77,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         private void OnBeliefUpdate(IBelief updatedBelief)
         {
-            if (!RelevantBeliefs.Contains(updatedBelief))
+            if (!VisitedActionsEnabledBy.ContainsKey(updatedBelief))
             {
                 Log.Debug($"[I] Belief updated: {updatedBelief}");
                 return;
@@ -88,38 +87,44 @@ namespace SCPSLBot.AI.FirstPersonControl
             Log.Debug($"[R] Belief updated: {updatedBelief}");
         }
 
-        private readonly Dictionary<IAction, float> actionsCosts = new();
-        private readonly Dictionary<IAction, float> remainingActionsPriorities = new();
+        #region Action Finding
+
+        private readonly Dictionary<IAction, float> visitedActionsTotalCosts = new();
+        private readonly Dictionary<IAction, float> remainingActionsToVisit = new();
+
+        public readonly Dictionary<IBelief, IAction> VisitedActionsEnabledBy = new();
+        public readonly Dictionary<IAction, IAction> VisitedActionsImpactedBy = new();
 
         private IEnumerable<IAction> GetEnabledActionsTowardsGoals()
         {
             Profiler.BeginSample($"{nameof(FpcMindRunner)}.{nameof(GetEnabledActionsTowardsGoals)}");
 
             RelevantBeliefs.Clear();
-            actionsCosts.Clear();
-            remainingActionsPriorities.Clear();
 
-            Debug.Log($"Getting enabled Actions towards goals.");
+            VisitedActionsEnabledBy.Clear();
+            VisitedActionsImpactedBy.Clear();
 
             foreach (var goal in GoalsEnabledByBeliefs.Keys)
             {
-                foreach (var enabledAction in GetEnabledActionsTowardsGoal(goal))
+                foreach (var enabledAction in FindEnabledActions(goal))
                 {
                     yield return enabledAction;
+                    break;
                 }
             }
 
             Profiler.EndSample();
         }
 
-        private IEnumerable<IAction> GetEnabledActionsTowardsGoal(IGoal goal)
+        private IEnumerable<IAction> FindEnabledActions(IGoal goal)
         {
             Debug.Log($"  Goal {goal.GetType().Name}...");
 
+            visitedActionsTotalCosts.Clear();
+            remainingActionsToVisit.Clear();
+
             foreach (var b in GoalsEnabledByBeliefs[goal])
             {
-                RelevantBeliefs.Add(b);
-
                 if (b.EvaluateEnabling(goal))
                 {
                     Debug.Log($"    Belief {b} already satisfies goal.");
@@ -128,15 +133,25 @@ namespace SCPSLBot.AI.FirstPersonControl
 
                 Debug.Log($"    Belief {b} needs to satisfy goal.");
 
-                foreach (var enabledAction in GetClosestActionsImpacting(b, goal))
+                ProcessActionsImpacting(b, goal);
+            }
+
+            while (remainingActionsToVisit.Any())
+            {
+                var (actionImpacting, actionImpactingTotalCost) = remainingActionsToVisit.Aggregate((a, c) => c.Value < a.Value ? c : a);
+                remainingActionsToVisit.Remove(actionImpacting);
+
+                visitedActionsTotalCosts[actionImpacting] = actionImpactingTotalCost;
+
+                Debug.Log($"      Visiting action {actionImpacting}.");
+                foreach (var enabledAction in GetEnabledActionsEnabling(actionImpacting))
                 {
                     yield return enabledAction;
                 }
-                break;
             }
         }
 
-        private IEnumerable<IAction> GetClosestActionsImpacting(IBelief belief, IGoal goalToEnable)
+        private void ProcessActionsImpacting(IBelief belief, IGoal goalToEnable)
         {
             foreach (var actionImpacting in BeliefsImpactedByActions[belief])
             {
@@ -147,44 +162,22 @@ namespace SCPSLBot.AI.FirstPersonControl
                 }
 
                 var actionImpactingCost = actionImpacting.Cost;
-                actionsCosts.Add(actionImpacting, actionImpactingCost);
-                remainingActionsPriorities.Add(actionImpacting, actionImpactingCost);
+                remainingActionsToVisit.Add(actionImpacting, actionImpactingCost);
 
                 Debug.Log($"      Action {actionImpacting} can impact belief with cost {actionImpactingCost}.");
             }
-
-            while (remainingActionsPriorities.Any())
-            {
-                var actionImpacting = remainingActionsPriorities.Aggregate((a, c) => c.Value < a.Value ? c : a).Key;
-                remainingActionsPriorities.Remove(actionImpacting);
-
-                var foundEnabledAction = false;
-
-                Debug.Log($"      Evaluating action {actionImpacting}.");
-                foreach (var enabledAction in GetEnabledActionsEnabling(actionImpacting, 3))
-                {
-                    yield return enabledAction;
-                    foundEnabledAction = true;
-                    break;
-                }
-
-                if (foundEnabledAction)
-                {
-                    break;
-                }
-            }
         }
 
-        private IEnumerable<IAction> GetEnabledActionsEnabling(IAction actionToEnable, int level)
+        private IEnumerable<IAction> GetEnabledActionsEnabling(IAction actionToEnable)
         {
-            var prefix = new string(' ', level * 2);
+            var prefix = "      ";
 
             var beliefsEnabling = ActionsEnabledByBeliefs[actionToEnable];
 
             var actionEnabled = true;
             foreach (var b in beliefsEnabling)
             {
-                RelevantBeliefs.Add(b);
+                VisitedActionsEnabledBy[b] = actionToEnable;
 
                 if (b.IsEnabledAction(actionToEnable))
                 {
@@ -195,7 +188,8 @@ namespace SCPSLBot.AI.FirstPersonControl
                 Debug.Log($"{prefix}  Belief {b} needs to satisfy action.");
                 actionEnabled = false;
 
-                ProcessActionsImpacting(b, actionToEnable, level+1);
+                ProcessActionsImpacting(b, actionToEnable);
+
                 break;
             }
 
@@ -207,11 +201,11 @@ namespace SCPSLBot.AI.FirstPersonControl
             }
         }
 
-        private void ProcessActionsImpacting(IBelief belief, IAction actionToEnable, int level)
+        private void ProcessActionsImpacting(IBelief belief, IAction actionToEnable)
         {
-            var prefix = new string(' ', level * 2);
+            var prefix = "        ";
 
-            var actionToEnableCostToGoal = actionsCosts[actionToEnable];
+            var actionToEnableCostToGoal = visitedActionsTotalCosts[actionToEnable];
 
             foreach (var actionImpacting in BeliefsImpactedByActions[belief])
             {
@@ -222,18 +216,21 @@ namespace SCPSLBot.AI.FirstPersonControl
                 }
 
                 var actionImpactingCostToGoal = actionToEnableCostToGoal + actionImpacting.Cost;
-                if (actionsCosts.ContainsKey(actionImpacting) && actionsCosts[actionImpacting] < actionImpactingCostToGoal)
+                if (visitedActionsTotalCosts.ContainsKey(actionImpacting) && visitedActionsTotalCosts[actionImpacting] < actionImpactingCostToGoal)
                 {
-                    Debug.Log($"{prefix}  Action {actionImpacting} can impact belief but cost takes more ({actionsCosts[actionImpacting]} < {actionImpactingCostToGoal}).");
+                    Debug.Log($"{prefix}  Action {actionImpacting} can impact belief but cost takes more ({visitedActionsTotalCosts[actionImpacting]} < {actionImpactingCostToGoal}).");
                     continue;
                 }
 
                 Debug.Log($"{prefix}  Action {actionImpacting} can impact belief with least total cost {actionImpactingCostToGoal}.");
 
-                actionsCosts[actionImpacting] = actionImpactingCostToGoal;
-                remainingActionsPriorities[actionImpacting] = actionImpactingCostToGoal;
+                remainingActionsToVisit[actionImpacting] = actionImpactingCostToGoal;
+
+                VisitedActionsImpactedBy[actionImpacting] = actionToEnable;
             }
         }
+
+        #endregion
 
         private void SelectActionAndRun(IEnumerable<IAction> enabledActions)
         {

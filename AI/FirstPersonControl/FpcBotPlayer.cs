@@ -5,6 +5,7 @@ using PlayerRoles.FirstPersonControl;
 using PlayerRoles.Spectating;
 using PluginAPI.Core;
 using PluginAPI.Core.Interfaces;
+using PluginAPI.Roles;
 using Scp914;
 using SCPSLBot.AI.FirstPersonControl.Looking;
 using SCPSLBot.AI.FirstPersonControl.Mind;
@@ -76,14 +77,40 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             debugStringBuilder.Clear();
             debugStringBuilder.AppendLine("<size=14><align=left>");
-            debugStringBuilder.AppendLine($"Running action: <color=yellow>{MindRunner.RunningAction} (Cost: {MindRunner.RunningActionCost})</color>");
-            debugStringBuilder.AppendLine("Beliefs:");
+            debugStringBuilder.AppendLine("Actions/Beliefs:");
             var numLines = 2;
             //foreach (var belief in MindRunner.Beliefs.Values.SelectMany(bl => bl))
-            foreach (var belief in MindRunner.RelevantBeliefs)
+
+            var action = MindRunner.RunningAction;
+
+            debugStringBuilder.AppendLine($"{action}");
+            numLines++;
+
+            while (action != null)
             {
-                debugStringBuilder.AppendLine($"{belief}");
-                numLines++;
+                var beliefsEnabling = MindRunner.ActionsEnabledByBeliefs[action];
+
+                foreach (var belief in beliefsEnabling)
+                {
+                    if (MindRunner.VisitedActionsEnabledBy.TryGetValue(belief, out var visitedActionEnabledBy)
+                        && visitedActionEnabledBy == action)
+                    {
+                        debugStringBuilder.AppendLine($"  {belief}");
+                        numLines++;
+                    }
+                }
+
+                if (MindRunner.VisitedActionsImpactedBy.TryGetValue(action, out var actionImpacting))
+                {
+                    debugStringBuilder.AppendLine($"{actionImpacting}");
+                    numLines++;
+
+                    action = actionImpacting;
+                }
+                else
+                {
+                    action = null;
+                }
             }
             debugStringBuilder.Append('\n', Mathf.Max(40 - numLines, 0));
 
@@ -239,26 +266,26 @@ namespace SCPSLBot.AI.FirstPersonControl
             }
         }
 
-
         private List<Player> players;
-
         private IEnumerable<Player> spectators;
-
         public IEnumerable<Player> Spectators
         {
             get
             {
-                players = Player.GetPlayers();
+                players ??= Player.GetPlayers();
                 spectators ??= players.Where(p => p.RoleBase is OverwatchRole s && s.SyncedSpectatedNetId == this.BotHub.PlayerHub.netId);
                 return spectators;
             }
         }
+
+        private int numSpectators;
 
         private static readonly Dictionary<Player, string> playersHintTexts = new();
 
         public void SendTextHintToSpectators(string message, float duration)
         {
             var spectatingPlayers = Spectators;
+            var actualSpecCount = 0;
             foreach (var spectatingPlayer in spectatingPlayers)
             {
                 if (!playersHintTexts.TryGetValue(spectatingPlayer, out var prevHintText))
@@ -275,6 +302,15 @@ namespace SCPSLBot.AI.FirstPersonControl
                 spectatingPlayer.ReceiveHint(message, duration);
 
                 playersHintTexts[spectatingPlayer] = message;
+
+                actualSpecCount++;
+            }
+
+            if (actualSpecCount != numSpectators)
+            {
+                players = null;
+                spectators = null;
+                numSpectators = actualSpecCount;
             }
         }
 

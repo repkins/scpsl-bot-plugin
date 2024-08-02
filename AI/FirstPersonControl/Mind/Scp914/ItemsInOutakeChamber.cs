@@ -6,6 +6,7 @@ using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -49,6 +50,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
         }
 
         private readonly HashSet<Vector3> absentPositions = new();
+        private readonly Dictionary<Vector3, float> timesElapsed = new();
 
         private void OnAfterSensedItemsWithinSight()
         {
@@ -56,10 +58,27 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
             {
                 foreach (var itemPosition in Positions)
                 {
-                    if (this.itemsSightSense.IsPositionWithinFov(itemPosition)
-                        && (!this.itemsSightSense.IsPositionObstructed(itemPosition)))
+                    if (!this.itemsSightSense.IsPositionWithinFov(itemPosition)
+                        || this.itemsSightSense.IsPositionObstructed(itemPosition))
+                    {
+                        continue;
+                    }
+
+                    if (!timesElapsed.TryGetValue(itemPosition, out var timeElapsed))
+                    {
+                        timeElapsed = 0f;
+                    }
+
+                    timeElapsed += Time.deltaTime;
+                    if (timeElapsed > .2f)
                     {
                         absentPositions.Add(itemPosition);
+
+                        timesElapsed.Remove(itemPosition);
+                    }
+                    else
+                    {
+                        timesElapsed[itemPosition] = timeElapsed;
                     }
                 }
                 RemoveAllPositions(absentPositions.Remove);
