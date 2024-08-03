@@ -18,6 +18,7 @@ using System.Text;
 using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.Profiling;
+using static UnityStandardAssets.Utility.TimedObjectActivator;
 
 namespace SCPSLBot.AI.FirstPersonControl
 {
@@ -74,58 +75,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             MindRunner.Tick();
 
-
-            debugStringBuilder.Clear();
-            debugStringBuilder.AppendLine("<size=14><align=left>");
-            var numLines = 0;
-            //foreach (var belief in MindRunner.Beliefs.Values.SelectMany(bl => bl))
-
-            foreach (var (goal, actionImpactingGoal) in MindRunner.VisitedActionsImpactingGoals)
-            {
-                debugStringBuilder.AppendLine($"Goal: {goal.GetType().Name}");
-                numLines++;
-
-                var action = actionImpactingGoal;
-                while (action != null)
-                {
-                    var beliefsEnabling = MindRunner.ActionsEnabledByBeliefs[action];
-
-                    foreach (var belief in beliefsEnabling)
-                    {
-                        if (MindRunner.VisitedActionsEnabledBy.TryGetValue(belief, out var visitedActionEnabledBy)
-                            && visitedActionEnabledBy == action)
-                        {
-                            debugStringBuilder.AppendLine($"  {belief}");
-                            numLines++;
-                        }
-                    }
-
-                    if (MindRunner.VisitedActionsImpacting.TryGetValue(action, out var actionImpacting))
-                    {
-                        if (actionImpacting == MindRunner.RunningAction)
-                        {
-                            debugStringBuilder.AppendLine($"<color=yellow>{actionImpacting}");
-                        }
-                        else
-                        {
-                            debugStringBuilder.AppendLine($"{actionImpacting}");
-                        }
-                        numLines++;
-
-                        action = actionImpacting;
-                    }
-                    else
-                    {
-                        action = null;
-                    }
-                }
-            }
-            
-            debugStringBuilder.Append('\n', Mathf.Max(40 - numLines, 0));
-
-            var debugString = debugStringBuilder.ToString();
-
-            SendTextHintToSpectators(debugString, 10);
+            DisplayVisitedActionsGraph();
 
             yield break;
         }
@@ -252,11 +202,89 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         #region Debug functions
 
-        private readonly StringBuilder debugStringBuilder = new();
-
         public void DumpMind()
         {
             MindRunner.Dump();
+        }
+
+        private readonly StringBuilder debugStringBuilder = new();
+        private int numLines;
+        private int level;
+
+        private void DisplayVisitedActionsGraph()
+        {
+            debugStringBuilder.Clear();
+            debugStringBuilder.AppendLine("<size=14><align=left>");
+            numLines = 0;
+
+            foreach (var (goal, goalEnablingBeliefs) in MindRunner.GoalsEnabledByBeliefs)
+            {
+                level = 0;
+                debugStringBuilder.AppendLine($"Goal: {goal.GetType().Name}");
+                numLines++;
+
+                foreach (var goalBelief in goalEnablingBeliefs)
+                {
+                    if (!MindRunner.VisitedGoalsEnabledBy.ContainsKey(goalBelief))
+                    {
+                        continue;
+                    }
+
+                    ShowVisitedBelief(goalBelief);
+                }
+            }
+
+            debugStringBuilder.Append('\n', Mathf.Max(40 - numLines, 0));
+
+            var debugString = debugStringBuilder.ToString();
+
+            SendTextHintToSpectators(debugString, 10);
+        }
+
+        private void ShowVisitedBelief(IBelief belief)
+        {
+            level++;
+            //debugStringBuilder.AppendLine($"  {belief}");
+            //numLines++;
+
+            foreach (var actionImpacting in MindRunner.BeliefsImpactedByActions[belief])
+            {
+                if (!MindRunner.VisitedActionsImpactedBy.ContainsKey(actionImpacting))
+                {
+                    continue;
+                }
+
+                ShowVisitedAction(actionImpacting);
+            }
+        }
+
+        private void ShowVisitedAction(IAction actionImpacting)
+        {
+            level++;
+            for (int i = 0; i < level; i++)
+            {
+                debugStringBuilder.Append("  ");
+            }
+
+            if (MindRunner.RelevantActionsImpactingActions.ContainsKey(actionImpacting))
+            {
+                debugStringBuilder.AppendLine($"<color=yellow>{actionImpacting}</color>");
+            }
+            else
+            {
+                debugStringBuilder.AppendLine($"{actionImpacting}");
+            }
+            numLines++;
+
+            foreach (var beliefEnabling in MindRunner.ActionsEnabledByBeliefs[actionImpacting])
+            {
+                if (!MindRunner.VisitedActionsEnabledBy.ContainsKey(beliefEnabling))
+                {
+                    continue;
+                }
+
+                ShowVisitedBelief(beliefEnabling);
+            }
         }
 
         string broadcastMessage = string.Empty;

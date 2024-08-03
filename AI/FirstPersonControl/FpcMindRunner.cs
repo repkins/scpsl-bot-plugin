@@ -89,15 +89,16 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         #region Action Finding
 
-        private readonly Dictionary<IAction, float> visitedActionsTotalCosts = new();
-        private readonly Dictionary<IAction, float> remainingActionsToVisit = new();
+        private readonly Dictionary<IAction, (float Cost, int Level)> visitedActionsTotalCosts = new();
+        private readonly Dictionary<IAction, (float Cost, int Level)> remainingActionsToVisit = new();
 
         public readonly Dictionary<IBelief, IAction> VisitedActionsEnabledBy = new();
+        public readonly Dictionary<IBelief, IGoal> VisitedGoalsEnabledBy = new();
         public readonly Dictionary<IAction, IAction> VisitedActionsImpactedBy = new();
         public readonly Dictionary<IAction, IGoal> VisitedGoalsImpactedBy = new();
 
-        public readonly Dictionary<IAction, IAction> VisitedActionsImpacting = new();
-        public readonly Dictionary<IGoal, IAction> VisitedActionsImpactingGoals = new();
+        public readonly Dictionary<IAction, IAction> RelevantActionsImpactingActions = new();
+        public readonly Dictionary<IGoal, IAction> RelevantActionsImpactingGoals = new();
 
         private IEnumerable<IAction> GetEnabledActionsTowardsGoals()
         {
@@ -107,24 +108,25 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             foreach (var goal in GoalsEnabledByBeliefs.Keys)
             {
+                VisitedGoalsEnabledBy.Clear();
                 VisitedActionsEnabledBy.Clear();
                 VisitedActionsImpactedBy.Clear();
                 VisitedGoalsImpactedBy.Clear();
 
                 foreach (var enabledAction in FindEnabledActions(goal))
                 {
-                    VisitedActionsImpacting.Clear();
-                    VisitedActionsImpactingGoals.Clear();
+                    RelevantActionsImpactingActions.Clear();
+                    RelevantActionsImpactingGoals.Clear();
 
                     var actionImpacting = enabledAction;
                     while (VisitedActionsImpactedBy.TryGetValue(actionImpacting, out var actionImpactedBy))
                     {
-                        VisitedActionsImpacting[actionImpactedBy] = actionImpacting;
+                        RelevantActionsImpactingActions[actionImpactedBy] = actionImpacting;
 
                         actionImpacting = actionImpactedBy;
                     }
 
-                    VisitedActionsImpactingGoals[goal] = actionImpacting;
+                    RelevantActionsImpactingGoals[goal] = actionImpacting;
 
                     yield return enabledAction;
                     break;
@@ -143,6 +145,8 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             foreach (var b in GoalsEnabledByBeliefs[goal])
             {
+                VisitedGoalsEnabledBy[b] = goal;
+
                 if (b.EvaluateEnabling(goal))
                 {
                     Debug.Log($"    Belief {b} already satisfies goal.");
@@ -156,10 +160,10 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             while (remainingActionsToVisit.Any())
             {
-                var (actionImpacting, actionImpactingTotalCost) = remainingActionsToVisit.Aggregate((a, c) => c.Value < a.Value ? c : a);
+                var (actionImpacting, actionImpactingTotalCostLevel) = remainingActionsToVisit.Aggregate((a, c) => c.Value.Cost < a.Value.Cost ? c : a);
                 remainingActionsToVisit.Remove(actionImpacting);
 
-                visitedActionsTotalCosts[actionImpacting] = actionImpactingTotalCost;
+                visitedActionsTotalCosts[actionImpacting] = actionImpactingTotalCostLevel;
 
                 Debug.Log($"      Visiting action {actionImpacting}.");
                 foreach (var enabledAction in GetEnabledActionsEnabling(actionImpacting))
@@ -182,7 +186,8 @@ namespace SCPSLBot.AI.FirstPersonControl
                 }
 
                 var actionImpactingCost = actionImpacting.Cost;
-                remainingActionsToVisit.Add(actionImpacting, actionImpactingCost);
+                var level = 0;
+                remainingActionsToVisit.Add(actionImpacting, (actionImpactingCost, level));
 
                 Debug.Log($"      Action {actionImpacting} can impact belief with cost {actionImpactingCost}.");
             }
@@ -225,7 +230,7 @@ namespace SCPSLBot.AI.FirstPersonControl
         {
             var prefix = "        ";
 
-            var actionToEnableCostToGoal = visitedActionsTotalCosts[actionToEnable];
+            var (actionToEnableCostToGoal, level) = visitedActionsTotalCosts[actionToEnable];
 
             foreach (var actionImpacting in BeliefsImpactedByActions[belief])
             {
@@ -236,15 +241,16 @@ namespace SCPSLBot.AI.FirstPersonControl
                 }
 
                 var actionImpactingCostToGoal = actionToEnableCostToGoal + actionImpacting.Cost;
-                if (visitedActionsTotalCosts.ContainsKey(actionImpacting) && visitedActionsTotalCosts[actionImpacting] < actionImpactingCostToGoal)
+                level++;
+                if (visitedActionsTotalCosts.ContainsKey(actionImpacting) && visitedActionsTotalCosts[actionImpacting].Cost < actionImpactingCostToGoal)
                 {
-                    Debug.Log($"{prefix}  Action {actionImpacting} can impact belief but cost takes more ({visitedActionsTotalCosts[actionImpacting]} < {actionImpactingCostToGoal}).");
+                    Debug.Log($"{prefix}  Action {actionImpacting} can impact belief but cost takes more ({visitedActionsTotalCosts[actionImpacting].Cost} < {actionImpactingCostToGoal}).");
                     continue;
                 }
 
                 Debug.Log($"{prefix}  Action {actionImpacting} can impact belief with least total cost {actionImpactingCostToGoal}.");
 
-                remainingActionsToVisit[actionImpacting] = actionImpactingCostToGoal;
+                remainingActionsToVisit[actionImpacting] = (actionImpactingCostToGoal, level);
 
                 VisitedActionsImpactedBy[actionImpacting] = actionToEnable;
             }
