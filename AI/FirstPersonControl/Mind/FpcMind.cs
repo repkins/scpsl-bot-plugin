@@ -17,17 +17,17 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
         public Dictionary<IBelief, List<IAction>> BeliefsImpactedByActions { get; } = new ();
         public Dictionary<IBelief, List<IGoal>> BeliefsEnablingGoals { get; } = new Dictionary<IBelief, List<IGoal>>();
 
-        public B ActionEnabledBy<B>(IAction action, Func<B, bool> currentGetter) where B : class, IBelief<bool>
+        public B ActionEnabledBy<B>(IAction action, Func<B, bool> currentGetter) where B : Belief<bool>
         {
             return ActionEnabledBy(action, targetGetter: b => true, currentGetter);
         }
 
-        public B ActionEnabledBy<B>(IAction action, Predicate<B> predicate, Func<B, bool> currentGetter) where B : class, IBelief<bool>
+        public B ActionEnabledBy<B>(IAction action, Predicate<B> predicate, Func<B, bool> currentGetter) where B : Belief<bool>
         {
             return ActionEnabledBy(action, predicate, targetGetter: b => true, currentGetter);
         }
 
-        public B ActionEnabledBy<B, S>(IAction action, Predicate<B> predicate, Func<B, S> targetGetter, Func<B, S> currentGetter) where B : class, IBelief<S>
+        public B ActionEnabledBy<B, S>(IAction action, Predicate<B> predicate, Func<B, S> targetGetter, Func<B, S> currentGetter) where B : Belief<S>
         {
             var beliefsOfType = Beliefs[typeof(B)];
             var belief = beliefsOfType.Find(b => predicate(b as B));
@@ -35,7 +35,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
             return ActionEnabledBy(action, belief as B, targetGetter, currentGetter);
         }
 
-        public B ActionEnabledBy<B, S>(IAction action, Func<B, S> targetGetter, Func<B, S> currentGetter) where B : class, IBelief<S>
+        public B ActionEnabledBy<B, S>(IAction action, Func<B, S> targetGetter, Func<B, S> currentGetter) where B : Belief<S>
         {
             var beliefsOfType = Beliefs[typeof(B)];
             var belief = beliefsOfType.Single();
@@ -43,9 +43,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
             return ActionEnabledBy(action, belief as B, targetGetter, currentGetter);
         }
 
-        public B ActionEnabledBy<B, S>(IAction action, B belief, Func<B, S> targetGetter, Func<B, S> currentGetter) where B : class, IBelief<S>
+        public B ActionEnabledBy<B, S>(IAction action, B belief, Func<B, S> targetGetter, Func<B, S> currentGetter) where B : Belief<S>
         {
-            belief.AddEnablingAction(action, targetGetter, currentGetter);
+            return ActionEnabledBy(action, belief, targetGetter, s => EqualityComparer<S>.Default.Equals(s, currentGetter(belief)));
+        }
+
+        public B ActionEnabledBy<B, S>(IAction action, B belief, Func<B, S> matchGetter, Predicate<S> matchPredicate) where B : Belief<S>
+        {
+            belief.AddEnablingAction(action, matchGetter, matchPredicate);
 
             BeliefsEnablingActions[belief].Add(action);
             ActionsEnabledByBeliefs[action].Add(belief);
@@ -53,17 +58,17 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
             return belief;
         }
 
-        public B ActionImpacts<B>(IAction action) where B : class, IBelief<bool>
+        public B ActionImpacts<B>(IAction action) where B : Belief<bool>
         {
             return ActionImpacts<B, bool>(action, impactGetter: b => true);
         }
 
-        public B ActionImpacts<B>(IAction action, Predicate<B> predicate) where B : class, IBelief<bool>
+        public B ActionImpacts<B>(IAction action, Predicate<B> predicate) where B : Belief<bool>
         {
             return ActionImpacts(action, predicate, impactGetter: b => true);
         }
 
-        public B ActionImpacts<B, S>(IAction action, Predicate<B> predicate, Func<B, S> impactGetter) where B : class, IBelief<S>
+        public B ActionImpacts<B, S>(IAction action, Predicate<B> predicate, Func<B, S> impactGetter) where B : Belief<S>
         {
             var beliefsOfType = Beliefs[typeof(B)];
             var belief = beliefsOfType.Find(b => predicate(b as B));
@@ -71,7 +76,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
             return ActionImpacts(action, belief as B, impactGetter);
         }
 
-        public B ActionImpacts<B, S>(IAction action, Func<B, S> impactGetter) where B : class, IBelief<S>
+        public B ActionImpacts<B, S>(IAction action, Func<B, S> impactGetter) where B : Belief<S>
         {
             var beliefsOfType = Beliefs[typeof(B)];
             var belief = beliefsOfType.Single();
@@ -79,9 +84,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
             return ActionImpacts(action, belief as B, impactGetter);
         }
 
-        public B ActionImpacts<B, S>(IAction action, B belief, Func<B, S> impactGetter) where B : class, IBelief<S>
+        public B ActionImpacts<B, S>(IAction action, B belief, Func<B, S> impactGetter) where B : Belief<S>
         {
-            belief!.AddActionImpacting(action, impactGetter);
+            return ActionImpacts(action, belief, s => EqualityComparer<S>.Default.Equals(s, impactGetter(belief))) as B;
+        }
+
+        public Belief<S> ActionImpacts<S>(IAction action, Belief<S> belief, Predicate<S> matchPredicate)
+        {
+            belief.AddActionImpacting(action, matchPredicate);
 
             ActionsImpactingBeliefs[action].Add(belief);
             BeliefsImpactedByActions[belief].Add(action);
@@ -89,7 +99,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
             return belief;
         }
 
-        public B GoalEnabledBy<B, S>(IGoal goal, Func<B, S> targetGetter, Func<B, S> currentGetter) where B : class, IBelief<S>
+        public B GoalEnabledBy<B, S>(IGoal goal, Func<B, S> targetGetter, Func<B, S> currentGetter) where B : Belief<S>
         {
             var beliefsOfType = Beliefs[typeof(B)];
             var belief = beliefsOfType.Single();
@@ -97,7 +107,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
             return GoalEnabledBy(goal, belief as B, targetGetter, currentGetter);
         }
 
-        public B GoalEnabledBy<B, S>(IGoal goal, Predicate<B> predicate, Func<B, S> targetGetter, Func<B, S> currentGetter) where B : class, IBelief<S>
+        public B GoalEnabledBy<B, S>(IGoal goal, Predicate<B> predicate, Func<B, S> targetGetter, Func<B, S> currentGetter) where B : Belief<S>
         {
             var beliefsOfType = Beliefs[typeof(B)];
             var belief = beliefsOfType.Find(b => predicate(b as B));
@@ -105,7 +115,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
             return GoalEnabledBy(goal, belief as B, targetGetter, currentGetter);
         }
 
-        public B GoalEnabledBy<B, S>(IGoal goal, B belief, Func<B, S> targetGetter, Func<B, S> currentGetter) where B : class, IBelief<S>
+        public B GoalEnabledBy<B, S>(IGoal goal, B belief, Func<B, S> targetGetter, Func<B, S> currentGetter) where B : Belief<S>
         {
             belief.AddEnablingGoal(goal, targetGetter, currentGetter);
 

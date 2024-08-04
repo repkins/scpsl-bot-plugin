@@ -3,18 +3,18 @@ using System.Collections.Generic;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind
 {
-    internal class Belief<S> : IBelief<S> 
+    internal class Belief<S> : IBelief
     {
-        private readonly Dictionary<IAction, (Func<IBelief, S>, Func<IBelief, S>)> actionsEnabledByGetters = new();
-        public void AddEnablingAction<B>(IAction action, Func<B, S> targetGetter, Func<B, S> currentGetter) where B : class, IBelief
+        private readonly Dictionary<IAction, (Func<IBelief, S>, Predicate<S>)> actionsEnabledByMatchers = new();
+        public void AddEnablingAction<B>(IAction action, Func<B, S> matchGetter, Predicate<S> matchPredicate) where B : class, IBelief
         {
-            actionsEnabledByGetters.Add(action, (b => targetGetter(b as B), b => currentGetter(b as B)));
+            actionsEnabledByMatchers.Add(action, (b => matchGetter(b as B), s => matchPredicate(s)));
         }
 
-        private readonly Dictionary<IAction, Func<IBelief, S>> actionsImpactingGetters = new();
-        public void AddActionImpacting<B>(IAction action, Func<B, S> impactGetter) where B : class, IBelief
+        private readonly Dictionary<IAction, Predicate<S>> actionsImpactingMatchers = new();
+        public void AddActionImpacting(IAction action, Predicate<S> matchPredicate)
         {
-            actionsImpactingGetters.Add(action, b => impactGetter(b as B));
+            actionsImpactingMatchers.Add(action, s => matchPredicate(s));
         }
 
         private readonly Dictionary<IGoal, (Func<IBelief, S>, Func<IBelief, S>)> goalsEnabledByGetters = new();
@@ -25,22 +25,17 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
 
         public bool IsEnabledAction(IAction action)
         {
-            var (targetGetter, currentGetter) = actionsEnabledByGetters[action];
-            var targetState = targetGetter(this);
-            var currentState = currentGetter(this);
+            var (matchGetter, matchPredicate) = actionsEnabledByMatchers[action];
 
-            return EqualityComparer<S>.Default.Equals(targetState, currentState);
+            return matchPredicate(matchGetter(this));
         }
 
         public bool CanImpactedByAction(IAction actionImpacting, IAction actionToEnable)
         {
-            var (targetGetter, _) = actionsEnabledByGetters[actionToEnable];
-            var impactGetter = actionsImpactingGetters[actionImpacting];
+            var (enablingMatchGetter, _) = actionsEnabledByMatchers[actionToEnable];
+            var impactMatchPredicate = actionsImpactingMatchers[actionImpacting];
 
-            var targetState = targetGetter(this);
-            var impactState = impactGetter(this);
-
-            return EqualityComparer<S>.Default.Equals(targetState, impactState);
+            return impactMatchPredicate(enablingMatchGetter(this));
         }
 
         public bool EvaluateEnabling(IGoal goal)
@@ -55,12 +50,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
         public bool CanImpactedByAction(IAction actionImpacting, IGoal goalToEnable)
         {
             var (targetGetter, _) = goalsEnabledByGetters[goalToEnable];
-            var impactGetter = actionsImpactingGetters[actionImpacting];
+            var impactMatchPredicate = actionsImpactingMatchers[actionImpacting];
 
-            var targetState = targetGetter(this);
-            var impactState = impactGetter(this);
-
-            return EqualityComparer<S>.Default.Equals(targetState, impactState);
+            return impactMatchPredicate(targetGetter(this));
         }
 
         public event Action OnUpdate;
