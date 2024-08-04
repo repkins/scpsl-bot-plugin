@@ -70,7 +70,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
         public override string ToString()
         {
-            return $"{nameof(WaitForItemUpgrading)}({this.InputItemType}, {this.Setting}, ({string.Join<IItemBeliefCriteria>(", ", this.OutputCriterias)}))";
+            return $"{nameof(WaitForItemUpgrading)}({this.InputItemType}, {this.Setting})";
         }
     }
 }

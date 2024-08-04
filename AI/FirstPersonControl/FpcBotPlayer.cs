@@ -230,7 +230,7 @@ namespace SCPSLBot.AI.FirstPersonControl
                         continue;
                     }
 
-                    ShowVisitedBelief(goalBelief);
+                    ShowVisitedGoalBelief(goalBelief, goal);
                 }
             }
 
@@ -241,15 +241,17 @@ namespace SCPSLBot.AI.FirstPersonControl
             SendTextHintToSpectators(debugString, 10);
         }
 
-        private void ShowVisitedBelief(IBelief belief)
+        private void ShowVisitedGoalBelief(IBelief goalBelief, IGoal goal)
         {
             level++;
-            //debugStringBuilder.AppendLine($"  {belief}");
+            //debugStringBuilder.Append(' ', level*2);
+            //debugStringBuilder.AppendLine($"{goalBelief}");
             //numLines++;
 
-            foreach (var actionImpacting in MindRunner.BeliefsImpactedByActions[belief])
+            foreach (var actionImpacting in MindRunner.BeliefsImpactedByActions[goalBelief])
             {
-                if (!MindRunner.VisitedActionsImpactedBy.ContainsKey(actionImpacting))
+                if (!MindRunner.VisitedGoalsImpactedBy.TryGetValue(actionImpacting, out var goalImpactedBy)
+                    || goalImpactedBy != goal)
                 {
                     continue;
                 }
@@ -261,29 +263,47 @@ namespace SCPSLBot.AI.FirstPersonControl
         private void ShowVisitedAction(IAction actionImpacting)
         {
             level++;
-            for (int i = 0; i < level; i++)
-            {
-                debugStringBuilder.Append("  ");
-            }
+            debugStringBuilder.Append(' ', level*2);
 
-            if (MindRunner.RelevantActionsImpactingActions.ContainsKey(actionImpacting))
+            var actionTotalCost = MindRunner.VisitedActionsTotalCosts[actionImpacting];
+            if (MindRunner.RelevantActionsImpactingActions.ContainsKey(actionImpacting) || actionImpacting == MindRunner.RunningAction)
             {
-                debugStringBuilder.AppendLine($"<color=yellow>{actionImpacting}</color>");
+                debugStringBuilder.AppendLine($"<color=yellow>{actionImpacting}</color> <b>[{actionTotalCost}]>");
             }
             else
             {
-                debugStringBuilder.AppendLine($"{actionImpacting}");
+                debugStringBuilder.AppendLine($"{actionImpacting} <b>[{actionTotalCost}]");
             }
             numLines++;
 
+            level++;
             foreach (var beliefEnabling in MindRunner.ActionsEnabledByBeliefs[actionImpacting])
             {
-                if (!MindRunner.VisitedActionsEnabledBy.ContainsKey(beliefEnabling))
+                if (!MindRunner.VisitedActionsEnabledBy.TryGetValue(beliefEnabling, out var actionEnabledBy)
+                    || actionEnabledBy != actionImpacting)
+                {
+                    //debugStringBuilder.Append(' ', level*2);
+                    //debugStringBuilder.AppendLine($"{belief}");
+                    //numLines++;
+                }
+
+                ShowVisitedBelief(beliefEnabling, actionImpacting);
+            }
+            level--;
+            level--;
+        }
+
+        private void ShowVisitedBelief(IBelief belief, IAction actionToEnable)
+        {
+            foreach (var actionImpacting in MindRunner.BeliefsImpactedByActions[belief])
+            {
+                if (!MindRunner.VisitedActionsImpactedBy.TryGetValue(actionImpacting, out var actionImpactedBy)
+                    || actionImpactedBy != actionToEnable)
                 {
                     continue;
                 }
 
-                ShowVisitedBelief(beliefEnabling);
+                ShowVisitedAction(actionImpacting);
             }
         }
 
