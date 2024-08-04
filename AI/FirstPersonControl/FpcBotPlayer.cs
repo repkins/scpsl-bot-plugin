@@ -323,32 +323,27 @@ namespace SCPSLBot.AI.FirstPersonControl
             }
         }
 
-        private List<Player> players;
-        private IEnumerable<Player> spectators;
-        public IEnumerable<Player> Spectators
+        private IEnumerable<ReferenceHub> spectators;
+        public IEnumerable<ReferenceHub> Spectators
         {
             get
             {
-                players ??= Player.GetPlayers();
-                spectators ??= players.Where(p => p.RoleBase is OverwatchRole s && s.SyncedSpectatedNetId == this.BotHub.PlayerHub.netId);
+                spectators ??= ReferenceHub.AllHubs.Where(p => p.roleManager.CurrentRole is OverwatchRole s && s.SyncedSpectatedNetId == this.BotHub.PlayerHub.netId);
                 return spectators;
             }
         }
 
-        private int numSpectators = 0;
-
-        private static readonly Dictionary<Player, string> playersHintTexts = new();
+        private static readonly Dictionary<ReferenceHub, string> playersHintTexts = new();
 
         public void SendTextHintToSpectators(string message, float duration)
         {
             var spectatingPlayers = Spectators;
-            var actualSpecCount = 0;
-            foreach (var spectatingPlayer in spectatingPlayers)
+            foreach (var spectatingHub in spectatingPlayers)
             {
-                if (!playersHintTexts.TryGetValue(spectatingPlayer, out var prevHintText))
+                if (!playersHintTexts.TryGetValue(spectatingHub, out var prevHintText))
                 {
                     prevHintText = string.Empty;
-                    playersHintTexts.Add(spectatingPlayer, prevHintText);
+                    playersHintTexts.Add(spectatingHub, prevHintText);
                 }
     
                 if (prevHintText == message)
@@ -356,18 +351,9 @@ namespace SCPSLBot.AI.FirstPersonControl
                     continue;
                 }
 
-                spectatingPlayer.ReceiveHint(message, duration);
+                Player.Get(spectatingHub).ReceiveHint(message, duration);
 
-                playersHintTexts[spectatingPlayer] = message;
-
-                actualSpecCount++;
-            }
-
-            if (actualSpecCount != numSpectators)
-            {
-                players = null;
-                spectators = null;
-                numSpectators = actualSpecCount;
+                playersHintTexts[spectatingHub] = message;
             }
         }
 
