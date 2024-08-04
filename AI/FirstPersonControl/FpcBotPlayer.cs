@@ -268,11 +268,11 @@ namespace SCPSLBot.AI.FirstPersonControl
             var actionTotalCost = MindRunner.VisitedActionsTotalCosts[actionImpacting];
             if (MindRunner.RelevantActionsImpactingActions.ContainsKey(actionImpacting) || actionImpacting == MindRunner.RunningAction)
             {
-                debugStringBuilder.AppendLine($"<color=yellow>{actionImpacting}</color> <b>[{actionTotalCost}]>");
+                debugStringBuilder.AppendLine($"<color=yellow>{actionImpacting}</color> <b>[{actionTotalCost}]</b>");
             }
             else
             {
-                debugStringBuilder.AppendLine($"{actionImpacting} <b>[{actionTotalCost}]");
+                debugStringBuilder.AppendLine($"{actionImpacting} <b>[{actionTotalCost}]</b>");
             }
             numLines++;
 
