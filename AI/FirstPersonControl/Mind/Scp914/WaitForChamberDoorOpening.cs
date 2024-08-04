@@ -22,11 +22,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            doorObstacleBelief = fpcMind.ActionImpacts<DoorObstacle, bool>(this, b => b.GetLastScp914ChamberDoor());
+            doorObstacleBelief = fpcMind.ActionImpacts<DoorObstacle, DoorEntry?>(this, c => c!.Value.IsScp914ChamberDoor());
         }
 
-        public float Weight = 1f;
-        public float Cost => Vector3.Distance(doorObstacleBelief.GetLastScp914ChamberDoor().transform.position, botPlayer.CameraPosition) * Weight;
+        public float Cost => 5f;
 
         public void Tick()
         {
@@ -41,9 +40,9 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Scp914
 
     internal static class DoorObstacleExtensions
     {
-        public static DoorVariant GetLastScp914ChamberDoor(this DoorObstacle doorObstacle)
+        public static bool IsScp914ChamberDoor(this DoorEntry doorEntry)
         {
-            return doorObstacle.GetLastDoor(d => d is BasicNonInteractableDoor);
+            return doorEntry.Door is BasicNonInteractableDoor;
         }
     }
 }

@@ -1,11 +1,7 @@
-﻿using Interactables;
-using Interactables.Interobjects;
-using Interactables.Interobjects.DoorUtils;
-using InventorySystem.Items.Keycards;
+﻿using Interactables.Interobjects.DoorUtils;
 using PluginAPI.Core;
 using SCPSLBot.AI.FirstPersonControl.Mind.Item.Beliefs;
 using SCPSLBot.AI.FirstPersonControl.Mind.Item.Keycard;
-using System.Linq;
 using UnityEngine;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
@@ -31,11 +27,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            doorObstacleBelief = fpcMind.ActionImpacts<DoorObstacle, bool>(this, b => b.GetLastDoor(Permissions));
+            doorObstacleBelief = fpcMind.ActionImpacts<DoorObstacle, DoorEntry?>(this, c => c!.Value.IsInteractable(Permissions));
         }
 
-        public float Weight = 1f;
-        public float Cost => Vector3.Distance(doorObstacleBelief.GetLastDoor(Permissions).transform.position, botPlayer.CameraPosition) * Weight;
+        public float Cost => 0f;
 
         public void Tick()
         {

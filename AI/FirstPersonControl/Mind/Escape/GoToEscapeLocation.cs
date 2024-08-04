@@ -23,7 +23,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Escape
 
         public override void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            fpcMind.ActionImpacts<PlayerEscaped, bool>(this, b => true);
+            fpcMind.ActionImpacts<PlayerEscaped>(this);
         }
 
         public override float Weight { get; } = 1f;

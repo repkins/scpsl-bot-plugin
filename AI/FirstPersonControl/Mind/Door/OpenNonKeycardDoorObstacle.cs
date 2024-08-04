@@ -21,11 +21,10 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            doorObstacleBelief = fpcMind.ActionImpacts<DoorObstacle, bool>(this, b => b.GetLastDoor(KeycardPermissions.None));
+            doorObstacleBelief = fpcMind.ActionImpacts<DoorObstacle, DoorEntry?>(this, s => s!.Value.IsInteractable(KeycardPermissions.None));
         }
 
-        public float Weight = 1f;
-        public float Cost => Vector3.Distance(doorObstacleBelief.GetLastDoor(KeycardPermissions.None).transform.position, botPlayer.CameraPosition) * Weight;
+        public float Cost => 0f;
 
         public void Tick()
         {

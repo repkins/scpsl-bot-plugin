@@ -1,9 +1,6 @@
-﻿using Hints;
-using Interactables;
+﻿using Interactables;
 using Interactables.Interobjects;
 using Interactables.Interobjects.DoorUtils;
-using PluginAPI.Core;
-using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight;
 using System;
 using System.Collections.Generic;
@@ -18,9 +15,20 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
         public readonly float Length = Vector3.Distance(Start, End);
     }
 
-    internal record struct DoorEntry(DoorVariant Door, KeycardPermissions Permissions);
+    internal record struct DoorEntry(DoorVariant Door, KeycardPermissions DoorPermissions)
+    {
+        public readonly bool IsInteractable(KeycardPermissions permissions)
+        {
+            return !IsNonIteractable(Door) && permissions == (DoorPermissions & ~KeycardPermissions.ScpOverride);
+        }
 
-    internal class DoorObstacle : Belief<bool>
+        private static bool IsNonIteractable(DoorVariant d)
+        {
+            return d is DummyDoor or ElevatorDoor or BasicNonInteractableDoor;
+        }
+    }
+
+    internal class DoorObstacle : Belief<DoorEntry?>
     {
         private readonly FpcBotNavigator navigator;
         private readonly SightSense sightSense;
@@ -111,22 +119,27 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
             return Doors.ContainsKey(goalPos);
         }
 
+        public DoorEntry? GetEntry(Vector3 goalPos)
+        {
+            return Doors.TryGetValue(goalPos, out var entry) ? entry : null;
+        }
+
         public TDoor GetLastDoor<TDoor>() where TDoor : DoorVariant
         {
-            return GetLastDoor((d, _) => d is TDoor, out _) as TDoor;
+            return GetLastDoor(e => e.Door is TDoor, out _) as TDoor;
         }
 
         public TDoor GetLastDoor<TDoor>(out Vector3 goalPos) where TDoor : DoorVariant
         {
-            return GetLastDoor((d, _) => d is TDoor, out goalPos) as TDoor;
+            return GetLastDoor(e => e.Door is TDoor, out goalPos) as TDoor;
         }
 
         public DoorVariant GetLastDoor(Predicate<DoorVariant> predicate)
         {
-            return GetLastDoor((b, _) => predicate(b), out _);
+            return GetLastDoor(e => predicate(e.Door), out _);
         }
 
-        public DoorVariant GetLastDoor(Func<DoorVariant, KeycardPermissions, bool> predicate, out Vector3 goalPos)
+        public DoorVariant GetLastDoor(Func<DoorEntry, bool> predicate, out Vector3 goalPos)
         {
             if (GoalPositions.Count == 0)
             {
@@ -136,8 +149,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
             goalPos = GoalPositions.Last();
 
-            var (lastDoor, permissions) = Doors[GoalPositions.Last()];
-            return lastDoor && predicate(lastDoor, permissions) ? lastDoor: null;
+            var doorEntry = Doors[GoalPositions.Last()];
+            return doorEntry.Door && predicate(doorEntry) ? doorEntry.Door : null;
         }
 
         public DoorVariant GetLastDoor(KeycardPermissions keycardPermissions)
@@ -147,27 +160,12 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Door
 
         public DoorVariant GetLastDoor(KeycardPermissions keycardPermissions, out Vector3 goalPos)
         {
-            return GetLastDoor((d, p) => IsInteractable(d) && ToKeycardPermissions(p) == keycardPermissions, out goalPos);
-        }
-
-        private static KeycardPermissions ToKeycardPermissions(KeycardPermissions doorPermissions)
-        {
-            return doorPermissions & ~KeycardPermissions.ScpOverride;
-        }
-
-        private static bool IsInteractable(DoorVariant d)
-        {
-            return !IsUniteractable(d);
-        }
-
-        private static bool IsUniteractable(DoorVariant d)
-        {
-            return d is DummyDoor or ElevatorDoor or BasicNonInteractableDoor;
+            return GetLastDoor(e => e.IsInteractable(keycardPermissions), out goalPos);
         }
 
         public override string ToString()
         {
-            return $"{nameof(DoorObstacle)}: {string.Join(", ", GoalPositions.Select(p => $"{this.Doors[p].Door.GetType().Name}: Permissions = {this.Doors[p].Permissions}"))}";
+            return $"{nameof(DoorObstacle)}: {string.Join(", ", GoalPositions.Select(p => $"{this.Doors[p].Door.GetType().Name}: Permissions = {this.Doors[p].DoorPermissions}"))}";
         }
     }
 }

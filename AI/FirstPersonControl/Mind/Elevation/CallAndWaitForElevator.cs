@@ -25,7 +25,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Elevation
 
         public void SetImpactsBeliefs(FpcMind fpcMind)
         {
-            doorObstacle = fpcMind.ActionImpacts<DoorObstacle, bool>(this, b => b.GetLastDoor<ElevatorDoor>());
+            doorObstacle = fpcMind.ActionImpacts<DoorObstacle, DoorEntry?>(this, c => c!.Value.Door is ElevatorDoor);
         }
 
         public float Cost => 10f;

@@ -48,6 +48,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
             return ActionEnabledBy(action, belief, targetGetter, s => EqualityComparer<S>.Default.Equals(s, currentGetter(belief)));
         }
 
+        public B ActionEnabledBy<B, S>(IAction action, Func<B, S> matchGetter, Predicate<S> matchPredicate) where B : Belief<S>
+        {
+            var beliefsOfType = Beliefs[typeof(B)];
+            var belief = beliefsOfType.Single();
+
+            return ActionEnabledBy(action, belief as B, matchGetter, matchPredicate);
+        }
+
         public B ActionEnabledBy<B, S>(IAction action, B belief, Func<B, S> matchGetter, Predicate<S> matchPredicate) where B : Belief<S>
         {
             belief.AddEnablingAction(action, matchGetter, matchPredicate);
@@ -87,6 +95,14 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
         public B ActionImpacts<B, S>(IAction action, B belief, Func<B, S> impactGetter) where B : Belief<S>
         {
             return ActionImpacts(action, belief, s => EqualityComparer<S>.Default.Equals(s, impactGetter(belief))) as B;
+        }
+
+        public B ActionImpacts<B, S>(IAction action, Predicate<S> matchPredicate) where B : Belief<S>
+        {
+            var beliefsOfType = Beliefs[typeof(B)];
+            var belief = beliefsOfType.Single() as B;
+
+            return ActionImpacts(action, belief, matchPredicate) as B;
         }
 
         public Belief<S> ActionImpacts<S>(IAction action, Belief<S> belief, Predicate<S> matchPredicate)

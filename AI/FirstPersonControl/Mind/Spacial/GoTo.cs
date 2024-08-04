@@ -32,7 +32,7 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind.Spacial
         {
             this.location = SetEnabledByLocation(fpcMind, b => b.Positions.Count > Idx);
 
-            fpcMind.ActionEnabledBy<DoorObstacle>(this, b => !b.Is(targetPositionGetter()));
+            fpcMind.ActionEnabledBy<DoorObstacle, DoorEntry?>(this, b => b.GetEntry(targetPositionGetter()), c => !c.HasValue);
             fpcMind.ActionEnabledBy<GlassObstacle>(this, b => !b.Is(targetPositionGetter()));
             fpcMind.ActionEnabledBy<ElevationObstacle>(this, b => !b.Has(targetPositionGetter()));
         }
