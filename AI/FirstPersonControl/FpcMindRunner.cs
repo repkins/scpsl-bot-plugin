@@ -77,7 +77,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         private void OnBeliefUpdate(IBelief updatedBelief)
         {
-            if (!VisitedActionsEnabledBy.ContainsKey(updatedBelief))
+            if (!RelevantBeliefs.Contains(updatedBelief))
             {
                 Log.Debug($"[I] Belief updated: {updatedBelief}");
                 return;
@@ -94,6 +94,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         public readonly Dictionary<IBelief, IAction> VisitedActionsEnabledBy = new();
         public readonly Dictionary<IBelief, IGoal> VisitedGoalsEnabledBy = new();
+
         public readonly Dictionary<IAction, IAction> VisitedActionsImpactedBy = new();
         public readonly Dictionary<IAction, IGoal> VisitedGoalsImpactedBy = new();
 
@@ -124,6 +125,11 @@ namespace SCPSLBot.AI.FirstPersonControl
                     {
                         RelevantActionsImpactingActions[actionImpactedBy] = actionImpacting;
 
+                        foreach (var visitedBelief in ActionsEnabledByBeliefs[actionImpacting].Where(VisitedActionsEnabledBy.ContainsKey))
+                        {
+                            RelevantBeliefs.Add(visitedBelief);
+                        }
+
                         actionImpacting = actionImpactedBy;
                     }
 
@@ -139,7 +145,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         private IEnumerable<IAction> FindEnabledActions(IGoal goal)
         {
-            Debug.Log($"  Goal {goal.GetType().Name}...");
+            //Debug.Log($"  Goal {goal.GetType().Name}...");
 
             VisitedActionsTotalCosts.Clear();
             remainingActionsToExplore.Clear();
@@ -150,11 +156,11 @@ namespace SCPSLBot.AI.FirstPersonControl
 
                 if (b.EvaluateEnabling(goal))
                 {
-                    Debug.Log($"    Belief {b} already satisfies goal.");
+                    //Debug.Log($"    Belief {b} already satisfies goal.");
                     continue;
                 }
 
-                Debug.Log($"    Belief {b} needs to satisfy goal.");
+                //Debug.Log($"    Belief {b} needs to satisfy goal.");
 
                 ProcessActionsImpacting(b, goal);
             }
@@ -164,7 +170,7 @@ namespace SCPSLBot.AI.FirstPersonControl
                 var actionImpacting = remainingActionsToExplore.Aggregate((a, c) => c.Value < a.Value ? c : a).Key;
                 remainingActionsToExplore.Remove(actionImpacting);
 
-                Debug.Log($"      Exploring action {actionImpacting}.");
+                //Debug.Log($"      Exploring action {actionImpacting}.");
                 foreach (var enabledAction in GetEnabledActionsEnabling(actionImpacting))
                 {
                     yield return enabledAction;
@@ -180,7 +186,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
                 if (!belief.CanImpactedByAction(actionImpacting, goalToEnable))
                 {
-                    Debug.Log($"      Action {actionImpacting} cannot impact belief.");
+                    //Debug.Log($"      Action {actionImpacting} cannot impact belief.");
                     continue;
                 }
 
@@ -188,13 +194,13 @@ namespace SCPSLBot.AI.FirstPersonControl
                 remainingActionsToExplore.Add(actionImpacting, actionImpactingCost);
                 VisitedActionsTotalCosts[actionImpacting] = actionImpactingCost;
 
-                Debug.Log($"      Action {actionImpacting} can impact belief with cost {actionImpactingCost}.");
+                //Debug.Log($"      Action {actionImpacting} can impact belief with cost {actionImpactingCost}.");
             }
         }
 
         private IEnumerable<IAction> GetEnabledActionsEnabling(IAction actionToEnable)
         {
-            var prefix = "      ";
+            //var prefix = "      ";
 
             var beliefsEnabling = ActionsEnabledByBeliefs[actionToEnable];
 
@@ -205,11 +211,11 @@ namespace SCPSLBot.AI.FirstPersonControl
 
                 if (b.IsEnabledAction(actionToEnable))
                 {
-                    Debug.Log($"{prefix}  Belief {b} already satisfies action.");
+                    //Debug.Log($"{prefix}  Belief {b} already satisfies action.");
                     continue;
                 }
 
-                Debug.Log($"{prefix}  Belief {b} needs to satisfy action.");
+                //Debug.Log($"{prefix}  Belief {b} needs to satisfy action.");
                 actionEnabled = false;
 
                 ProcessActionsImpacting(b, actionToEnable);
@@ -219,7 +225,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             if (actionEnabled)
             {
-                Debug.Log($"{prefix}Action {actionToEnable} conditions fulfilled.");
+                //Debug.Log($"{prefix}Action {actionToEnable} conditions fulfilled.");
 
                 yield return actionToEnable;
             }
@@ -227,7 +233,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         private void ProcessActionsImpacting(IBelief belief, IAction actionToEnable)
         {
-            var prefix = "        ";
+            //var prefix = "        ";
 
             var actionToEnableCostToGoal = VisitedActionsTotalCosts[actionToEnable];
 
@@ -235,18 +241,18 @@ namespace SCPSLBot.AI.FirstPersonControl
             {
                 if (!belief.CanImpactedByAction(actionImpacting, actionToEnable))
                 {
-                    Debug.Log($"{prefix}  Action {actionImpacting} cannot impact belief.");
+                    //Debug.Log($"{prefix}  Action {actionImpacting} cannot impact belief.");
                     continue;
                 }
 
                 var actionImpactingCostToGoal = actionToEnableCostToGoal + actionImpacting.Cost;
                 if (VisitedActionsTotalCosts.ContainsKey(actionImpacting) && VisitedActionsTotalCosts[actionImpacting] < actionImpactingCostToGoal)
                 {
-                    Debug.Log($"{prefix}  Action {actionImpacting} can impact belief but cost takes more ({VisitedActionsTotalCosts[actionImpacting]} < {actionImpactingCostToGoal}).");
+                    //Debug.Log($"{prefix}  Action {actionImpacting} can impact belief but cost takes more ({VisitedActionsTotalCosts[actionImpacting]} < {actionImpactingCostToGoal}).");
                     continue;
                 }
 
-                Debug.Log($"{prefix}  Action {actionImpacting} can impact belief with least total cost {actionImpactingCostToGoal}.");
+                //Debug.Log($"{prefix}  Action {actionImpacting} can impact belief with least total cost {actionImpactingCostToGoal}.");
 
                 remainingActionsToExplore[actionImpacting] = actionImpactingCostToGoal;
                 VisitedActionsTotalCosts[actionImpacting] = actionImpactingCostToGoal;

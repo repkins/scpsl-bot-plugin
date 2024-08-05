@@ -263,7 +263,7 @@ namespace SCPSLBot.AI.FirstPersonControl
         private void ShowVisitedAction(IAction actionImpacting)
         {
             level++;
-            debugStringBuilder.Append(' ', level*2);
+            debugStringBuilder.Append(' ', level*4);
 
             var actionTotalCost = MindRunner.VisitedActionsTotalCosts[actionImpacting];
             if (MindRunner.RelevantActionsImpactingActions.ContainsKey(actionImpacting) || actionImpacting == MindRunner.RunningAction)
@@ -276,24 +276,22 @@ namespace SCPSLBot.AI.FirstPersonControl
             }
             numLines++;
 
-            level++;
             foreach (var beliefEnabling in MindRunner.ActionsEnabledByBeliefs[actionImpacting])
             {
-                if (!MindRunner.VisitedActionsEnabledBy.TryGetValue(beliefEnabling, out var actionEnabledBy)
-                    || actionEnabledBy != actionImpacting)
-                {
-                    //debugStringBuilder.Append(' ', level*2);
-                    //debugStringBuilder.AppendLine($"{belief}");
-                    //numLines++;
-                }
+                //if (MindRunner.RelevantBeliefs.Contains(beliefEnabling) && MindRunner.VisitedActionsEnabledBy[beliefEnabling] == actionImpacting)
+                //{
+                //    debugStringBuilder.Append(' ', level*4+1);
+                //    debugStringBuilder.AppendLine($"<color=orange>{beliefEnabling}</color>");
+                //    numLines++;
+                //}
 
-                ShowVisitedBelief(beliefEnabling, actionImpacting);
+                ShowVisitedActionsOfBelief(beliefEnabling, actionImpacting);
             }
-            level--;
+
             level--;
         }
 
-        private void ShowVisitedBelief(IBelief belief, IAction actionToEnable)
+        private void ShowVisitedActionsOfBelief(IBelief belief, IAction actionToEnable)
         {
             foreach (var actionImpacting in MindRunner.BeliefsImpactedByActions[belief])
             {
