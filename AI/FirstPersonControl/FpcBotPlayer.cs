@@ -266,7 +266,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             debugStringBuilder.Append(' ', level*4);
 
             var actionTotalCost = MindRunner.VisitedActionsTotalCosts[actionImpacting];
-            if (MindRunner.RelevantActionsImpactingActions.ContainsKey(actionImpacting) || actionImpacting == MindRunner.RunningAction)
+            if (MindRunner.RelevantActionsImpactingActions.ContainsKey(actionImpacting) && actionImpacting == MindRunner.RunningAction)
             {
                 debugStringBuilder.AppendLine($"<color=yellow>{actionImpacting}</color> <b>[{actionTotalCost}]</b>");
             }
