@@ -48,12 +48,12 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         internal void Dump()
         {
-            var allGoals = GoalsEnabledByBeliefs.Keys;
+            var allGoals = BeliefsEnablingGoals.Keys;
             foreach (var desire in allGoals)
             {
                 Log.Debug($"Goal: {desire.GetType().Name}");
 
-                var desireEnablingBeliefs = GoalsEnabledByBeliefs[desire];
+                var desireEnablingBeliefs = BeliefsEnablingGoals[desire];
                 DumpBeliefsActions(desireEnablingBeliefs, "  ");
             }
         }
@@ -64,12 +64,12 @@ namespace SCPSLBot.AI.FirstPersonControl
             {
                 Log.Debug($"{prefix}Belief: {enablingBelief}");
 
-                var Actions = BeliefsImpactedByActions[enablingBelief];
+                var Actions = ActionsImpactingBeliefs[enablingBelief];
                 foreach (var Action in Actions)
                 {
                     Log.Debug($"{prefix}  Action: {Action}");
 
-                    var enablingBeliefs = ActionsEnabledByBeliefs[Action];
+                    var enablingBeliefs = BeliefsEnablingActions[Action];
                     DumpBeliefsActions(enablingBeliefs, $"{prefix}    ");
                 }
             }
@@ -107,7 +107,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             
             RelevantBeliefs.Clear();
 
-            foreach (var goal in GoalsEnabledByBeliefs.Keys)
+            foreach (var goal in BeliefsEnablingGoals.Keys)
             {
                 VisitedGoalsEnabledBy.Clear();
                 VisitedActionsEnabledBy.Clear();
@@ -124,7 +124,7 @@ namespace SCPSLBot.AI.FirstPersonControl
                     while (VisitedActionsImpactedBy.TryGetValue(actionImpacting, out var actionImpactedBy))
                     {
                         RelevantActionsImpactingActions[actionImpactedBy] = actionImpacting;
-                        foreach (var visitedBelief in ActionsEnabledByBeliefs[actionImpacting].Where(VisitedActionsEnabledBy.ContainsKey))
+                        foreach (var visitedBelief in BeliefsEnablingActions[actionImpacting].Where(VisitedActionsEnabledBy.ContainsKey))
                         {
                             RelevantBeliefs.Add(visitedBelief);
                         }
@@ -133,7 +133,7 @@ namespace SCPSLBot.AI.FirstPersonControl
                     }
 
                     RelevantActionsImpactingGoals[goal] = actionImpacting;
-                    foreach (var visitedBelief in ActionsEnabledByBeliefs[actionImpacting].Where(VisitedActionsEnabledBy.ContainsKey))
+                    foreach (var visitedBelief in BeliefsEnablingActions[actionImpacting].Where(VisitedActionsEnabledBy.ContainsKey))
                     {
                         RelevantBeliefs.Add(visitedBelief);
                     }
@@ -153,7 +153,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             VisitedActionsTotalCosts.Clear();
             remainingActionsToExplore.Clear();
 
-            foreach (var b in GoalsEnabledByBeliefs[goal])
+            foreach (var b in BeliefsEnablingGoals[goal])
             {
                 VisitedGoalsEnabledBy[b] = goal;
 
@@ -183,7 +183,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         private void ProcessActionsImpacting(IBelief belief, IGoal goalToEnable)
         {
-            foreach (var actionImpacting in BeliefsImpactedByActions[belief])
+            foreach (var actionImpacting in ActionsImpactingBeliefs[belief])
             {
                 VisitedGoalsImpactedBy[actionImpacting] = goalToEnable;
 
@@ -205,7 +205,7 @@ namespace SCPSLBot.AI.FirstPersonControl
         {
             //var prefix = "      ";
 
-            var beliefsEnabling = ActionsEnabledByBeliefs[actionToEnable];
+            var beliefsEnabling = BeliefsEnablingActions[actionToEnable];
 
             var actionEnabled = true;
             foreach (var b in beliefsEnabling)
@@ -240,7 +240,7 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             var actionToEnableCostToGoal = VisitedActionsTotalCosts[actionToEnable];
 
-            foreach (var actionImpacting in BeliefsImpactedByActions[belief])
+            foreach (var actionImpacting in ActionsImpactingBeliefs[belief])
             {
                 if (!belief.CanImpactedByAction(actionImpacting, actionToEnable))
                 {

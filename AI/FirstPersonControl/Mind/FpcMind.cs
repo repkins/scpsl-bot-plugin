@@ -1,21 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace SCPSLBot.AI.FirstPersonControl.Mind
 {
     internal class FpcMind
     {
-        public Dictionary<IAction, List<IBelief>> ActionsImpactingBeliefs { get; } = new Dictionary<IAction, List<IBelief>>();
-        public Dictionary<IAction, List<IBelief>> ActionsEnabledByBeliefs { get; } = new ();
+        public Dictionary<IAction, List<IBelief>> BeliefsImpactedByActions { get; } = new();
+        public Dictionary<IAction, List<IBelief>> BeliefsEnablingActions { get; } = new();
 
-        public Dictionary<IGoal, List<IBelief>> GoalsEnabledByBeliefs { get; } = new Dictionary<IGoal, List<IBelief>>();
+        public Dictionary<IGoal, List<IBelief>> BeliefsEnablingGoals { get; } = new();
 
-        public Dictionary<Type, List<IBelief>> Beliefs { get; } = new Dictionary<Type, List<IBelief>>();
-        public Dictionary<IBelief, List<IAction>> BeliefsEnablingActions { get; } = new Dictionary<IBelief, List<IAction>>();
-        public Dictionary<IBelief, List<IAction>> BeliefsImpactedByActions { get; } = new ();
-        public Dictionary<IBelief, List<IGoal>> BeliefsEnablingGoals { get; } = new Dictionary<IBelief, List<IGoal>>();
+        public Dictionary<Type, List<IBelief>> Beliefs { get; } = new();
+        public Dictionary<IBelief, List<IAction>> ActionsEnabledByBeliefs { get; } = new();
+        public Dictionary<IBelief, List<IAction>> ActionsImpactingBeliefs { get; } = new();
+        public Dictionary<IBelief, List<IGoal>> GoalsEnabledByBeliefs { get; } = new();
 
         public B ActionEnabledBy<B>(IAction action, Func<B, bool> currentGetter) where B : Belief<bool>
         {
@@ -60,8 +59,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
         {
             belief.AddEnablingAction(action, matchGetter, matchPredicate);
 
-            BeliefsEnablingActions[belief].Add(action);
-            ActionsEnabledByBeliefs[action].Add(belief);
+            ActionsEnabledByBeliefs[belief].Add(action);
+            BeliefsEnablingActions[action].Add(belief);
 
             return belief;
         }
@@ -109,8 +108,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
         {
             belief.AddActionImpacting(action, matchPredicate);
 
-            ActionsImpactingBeliefs[action].Add(belief);
-            BeliefsImpactedByActions[belief].Add(action);
+            BeliefsImpactedByActions[action].Add(belief);
+            ActionsImpactingBeliefs[belief].Add(action);
 
             return belief;
         }
@@ -135,16 +134,16 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
         {
             belief.AddEnablingGoal(goal, targetGetter, currentGetter);
 
-            BeliefsEnablingGoals[belief].Add(goal);
-            GoalsEnabledByBeliefs[goal].Add(belief);
+            GoalsEnabledByBeliefs[belief].Add(goal);
+            BeliefsEnablingGoals[goal].Add(belief);
 
             return belief;
         }
 
         public FpcMind AddAction(IAction action)
         {
-            ActionsImpactingBeliefs.Add(action, new());
-            ActionsEnabledByBeliefs.Add(action, new());
+            BeliefsImpactedByActions.Add(action, new());
+            BeliefsEnablingActions.Add(action, new());
 
             action.SetImpactsBeliefs(this);
             action.SetEnabledByBeliefs(this);
@@ -158,8 +157,8 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
             {
                 var action = actionFactory.Invoke(i);
 
-                ActionsImpactingBeliefs.Add(action, new());
-                ActionsEnabledByBeliefs.Add(action, new());
+                BeliefsImpactedByActions.Add(action, new());
+                BeliefsEnablingActions.Add(action, new());
 
                 action.SetImpactsBeliefs(this);
                 action.SetEnabledByBeliefs(this);
@@ -177,17 +176,17 @@ namespace SCPSLBot.AI.FirstPersonControl.Mind
             }
             beliefsOfType.Add(belief);
 
-            BeliefsEnablingActions.Add(belief, new());
-            BeliefsImpactedByActions.Add(belief, new());
+            ActionsEnabledByBeliefs.Add(belief, new());
+            ActionsImpactingBeliefs.Add(belief, new());
 
-            BeliefsEnablingGoals.Add(belief, new());
+            GoalsEnabledByBeliefs.Add(belief, new());
 
             return this;
         }
 
         public void AddGoal(IGoal goal)
         {
-            GoalsEnabledByBeliefs.Add(goal, new List<IBelief>());
+            BeliefsEnablingGoals.Add(goal, new List<IBelief>());
 
             goal.SetEnabledByBeliefs(this);
         }
