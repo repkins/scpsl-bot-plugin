@@ -4,12 +4,10 @@ using MapGeneration.Distributors;
 using PlayerRoles.FirstPersonControl;
 using PlayerRoles.Spectating;
 using PluginAPI.Core;
-using PluginAPI.Core.Interfaces;
-using PluginAPI.Roles;
-using Scp914;
 using SCPSLBot.AI.FirstPersonControl.Looking;
 using SCPSLBot.AI.FirstPersonControl.Mind;
 using SCPSLBot.AI.FirstPersonControl.Movement;
+using SCPSLBot.AI.FirstPersonControl.Perception.Senses;
 using SCPSLBot.AI.FirstPersonControl.Perception.Senses.Sight;
 using System;
 using System.Collections.Generic;
@@ -18,7 +16,6 @@ using System.Text;
 using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.Profiling;
-using static UnityStandardAssets.Utility.TimedObjectActivator;
 
 namespace SCPSLBot.AI.FirstPersonControl
 {
@@ -90,11 +87,18 @@ namespace SCPSLBot.AI.FirstPersonControl
             MindRunner.EvaluateGoalsToActions();
         }
 
+        #region Moving
+
         public void MoveToPosition(Vector3 goalPosition) => MoveToPosition(goalPosition, out _);
         public void MoveToPosition(Vector3 goalPosition, out Vector3 positionTowardsGoal)
         {
             positionTowardsGoal = Navigator.GetPositionTowards(goalPosition);
+            SteerToPosition(positionTowardsGoal);
+            SteerAwayFromObstacles();
+        }
 
+        private void SteerToPosition(Vector3 positionTowardsGoal)
+        {
             var relativePos = positionTowardsGoal - this.FpcRole.CameraPosition;
             var relativeHorizontalPos = Vector3.ProjectOnPlane(relativePos, Vector3.up);
             var turnPosition = relativeHorizontalPos + this.FpcRole.CameraPosition;
@@ -114,6 +118,66 @@ namespace SCPSLBot.AI.FirstPersonControl
             }
         }
 
+        private readonly List<SpawnableStructure> spawnableStructures = new();
+        private readonly List<Collider> spawnableStructureColliders = new();
+        private void SteerAwayFromObstacles()
+        {
+            var roomSightSense = Perception.GetSense<RoomSightSense>();
+            var roomWithin = roomSightSense.RoomWithin;
+            if (!roomWithin)
+            {
+                return;
+            }
+
+            roomWithin.GetComponentsInChildren(spawnableStructures);
+
+            var playerPosition = this.PlayerPosition;
+            var moveDirection = this.FpcRole.FpcModule.transform.TransformDirection(this.Move.DesiredLocalDirection);
+            var playerRadius = this.BotHub.PlayerHub.GetComponent<CharacterController>().radius;
+
+            var obstructingStructure = (SpawnableStructure)null;
+            var structureExtent = 0f;
+            foreach (var structure in spawnableStructures)
+            {
+                switch (structure.StructureType)
+                {
+                    case StructureType.Workstation:
+                        structureExtent = 1.25f;
+                        break;
+                    case StructureType.ScpPedestal:
+                        structureExtent = .75f;
+                        break;
+                    default:
+                        continue;
+                }
+
+                structure.GetComponentsInChildren(spawnableStructureColliders);
+
+                var obstructingCollider = spawnableStructureColliders.Find(c => c.Raycast(new Ray(playerPosition, moveDirection), out var _, 1f) || c.ClosestPointOnBounds(playerPosition + moveDirection).sqrMagnitude < playerRadius * playerRadius);
+                if (obstructingCollider)
+                {
+                    obstructingStructure = structure;
+                    break;
+                }
+            }
+
+            if (obstructingStructure == null)
+            {
+                return;
+            }
+
+            var obstructingPosition = obstructingStructure.transform.position;
+            var obstructingForward = obstructingStructure.transform.forward;
+
+            var obstructingPlane = new Plane(obstructingForward, obstructingPosition);
+            var obstructingDepth = Mathf.Max(structureExtent + playerRadius - obstructingPlane.GetDistanceToPoint(playerPosition + moveDirection), 0f);
+
+            moveDirection = Vector3.Normalize(moveDirection + obstructingForward * obstructingDepth);
+            this.Move.DesiredLocalDirection = FpcRole.FpcModule.transform.InverseTransformDirection(moveDirection);
+        }
+
+        #endregion
+
         public void LookToPosition(Vector3 targetPosition)
         {
             var prevHorizontalRotation = Look.TargetHorizontalRotation;
@@ -122,6 +186,8 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             Move.DesiredLocalDirection = prevHorizontalRotation * Move.DesiredLocalDirection;
         }
+
+        #region Interaction
 
         public bool Interact(InteractableCollider interactableCollider)
         {
@@ -200,6 +266,8 @@ namespace SCPSLBot.AI.FirstPersonControl
             return false;
         }
 
+        #endregion
+
         #region Debug functions
 
         public void DumpMind()
@@ -266,7 +334,7 @@ namespace SCPSLBot.AI.FirstPersonControl
             debugStringBuilder.Append(' ', level*4);
 
             var actionTotalCost = MindRunner.VisitedActionsTotalCosts[actionImpacting];
-            if (MindRunner.RelevantActionsImpactingActions.ContainsKey(actionImpacting) && actionImpacting == MindRunner.RunningAction)
+            if (MindRunner.RelevantActionsImpactingActions.ContainsKey(actionImpacting) || actionImpacting == MindRunner.RunningAction)
             {
                 debugStringBuilder.AppendLine($"<color=yellow>{actionImpacting}</color> <b>[{actionTotalCost}]</b>");
             }

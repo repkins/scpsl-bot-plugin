@@ -124,7 +124,6 @@ namespace SCPSLBot.AI.FirstPersonControl
                     while (VisitedActionsImpactedBy.TryGetValue(actionImpacting, out var actionImpactedBy))
                     {
                         RelevantActionsImpactingActions[actionImpactedBy] = actionImpacting;
-
                         foreach (var visitedBelief in ActionsEnabledByBeliefs[actionImpacting].Where(VisitedActionsEnabledBy.ContainsKey))
                         {
                             RelevantBeliefs.Add(visitedBelief);
@@ -134,6 +133,10 @@ namespace SCPSLBot.AI.FirstPersonControl
                     }
 
                     RelevantActionsImpactingGoals[goal] = actionImpacting;
+                    foreach (var visitedBelief in ActionsEnabledByBeliefs[actionImpacting].Where(VisitedActionsEnabledBy.ContainsKey))
+                    {
+                        RelevantBeliefs.Add(visitedBelief);
+                    }
 
                     yield return enabledAction;
                     break;
