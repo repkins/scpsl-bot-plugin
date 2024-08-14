@@ -134,6 +134,9 @@ namespace SCPSLBot.AI.FirstPersonControl
             var playerPosition = this.PlayerPosition;
             var moveDirection = this.FpcRole.FpcModule.transform.TransformDirection(this.Move.DesiredLocalDirection);
             var playerRadius = this.BotHub.PlayerHub.GetComponent<CharacterController>().radius;
+            var playerHeight = this.BotHub.PlayerHub.GetComponent<CharacterController>().height;
+
+            var playerBottomPosition = playerPosition + Vector3.down * (playerHeight / 2f);
 
             var obstructingStructure = (SpawnableStructure)null;
             var structureExtent = 0f;
@@ -153,7 +156,9 @@ namespace SCPSLBot.AI.FirstPersonControl
 
                 structure.GetComponentsInChildren(spawnableStructureColliders);
 
-                var obstructingCollider = spawnableStructureColliders.Find(c => c.Raycast(new Ray(playerPosition, moveDirection), out var _, 1f) || c.ClosestPointOnBounds(playerPosition + moveDirection).sqrMagnitude < playerRadius * playerRadius);
+                var obstructingCollider = spawnableStructureColliders
+                    .Find(c => c.Raycast(new Ray(playerBottomPosition, moveDirection), out var _, 1f) 
+                        || ((playerBottomPosition + moveDirection) - c.ClosestPointOnBounds(playerBottomPosition + moveDirection)).sqrMagnitude < playerRadius * playerRadius);
                 if (obstructingCollider)
                 {
                     obstructingStructure = structure;
