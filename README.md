@@ -12,6 +12,7 @@ Adds goal-oriented AI controlled players to game server running on Unity Engine.
 
  - **Requires the following enviroment variables** set up:
    - `SL_REFERENCES`: directory where shipped server managed assemblies located of a game.
+   - `SL_APPDATA`: directory where application data is located of server.
  - References the following packages:
    - **Lib.Harmony** v2.2.2;
    - **Northwood.PluginAPI** v13.1.1.
