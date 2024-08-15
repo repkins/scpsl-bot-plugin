@@ -10,7 +10,7 @@ Adds goal-oriented AI controlled players to game server running on Unity Engine.
  - Introduced escaping the facility AI of human players with action graph set up to reach such goal on top on general action graph (opening doors, picking up items etc.)
 
 ![SCPSLBot visisted actions graph](https://github.com/user-attachments/assets/0e79be02-5586-4aa5-88ff-fec765bf8e18)
-*Action finder visited actions graph (in yellow - action path starting from found action to goal)*
+*Action finder visited actions debugging graph (in yellow - action path starting from found action to goal)*
 
 [Demo 1](https://www.youtube.com/watch?v=i-J-gKiVs8I), [Demo 2](https://www.youtube.com/watch?v=udBzcIiiYt4)
 
