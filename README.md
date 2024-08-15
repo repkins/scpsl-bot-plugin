@@ -9,6 +9,8 @@ Adds goal-oriented AI controlled players to game server running on Unity Engine.
  - Custom **mesh-based navigation system**, pathfinding algorithm based on A*, navigation mesh editor using primitives for navmesh visualization.
  - Introduced escaping the facility AI of human players with action graph set up to reach such goal on top on general action graph (opening doors, picking up items etc.)
 
+![scpslbot_visisted_action_graph](https://github.com/user-attachments/assets/19b5a327-be4c-48f6-ac61-2bbb27f04656)
+
 ## Project setup
 
  - **Requires the following enviroment variables** set up:
