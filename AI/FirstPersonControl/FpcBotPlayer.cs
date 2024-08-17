@@ -275,11 +275,6 @@ namespace SCPSLBot.AI.FirstPersonControl
 
         #region Debug functions
 
-        public void DumpMind()
-        {
-            MindRunner.Dump();
-        }
-
         private readonly StringBuilder debugStringBuilder = new();
         private int numLines;
         private int level;
@@ -317,9 +312,6 @@ namespace SCPSLBot.AI.FirstPersonControl
         private void ShowVisitedGoalBelief(IBelief goalBelief, IGoal goal)
         {
             level++;
-            //debugStringBuilder.Append(' ', level*2);
-            //debugStringBuilder.AppendLine($"{goalBelief}");
-            //numLines++;
 
             foreach (var actionImpacting in MindRunner.ActionsImpactingBeliefs[goalBelief])
             {
@@ -351,13 +343,6 @@ namespace SCPSLBot.AI.FirstPersonControl
 
             foreach (var beliefEnabling in MindRunner.BeliefsEnablingActions[actionImpacting])
             {
-                //if (MindRunner.RelevantBeliefs.Contains(beliefEnabling) && MindRunner.VisitedActionsEnabledBy[beliefEnabling] == actionImpacting)
-                //{
-                //    debugStringBuilder.Append(' ', level*4+1);
-                //    debugStringBuilder.AppendLine($"<color=orange>{beliefEnabling}</color>");
-                //    numLines++;
-                //}
-
                 ShowVisitedActionsOfBelief(beliefEnabling, actionImpacting);
             }
 
@@ -426,14 +411,6 @@ namespace SCPSLBot.AI.FirstPersonControl
 
                 playersHintTexts[spectatingHub] = message;
             }
-        }
-
-        public IEnumerator<float> MoveToFpcAsync(Vector3 localDirection, int timeAmount) => Move.ToFpcAsync(localDirection, timeAmount);
-        public IEnumerator<float> LookByFpcAsync(Vector3 degreesStep, Vector3 targetDegrees) => Look.ByFpcAsync(degreesStep, targetDegrees);
-
-        public IEnumerator<float> FindAndApproachFpcAsync()
-        {
-            yield break;
         }
 
         #endregion

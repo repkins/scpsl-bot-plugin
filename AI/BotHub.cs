@@ -32,36 +32,6 @@ namespace SCPSLBot.AI
             FpcPlayer = new FpcBotPlayer(this);
         }
 
-        public IEnumerator<float> MoveAsync(Vector3 direction, int timeAmount)
-        {
-            if (CurrentBotPlayer is FpcBotPlayer fpcPlayer)
-            {
-                return fpcPlayer.MoveToFpcAsync(direction, timeAmount);
-            }
-
-            throw new InvalidOperationException("Unsupported current role on bot move.");
-        }
-
-        public IEnumerator<float> TurnAsync(Vector3 degrees, Vector3 targetDegrees)
-        {
-            if (CurrentBotPlayer is FpcBotPlayer fpcPlayer)
-            {
-                return fpcPlayer.LookByFpcAsync(degrees, targetDegrees);
-            }
-
-            throw new InvalidOperationException("Unsupported current role on bot turn.");
-        }
-
-        public IEnumerator<float> ApproachAsync()
-        {
-            if (CurrentBotPlayer is FpcBotPlayer fpcPlayer)
-            {
-                return fpcPlayer.FindAndApproachFpcAsync();
-            }
-
-            throw new InvalidOperationException("Unsupported current role on bot turn.");
-        }
-
         public IEnumerator<JobHandle> Update()
         {
             Profiler.BeginSample($"{nameof(BotHub)}.{nameof(Update)}");
@@ -97,11 +67,6 @@ namespace SCPSLBot.AI
 
             Log.Info($"Bot got new role assigned. Role Id: {newRole.RoleTypeId}");
             Log.Debug($"Type of role: {newRole.GetType()}");
-        }
-
-        internal void MindDump()
-        {
-            CurrentBotPlayer?.DumpMind();
         }
 
         public override string ToString()

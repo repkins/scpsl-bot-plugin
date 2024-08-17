@@ -46,35 +46,6 @@ namespace SCPSLBot.AI.FirstPersonControl
             Profiler.EndSample();
         }
 
-        internal void Dump()
-        {
-            var allGoals = BeliefsEnablingGoals.Keys;
-            foreach (var desire in allGoals)
-            {
-                Log.Debug($"Goal: {desire.GetType().Name}");
-
-                var desireEnablingBeliefs = BeliefsEnablingGoals[desire];
-                DumpBeliefsActions(desireEnablingBeliefs, "  ");
-            }
-        }
-
-        private void DumpBeliefsActions(IEnumerable<IBelief> beliefs, string prefix)
-        {
-            foreach (var enablingBelief in beliefs)
-            {
-                Log.Debug($"{prefix}Belief: {enablingBelief}");
-
-                var Actions = ActionsImpactingBeliefs[enablingBelief];
-                foreach (var Action in Actions)
-                {
-                    Log.Debug($"{prefix}  Action: {Action}");
-
-                    var enablingBeliefs = BeliefsEnablingActions[Action];
-                    DumpBeliefsActions(enablingBeliefs, $"{prefix}    ");
-                }
-            }
-        }
-
         private void OnBeliefUpdate(IBelief updatedBelief)
         {
             if (!RelevantBeliefs.Contains(updatedBelief))
