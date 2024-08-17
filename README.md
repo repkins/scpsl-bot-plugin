@@ -4,7 +4,7 @@ Adds goal-oriented AI controlled players to game server running on Unity Engine.
 
 ## Overview
 
- - GOAP inspired **AI framework featuring strongly-typed states persistance** (contained in belief classes), actions traversal from goal to find conditions-fulfilling action with least total cost using pathfinding algorithm and running it (mind runner class).
+ - GOAP inspired **AI framework featuring strongly-typed states persistance** (contained in belief classes), actions traversal from goal to find conditions-fulfilling (aka enabled) action with least total cost using pathfinding algorithm and running it (mind runner class).
  - Multithreaded perception system using **Unity Jobs System**.
  - Custom **mesh-based navigation system**, pathfinding algorithm based on A*, navigation mesh editor using primitives for navmesh visualization.
  - Introduced escaping the facility AI of human players with action graph set up to reach such goal on top on general action graph (opening doors, picking up items etc.)
