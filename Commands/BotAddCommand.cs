@@ -22,10 +22,5 @@ namespace TestPlugin.Commands
             response = "Done.";
             return true;
         }
-
-        private void LogInMessage(NetworkDiagnostics.MessageInfo obj)
-        {
-            Log.Info(obj.ToString());
-        }
     }
 }
